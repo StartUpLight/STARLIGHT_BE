@@ -14,9 +14,8 @@ java {
 	}
 }
 
-// (1)
 processResources.dependsOn('copySecret')
-// (2)
+
 tasks.register('copySecret', Copy) {
 	from './config/resources/'
 	include "application*.yml"
