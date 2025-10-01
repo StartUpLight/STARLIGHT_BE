@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StarLight API Server</title>
+    <meta name="color-scheme" content="dark light" />
+    <style>
+        :root{
+            --bg0:#050612; --bg1:#0a0f1f; --bg2:#0f1a34;
+            --txt:#e6e9ef; --muted:#94a3b8;
+            --brand:#7c3aed; --brand2:#22d3ee; --brand3:#f472b6;
+            --glass: rgba(255,255,255,.06);
+            --border: rgba(255,255,255,.14);
+            --shadow: 0 24px 60px rgba(0,0,0,.55);
+            --ring: rgba(124,58,237,.35);
+        }
+        @media (prefers-color-scheme: light){
+            :root{
+                --bg0:#eaf1ff; --bg1:#eef2ff; --bg2:#e5e7ff;
+                --txt:#0b1223; --muted:#475569;
+                --glass: rgba(255,255,255,.7);
+                --border: rgba(2,6,23,.1);
+                --shadow: 0 18px 46px rgba(2,6,23,.18);
+                --ring: rgba(79,70,229,.25);
+            }
+        }
+
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0; color:var(--txt);
+            font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Apple SD Gothic Neo, Apple Color Emoji, Noto Color Emoji, Arial, Helvetica, sans-serif;
+            background:
+                    radial-gradient(1200px 600px at 15% -20%, #1d2a6f 0%, transparent 60%),
+                    radial-gradient(1200px 600px at 110% 10%, #0c3c66 0%, transparent 60%),
+                    linear-gradient(180deg, var(--bg1), var(--bg0));
+            overflow:hidden;
+        }
+
+        /* ==== Starfield ==== */
+        #sky{position:fixed; inset:0; z-index:-2; display:block}
+        .noise{position:fixed; inset:-50px; z-index:-1; pointer-events:none;
+            background: url('data:image/svg+xml;utf8,\
+        <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">\
+          <filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter>\
+          <rect width="150" height="150" filter="url(%23n)" opacity=".05"/>\
+        </svg>') repeat;
+            mix-blend-mode: overlay; opacity:.35; }
+
+        /* ==== Layout / Card ==== */
+        .wrap{position:relative; width:min(1100px, 95vw); margin:6vh auto 0; padding-bottom:8vh}
+        .hero{
+            position:relative;
+            padding:48px clamp(20px, 4vw, 56px);
+            border-radius:28px;
+            background: var(--glass);
+            border:1px solid var(--border);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px) saturate(120%);
+            isolation:isolate; overflow:hidden;
+            will-change: transform, box-shadow;
+            transition: transform .15s ease, box-shadow .15s ease; /* ← 틸트 부드럽게 */
+        }
+
+        /* 장식 블롭(느린 움직임) */
+        .blob, .blob2{
+            position:absolute; filter: blur(40px);
+            opacity:.35; pointer-events:none;
+            background: radial-gradient(circle at 30% 30%, var(--brand), transparent 55%),
+            radial-gradient(circle at 70% 70%, var(--brand2), transparent 55%);
+            width:420px; height:420px; border-radius:50%;
+            top:-120px; right:-100px; mix-blend-mode:screen;
+            animation: float 16s ease-in-out infinite alternate;
+        }
+        .blob2{ left:-120px; bottom:-140px; width:500px; height:500px; animation-duration:18s }
+        @keyframes float{ to{ transform: translateY(30px) translateX(-20px) rotate(8deg)} }
+
+        .title{
+            display:flex; align-items:center; gap:16px; margin:0 0 8px 0;
+            font-size: clamp(30px, 5vw, 46px); letter-spacing:-.02em; line-height:1.08;
+            text-shadow: 0 6px 24px rgba(124,58,237,.35);
+        }
+        .logo{
+            width:48px; height:48px; flex:none; display:grid; place-items:center; border-radius:14px;
+            background:linear-gradient(135deg, #ffffff22, #ffffff00);
+            outline:1px solid var(--border);
+            box-shadow: inset 0 0 24px #ffffff18, 0 10px 32px rgba(124,58,237,.18);
+        }
+        .logo svg{ width:28px; height:28px }
+        .sub{ margin:0; color:var(--muted); font-size:clamp(14px,1.7vw,18px) }
+
+        .cta{ display:flex; flex-wrap:wrap; gap:12px; margin-top:26px }
+        .btn{
+            --g: linear-gradient(135deg, var(--brand), var(--brand2));
+            padding:12px 18px; border-radius:14px; font-weight:700; font-size:15px;
+            color:#fff; text-decoration:none; position:relative; isolation:isolate;
+            background: var(--g); box-shadow:0 16px 36px rgba(124,58,237,.35);
+            transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+        }
+        .btn:hover{ transform: translateY(-1.5px); filter:saturate(110%); box-shadow:0 22px 44px rgba(124,58,237,.45) }
+        .btn.sec{
+            color:var(--txt); background: transparent; border:1px solid var(--border);
+            box-shadow:none; font-weight:600;
+        }
+        .badge{
+            display:inline-flex; align-items:center; gap:8px;
+            padding:6px 10px; border-radius:999px; font-size:13px; font-weight:700;
+            background: #ffffff10; border:1px solid var(--border);
+            margin-left:auto;
+        }
+        .dot{ width:10px; height:10px; border-radius:50% }
+        .ok{ background:#22c55e } .warn{ background:#f59e0b } .bad{ background:#ef4444 }
+
+        .grid{ margin-top:30px; display:grid; gap:16px; grid-template-columns: repeat(12, 1fr) }
+        .card{ grid-column: span 12; padding:18px 18px; border-radius:16px;
+            border:1px solid var(--border); background: rgba(255,255,255,.05); backdrop-filter: blur(6px) saturate(120%); }
+        @media (min-width: 900px){ .span8{ grid-column: span 8 } .span4{ grid-column: span 4 } }
+        .card h3{ margin:0 0 10px 0; font-size:16px; letter-spacing:.02em }
+        .row{ display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center }
+        .kv{ color:var(--muted); font-size:14px; display:flex; gap:6px; align-items:center }
+        .kv strong{ color:var(--txt) }
+        .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace }
+
+        .links{ display:grid; gap:10px }
+        .link{
+            display:flex; align-items:center; justify-content:space-between;
+            padding:10px 12px; border-radius:12px; text-decoration:none; color:inherit;
+            border:1px solid var(--border); background:rgba(255,255,255,.06);
+            transition: transform .12s ease, background .12s ease;
+        }
+        .link:hover{ background:rgba(255,255,255,.12); transform: translateY(-1px) }
+
+        .code{ display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+        .clip{ cursor:pointer; border:none; background:transparent; color:var(--muted); font-weight:700 }
+        footer{ margin-top:16px; text-align:right; color:var(--muted); font-size:12px }
+
+        @media (prefers-reduced-motion: reduce){
+            .blob, .blob2{ animation:none }
+        }
+    </style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+<div class="noise"></div>
+
+<div class="wrap">
+    <section class="hero" id="card">
+        <div class="blob"></div><div class="blob2"></div>
+
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
+            <h1 class="title">
+          <span class="logo" aria-hidden="true">
+            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs>
+              <path fill="url(#g)" d="M32 4l7 14 15.5 2.3L43.3 31.2l2.6 15.4L32 39.3 18.1 46.6l2.6-15.4L9.5 20.3 25 18l7-14z"/>
+            </svg>
+          </span>
+                StarLight API Server
+            </h1>
+
+            <span class="badge" id="env-badge"><span class="dot warn" id="health-dot"></span><span id="health-text">Checking…</span></span>
+        </div>
+        <p class="sub">스타트업 생태계를 밝히는 StarLight의 API 허브. Swagger 문서와 헬스/인포를 한눈에.</p>
+
+        <div class="cta">
+            <a class="btn" href="/swagger-ui/index.html">Open API Docs</a>
+            <a class="btn sec" href="/v3/api-docs">OpenAPI JSON</a>
+            <a class="btn sec" href="/actuator/health">Health</a>
+            <a class="btn sec" href="/h2-console" title="개발 환경에서만">H2 Console</a>
+        </div>
+
+        <div class="grid">
+            <div class="card span8">
+                <h3>실시간 상태</h3>
+                <div class="row">
+                    <span class="kv">응답시간 <strong id="latency">–</strong>ms</span>
+                    <span class="kv">서버시간 <strong id="servertime" class="mono">--:--:--</strong></span>
+                    <span class="kv">Spring Boot <strong id="boot" class="mono">3.4.9</strong></span>
+                    <span class="kv">Java <strong id="java" class="mono">21+</strong></span>
+                    <span class="kv">Profiles <strong id="profiles" class="mono">default</strong></span>
+                    <span class="kv">Build <strong id="build" class="mono">—</strong></span>
+                </div>
+            </div>
+
+            <div class="card span4">
+                <h3>빠른 링크</h3>
+                <div class="links">
+                    <a class="link" href="/swagger-ui/index.html"><span>Swagger-UI</span><span class="mono">/swagger-ui</span></a>
+                    <a class="link" href="/v3/api-docs"><span>OpenAPI JSON</span><span class="mono">/v3/api-docs</span></a>
+                    <a class="link" href="/actuator"><span>Actuator Index</span><span class="mono">/actuator</span></a>
+                </div>
+            </div>
+
+            <div class="card span12">
+                <h3>cURL 한 줄 테스트</h3>
+                <div class="code">
+                    <code class="mono" id="curl">curl -s http://localhost:8080/actuator/health | jq</code>
+                    <button class="clip" id="copy">복사</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>© <span id="year"></span> StarLight · All systems go.</footer>
+    </section>
+</div>
+
+<script>
+    /* ==== Starfield: 큰 별 + 글로우/트윙클 ==== */
+    (function(){
+        const c=document.getElementById('sky'), x=c.getContext('2d');
+        let w,h,stars=[];
+        function resize(){ w= c.width = window.innerWidth; h= c.height = window.innerHeight; }
+        function init(){
+            const baseCount = Math.floor((w*h)/8000);
+            stars = Array.from({length: Math.min(500, baseCount)}, () => ({
+                x: Math.random()*w,
+                y: Math.random()*h,
+                z: Math.random()*1+0.5,
+                r: Math.random()*2.2 + 0.6,
+                a: Math.random()*0.6+0.3,
+                v: Math.random()*0.25+0.06,
+                tw: Math.random()*2*Math.PI,
+                tws: 0.01 + Math.random()*0.02
+            }));
+        }
+        function drawStar(s){
+            x.globalAlpha = s.a*0.25; x.fillStyle="#fff";
+            x.beginPath(); x.arc(s.x,s.y,s.r*2.2,0,6.28); x.fill();
+            const twinkle = 0.6 + 0.4*Math.sin(s.tw);
+            x.globalAlpha = s.a*twinkle; x.beginPath(); x.arc(s.x,s.y,s.r,0,6.28); x.fill();
+            s.tw += s.tws;
+        }
+        function tick(){
+            x.clearRect(0,0,w,h);
+            for(const s of stars){
+                s.y += s.v*s.z; if(s.y>h+4) s.y= -4, s.x=Math.random()*w;
+                drawStar(s);
+            }
+            requestAnimationFrame(tick);
+        }
+        resize(); init(); tick();
+        window.addEventListener('resize', ()=>{resize(); init()});
+    })();
+
+    /* ==== 기본 정보 ==== */
+    const $ = (id)=>document.getElementById(id);
+    $('year').textContent = new Date().getFullYear();
+    setInterval(()=> $('servertime').textContent =
+        new Date().toLocaleTimeString([], {hour12:false}), 1000);
+
+    $('copy').addEventListener('click', ()=>{
+        navigator.clipboard.writeText($('curl').textContent);
+        $('copy').textContent='복사됨!';
+        setTimeout(()=>$('copy').textContent='복사', 1100);
+    });
+
+    /* ==== Hover Tilt (마우스 올릴 때만, 모바일/저사양 배려) ==== */
+    (function(){
+        const card = $('card');
+        const isTouch = matchMedia('(pointer: coarse)').matches;
+        const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (isTouch || prefersReduced) return; // 터치/저사양에서 비활성
+
+        let raf;
+        function onMove(e){
+            const b = card.getBoundingClientRect();
+            const px = (e.clientX - b.left)/b.width - .5;  // -0.5 ~ 0.5
+            const py = (e.clientY - b.top)/b.height - .5;
+            cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(()=>{
+                // 각도 살짝만 (자연스러운 범위)
+                const rx = -py * 3;   // 위/아래
+                const ry =  px * 3;   // 좌/우
+                card.style.transform = `perspective(1200px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(0)`;
+                card.style.boxShadow = `0 40px 80px rgba(0,0,0,.45), 0 0 0 1px var(--ring)`;
+            });
+        }
+        function reset(){
+            cancelAnimationFrame(raf);
+            card.style.transform = '';
+            card.style.boxShadow = 'var(--shadow)';
+        }
+        card.addEventListener('mousemove', onMove);
+        card.addEventListener('mouseleave', reset);
+    })();
+
+    /* ==== Actuator Meta (권한 없으면 조용히 실패) ==== */
+    async function pingHealth(){
+        const t0 = performance.now();
+        try{
+            const res = await fetch('/actuator/health');
+            const t1 = performance.now();
+            $('latency').textContent = Math.max(1, Math.round(t1 - t0));
+            const dot = $('health-dot'), txt = $('health-text');
+            if(res.ok){
+                const data = await res.json();
+                txt.textContent = data.status || 'UNKNOWN';
+                dot.className = 'dot ' + ((data.status||'').toLowerCase()==='up' ? 'ok' : 'warn');
+            }else{
+                txt.textContent = '권한 필요'; dot.className = 'dot warn';
+            }
+        }catch(e){
+            $('health-text').textContent = '연결 실패'; $('health-dot').className = 'dot bad';
+        }
+    }
+    async function loadActuatorMeta(){
+        try{
+            const info = await fetch('/actuator/info');
+            if(info.ok){
+                const j = await info.json();
+                if(j?.app?.version) $('build').textContent = j.app.version;
+                if(j?.java) $('java').textContent = j.java;
+            }
+        }catch(e){}
+        try{
+            const idx = await fetch('/actuator');
+            if(idx.ok){
+                const j = await idx.json();
+                const link = j?._links?.['env:activeProfiles']?.href;
+                if(link){
+                    const p = await fetch(link);
+                    if(p.ok){
+                        const arr = await p.json();
+                        if(Array.isArray(arr) && arr.length) $('profiles').textContent = arr.join(', ');
+                    }
+                }
+            }
+        }catch(e){}
+    }
+    pingHealth(); loadActuatorMeta();
+    setInterval(pingHealth, 10000);
+</script>
+</body>
+</html>
