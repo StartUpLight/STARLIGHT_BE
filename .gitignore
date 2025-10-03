@@ -36,10 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 
-src/main/resources/application.properties
-src/main/resources/application-dev.properties
-src/main/resources/application-stage.properties
-src/main/resources/application-prod.properties
 .env
 .DS_Store
 *.p8
@@ -50,4 +46,4 @@ node_modules/
 dist/
 *.log
 
-deploy/docker-compose.yaml
+src/main/resources/*.yaml
