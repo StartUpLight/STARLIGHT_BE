@@ -1,7 +1,7 @@
 package starlight.domain.member.exception;
 
-import starlight.global.apiPayload.exception.ErrorType;
-import starlight.global.apiPayload.exception.GlobalException;
+import starlight.shared.apiPayload.exception.ErrorType;
+import starlight.shared.apiPayload.exception.GlobalException;
 
 public class MemberException extends GlobalException {
 

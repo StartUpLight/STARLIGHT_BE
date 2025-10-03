@@ -42,10 +42,10 @@
         #sky{position:fixed; inset:0; z-index:-2; display:block}
         .noise{position:fixed; inset:-50px; z-index:-1; pointer-events:none;
             background: url('data:image/svg+xml;utf8,\
-        <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">\
-          <filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter>\
-          <rect width="150" height="150" filter="url(%23n)" opacity=".05"/>\
-        </svg>') repeat;
+      <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">\
+        <filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter>\
+        <rect width="150" height="150" filter="url(%23n)" opacity=".05"/>\
+      </svg>') repeat;
             mix-blend-mode: overlay; opacity:.35; }
 
         /* ==== Layout / Card ==== */
@@ -60,7 +60,7 @@
             backdrop-filter: blur(10px) saturate(120%);
             isolation:isolate; overflow:hidden;
             will-change: transform, box-shadow;
-            transition: transform .15s ease, box-shadow .15s ease; /* ← 틸트 부드럽게 */
+            transition: transform .15s ease, box-shadow .15s ease;
         }
 
         /* 장식 블롭(느린 움직임) */
@@ -150,13 +150,13 @@
 
         <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
             <h1 class="title">
-          <span class="logo" aria-hidden="true">
-            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-              <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs>
-              <path fill="url(#g)" d="M32 4l7 14 15.5 2.3L43.3 31.2l2.6 15.4L32 39.3 18.1 46.6l2.6-15.4L9.5 20.3 25 18l7-14z"/>
-            </svg>
-          </span>
+        <span class="logo" aria-hidden="true">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs>
+            <path fill="url(#g)" d="M32 4l7 14 15.5 2.3L43.3 31.2l2.6 15.4L32 39.3 18.1 46.6l2.6-15.4L9.5 20.3 25 18l7-14z"/>
+          </svg>
+        </span>
                 StarLight API Server
             </h1>
 
@@ -168,6 +168,7 @@
             <a class="btn" href="/swagger-ui/index.html">Open API Docs</a>
             <a class="btn sec" href="/v3/api-docs">OpenAPI JSON</a>
             <a class="btn sec" href="/actuator/health">Health</a>
+            <a class="btn" href="/ops.html">Ops Dashboard</a>
             <a class="btn sec" href="/h2-console" title="개발 환경에서만">H2 Console</a>
         </div>
 
@@ -177,8 +178,9 @@
                 <div class="row">
                     <span class="kv">응답시간 <strong id="latency">–</strong>ms</span>
                     <span class="kv">서버시간 <strong id="servertime" class="mono">--:--:--</strong></span>
-                    <span class="kv">Spring Boot <strong id="boot" class="mono">3.4.9</strong></span>
-                    <span class="kv">Java <strong id="java" class="mono">21+</strong></span>
+                    <!-- 하드코딩 제거: 처음엔 대시로 두고 JS가 채움 -->
+                    <span class="kv">Spring Boot <strong id="boot" class="mono">—</strong></span>
+                    <span class="kv">Java <strong id="java" class="mono">—</strong></span>
                     <span class="kv">Profiles <strong id="profiles" class="mono">default</strong></span>
                     <span class="kv">Build <strong id="build" class="mono">—</strong></span>
                 </div>
@@ -190,6 +192,7 @@
                     <a class="link" href="/swagger-ui/index.html"><span>Swagger-UI</span><span class="mono">/swagger-ui</span></a>
                     <a class="link" href="/v3/api-docs"><span>OpenAPI JSON</span><span class="mono">/v3/api-docs</span></a>
                     <a class="link" href="/actuator"><span>Actuator Index</span><span class="mono">/actuator</span></a>
+                    <a class="link" href="/ops.html"><span>Ops Dashboard</span><span class="mono">/ops.html</span></a>
                 </div>
             </div>
 
@@ -207,7 +210,7 @@
 </div>
 
 <script>
-    /* ==== Starfield: 큰 별 + 글로우/트윙클 ==== */
+    /* ==== Starfield ==== */
     (function(){
         const c=document.getElementById('sky'), x=c.getContext('2d');
         let w,h,stars=[];
@@ -215,14 +218,9 @@
         function init(){
             const baseCount = Math.floor((w*h)/8000);
             stars = Array.from({length: Math.min(500, baseCount)}, () => ({
-                x: Math.random()*w,
-                y: Math.random()*h,
-                z: Math.random()*1+0.5,
-                r: Math.random()*2.2 + 0.6,
-                a: Math.random()*0.6+0.3,
-                v: Math.random()*0.25+0.06,
-                tw: Math.random()*2*Math.PI,
-                tws: 0.01 + Math.random()*0.02
+                x: Math.random()*w, y: Math.random()*h, z: Math.random()*1+0.5,
+                r: Math.random()*2.2 + 0.6, a: Math.random()*0.6+0.3,
+                v: Math.random()*0.25+0.06, tw: Math.random()*2*Math.PI, tws: 0.01 + Math.random()*0.02
             }));
         }
         function drawStar(s){
@@ -256,23 +254,21 @@
         setTimeout(()=>$('copy').textContent='복사', 1100);
     });
 
-    /* ==== Hover Tilt (마우스 올릴 때만, 모바일/저사양 배려) ==== */
+    /* ==== Hover Tilt ==== */
     (function(){
         const card = $('card');
         const isTouch = matchMedia('(pointer: coarse)').matches;
         const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (isTouch || prefersReduced) return; // 터치/저사양에서 비활성
-
+        if (isTouch || prefersReduced) return;
         let raf;
         function onMove(e){
             const b = card.getBoundingClientRect();
-            const px = (e.clientX - b.left)/b.width - .5;  // -0.5 ~ 0.5
+            const px = (e.clientX - b.left)/b.width - .5;
             const py = (e.clientY - b.top)/b.height - .5;
             cancelAnimationFrame(raf);
             raf = requestAnimationFrame(()=>{
-                // 각도 살짝만 (자연스러운 범위)
-                const rx = -py * 3;   // 위/아래
-                const ry =  px * 3;   // 좌/우
+                const rx = -py * 3;
+                const ry =  px * 3;
                 card.style.transform = `perspective(1200px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(0)`;
                 card.style.boxShadow = `0 40px 80px rgba(0,0,0,.45), 0 0 0 1px var(--ring)`;
             });
@@ -286,7 +282,7 @@
         card.addEventListener('mouseleave', reset);
     })();
 
-    /* ==== Actuator Meta (권한 없으면 조용히 실패) ==== */
+    /* ==== Actuator Meta ==== */
     async function pingHealth(){
         const t0 = performance.now();
         try{
@@ -296,8 +292,9 @@
             const dot = $('health-dot'), txt = $('health-text');
             if(res.ok){
                 const data = await res.json();
+                const up = (data.status||'').toUpperCase() === 'UP';
                 txt.textContent = data.status || 'UNKNOWN';
-                dot.className = 'dot ' + ((data.status||'').toLowerCase()==='up' ? 'ok' : 'warn');
+                dot.className = 'dot ' + (up ? 'ok' : 'warn');
             }else{
                 txt.textContent = '권한 필요'; dot.className = 'dot warn';
             }
@@ -305,31 +302,45 @@
             $('health-text').textContent = '연결 실패'; $('health-dot').className = 'dot bad';
         }
     }
+
     async function loadActuatorMeta(){
+        // 1) /actuator/info 로부터 build/java/springBoot 수집
         try{
             const info = await fetch('/actuator/info');
             if(info.ok){
                 const j = await info.json();
-                if(j?.app?.version) $('build').textContent = j.app.version;
-                if(j?.java) $('java').textContent = j.java;
-            }
-        }catch(e){}
-        try{
-            const idx = await fetch('/actuator');
-            if(idx.ok){
-                const j = await idx.json();
-                const link = j?._links?.['env:activeProfiles']?.href;
-                if(link){
-                    const p = await fetch(link);
-                    if(p.ok){
-                        const arr = await p.json();
-                        if(Array.isArray(arr) && arr.length) $('profiles').textContent = arr.join(', ');
-                    }
+
+                // Build: build.version -> app.version -> —
+                const buildVer = j?.build?.version ?? j?.app?.version ?? '—';
+                $('build').textContent = buildVer;
+
+                // Java: 문자열이면 그대로, 객체면 version 필드
+                const javaVer =
+                    (typeof j?.java === 'string') ? j.java :
+                        (j?.java?.version ?? '—');
+                $('java').textContent = javaVer;
+
+                // Spring Boot: InfoContributor에서 넣어준 값 사용 (없으면 유지)
+                if (j?.springBoot) {
+                    $('boot').textContent = j.springBoot;
                 }
             }
-        }catch(e){}
+        }catch(e){ /* no-op */ }
+
+        // 2) active profiles: 전용 엔드포인트로 바로 조회
+        try{
+            const p = await fetch('/actuator/env/activeProfiles');
+            if (p.ok){
+                const arr = await p.json();
+                if (Array.isArray(arr) && arr.length){
+                    $('profiles').textContent = arr.join(', ');
+                }
+            }
+        }catch(e){ /* no-op */ }
     }
-    pingHealth(); loadActuatorMeta();
+
+    pingHealth();
+    loadActuatorMeta();
     setInterval(pingHealth, 10000);
 </script>
 </body>
