@@ -1,0 +1,109 @@
+language: "ko-KR"
+early_access: false
+tone_instructions: |
+  당신은 '예비 / 초기 창업가를 위한 사업계획서 플랫폼 StarLight'의 도메인 전문가 겸 코드 리뷰어입니다. 
+  1. 피드백은 명확하고 구체적이어야 하며, 문제의 원인과 개선 방법을 반드시 제시하세요.
+  2. 리뷰는 교육적이어야 하며, 관련 개념이나 공식 문서를 함께 추천하세요.
+  3. 비판보다는 개선 중심의 제안을 우선하세요.
+  4. 칭찬은 짧고 위트 있게 작성하세요.
+  목표는 StarLight 벡엔드 개발자들이 Spring Boot/Java 21 기반으로 헥사고날 아키텍처를 통해서 API 서버를 개발하는데, 코드 품질을 개선하며 기능구현을 하도록 돕는 것입니다.
+  1. 팀 및 공식 컨벤션(개발가이드.md), 가독성, 예외처리, 테스트/확장/유지보수성, 모듈화, API/DB/보안 설계 기준을 기반으로 리뷰해주세요.
+  2. 헥사고날 아키텍처, 객체지향, 최신 트렌드, 불필요한 로직, 클린코드, 리팩토링, 서비스/도메인 설계, 공통 예외 처리, 확장성도 함께 확인해주세요.
+  3. 각 리뷰 포인트별로 문제점과 대안, 장단점을 논리적으로 제시하고, 필요한 경우 예시 코드도 추가해 주세요.
+  4. 불필요한 리뷰는 요약 캡션으로 제시해주세요.
+  5. 리뷰 남겨주는 부분은 해당 라인 범위의 코멘트에 작성해주세요.
+  6. 미작성한 테스트 코드 케이스가 있다면, 어떤 테스트가 필요한지 제안해주세요. (예: API 테스트, Service 단위 테스트, Repository 단위 테스트)
+
+---
+
+reviews:
+  ## 리뷰 스타일
+  profile: chill
+
+  ## 시 생성 비활성화
+  poem: false
+
+  ## 자동으로 “Changes requested” 상태로 바꾸지 않음
+  request_changes_workflow: false
+
+  ## 상단에 리뷰 요약을 자동 삽입하도록 설정
+  high_level_summary: true
+
+  ## 리뷰 요약이 들어갈 PR 본문 내 플레이스홀더 지정
+  high_level_summary_placeholder: "@coderabbit summary"
+
+  ## 자동 추천 리뷰어 기능 비활성화
+  suggested_reviewers: false
+
+  ## 코드의 시퀀스 다이어그램
+  sequence_diagrams: true
+
+  ## 자동 리뷰 기능 설정
+  auto_review:
+    ## PR이 생성될 때 자동으로 리뷰 수행
+    enabled: true
+
+    ## 변경된 부분만 재리뷰
+    auto_incremental_review: true
+
+    ## PR 제목에 아래 키워드가 포함되면 리뷰 제외
+    ignore_title_keywords: [
+      "Docs",
+      "Merge branch",
+      "Revert"
+    ]
+
+---
+
+## 코드 리뷰 시 참조할 지식 베이스 설정
+knowledge_base:
+  ## 웹 검색을 통한 외부 자료 참조 허용
+  web_search:
+    enabled: true
+
+  ## 프로젝트 내부 문서를 기반으로 리뷰
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - 개발가이드.md
+      - 도메인모델.md
+      - 용어사전.md
+
+---
+
+## 정적 분석 / 린트 도구
+tools:
+  ## Java 코드 정적 분석 (PMD)
+  pmd:
+    enabled: true
+    target: "src/main/java"  ## 분석 대상 경로 명시
+
+  ## SQL 문법 검사
+  sqlfluff:
+    enabled: true
+
+  ## 보안 취약점 검사 도구
+  gitleaks:
+    enabled: true
+
+  ## 코드 패턴 기반 취약점 탐지
+  semgrep:
+    enabled: true
+
+  ## GitHub Actions 워크플로우 YAML 문법 검사
+  actionlint:
+    enabled: true
+
+  ## Dockerfile 린트 검사
+  hadolint:
+    enabled: true
+
+  ## YAML 전체 문법 검사
+  yamllint:
+    enabled: true
+
+---
+
+## ChatGPT 스타일의 대화형 응답을 자동으로 활성화
+chat:
+  auto_reply: true
