@@ -3,7 +3,7 @@
 [![Java](https://img.shields.io/badge/Java-21-ED8B00?style=flat-square&logo=openjdk&logoColor=white)](https://openjdk.java.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.9-6DB33F?style=flat-square&logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
 
-> **Conik 서비스 백엔드 API 서버**
+> **STARLIGHT 서비스 백엔드 API 서버**
 
 ## 🎯 프로젝트 소개
 
