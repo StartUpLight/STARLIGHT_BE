@@ -14,8 +14,6 @@ tone_instructions: |
   5. 리뷰 남겨주는 부분은 해당 라인 범위의 코멘트에 작성해주세요.
   6. 미작성한 테스트 코드 케이스가 있다면, 어떤 테스트가 필요한지 제안해주세요. (예: API 테스트, Service 단위 테스트, Repository 단위 테스트)
 
----
-
 reviews:
   ## 리뷰 스타일
   profile: chill
@@ -53,8 +51,6 @@ reviews:
       "Revert"
     ]
 
----
-
 ## 코드 리뷰 시 참조할 지식 베이스 설정
 knowledge_base:
   ## 웹 검색을 통한 외부 자료 참조 허용
@@ -68,8 +64,6 @@ knowledge_base:
       - 개발가이드.md
       - 도메인모델.md
       - 용어사전.md
-
----
 
 ## 정적 분석 / 린트 도구
 tools:
@@ -101,8 +95,6 @@ tools:
   ## YAML 전체 문법 검사
   yamllint:
     enabled: true
-
----
 
 ## ChatGPT 스타일의 대화형 응답을 자동으로 활성화
 chat:
