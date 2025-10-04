@@ -1,13 +1,13 @@
-package starlight.global.apiPayload;
+package starlight.shared.apiPayload;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import starlight.global.apiPayload.exception.GlobalErrorType;
-import starlight.global.apiPayload.exception.GlobalException;
-import starlight.global.apiPayload.response.ApiResponse;
+import starlight.shared.apiPayload.exception.GlobalErrorType;
+import starlight.shared.apiPayload.exception.GlobalException;
+import starlight.shared.apiPayload.response.ApiResponse;
 
 @Slf4j
 @RestControllerAdvice

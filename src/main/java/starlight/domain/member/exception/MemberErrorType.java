@@ -3,7 +3,7 @@ package starlight.domain.member.exception;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import starlight.global.apiPayload.exception.ErrorType;
+import starlight.shared.apiPayload.exception.ErrorType;
 
 @Getter
 @RequiredArgsConstructor

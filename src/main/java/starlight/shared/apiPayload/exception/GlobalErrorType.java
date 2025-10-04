@@ -1,4 +1,4 @@
-package starlight.global.apiPayload.exception;
+package starlight.shared.apiPayload.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

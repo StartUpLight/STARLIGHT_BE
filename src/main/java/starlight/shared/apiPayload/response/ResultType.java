@@ -1,4 +1,4 @@
-package starlight.global.apiPayload.response;
+package starlight.shared.apiPayload.response;
 
 public enum ResultType {
     SUCCESS, ERROR

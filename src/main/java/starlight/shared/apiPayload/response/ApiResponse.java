@@ -1,7 +1,7 @@
-package starlight.global.apiPayload.response;
+package starlight.shared.apiPayload.response;
 
-import starlight.global.apiPayload.exception.ErrorMessage;
-import starlight.global.apiPayload.exception.ErrorType;
+import starlight.shared.apiPayload.exception.ErrorMessage;
+import starlight.shared.apiPayload.exception.ErrorType;
 
 public record ApiResponse<T>(ResultType result, T data, ErrorMessage error) {
 
