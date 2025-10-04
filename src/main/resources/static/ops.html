@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>StarLight · Ops Dashboard</title>
+    <meta name="color-scheme" content="dark light"/>
+    <style>
+        :root{
+            --bg0:#060915; --bg1:#0b1430; --txt:#e6e9ef; --muted:#94a3b8;
+            --brand:#7c3aed; --brand2:#22d3ee; --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444;
+            --border: rgba(255,255,255,.14); --glass: rgba(255,255,255,.06);
+            --shadow: 0 24px 60px rgba(0,0,0,.52);
+        }
+        @media (prefers-color-scheme: light){
+            :root{
+                --bg0:#eaf1ff; --bg1:#eef2ff; --txt:#0b1223; --muted:#475569;
+                --border: rgba(2,6,23,.12); --glass: rgba(255,255,255,.7);
+                --shadow: 0 18px 46px rgba(2,6,23,.16);
+            }
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0; color:var(--txt); font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Apple SD Gothic Neo, Arial, Helvetica, sans-serif;
+            background:
+                    radial-gradient(1200px 600px at 15% -20%, #1d2a6f 0%, transparent 60%),
+                    radial-gradient(1200px 600px at 110% 10%, #0c3c66 0%, transparent 60%),
+                    linear-gradient(180deg, var(--bg1), var(--bg0));
+        }
+        header{
+            display:flex; align-items:center; gap:14px; padding:18px 20px; position:sticky; top:0; z-index:3;
+            background:linear-gradient(180deg, rgba(0,0,0,.25), transparent);
+            backdrop-filter: blur(6px) saturate(120%);
+            border-bottom:1px solid var(--border);
+        }
+        .logo{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;outline:1px solid var(--border);background:linear-gradient(135deg,#ffffff22,#ffffff00)}
+        .title{font-weight:800; letter-spacing:-.01em}
+        .sub{color:var(--muted); margin-left:auto}
+        .wrap{width:min(1200px,95vw); margin:18px auto; padding-bottom:60px}
+        .grid{display:grid; gap:16px; grid-template-columns: repeat(12,1fr)}
+        .card{grid-column:span 12; border:1px solid var(--border); background:var(--glass); border-radius:16px; padding:16px; box-shadow:var(--shadow)}
+        @media (min-width: 900px){ .span6{grid-column:span 6} .span4{grid-column:span 4} .span8{grid-column:span 8} }
+        h2{margin:0 0 10px 0; font-size:18px}
+        .row{display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center}
+        .kv{color:var(--muted); font-size:14px; display:flex; gap:6px; align-items:center}
+        .kv strong{color:var(--txt)}
+        .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:#ffffff10;font-size:13px;font-weight:700}
+        .dot{width:10px;height:10px;border-radius:50%}
+        .ok{background:var(--ok)} .warn{background:var(--warn)} .bad{background:var(--bad)}
+        .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+        table{width:100%; border-collapse: collapse; font-size:14px}
+        th,td{padding:8px 10px; border-bottom:1px solid var(--border)}
+        th{text-align:left; color:var(--muted); font-weight:700}
+        .input{display:flex; gap:8px}
+        input[type=text]{flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:rgba(255,255,255,.06); color:inherit}
+        button{padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;font-weight:700;cursor:pointer}
+        a.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);text-decoration:none;color:inherit;background:rgba(255,255,255,.06)}
+        .links{display:flex;flex-wrap:wrap;gap:8px}
+        canvas.spark{width:100%; height:40px}
+        .muted{color:var(--muted)}
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 64 64" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs>
+            <path fill="url(#g)" d="M32 4l7 14 15.5 2.3L43.3 31.2l2.6 15.4L32 39.3 18.1 46.6l2.6-15.4L9.5 20.3 25 18l7-14z"/>
+        </svg>
+    </div>
+    <div class="title">StarLight · Ops Dashboard</div>
+    <div class="sub mono" id="clock">--:--:--</div>
+</header>
+
+<div class="wrap">
+    <div class="grid">
+        <section class="card span8">
+            <h2>헬스 상태</h2>
+            <div class="row" id="healthRow">
+                <span class="badge"><span class="dot warn" id="dot"></span><span id="statusTxt">Checking…</span></span>
+                <span class="kv">응답시간 <strong id="latency">–</strong>ms</span>
+                <span class="kv">프로파일 <strong class="mono" id="profiles">—</strong></span>
+                <span class="kv">빌드 <strong class="mono" id="build">—</strong></span>
+                <span class="kv">Java <strong class="mono" id="java">—</strong></span>
+            </div>
+            <div class="row" style="margin-top:10px">
+                <div class="links">
+                    <a class="btn" href="/actuator" target="_blank">Actuator Index</a>
+                    <a class="btn" href="/actuator/health" target="_blank">Health</a>
+                    <a class="btn" href="/actuator/health/liveness" target="_blank">Liveness</a>
+                    <a class="btn" href="/actuator/health/readiness" target="_blank">Readiness</a>
+                    <a class="btn" href="/actuator/info" target="_blank">Info</a>
+                    <a class="btn" href="/actuator/metrics" target="_blank">Metrics</a>
+                    <a class="btn" href="/actuator/loggers" target="_blank">Loggers</a>
+                    <a class="btn" href="/actuator/threaddump" target="_blank">Thread Dump</a>
+                    <a class="btn" href="/actuator/prometheus" target="_blank">Prometheus</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="card span4">
+            <h2>핵심 리소스 스파크라인</h2>
+            <div class="kv">JVM 메모리 사용(bytes) <strong class="mono" id="memNow">—</strong></div>
+            <canvas class="spark" id="memSpark"></canvas>
+            <div class="kv">CPU(프로세스) 사용률 <strong class="mono" id="cpuNow">—</strong></div>
+            <canvas class="spark" id="cpuSpark"></canvas>
+        </section>
+
+        <section class="card span6">
+            <h2>컴포넌트 상세</h2>
+            <table id="components">
+                <thead><tr><th>이름</th><th>상태</th><th>세부</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section class="card span6">
+            <h2>Metric 조회</h2>
+            <div class="input">
+                <input id="metricName" type="text" placeholder="예: jvm.memory.used, process.cpu.usage, system.load.average.1m"/>
+                <button id="btnFetch">조회</button>
+            </div>
+            <table style="margin-top:10px" id="metricTable">
+                <thead><tr><th>이름</th><th>값</th><th>태그</th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <p class="muted" style="margin-top:8px">* 시계열 저장 없이 현재 스냅샷 값을 표시합니다. 주기적으로 폴링해 스파크라인에 반영합니다.</p>
+        </section>
+    </div>
+</div>
+
+<script>
+    const $ = id => document.getElementById(id);
+    // 시계
+    setInterval(()=> $('clock').textContent = new Date().toLocaleTimeString([], {hour12:false}), 1000);
+
+    // 간단 sparkline 유틸
+    function spark(canvas, series, maxPoints=40){
+        const ctx = canvas.getContext('2d');
+        const w = canvas.clientWidth, h = canvas.clientHeight;
+        canvas.width = w; canvas.height = h;
+        ctx.clearRect(0,0,w,h);
+        if(series.length < 2) return;
+        const xs = series.slice(-maxPoints);
+        const min = Math.min(...xs), max = Math.max(...xs);
+        const rng = (max-min) || 1;
+        ctx.beginPath();
+        xs.forEach((v,i)=>{
+            const x = (i/(xs.length-1)) * (w-6) + 3;
+            const y = h - ((v - min)/rng)*(h-6) - 3;
+            if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        });
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = getComputedStyle(document.body).color;
+        ctx.stroke();
+    }
+
+    const memSeries = [], cpuSeries = [];
+    async function probeHealth(){
+        const t0 = performance.now();
+        try{
+            const res = await fetch('/actuator/health');
+            const t1 = performance.now();
+            $('latency').textContent = Math.max(1, Math.round(t1 - t0));
+            const dot = $('dot'), txt = $('statusTxt');
+            if(res.ok){
+                const data = await res.json();
+                const s = (data.status||'UNKNOWN').toUpperCase();
+                txt.textContent = s;
+                dot.className = 'dot ' + (s==='UP' ? 'ok' : (s==='UNKNOWN' ? 'warn' : 'bad'));
+                // components 테이블
+                const tbody = $('components').querySelector('tbody');
+                tbody.innerHTML = '';
+                const comps = data.components || {};
+                Object.keys(comps).sort().forEach(k=>{
+                    const c = comps[k] || {};
+                    const tr = document.createElement('tr');
+                    const st = (c.status||'').toUpperCase();
+                    tr.innerHTML = `<td class="mono">${k}</td>
+                          <td><span class="badge"><span class="dot ${st==='UP'?'ok':(st==='UNKNOWN'?'warn':'bad')}"></span>${st||'—'}</span></td>
+                          <td class="muted"><pre style="margin:0;white-space:pre-wrap">${c.details?JSON.stringify(c.details,null,2):''}</pre></td>`;
+                    tbody.appendChild(tr);
+                });
+            }else{
+                $('statusTxt').textContent = '권한 필요';
+                $('dot').className = 'dot warn';
+            }
+        }catch(e){
+            $('statusTxt').textContent = '연결 실패';
+            $('dot').className = 'dot bad';
+        }
+    }
+
+    async function loadInfoAndProfile(){
+        try{
+            const info = await fetch('/actuator/info'); if(info.ok){
+                const j = await info.json();
+                if(j?.build?.version) $('build').textContent = j.build.version;
+                if(j?.java) $('java').textContent = typeof j.java === 'string' ? j.java : (j.java?.version || '—');
+            }
+        }catch(e){}
+        try{
+            const idx = await fetch('/actuator');
+            if(idx.ok){
+                const j = await idx.json();
+                const link = j?._links?.['env:activeProfiles']?.href;
+                if(link){
+                    const p = await fetch(link);
+                    if(p.ok){
+                        const arr = await p.json();
+                        if(Array.isArray(arr) && arr.length) $('profiles').textContent = arr.join(', ');
+                    }
+                }
+            }
+        }catch(e){}
+    }
+
+    async function readMetric(name){
+        const res = await fetch('/actuator/metrics/' + encodeURIComponent(name));
+        if(!res.ok) return null;
+        const j = await res.json();
+        return j;
+    }
+
+    async function refreshCoreMetrics(){
+        // jvm.memory.used (heap 사용량 합산)
+        const mem = await readMetric('jvm.memory.used');
+        if(mem && mem.measurements){
+            // Heap 영역만 합산
+            const tags = mem.availableTags || [];
+            const areaTag = tags.find(t => t.tag === 'area');
+            let used = 0;
+            if(areaTag){
+                for(const v of areaTag.values){
+                    if(v.toLowerCase() === 'heap'){
+                        const m = await fetch(`/actuator/metrics/jvm.memory.used?tag=area:${v}`);
+                        if(m.ok){
+                            const jj = await m.json();
+                            const val = jj.measurements?.[0]?.value || 0;
+                            used += val;
+                        }
+                    }
+                }
+            }else{
+                used = mem.measurements?.[0]?.value || 0;
+            }
+            memSeries.push(used);
+            $('memNow').textContent = Intl.NumberFormat().format(Math.round(used)) + ' B';
+            spark($('memSpark'), memSeries);
+        }
+        // process.cpu.usage (0~1)
+        const cpu = await readMetric('process.cpu.usage');
+        if(cpu && cpu.measurements){
+            const val = cpu.measurements?.[0]?.value || 0;
+            cpuSeries.push(val);
+            $('cpuNow').textContent = (val*100).toFixed(2) + ' %';
+            spark($('cpuSpark'), cpuSeries);
+        }
+    }
+
+    $('btnFetch').addEventListener('click', async ()=>{
+        const name = $('metricName').value.trim();
+        if(!name) return;
+        const tbody = $('metricTable').querySelector('tbody');
+        tbody.innerHTML = '';
+        const data = await readMetric(name);
+        if(!data){ tbody.innerHTML = `<tr><td colspan="3">조회 실패</td></tr>`; return; }
+        const tagsStr = (data.availableTags||[]).map(t=>`${t.tag}=[${(t.values||[]).join(', ')}]`).join(' ; ');
+        for(const m of (data.measurements||[])){
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td class="mono">${name}</td><td class="mono">${m.value}</td><td class="muted">${tagsStr}</td>`;
+            tbody.appendChild(tr);
+        }
+    });
+
+    // 주기 폴링
+    probeHealth(); loadInfoAndProfile(); refreshCoreMetrics();
+    setInterval(probeHealth, 10000);
+    setInterval(refreshCoreMetrics, 5000);
+    // 리사이즈 시 스파크 다시 그림
+    window.addEventListener('resize', ()=>{ spark($('memSpark'), memSeries); spark($('cpuSpark'), cpuSeries); });
+</script>
+</body>
+</html>
