@@ -36,7 +36,7 @@ fix/#23-login-bug       # Issue #23: 로그인 버그 수정
 #25 Docs: README 업데이트 
 ```
 
-### 💬 PR 및 ISSUE 제목 (Issue 번호 포함)
+### 💬 PR 및 ISSUE 제목
 ```bash
 FEAT: 로그인 기능을 추가한다
 FIX: 회원가입 오류를 수정한다
