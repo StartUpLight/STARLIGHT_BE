@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import starlight.adapter.auth.security.auth.AuthDetailsService;
-import starlight.adapter.auth.security.jwt.JwtProvider;
+import starlight.application.auth.required.TokenProvider;
 
 import java.io.IOException;
 
@@ -22,19 +22,22 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
-    private final JwtProvider jwtProvider;
+    private final TokenProvider tokenProvider;
     private final AuthDetailsService authDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
         String token = getTokenFromRequest(request);
 
-        if (StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
-            String email = jwtProvider.getEmail(token);
+        if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
+            String email = tokenProvider.getEmail(token);
             UserDetails userDetails = authDetailsService.loadUserByUsername(email);
 
             if (userDetails != null) {
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }

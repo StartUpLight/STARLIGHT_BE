@@ -12,7 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.bootstrap.redis.RedisClient;
+import starlight.application.auth.required.KeyValueMap;
+import starlight.application.auth.required.TokenProvider;
 import starlight.adapter.auth.security.jwt.dto.TokenResponse;
 import starlight.domain.member.entity.Member;
 import starlight.shared.apiPayload.exception.GlobalErrorType;
@@ -23,11 +24,12 @@ import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
-public class JwtProvider {
+public class JwtTokenProvider implements TokenProvider {
+
+    private Key key;
 
     @Value("${jwt.secret}")
     private String secretKey;
-    private Key key;
 
     @Value("${jwt.token.access-expiration-time}")
     private long accessTokenExpirationTime;
@@ -35,7 +37,7 @@ public class JwtProvider {
     @Value("${jwt.token.refresh-expiration-time}")
     private long refreshTokenExpirationTime;
 
-    private final RedisClient redisClient;
+    private final KeyValueMap redisClient;
 
     @PostConstruct
     protected void init() {
@@ -48,6 +50,7 @@ public class JwtProvider {
      * @param member
      * @return
      */
+    @Override
     public String createAccessToken(Member member) {
         Claims claims = getClaims(member);
         Date now = new Date();
@@ -80,6 +83,7 @@ public class JwtProvider {
      * @param member
      * @return
      */
+    @Override
     public TokenResponse createToken(Member member) {
         return TokenResponse.of(
                 createAccessToken(member),
@@ -93,6 +97,7 @@ public class JwtProvider {
      * @param refreshToken
      * @return
      */
+    @Override
     public TokenResponse recreate(Member member, String refreshToken) {
         String accessToken = createAccessToken(member);
 
@@ -107,6 +112,7 @@ public class JwtProvider {
      * @param token
      * @return boolean
      */
+    @Override
     public boolean validateToken(String token) {
         try {
             Jws<Claims> claims = Jwts.parserBuilder()
@@ -124,6 +130,7 @@ public class JwtProvider {
      * @param token
      * @return
      */
+    @Override
     public String getEmail(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
     }
@@ -133,6 +140,7 @@ public class JwtProvider {
      * @param token
      * @return
      */
+    @Override
     public Long getExpirationTime(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration().getTime();
     }
@@ -152,6 +160,7 @@ public class JwtProvider {
      * @param request
      * @return
      */
+    @Override
     public String resolveRefreshToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
@@ -165,6 +174,7 @@ public class JwtProvider {
      * @param request
      * @return
      */
+    @Override
     public String resolveAccessToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
@@ -179,6 +189,7 @@ public class JwtProvider {
      * @param accessToken
      * @throws GlobalException
      */
+    @Override
     @Transactional
     public void invalidateTokens(String refreshToken, String accessToken) {
         if (!validateToken(refreshToken)) {

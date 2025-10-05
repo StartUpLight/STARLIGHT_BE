@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum MemberType {
+
     WRITER("사용자"),
     EXPERT("전문가");
 

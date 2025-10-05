@@ -6,6 +6,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.Map;
 
 public final class OAuth2Attributes {
+
     private OAuth2Attributes() {}
 
     public record Parsed(

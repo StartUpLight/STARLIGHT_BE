@@ -1,9 +1,10 @@
-package starlight.bootstrap.redis;
+package starlight.adapter.auth.redis;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
+import starlight.application.auth.required.KeyValueMap;
 import starlight.shared.apiPayload.exception.GlobalErrorType;
 import starlight.shared.apiPayload.exception.GlobalException;
 
@@ -11,7 +12,7 @@ import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
-public class RedisClient {
+public class RedisKeyValueMap implements KeyValueMap {
 
     private final RedisTemplate<String, Object> redisTemplate;
 

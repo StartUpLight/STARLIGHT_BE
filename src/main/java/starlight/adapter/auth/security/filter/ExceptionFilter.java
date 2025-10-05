@@ -19,6 +19,7 @@ import java.io.IOException;
 public class ExceptionFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper;
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,

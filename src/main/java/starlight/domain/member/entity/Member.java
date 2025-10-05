@@ -40,18 +40,19 @@ public class Member extends AbstractEntity {
     @Column(length = 64)
     private String providerId;
 
-    @Builder
-    public Member(String name, String email, String phoneNumber, MemberType memberType, Credential credential) {
-        this.name = name;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.memberType = memberType != null ? memberType : MemberType.WRITER;
-        this.credential = credential;
+    public static Member of(String name, String email, String phoneNumber, MemberType memberType, Credential credential) {
+        Member member = new Member();
+        member.name = name;
+        member.email = email;
+        member.phoneNumber = phoneNumber;
+        member.memberType = memberType != null ? memberType : MemberType.WRITER;
+        member.credential = credential;
+        return member;
     }
 
     public static Member newSocial(String name, String email, String provider,
                                    String providerId, String phoneNumber, MemberType memberType) {
-        Member member = new Member(name, email, phoneNumber, memberType, null);
+        Member member = Member.of(name, email, phoneNumber, memberType, null);
 
         member.provider = provider;
         member.providerId = providerId;
