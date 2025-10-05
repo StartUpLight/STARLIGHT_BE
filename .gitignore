@@ -46,5 +46,6 @@ node_modules/
 dist/
 *.log
 
+### Custion ###
 src/main/resources/*.yaml
-/src/test/resources/application-test.yaml
+src/test/resources/*.yaml
