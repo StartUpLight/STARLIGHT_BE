@@ -2,7 +2,6 @@ package starlight.domain.member.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Credential {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "bigint", nullable = false)
@@ -18,9 +18,11 @@ public class Credential {
     @Column(nullable = false)
     private String password;
 
-    @Builder
-    public Credential(String hashedPassword) {
-        this.password = hashedPassword;
+    public static Credential create(String hashedPassword) {
+        Credential credential = new Credential();
+        credential.password = hashedPassword;
+
+        return  credential;
     }
 }
 

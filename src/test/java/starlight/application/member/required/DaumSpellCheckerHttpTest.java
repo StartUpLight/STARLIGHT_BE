@@ -27,7 +27,6 @@ import static org.springframework.test.web.client.ExpectedCount.once;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
-
 @RestClientTest(components = DaumSpellChecker.class)
 @Import(DaumSpellCheckerHttpTest.TestConfig.class)
 class DaumSpellCheckerHttpTest {

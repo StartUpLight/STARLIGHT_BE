@@ -26,9 +26,7 @@ public class CredentialServiceImpl implements CredentialService {
     public Credential createCredential(AuthRequest authRequest) {
 
         String hashedPassword = passwordEncoder.encode(authRequest.password());
-        Credential credential = Credential.builder()
-                .hashedPassword(hashedPassword)
-                .build();
+        Credential credential = Credential.create(hashedPassword);
 
         return credentialRepository.save(credential);
     }

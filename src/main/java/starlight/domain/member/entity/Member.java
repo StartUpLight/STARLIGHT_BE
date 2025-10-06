@@ -40,7 +40,7 @@ public class Member extends AbstractEntity {
     @Column(length = 64)
     private String providerId;
 
-    public static Member of(String name, String email, String phoneNumber, MemberType memberType, Credential credential) {
+    public static Member create(String name, String email, String phoneNumber, MemberType memberType, Credential credential) {
         Member member = new Member();
         member.name = name;
         member.email = email;
@@ -52,22 +52,11 @@ public class Member extends AbstractEntity {
 
     public static Member newSocial(String name, String email, String provider,
                                    String providerId, String phoneNumber, MemberType memberType) {
-        Member member = Member.of(name, email, phoneNumber, memberType, null);
+        Member member = Member.create(name, email, phoneNumber, memberType, null);
 
         member.provider = provider;
         member.providerId = providerId;
 
         return member;
-    }
-
-    public void updateName(String name) {
-        this.name = name;
-    }
-
-    public void ChangeRoleToExpert(MemberType memberType) {
-        if (memberType != MemberType.WRITER) {
-            throw new MemberException(MemberErrorType.ALREADY_WRITER);
-        }
-        this.memberType = memberType;
     }
 }
