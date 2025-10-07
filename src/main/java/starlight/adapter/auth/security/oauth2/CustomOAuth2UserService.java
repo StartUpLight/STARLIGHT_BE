@@ -19,14 +19,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-    private final OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
     private final MemberRepository memberRepository;
+    private final OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate;
 
     @Override
     @Transactional
-    public OAuth2User loadUser(OAuth2UserRequest req) throws OAuth2AuthenticationException {
-        OAuth2User oAuth2User = delegate.loadUser(req);
-        OAuth2Attributes.Parsed parsed = OAuth2Attributes.parse(req, oAuth2User);
+    public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
+        OAuth2User oAuth2User = delegate.loadUser(request);
+        OAuth2Attributes.Parsed parsed = OAuth2Attributes.parse(request, oAuth2User);
 
         Optional<Member> found = memberRepository.findByProviderAndProviderId(parsed.provider(), parsed.providerId());
         if (found.isEmpty() && parsed.email() != null) {

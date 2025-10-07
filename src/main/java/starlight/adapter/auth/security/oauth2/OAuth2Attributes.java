@@ -19,32 +19,32 @@ public final class OAuth2Attributes {
     @SuppressWarnings("unchecked")
     public static Parsed parse(OAuth2UserRequest req, OAuth2User o) {
         String registrationId = req.getClientRegistration().getRegistrationId(); // google/naver/kakao
-        Map<String, Object> a = o.getAttributes();
+        Map<String, Object> attributes = o.getAttributes();
 
         return switch (registrationId) {
-            case "google" -> new Parsed("google",
-                    (String) a.get("sub"),
-                    (String) a.get("email"),
-                    (String) a.getOrDefault("name",""), " ",
-                    a, "sub");
             case "naver" -> {
-                Map<String,Object> resp = (Map<String,Object>) a.get("response");
-                yield new Parsed("naver",
-                        (String) resp.get("id"),
-                        (String) resp.get("email"),
-                        (String) resp.getOrDefault("name",""), " ",
-                        a, "response");
+                Map<String,Object> response = (Map<String,Object>) attributes.get("response");
+                if (response == null) response = Map.of();
+
+                String id           = String.valueOf(response.getOrDefault("id", ""));
+                String email        = (String) response.get("email");
+                String name         = (String) (response.getOrDefault("name", response.getOrDefault("nickname", "")));
+                String profileImage = (String) response.getOrDefault("profile_image", "");
+
+                yield new Parsed("naver", id, email, name, profileImage, attributes, "id");
             }
             case "kakao" -> {
-                String id = String.valueOf(a.get("id"));
-                Map<String,Object> account = (Map<String,Object>) a.get("kakao_account");
-                String email = account == null ? null : (String) account.get("email");
-                Map<String, Object> profile = account == null ? null : (Map<String, Object>) account.get("profile");
-                String name = profile == null ? "" : (String) profile.getOrDefault("nickname", "");
-                String profileImage = profile == null ? "" : (String) profile.getOrDefault("profile_image_url", "");
-                yield new Parsed("kakao", id, email, name, profileImage, a, "id");
+                Map<String,Object> response = (Map<String,Object>) attributes.get("kakao_account");
+                if (response == null) response = Map.of();
+
+                String id           = String.valueOf(attributes.getOrDefault("id", ""));
+                String email        = (String) response.get("email");
+                String name         = (String) ((Map<String, Object>) response.getOrDefault("profile", Map.of())).getOrDefault("nickname", "");
+                String profileImage = (String) ((Map<String, Object>) response.getOrDefault("profile", Map.of())).getOrDefault("profile_image_url", "");
+
+                yield new Parsed("kakao", id, email, name, profileImage, attributes, "id");
             }
-            default -> new Parsed(registrationId, null, null, null, " ", a, "id");
+            default -> new Parsed(registrationId, null, null, null, " ", attributes, "id");
         };
     }
 }

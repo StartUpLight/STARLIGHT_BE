@@ -2,13 +2,10 @@ package starlight.domain.member.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import starlight.domain.member.enumerate.MemberType;
-import starlight.domain.member.exception.MemberErrorType;
-import starlight.domain.member.exception.MemberException;
 import starlight.shared.AbstractEntity;
 
 @Getter
