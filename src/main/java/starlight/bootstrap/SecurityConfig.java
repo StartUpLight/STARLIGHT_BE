@@ -85,7 +85,7 @@ public class SecurityConfig {
                             log.warn("OAuth2 login failed: {}", exception.getMessage(), exception);
                             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                         })
-                );;
+                );
 
         return http.build();
     }
