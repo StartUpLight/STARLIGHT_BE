@@ -71,22 +71,11 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((authorize) ->
                 authorize
-                        .requestMatchers(
-                                "/",
-                                "/index.html"
-                        ).permitAll()
-                        .requestMatchers(
-                                "/v1/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/swagger-resources/**",
-                                "/error/**",
-                                "/v1/auth/**",
-                                "/v1/user/**"
-                        ).permitAll()
-                        .requestMatchers("/login/**", "/oauth2/**", "/login/oauth2/**", "/public/**").permitAll()
-                        .requestMatchers("/v1/auth/**","/v1/user/**").permitAll()
                         .requestMatchers("/error/**").permitAll()
+                        .requestMatchers("/", "/index.html").permitAll()
+                        .requestMatchers("/v1/auth/**","/v1/user/**").permitAll()
+                        .requestMatchers("/login/**", "/oauth2/**", "/login/oauth2/**", "/public/**").permitAll()
+                        .requestMatchers("/v1/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
                         .loginPage("/login/oauth2/code/kakao")

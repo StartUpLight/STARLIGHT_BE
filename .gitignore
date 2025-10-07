@@ -45,7 +45,3 @@ out/
 node_modules/
 dist/
 *.log
-
-### Custom ###
-src/main/resources/*.yaml
-src/test/resources/*.yaml
