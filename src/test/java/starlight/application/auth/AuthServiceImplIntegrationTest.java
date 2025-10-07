@@ -35,8 +35,6 @@ class AuthServiceImplIntegrationTest {
 
     @Autowired AuthServiceImpl sut;
 
-    // ---------- signUp ----------
-
     @Test
     void signUp_정상_자격증명_생성후_회원생성_리턴() {
         AuthRequest req = mock(AuthRequest.class);
@@ -52,8 +50,6 @@ class AuthServiceImplIntegrationTest {
         verify(memberService).createUser(cred, req);
         assertNotNull(res);
     }
-
-    // ---------- signIn ----------
 
     @Test
     void signIn_정상_토큰생성_리프레시_Redis저장() {
@@ -88,8 +84,6 @@ class AuthServiceImplIntegrationTest {
         verify(redisClient, never()).setValue(any(), any(), anyLong());
     }
 
-    // ---------- signOut ----------
-
     @Test
     void signOut_null토큰이면_TOKEN_NOT_FOUND() {
         assertThrows(AuthException.class, () -> sut.signOut(null, "AT"));
@@ -112,8 +106,6 @@ class AuthServiceImplIntegrationTest {
         assertDoesNotThrow(() -> sut.signOut("RT", "GOOD_AT"));
         verify(tokenProvider).invalidateTokens("RT", "GOOD_AT");
     }
-
-    // ---------- recreate ----------
 
     @Test
     void recreate_token_null이면_TOKEN_NOT_FOUND() {

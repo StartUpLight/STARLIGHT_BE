@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class GlobalExceptionTest {
+class GlobalExceptionUnitTest {
 
     @Test
     void 생성자_에러타입_메시지_정상_세팅() {

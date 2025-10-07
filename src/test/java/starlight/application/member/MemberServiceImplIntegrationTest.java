@@ -57,7 +57,6 @@ class MemberServiceImplIntegrationTest {
         Credential cred = Credential.create("hashedPassword");
         AuthRequest req = mock(AuthRequest.class);
         when(req.email()).thenReturn("ok@ex.com");
-        // 실제 엔티티 생성로직이 req.toMember(cred)라면, 여기서는 최소 구현만 mock 으로 대체
         when(req.toMember(cred)).thenReturn(Member.create("ok", "ok@ex.com", null, MemberType.WRITER, null));
 
         Member saved = sut.createUser(cred, req);

@@ -5,7 +5,7 @@ import starlight.shared.apiPayload.exception.GlobalErrorType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ApiResponseTest {
+class ApiResponseUnitTest {
 
     @Test
     void success_without_data() {
