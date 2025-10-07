@@ -16,20 +16,20 @@ java {
 	}
 }
 
-processResources.dependsOn('copySecret')
-processTestResources.dependsOn('copyTestSecret')
-
-tasks.register('copySecret', Copy) {
-	from './config/resources/main/'
-	include "application*.yaml"
-	into './src/main/resources'
-}
-
-tasks.register('copyTestSecret', Copy) {
-	from './config/resources/test/'
-	include "application*.yaml"
-	into './src/test/resources'
-}
+//processResources.dependsOn('copySecret')
+//processTestResources.dependsOn('copyTestSecret')
+//
+//tasks.register('copySecret', Copy) {
+//	from './config/resources/main/'
+//	include "application*.yaml"
+//	into './src/main/resources'
+//}
+//
+//tasks.register('copyTestSecret', Copy) {
+//	from './config/resources/test/'
+//	include "application*.yaml"
+//	into './src/test/resources'
+//}
 
 configurations {
 	compileOnly {
@@ -81,6 +81,19 @@ dependencies {
 	//redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.session:spring-session-data-redis'
+}
+
+sourceSets {
+	main {
+		resources {
+			srcDir 'config/resources/main'
+		}
+	}
+	test {
+		resources {
+			srcDir 'config/resources/test'
+		}
+	}
 }
 
 tasks.named('test') {
