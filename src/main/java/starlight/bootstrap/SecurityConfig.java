@@ -1,6 +1,8 @@
 package starlight.bootstrap;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +33,7 @@ import starlight.adapter.auth.security.oauth2.OAuth2SuccessHandler;
 
 import java.util.List;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -90,8 +93,8 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
                         .failureHandler((request, response, exception) -> {
-                            exception.printStackTrace();
-                            response.sendError(401, exception.getMessage());
+                            log.warn("OAuth2 login failed: {}", exception.getMessage(), exception);
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                         })
                 );;
 
