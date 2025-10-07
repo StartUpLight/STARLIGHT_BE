@@ -45,7 +45,7 @@ class CustomOAuth2UserServiceUnitTest {
                 .authorizationUri("https://example/authorize")
                 .tokenUri("https://example/token")
                 .userInfoUri("https://example/me")
-                .userNameAttributeName("response") // 🔹 Naver는 response 래핑
+                .userNameAttributeName("response")
                 .build();
     }
 

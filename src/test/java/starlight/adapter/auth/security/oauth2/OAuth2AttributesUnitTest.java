@@ -26,7 +26,7 @@ class OAuth2AttributesUnitTest {
                 .authorizationUri("https://example/authorize")
                 .tokenUri("https://example/token")
                 .userInfoUri("https://example/me")
-                .userNameAttributeName("response") // 🔹 Naver는 response 래핑
+                .userNameAttributeName("response")
                 .build();
     }
 
@@ -53,7 +53,7 @@ class OAuth2AttributesUnitTest {
         var user = new DefaultOAuth2User(
                 List.of(new SimpleGrantedAuthority("ROLE_USER")),
                 attrs,
-                "response" // 🔹 name attribute는 보통 userNameAttributeName와 일치
+                "response"
         );
 
         var parsed = OAuth2Attributes.parse(naverRequest(), user);
@@ -64,6 +64,6 @@ class OAuth2AttributesUnitTest {
         assertThat(parsed.email()).isEqualTo("user@naver.com");
         assertThat(parsed.name()).isEqualTo("홍길동");
         assertThat(parsed.profileImageUrl()).isEqualTo("http://img/naver.jpg");
-        assertThat(parsed.nameAttributeKey()).isEqualTo("id"); // 🔹 내부적으로 id를 name key로 사용
+        assertThat(parsed.nameAttributeKey()).isEqualTo("id");
     }
 }
