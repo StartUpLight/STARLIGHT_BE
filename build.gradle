@@ -89,6 +89,7 @@ sourceSets {
 			srcDir 'config/resources/main'
 		}
 	}
+
 	test {
 		resources {
 			srcDir 'config/resources/test'
@@ -96,10 +97,8 @@ sourceSets {
 	}
 }
 
-tasks.named('test') {
+tasks.withType(Test).configureEach {
 	useJUnitPlatform()
-}
-
-test {
 	systemProperty "spring.profiles.active", "test"
+	jvmArgs += ['-Duser.timezone=Asia/Seoul', '-Dfile.encoding=UTF-8']
 }
