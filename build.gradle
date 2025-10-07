@@ -16,84 +16,14 @@ java {
 	}
 }
 
-//processResources.dependsOn('copySecret')
-//processTestResources.dependsOn('copyTestSecret')
-//
-//tasks.register('copySecret', Copy) {
-//	from './config/resources/main/'
-//	include "application*.yaml"
-//	into './src/main/resources'
-//}
-//
-//tasks.register('copyTestSecret', Copy) {
-//	from './config/resources/test/'
-//	include "application*.yaml"
-//	into './src/test/resources'
-//}
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
-
 repositories {
 	mavenCentral()
 }
 
-dependencies {
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
-	annotationProcessor 'org.projectlombok:lombok'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	//redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'org.springframework.session:spring-session-data-redis'
-
-	// DB
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	testImplementation 'com.h2database:h2'
-
-	//swagger
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
-
-	//actuator
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
-	//htmlparse
-	implementation("org.jsoup:jsoup:1.18.1")
-
-	// JWT
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
-	// Spring Security + OAuth
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	testImplementation 'org.springframework.security:spring-security-test'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-}
-
-sourceSets {
-	main {
-		resources {
-			srcDir 'config/resources/main'
-		}
-	}
-
-	test {
-		resources {
-			srcDir 'config/resources/test'
-		}
-	}
-}
-
-tasks.withType(Test).configureEach {
-	useJUnitPlatform()
-	systemProperty "spring.profiles.active", "test"
-	jvmArgs += ['-Duser.timezone=Asia/Seoul', '-Dfile.encoding=UTF-8']
-}
+apply from: 'gradle/config.gradle'
+apply from: 'gradle/database.gradle'
+apply from: 'gradle/docs.gradle'
+apply from: 'gradle/jwt.gradle'
+apply from: 'gradle/spring.gradle'
+apply from: 'gradle/test.gradle'
+apply from: 'gradle/util.gradle'

@@ -1,0 +1,12 @@
+dependencies {
+    // DATABASE
+    testRuntimeOnly 'com.h2database:h2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.security:spring-security-test'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    systemProperty "spring.profiles.active", "test"
+    jvmArgs += ['-Duser.timezone=Asia/Seoul', '-Dfile.encoding=UTF-8']
+}
