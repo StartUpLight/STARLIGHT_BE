@@ -130,7 +130,4 @@ public class SecurityConfig {
     public LogoutSuccessHandler logoutSuccessHandler() {
         return new HttpStatusReturningLogoutSuccessHandler();
     }
-
-    @Bean
-    OAuth2UserService<OAuth2UserRequest, OAuth2User> defaultOAuth2UserService() {return new DefaultOAuth2UserService(); }
 }

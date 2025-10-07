@@ -1,6 +1,9 @@
 package starlight.adapter.auth.security.oauth2;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -16,11 +19,15 @@ import starlight.domain.member.enumerate.MemberType;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final MemberRepository memberRepository;
     private final OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate;
+
+    public CustomOAuth2UserService(MemberRepository memberRepository) {
+        this.memberRepository = memberRepository;
+        this.delegate = new DefaultOAuth2UserService();
+    }
 
     @Override
     @Transactional
