@@ -17,7 +17,8 @@ import starlight.domain.auth.exception.AuthException;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

@@ -2,9 +2,9 @@ package starlight.application.member;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import starlight.adapter.auth.webapi.dto.request.AuthRequest;
 import starlight.application.member.required.MemberRepository;
 import starlight.domain.member.entity.Credential;
@@ -13,7 +13,8 @@ import starlight.domain.member.exception.MemberException;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

@@ -1,9 +1,5 @@
 package starlight.adapter.auth.security.oauth2;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -11,8 +7,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.application.member.required.MemberRepository;
 import starlight.adapter.auth.security.auth.AuthDetails;
+import starlight.application.member.required.MemberRepository;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
 

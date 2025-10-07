@@ -9,7 +9,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import starlight.adapter.auth.security.auth.AuthDetails;
-import starlight.adapter.auth.security.jwt.JwtTokenProvider;
 import starlight.adapter.auth.security.jwt.dto.TokenResponse;
 import starlight.application.auth.required.TokenProvider;
 

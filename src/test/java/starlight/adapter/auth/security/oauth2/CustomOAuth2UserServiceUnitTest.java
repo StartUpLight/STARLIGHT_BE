@@ -2,14 +2,16 @@ package starlight.adapter.auth.security.oauth2;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
 import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.application.member.required.MemberRepository;
@@ -17,7 +19,10 @@ import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;

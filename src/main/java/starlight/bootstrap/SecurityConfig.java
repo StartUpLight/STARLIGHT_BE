@@ -13,10 +13,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
@@ -25,9 +21,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import starlight.adapter.auth.security.filter.ExceptionFilter;
+import starlight.adapter.auth.security.filter.JwtFilter;
 import starlight.adapter.auth.security.handler.JwtAccessDeniedHandler;
 import starlight.adapter.auth.security.handler.JwtAuthenticationHandler;
-import starlight.adapter.auth.security.filter.JwtFilter;
 import starlight.adapter.auth.security.oauth2.CustomOAuth2UserService;
 import starlight.adapter.auth.security.oauth2.OAuth2SuccessHandler;
 

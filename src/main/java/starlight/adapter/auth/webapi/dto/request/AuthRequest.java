@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
