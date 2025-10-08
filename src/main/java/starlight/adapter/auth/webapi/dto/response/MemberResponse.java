@@ -14,7 +14,7 @@ public record MemberResponse(
         @Schema(description = "전화번호", example = "010-1234-5678")
         String phoneNumber,
 
-        @Schema(description = "회원 타입", example = "WRITER | EXPERT")
+        @Schema(description = "회원 타입", example = "FOUNDER | EXPERT")
         MemberType memberType
 ) {
     public static MemberResponse of(Member member) {

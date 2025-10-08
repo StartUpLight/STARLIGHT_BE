@@ -42,7 +42,7 @@ public class Member extends AbstractEntity {
         member.name = name;
         member.email = email;
         member.phoneNumber = phoneNumber;
-        member.memberType = memberType != null ? memberType : MemberType.WRITER;
+        member.memberType = memberType != null ? memberType : MemberType.FOUNDER;
         member.credential = credential;
         return member;
     }

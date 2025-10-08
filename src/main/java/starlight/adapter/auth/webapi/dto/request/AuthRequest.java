@@ -27,6 +27,6 @@ public record AuthRequest(
         String password
 ) {
     public Member toMember(Credential credential) {
-        return Member.create(null, email, phoneNumber, MemberType.WRITER, credential);
+        return Member.create(null, email, phoneNumber, MemberType.FOUNDER, credential);
     }
 }

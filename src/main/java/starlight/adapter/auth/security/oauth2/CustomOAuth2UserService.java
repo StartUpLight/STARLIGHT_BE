@@ -37,7 +37,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         }
 
         Member member = found.orElseGet(() ->
-                memberRepository.save(Member.newSocial(parsed.name(), parsed.email(), parsed.provider(), parsed.providerId(), null, MemberType.WRITER))
+                memberRepository.save(Member.newSocial(parsed.name(), parsed.email(), parsed.provider(), parsed.providerId(), null, MemberType.FOUNDER))
         );
 
         return AuthDetails.of(member, oAuth2User.getAttributes(), parsed.nameAttributeKey());

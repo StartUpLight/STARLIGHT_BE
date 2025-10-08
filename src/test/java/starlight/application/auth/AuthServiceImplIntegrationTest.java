@@ -39,7 +39,7 @@ class AuthServiceImplIntegrationTest {
     void signUp_정상_자격증명_생성후_회원생성_리턴() {
         AuthRequest req = mock(AuthRequest.class);
         Credential cred = mock(Credential.class);
-        Member member = Member.create("name", "u@ex.com", null, MemberType.WRITER, null);
+        Member member = Member.create("name", "u@ex.com", null, MemberType.FOUNDER, null);
 
         when(credentialService.createCredential(req)).thenReturn(cred);
         when(memberService.createUser(cred, req)).thenReturn(member);
@@ -54,7 +54,7 @@ class AuthServiceImplIntegrationTest {
     @Test
     void signIn_정상_토큰생성_리프레시_Redis저장() {
         SignInRequest req = new SignInRequest("a@b.com", "pw");
-        Member member = Member.create("test", "a@b.com", null, MemberType.WRITER, null);
+        Member member = Member.create("test", "a@b.com", null, MemberType.FOUNDER, null);
         TokenResponse token = new TokenResponse("AT", "RT");
 
         when(memberService.getUserByEmail("a@b.com")).thenReturn(member);
@@ -73,7 +73,7 @@ class AuthServiceImplIntegrationTest {
     @Test
     void signIn_비번오류_전파() {
         SignInRequest req = new SignInRequest("a@b.com", "bad");
-        Member member = Member.create("test", "a@b.com", null, MemberType.WRITER, null);
+        Member member = Member.create("test", "a@b.com", null, MemberType.FOUNDER, null);
 
         when(memberService.getUserByEmail("a@b.com")).thenReturn(member);
         doThrow(new AuthException(starlight.domain.auth.exception.AuthErrorType.TOKEN_INVALID))
@@ -109,7 +109,7 @@ class AuthServiceImplIntegrationTest {
 
     @Test
     void recreate_token_null이면_TOKEN_NOT_FOUND() {
-        Member member = Member.create("m", "m@ex.com", null, MemberType.WRITER, null);
+        Member member = Member.create("m", "m@ex.com", null, MemberType.FOUNDER, null);
         assertThrows(AuthException.class, () -> sut.recreate(null, member));
     }
 
@@ -122,12 +122,12 @@ class AuthServiceImplIntegrationTest {
     void recreate_refresh_유효성_실패면_TOKEN_INVALID() {
         when(tokenProvider.validateToken("REAL_RT")).thenReturn(false);
         assertThrows(AuthException.class, () -> sut.recreate("Bearer REAL_RT",
-                Member.create("m","m@ex.com", null, MemberType.WRITER, null)));
+                Member.create("m","m@ex.com", null, MemberType.FOUNDER, null)));
     }
 
     @Test
     void recreate_Redis저장값과_불일치면_TOKEN_NOT_FOUND() {
-        Member member = Member.create("m","m@ex.com", null, MemberType.WRITER, null);
+        Member member = Member.create("m","m@ex.com", null, MemberType.FOUNDER, null);
 
         when(tokenProvider.validateToken("REAL_RT")).thenReturn(true);
         when(tokenProvider.getEmail("REAL_RT")).thenReturn("m@ex.com");
@@ -139,7 +139,7 @@ class AuthServiceImplIntegrationTest {
 
     @Test
     void recreate_정상_재발급성공() {
-        Member member = Member.create("m","m@ex.com", null, MemberType.WRITER, null);
+        Member member = Member.create("m","m@ex.com", null, MemberType.FOUNDER, null);
         TokenResponse recreated = new TokenResponse("NEW_AT", "SAME_OR_NEW_RT");
 
         when(tokenProvider.validateToken("REAL_RT")).thenReturn(true);

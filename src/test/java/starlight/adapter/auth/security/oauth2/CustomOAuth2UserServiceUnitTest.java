@@ -85,7 +85,7 @@ class CustomOAuth2UserServiceUnitTest {
         var oau = naverUser("nid-1", "a@b.com", "홍길동");
         when(delegate.loadUser(any())).thenReturn(oau);
 
-        var existing = Member.newSocial("홍길동", "a@b.com", "naver", "nid-1", null, MemberType.WRITER);
+        var existing = Member.newSocial("홍길동", "a@b.com", "naver", "nid-1", null, MemberType.FOUNDER);
         when(memberRepository.findByProviderAndProviderId("naver", "nid-1"))
                 .thenReturn(Optional.of(existing));
 
@@ -106,7 +106,7 @@ class CustomOAuth2UserServiceUnitTest {
         when(memberRepository.findByProviderAndProviderId("naver", "nid-2"))
                 .thenReturn(Optional.empty());
 
-        var byEmail = Member.newSocial("기존이름", "c@d.com", "kakao", "kid-9", null, MemberType.WRITER);
+        var byEmail = Member.newSocial("기존이름", "c@d.com", "kakao", "kid-9", null, MemberType.FOUNDER);
         when(memberRepository.findByEmail("c@d.com")).thenReturn(Optional.of(byEmail));
 
         var result = sut.loadUser(naverReq);
@@ -125,7 +125,7 @@ class CustomOAuth2UserServiceUnitTest {
         when(memberRepository.findByProviderAndProviderId("naver", "nid-3"))
                 .thenReturn(Optional.empty());
 
-        var saved = Member.newSocial("신규유저", null, "naver", "nid-3", null, MemberType.WRITER);
+        var saved = Member.newSocial("신규유저", null, "naver", "nid-3", null, MemberType.FOUNDER);
         when(memberRepository.save(any(Member.class))).thenReturn(saved);
 
         var result = sut.loadUser(naverReq);

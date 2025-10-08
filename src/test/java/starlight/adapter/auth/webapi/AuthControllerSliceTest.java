@@ -64,7 +64,7 @@ class AuthControllerSliceTest {
                                               org.springframework.web.context.request.NativeWebRequest webRequest,
                                               org.springframework.web.bind.support.WebDataBinderFactory binderFactory) {
                     AuthDetails authDetails = Mockito.mock(AuthDetails.class);
-                    Member member = Member.create("tester","tester@ex.com", null, MemberType.WRITER, null);
+                    Member member = Member.create("tester","tester@ex.com", null, MemberType.FOUNDER, null);
                     when(authDetails.getUser()).thenReturn(member);
                     return authDetails;
                 }

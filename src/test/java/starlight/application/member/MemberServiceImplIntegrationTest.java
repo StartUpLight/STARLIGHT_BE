@@ -28,7 +28,7 @@ class MemberServiceImplIntegrationTest {
 
     @Test
     void getUserByEmail_DB저장후_정상조회() {
-        Member preSaved = Member.create("name", "hit@ex.com", null, MemberType.WRITER, null);
+        Member preSaved = Member.create("name", "hit@ex.com", null, MemberType.FOUNDER, null);
         memberRepository.save(preSaved);
 
         Member found = sut.getUserByEmail("hit@ex.com");
@@ -43,7 +43,7 @@ class MemberServiceImplIntegrationTest {
     @Test
     void createUser_중복이면_예외_바로발생() {
         // 중복 방지 로직은 DB 유니크 제약과 별개로 서비스가 findByEmail로 막음
-        memberRepository.save(Member.create("dup", "dup@ex.com", null, MemberType.WRITER, null));
+        memberRepository.save(Member.create("dup", "dup@ex.com", null, MemberType.FOUNDER, null));
 
         AuthRequest req = mock(AuthRequest.class);
         when(req.email()).thenReturn("dup@ex.com");
@@ -58,7 +58,7 @@ class MemberServiceImplIntegrationTest {
         Credential cred = Credential.create("hashedPassword");
         AuthRequest req = mock(AuthRequest.class);
         when(req.email()).thenReturn("ok@ex.com");
-        when(req.toMember(cred)).thenReturn(Member.create("ok", "ok@ex.com", null, MemberType.WRITER, null));
+        when(req.toMember(cred)).thenReturn(Member.create("ok", "ok@ex.com", null, MemberType.FOUNDER, null));
 
         Member saved = sut.createUser(cred, req);
 

@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum MemberType {
 
-    WRITER("사용자"),
+    FOUNDER("창업자"),
     EXPERT("전문가");
 
     private final String role;

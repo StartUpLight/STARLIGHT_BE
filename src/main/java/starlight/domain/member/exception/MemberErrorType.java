@@ -9,7 +9,7 @@ import starlight.shared.apiPayload.exception.ErrorType;
 @RequiredArgsConstructor
 public enum MemberErrorType implements ErrorType {
 
-    ALREADY_WRITER(HttpStatus.BAD_REQUEST, "이미 회원 타입이 EXPERT입니다."),
+    ALREADY_FOUNDER(HttpStatus.BAD_REQUEST, "이미 회원 타입이 EXPERT입니다."),
     INVALID_VERIFICATION_CODE(HttpStatus.UNAUTHORIZED, "유효하지 않은 이메일 인증 코드입니다."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다."),
     INVALID_EMAIL(HttpStatus.BAD_REQUEST, "유효하지 않은 이메일입니다."),
