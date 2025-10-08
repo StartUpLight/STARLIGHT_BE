@@ -1,4 +1,4 @@
-package starlight.domain.member.exception;
+package starlight.domain.auth.exception;
 
 import starlight.shared.apiPayload.exception.ErrorType;
 import starlight.shared.apiPayload.exception.GlobalException;

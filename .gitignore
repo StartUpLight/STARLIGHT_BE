@@ -45,6 +45,3 @@ out/
 node_modules/
 dist/
 *.log
-
-src/main/resources/*.yaml
-/src/test/resources/application-test.yaml

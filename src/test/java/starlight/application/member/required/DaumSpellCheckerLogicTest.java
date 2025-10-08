@@ -1,11 +1,7 @@
 package starlight.application.member.required;
 
-// src/test/java/.../DaumSpellCheckerLogicTest.java
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static org.assertj.core.api.Assertions.*;
-import java.util.List;
-
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -15,6 +11,10 @@ import org.springframework.web.client.RestClient;
 import starlight.adapter.member.spellcheck.DaumSpellChecker;
 import starlight.adapter.member.spellcheck.dto.Finding;
 import starlight.adapter.member.spellcheck.util.SpellCheckUtil;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class DaumSpellCheckerLogicTest {

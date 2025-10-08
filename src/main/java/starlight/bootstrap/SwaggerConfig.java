@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Collections;
+
 @OpenAPIDefinition(
         info = @Info(title = "StarLight 명세서", description = "StarLight API 명세서", version = "v1"
         ),

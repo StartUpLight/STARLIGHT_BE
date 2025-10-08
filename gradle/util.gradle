@@ -1,0 +1,14 @@
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // HTML Parser
+    implementation("org.jsoup:jsoup:1.18.1")
+}
