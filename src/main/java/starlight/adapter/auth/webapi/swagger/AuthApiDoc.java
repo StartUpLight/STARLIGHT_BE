@@ -81,8 +81,8 @@ public interface AuthApiDoc {
                                     value = """
                                         {
                                           "email": "starLight@gmail.com",
-                                          "password": "password123",
-                                          "nickname": "starLight"
+                                          "phoneNumber": "010-2112-9765",
+                                          "password": "password123"
                                         }
                                         """
                             )
