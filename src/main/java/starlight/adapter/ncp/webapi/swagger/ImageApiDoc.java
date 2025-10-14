@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import starlight.adapter.ncp.webapi.dto.PreSignedUrlResponse;
 import starlight.shared.apiPayload.response.ApiResponse;
 
-@Tag(name = "[UTIL] ", description = "이미지 관련 API")
+@Tag(name = "UTIL", description = "유틸리티 API")
 public interface ImageApiDoc {
 
     @Operation(
