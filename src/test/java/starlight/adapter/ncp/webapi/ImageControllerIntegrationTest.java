@@ -1,13 +1,10 @@
-// test/java/starlight/adapter/ncp/webapi/ImageControllerIntegrationTest.java
 package starlight.adapter.ncp.webapi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
@@ -16,21 +13,22 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import starlight.adapter.auth.security.filter.JwtFilter;
 import starlight.adapter.ncp.webapi.dto.PreSignedUrlResponse;
-import starlight.application.auth.required.TokenProvider;
 import starlight.application.infrastructure.provided.PresignedUrlProvider;
 import starlight.bootstrap.SecurityConfig;
 
 import static org.mockito.BDDMockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(
         controllers = ImageController.class,
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
                         JwtFilter.class,
-                        SecurityConfig.class // 있다면 함께 제외
+                        SecurityConfig.class
                 })
         }
 )
@@ -73,31 +71,31 @@ class ImageControllerIntegrationTest {
         verify(presignedUrlProvider).getPreSignedUrl(userId, fileName);
     }
 
-//    @Test
-//    @DisplayName("GET /v1/image/upload - userId 누락 시 400 에러")
-//    void getPresignedUrl_MissingUserId() throws Exception {
-//        // when & then
-//        mockMvc.perform(get("/v1/image/upload")
-//                        .param("fileName", "test.jpg")
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print())
-//                .andExpect(status().isBadRequest());
-//
-//        verify(presignedUrlProvider, never()).getPreSignedUrl(any(), any());
-//    }
-//
-//    @Test
-//    @DisplayName("GET /v1/image/upload - fileName 누락 시 400 에러")
-//    void getPresignedUrl_MissingFileName() throws Exception {
-//        // when & then
-//        mockMvc.perform(get("/v1/image/upload")
-//                        .param("userId", "1")
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print())
-//                .andExpect(status().isBadRequest());
-//
-//        verify(presignedUrlProvider, never()).getPreSignedUrl(any(), any());
-//    }
+    @Test
+    @DisplayName("GET /v1/image/upload - userId 누락 시 400 에러")
+    void getPresignedUrl_MissingUserId() throws Exception {
+        // when & then
+        mockMvc.perform(get("/v1/image/upload")
+                        .param("fileName", "test.jpg")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+        verify(presignedUrlProvider, never()).getPreSignedUrl(any(), any());
+    }
+
+    @Test
+    @DisplayName("GET /v1/image/upload - fileName 누락 시 400 에러")
+    void getPresignedUrl_MissingFileName() throws Exception {
+        // when & then
+        mockMvc.perform(get("/v1/image/upload")
+                        .param("userId", "1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+        verify(presignedUrlProvider, never()).getPreSignedUrl(any(), any());
+    }
 
     @Test
     @DisplayName("POST /v1/image/upload/public - 이미지 공개 처리 성공")
@@ -118,17 +116,17 @@ class ImageControllerIntegrationTest {
         verify(presignedUrlProvider).makePublic(objectUrl);
     }
 
-//    @Test
-//    @DisplayName("POST /v1/image/upload/public - objectUrl 누락 시 400 에러")
-//    void finalizePublic_MissingObjectUrl() throws Exception {
-//        // when & then
-//        mockMvc.perform(post("/v1/image/upload/public")
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print())
-//                .andExpect(status().isBadRequest());
-//
-//        verify(presignedUrlProvider, never()).makePublic(any());
-//    }
+    @Test
+    @DisplayName("POST /v1/image/upload/public - objectUrl 누락 시 400 에러")
+    void finalizePublic_MissingObjectUrl() throws Exception {
+        // when & then
+        mockMvc.perform(post("/v1/image/upload/public")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+        verify(presignedUrlProvider, never()).makePublic(any());
+    }
 
     @Test
     @DisplayName("POST /v1/image/upload/public - 잘못된 URL 형식으로 예외 발생")
