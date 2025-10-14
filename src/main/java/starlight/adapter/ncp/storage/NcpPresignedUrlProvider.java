@@ -1,4 +1,4 @@
-package starlight.bootstrap.objectstorage.service;
+package starlight.adapter.ncp.storage;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,20 +11,19 @@ import software.amazon.awssdk.services.s3.model.PutObjectAclRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
-import starlight.bootstrap.objectstorage.PreSignedUrlResponse;
+import starlight.adapter.ncp.webapi.dto.PreSignedUrlResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
-import starlight.bootstrap.objectstorage.PresignedUrlReader;
+import starlight.application.infrastructure.provided.PresignedUrlProvider;
 import software.amazon.awssdk.services.s3.S3Client;
 
 import java.nio.charset.StandardCharsets;
 import java.net.URLEncoder;
 import java.time.Duration;
-import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NcpPresignedUrlReader implements PresignedUrlReader {
+public class NcpPresignedUrlProvider implements PresignedUrlProvider {
 
     private final S3Client ncpS3Client;
     private final S3Presigner s3Presigner;
@@ -39,9 +38,9 @@ public class NcpPresignedUrlReader implements PresignedUrlReader {
      * - 클라이언트는 추가 헤더 없이 PUT(binary)만 하면 됨
      */
     @Override
-    public PreSignedUrlResponse getPreSignedUrl(String prefix, String originalFileName) {
+    public PreSignedUrlResponse getPreSignedUrl(Long userId, String originalFileName) {
         String safeFileName = encodePathSegment(originalFileName);
-        String key = String.format("%s/%s-%s", prefix, UUID.randomUUID(), safeFileName);
+        String key = String.format("%d/%s", userId, safeFileName);
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
@@ -65,10 +64,12 @@ public class NcpPresignedUrlReader implements PresignedUrlReader {
      * 업로드 후 공개가 필요할 때 서버에서 ACL을 지정
      */
     public String makePublic(String objectUrl) {
+        String key = extractKeyFromUrl(objectUrl);
+
         try {
             PutObjectAclRequest aclRequest = PutObjectAclRequest.builder()
                     .bucket(bucket)
-                    .key(objectUrl)
+                    .key(key)
                     .acl(ObjectCannedACL.PUBLIC_READ)
                     .build();
             ncpS3Client.putObjectAcl(aclRequest);
@@ -91,11 +92,22 @@ public class NcpPresignedUrlReader implements PresignedUrlReader {
      * 가상호스트 형태의 공개 URL 생성
      */
     private String buildObjectUrl(String key) {
-        // endpoint가 https://kr.object.ncloudstorage.com 라면,
-        // 공개 URL은 https://{bucket}.kr.object.ncloudstorage.com/{key}
         String host = endpoint;
         if (host.endsWith("/")) host = host.substring(0, host.length() - 1);
-        // endpoint의 호스트만 뽑아 쓰는 대신, NCP 규칙대로 {bucket}.{region-host} 조합 사용
+
         return String.format("https://%s.kr.object.ncloudstorage.com/%s", bucket, key);
+    }
+
+    /**
+     * Object URL에서 key 부분 추출
+     */
+    private String extractKeyFromUrl(String objectUrl) {
+        int schemeEnd = objectUrl.indexOf("://");
+        if (schemeEnd == -1) throw new IllegalArgumentException("잘못된 URL 형식");
+
+        int pathStart = objectUrl.indexOf("/", schemeEnd + 3);
+        if (pathStart == -1) throw new IllegalArgumentException("잘못된 URL 형식 - path가 없습니다");
+
+        return objectUrl.substring(pathStart + 1);
     }
 }

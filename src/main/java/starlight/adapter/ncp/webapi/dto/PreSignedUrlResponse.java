@@ -1,4 +1,4 @@
-package starlight.bootstrap.objectstorage;
+package starlight.adapter.ncp.webapi.dto;
 
 import lombok.Builder;
 
