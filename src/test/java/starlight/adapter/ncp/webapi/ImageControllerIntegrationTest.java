@@ -12,7 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import starlight.adapter.auth.security.filter.JwtFilter;
-import starlight.adapter.ncp.webapi.dto.PreSignedUrlResponse;
+import starlight.application.infrastructure.dto.PreSignedUrlResponse;
 import starlight.application.infrastructure.provided.PresignedUrlProvider;
 import starlight.bootstrap.SecurityConfig;
 

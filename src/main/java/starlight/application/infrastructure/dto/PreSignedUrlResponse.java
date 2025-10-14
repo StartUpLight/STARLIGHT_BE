@@ -1,4 +1,4 @@
-package starlight.adapter.ncp.webapi.dto;
+package starlight.application.infrastructure.dto;
 
 import lombok.Builder;
 

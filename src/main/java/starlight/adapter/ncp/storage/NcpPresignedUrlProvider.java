@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectAclRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
-import starlight.adapter.ncp.webapi.dto.PreSignedUrlResponse;
+import starlight.application.infrastructure.dto.PreSignedUrlResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import starlight.application.infrastructure.provided.PresignedUrlProvider;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -63,6 +63,7 @@ public class NcpPresignedUrlProvider implements PresignedUrlProvider {
     /**
      * 업로드 후 공개가 필요할 때 서버에서 ACL을 지정
      */
+    @Override
     public String makePublic(String objectUrl) {
         String key = extractKeyFromUrl(objectUrl);
 

@@ -1,6 +1,6 @@
 package starlight.application.infrastructure.provided;
 
-import starlight.adapter.ncp.webapi.dto.PreSignedUrlResponse;
+import starlight.application.infrastructure.dto.PreSignedUrlResponse;
 
 public interface PresignedUrlProvider {
 
