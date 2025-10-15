@@ -17,15 +17,15 @@ Spring Boot로 만든 REST API 서버입니다.
 > JIRA를 통해서 자동생성
 
 ### 💬 커밋 메시지 (Issue 번호 포함)
-> Docs: (MOISAM-25) README 업데이트  
-> Feat: (MOISAM-12) 로그인 기능을 추가한다  
-> Fix: (MOISAM-23) 회원가입 오류를 수정한다
+> Docs: (SRLT-25) README 업데이트  
+> Feat: (SRLT-12) 로그인 기능을 추가한다  
+> Fix: (SRLT-23) 회원가입 오류를 수정한다
 
 
 ### 💬 PR 및 ISSUE 제목
-> [MOISAM-25] 로그인 기능을 추가한다  
-> [MOISAM-23] 회원가입 오류를 수정한다  
-> [MOISAM-12] README 업데이트
+> [SRLT-25] 로그인 기능을 추가한다  
+> [SRLT-23] 회원가입 오류를 수정한다  
+> [SRLT-12] README 업데이트
 
 ## 🔄 개발 흐름 (Issue → Branch → PR)
 
