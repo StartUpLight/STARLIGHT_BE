@@ -46,7 +46,7 @@ class ImageControllerIntegrationTest {
     JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
     @Test
-    @DisplayName("GET /v1/image/upload - Presigned URL 조회 성공")
+    @DisplayName("GET /v1/images/upload-url - Presigned URL 조회 성공")
     void getPresignedUrl_Success() throws Exception {
         // given
         Long userId = 1L;
@@ -58,7 +58,7 @@ class ImageControllerIntegrationTest {
         given(presignedUrlProvider.getPreSignedUrl(userId, fileName)).willReturn(response);
 
         // when & then
-        mockMvc.perform(get("/v1/image/upload")
+        mockMvc.perform(get("/v1/images/upload-url")
                         .param("userId", userId.toString())
                         .param("fileName", fileName)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -72,10 +72,10 @@ class ImageControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("GET /v1/image/upload - userId 누락 시 400 에러")
+    @DisplayName("GET /v1/images/upload-url - userId 누락 시 400 에러")
     void getPresignedUrl_MissingUserId() throws Exception {
         // when & then
-        mockMvc.perform(get("/v1/image/upload")
+        mockMvc.perform(get("/v1/images/upload-url")
                         .param("fileName", "test.jpg")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -85,10 +85,10 @@ class ImageControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("GET /v1/image/upload - fileName 누락 시 400 에러")
+    @DisplayName("GET /v1/images/upload-url - fileName 누락 시 400 에러")
     void getPresignedUrl_MissingFileName() throws Exception {
         // when & then
-        mockMvc.perform(get("/v1/image/upload")
+        mockMvc.perform(get("/v1/images/upload-url")
                         .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -98,14 +98,14 @@ class ImageControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /v1/image/upload/public - 이미지 공개 처리 성공")
+    @DisplayName("POST /v1/images/upload-url/public - 이미지 공개 처리 성공")
     void finalizePublic_Success() throws Exception {
         // given
         String objectUrl = "https://test-bucket.kr.object.ncloudstorage.com/1/test-image.jpg";
         given(presignedUrlProvider.makePublic(objectUrl)).willReturn(objectUrl);
 
         // when & then
-        mockMvc.perform(post("/v1/image/upload/public")
+        mockMvc.perform(post("/v1/images/upload-url/public")
                         .param("objectUrl", objectUrl)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -117,10 +117,10 @@ class ImageControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /v1/image/upload/public - objectUrl 누락 시 400 에러")
+    @DisplayName("POST /v1/images/upload-url/public - objectUrl 누락 시 400 에러")
     void finalizePublic_MissingObjectUrl() throws Exception {
         // when & then
-        mockMvc.perform(post("/v1/image/upload/public")
+        mockMvc.perform(post("/v1/images/upload-url/public")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -129,7 +129,7 @@ class ImageControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /v1/image/upload/public - 잘못된 URL 형식으로 예외 발생")
+    @DisplayName("POST /v1/images/upload-url/public - 잘못된 URL 형식으로 예외 발생")
     void finalizePublic_InvalidUrl() throws Exception {
         // given
         String invalidUrl = "invalid-url";
@@ -137,7 +137,7 @@ class ImageControllerIntegrationTest {
                 .willThrow(new IllegalArgumentException("잘못된 URL 형식"));
 
         // when & then
-        mockMvc.perform(post("/v1/image/upload/public")
+        mockMvc.perform(post("/v1/images/upload-url/public")
                         .param("objectUrl", invalidUrl)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
