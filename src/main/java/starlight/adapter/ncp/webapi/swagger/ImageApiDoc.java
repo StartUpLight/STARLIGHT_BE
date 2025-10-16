@@ -42,7 +42,7 @@ public interface ImageApiDoc {
                     )
             )
     })
-    @GetMapping(value = "/v1/image/presigned-url", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/v1/image/upload-url", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<PreSignedUrlResponse> getPresignedUrl(
             @io.swagger.v3.oas.annotations.Parameter(description = "UserId", required = true) @RequestParam Long userId,
             @io.swagger.v3.oas.annotations.Parameter(description = "파일명", required = true) @RequestParam String fileName
@@ -70,7 +70,7 @@ public interface ImageApiDoc {
                     )
             )
     })
-    @PostMapping("/v1/image/finalize-public")
+    @PostMapping("/v1/images/upload-url/public")
     ApiResponse<?> finalizePublic(
             @io.swagger.v3.oas.annotations.Parameter(description = "S3 Object URL", required = true) @RequestParam String objectUrl
     );
