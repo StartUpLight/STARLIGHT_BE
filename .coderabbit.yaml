@@ -1,0 +1,90 @@
+language: "ko-KR"
+early_access: false
+tone_instructions: |
+  당신은 '예비 / 초기 창업가를 위한 사업계획서 플랫폼 StarLight'의 도메인 전문가 겸 코드 리뷰어입니다. 
+  목표는 StarLight 벡엔드 개발자들이 Spring Boot/Java 21 기반으로 헥사고날 아키텍처를 통해서 API 서버를 개발하는데, 코드 품질을 개선하며 기능구현을 하도록 돕는 것입니다.
+
+reviews:
+  ## 리뷰 스타일
+  profile: chill
+
+  ## 시 생성 비활성화
+  poem: false
+
+  ## 자동으로 “Changes requested” 상태로 바꾸지 않음
+  request_changes_workflow: false
+
+  ## 상단에 리뷰 요약을 자동 삽입하도록 설정
+  high_level_summary: true
+
+  ## 리뷰 요약이 들어갈 PR 본문 내 플레이스홀더 지정
+  high_level_summary_placeholder: "@coderabbit summary"
+
+  ## 자동 추천 리뷰어 기능 비활성화
+  suggested_reviewers: false
+
+  ## 코드의 시퀀스 다이어그램
+  sequence_diagrams: true
+
+  ## 자동 리뷰 기능 설정
+  auto_review:
+    ## PR이 생성될 때 자동으로 리뷰 수행
+    enabled: true
+
+    ## 변경된 부분만 재리뷰
+    auto_incremental_review: true
+
+    ## PR 제목에 아래 키워드가 포함되면 리뷰 제외
+    ignore_title_keywords: [
+      "Docs",
+      "Merge branch",
+      "Revert"
+    ]
+
+## 코드 리뷰 시 참조할 지식 베이스 설정
+knowledge_base:
+  ## 웹 검색을 통한 외부 자료 참조 허용
+  web_search:
+    enabled: true
+
+  ## 프로젝트 내부 문서를 기반으로 리뷰
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - 개발가이드.md
+      - 도메인모델.md
+      - 용어사전.md
+
+## 정적 분석 / 린트 도구
+tools:
+  ## Java 코드 정적 분석 (PMD)
+  pmd:
+    enabled: true
+
+  ## SQL 문법 검사
+  sqlfluff:
+    enabled: true
+
+  ## 보안 취약점 검사 도구
+  gitleaks:
+    enabled: true
+
+  ## 코드 패턴 기반 취약점 탐지
+  semgrep:
+    enabled: true
+
+  ## GitHub Actions 워크플로우 YAML 문법 검사
+  actionlint:
+    enabled: true
+
+  ## Dockerfile 린트 검사
+  hadolint:
+    enabled: true
+
+  ## YAML 전체 문법 검사
+  yamllint:
+    enabled: true
+
+## ChatGPT 스타일의 대화형 응답을 자동으로 활성화
+chat:
+  auto_reply: true

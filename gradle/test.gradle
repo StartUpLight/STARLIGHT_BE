@@ -1,0 +1,76 @@
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+dependencies {
+    // DATABASE
+    testRuntimeOnly 'com.h2database:h2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    testImplementation 'org.assertj:assertj-core:3.26.3'
+    testImplementation 'org.springframework.security:spring-security-test'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    systemProperty "spring.profiles.active", "test"
+    jvmArgs += ['-Duser.timezone=Asia/Seoul', '-Dfile.encoding=UTF-8']
+
+    finalizedBy jacocoTestReport
+    finalizedBy jacocoTestCoverageVerification
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    '**/*Application.class',
+                    '**/config/**',
+                    '**/dto/**',
+                    '**/entity/**',
+                    '**/exception/**'
+            ])
+        }))
+    }
+}
+
+jacocoTestCoverageVerification {
+    dependsOn jacocoTestReport
+
+    violationRules {
+        rule {
+            element = 'BUNDLE'  // 전체 프로젝트 기준
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+        }
+
+//        rule {
+//            element = 'CLASS'  // 클래스 단위로 검증
+//            limit {
+//                counter = 'LINE'  // 라인 커버리지
+//                value = 'COVEREDRATIO'  // 커버된 비율
+//                minimum = 0.50
+//            }
+//        }
+//
+//        rule {
+//            element = 'METHOD'  // 메서드 단위로 검증
+//            limit {
+//                counter = 'LINE'
+//                value = 'COVEREDRATIO'
+//                minimum = 0.50
+//            }
+//        }
+    }
+}
