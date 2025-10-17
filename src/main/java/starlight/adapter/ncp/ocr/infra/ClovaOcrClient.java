@@ -25,7 +25,6 @@ public class ClovaOcrClient {
 
         try {
             return clovaOcrRestClient.post()
-                    .contentType(MediaType.APPLICATION_JSON)
                     .body(request)
                     .retrieve()
                     .body(ClovaOcrResponse.class);

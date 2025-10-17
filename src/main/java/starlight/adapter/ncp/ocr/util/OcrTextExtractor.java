@@ -50,7 +50,7 @@ public final class OcrTextExtractor {
                 }
 
                 Double confidence = fieldItem.inferConfidence();
-                if (confidence != null && confidence < MINIMUM_CONFIDENCE_THRESHOLD) {
+                if (confidence == null || confidence < MINIMUM_CONFIDENCE_THRESHOLD) {
                     continue;
                 }
 
