@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectAclRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
-import starlight.application.infrastructure.dto.PreSignedUrlResponse;
+import starlight.shared.dto.PreSignedUrlResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import starlight.application.infrastructure.provided.PresignedUrlProvider;
 import software.amazon.awssdk.services.s3.S3Client;

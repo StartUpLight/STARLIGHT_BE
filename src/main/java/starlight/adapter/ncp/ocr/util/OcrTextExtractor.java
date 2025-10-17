@@ -1,0 +1,96 @@
+package starlight.adapter.ncp.ocr.util;
+
+import starlight.shared.dto.ClovaOcrResponse;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public final class OcrTextExtractor {
+
+    private OcrTextExtractor() {}
+
+    /**
+     * 모든 페이지를 하나의 문자열로 병합.
+     * 페이지 사이에는 "\n\n-----\n\n" 구분선을 넣는다.
+     *
+     * @param response                  OCR 원본 응답 (널 가능)
+     * @param minConfidenceThreshold    추출 최소 신뢰도(예: 0.8). 미만은 스킵
+     * @return                          결합된 전체 텍스트 (널 입력이면 빈 문자열)
+     */
+    public static String toPlainText(ClovaOcrResponse response, double minConfidenceThreshold) {
+        List<String> pageTexts = toPages(response, minConfidenceThreshold);
+        return String.join("\n\n-----\n\n", pageTexts);
+    }
+
+    /**
+     * 페이지(= images 배열의 각 요소)별 텍스트를 리스트로 반환.
+     *
+     * @param clovaOcrResponse          OCR 원본 응답
+     * @param minConfidenceThreshold    추출 최소 신뢰도
+     * @return                          각 페이지의 문자열 (images가 비었거나 널이면 빈 리스트)
+     */
+    public static List<String> toPages(ClovaOcrResponse clovaOcrResponse, double minConfidenceThreshold) {
+        List<String> pages = new ArrayList<>();
+        if (clovaOcrResponse == null || clovaOcrResponse.images() == null) {
+            return pages;
+        }
+
+        for (ClovaOcrResponse.ImageResult page : clovaOcrResponse.images()) {
+            if (page == null || page.fields() == null || page.fields().isEmpty()) {
+                pages.add("");
+                continue;
+            }
+
+            StringBuilder pageBuilder = new StringBuilder();
+            boolean atLineStart = true;
+
+            for (ClovaOcrResponse.ImageResult.Field fieldItem : page.fields()) {
+                if (fieldItem == null) continue;
+
+                // 낮은 신뢰도는 스킵
+                Double confidence = fieldItem.inferConfidence();
+                if (confidence != null && confidence < minConfidenceThreshold) {
+                    continue;
+                }
+
+                String normalizedToken = normalize(fieldItem.inferText());
+                if (normalizedToken.isEmpty()) continue;
+
+                // 줄 시작이 아니면 공백으로 구분 (개행은 토큰 뒤에서만 처리)
+                if (!atLineStart) {
+                    pageBuilder.append(' ');
+                }
+
+                // 토큰 추가, 토큰 뒤에서만 lineBreak 처리
+                pageBuilder.append(normalizedToken);
+                if (Boolean.TRUE.equals(fieldItem.lineBreak())) {
+                    pageBuilder.append('\n');
+                    atLineStart = true;
+                } else {
+                    atLineStart = false;
+                }
+            }
+
+            pages.add(pageBuilder.toString().strip());
+        }
+
+        return pages;
+    }
+
+    /**
+     * 토큰 정규화:
+     * - null → "" (스킵되도록)
+     * - 앞뒤 공백 제거
+     * - 연속 공백 1칸으로 축약
+     * - 구두점 앞의 공백 제거, 괄호 주변 공백 정리
+     */
+    private static String normalize(String raw) {
+        if (raw == null) return "";
+        String out = raw.strip()
+                .replaceAll("\\s+", " ");            // 다중 공백 → 1칸
+        out = out.replaceAll("\\s+([,.:;!?])", "$1") // 구두점 앞 공백 제거
+                .replaceAll("\\(\\s+", "(")          // 여는 괄호 뒤 공백 제거
+                .replaceAll("\\s+\\)", ")");         // 닫는 괄호 앞 공백 제거
+        return out;
+    }
+}
