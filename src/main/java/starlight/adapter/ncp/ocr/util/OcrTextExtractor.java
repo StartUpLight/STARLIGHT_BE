@@ -45,23 +45,24 @@ public final class OcrTextExtractor {
             boolean atLineStart = true;
 
             for (ClovaOcrResponse.ImageResult.Field fieldItem : page.fields()) {
-                if (fieldItem == null) continue;
+                if (fieldItem == null) {
+                    continue;
+                }
 
-                // 낮은 신뢰도는 스킵
                 Double confidence = fieldItem.inferConfidence();
                 if (confidence != null && confidence < MINIMUM_CONFIDENCE_THRESHOLD) {
                     continue;
                 }
 
                 String normalizedToken = normalize(fieldItem.inferText());
-                if (normalizedToken.isEmpty()) continue;
+                if (normalizedToken.isEmpty()) {
+                    continue;
+                }
 
-                // 줄 시작이 아니면 공백으로 구분 (개행은 토큰 뒤에서만 처리)
                 if (!atLineStart) {
                     pageBuilder.append(' ');
                 }
 
-                // 토큰 추가, 토큰 뒤에서만 lineBreak 처리
                 pageBuilder.append(normalizedToken);
                 if (Boolean.TRUE.equals(fieldItem.lineBreak())) {
                     pageBuilder.append('\n');
