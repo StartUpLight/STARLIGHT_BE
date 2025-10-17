@@ -39,7 +39,7 @@ public class PdfDownloadClient {
     public byte[] downloadPdfFromUrl(String url) {
         try {
             ResponseEntity<byte[]> entity = pdfDownloadClient.get()
-                    .uri(URI.create(url)) // 원본 URI 그대로 사용(이중 인코딩 방지)
+                    .uri(URI.create(url))
                     .retrieve()
                     .toEntity(byte[].class);
 

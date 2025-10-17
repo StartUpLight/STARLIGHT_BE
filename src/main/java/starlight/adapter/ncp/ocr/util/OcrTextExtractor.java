@@ -88,10 +88,10 @@ public final class OcrTextExtractor {
     private static String normalize(String raw) {
         if (raw == null) return "";
         String out = raw.strip()
-                .replaceAll("\\s+", " ");            // 다중 공백 → 1칸
-        out = out.replaceAll("\\s+([,.:;!?])", "$1") // 구두점 앞 공백 제거
-                .replaceAll("\\(\\s+", "(")          // 여는 괄호 뒤 공백 제거
-                .replaceAll("\\s+\\)", ")");         // 닫는 괄호 앞 공백 제거
+                .replaceAll("\\s+", " ");
+        out = out.replaceAll("\\s+([,.:;!?])", "$1")
+                .replaceAll("\\(\\s+", "(")
+                .replaceAll("\\s+\\)", ")");
         return out;
     }
 }

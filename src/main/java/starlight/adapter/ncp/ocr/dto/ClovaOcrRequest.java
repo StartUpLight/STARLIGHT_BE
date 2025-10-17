@@ -24,12 +24,6 @@ public record ClovaOcrRequest(
         );
     }
 
-    /** URL로 PDF 1개 보낼 때 */
-    public static ClovaOcrRequest createPdfByUrl(String version, String lang, String pdfUrl) {
-        return create(version, lang, List.of(Image.ofUrl("pdf", "input", pdfUrl)));
-    }
-
-    /** 바이트(pdf)를 base64로 인코딩해서 1개 이미지 항목으로 보냄 */
     public static ClovaOcrRequest createPdfByBytes(String version, byte[] pdfBytes) {
         String b64 = Base64.getEncoder().encodeToString(pdfBytes);
         return create(version, "ko", List.of(Image.ofData("pdf", "input", b64)));
@@ -37,14 +31,11 @@ public record ClovaOcrRequest(
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record Image(
-            String format, // "pdf"
-            String name,   // "input"
-            String url,    // url 또는
-            String data    // base64 (둘 중 하나만)
+            String format,
+            String name,
+            String url,
+            String data
     ) {
-        public static Image ofUrl(String format, String name, String url) {
-            return new Image(format, name, url, null);
-        }
         public static Image ofData(String format, String name, String base64) {
             return new Image(format, name, null, base64);
         }
