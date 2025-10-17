@@ -16,21 +16,6 @@ public final class PdfUtils {
     private PdfUtils() {}
 
     /**
-     * PDF 총 페이지 수 카운트
-     *
-     * @param sourcePdfBytes 원본 PDF 바이트
-     * @return 페이지 수
-     */
-    public static int countPages(byte[] sourcePdfBytes) {
-        try (PDDocument sourceDoc = PDDocument.load(new ByteArrayInputStream(sourcePdfBytes))) {
-            return sourceDoc.getNumberOfPages();
-        } catch (Exception e) {
-            log.info("PDF 페이지 계산 실패: {}", e.getMessage());
-            throw new OcrException(OcrErrorType.PAGE_COUNT_ERROR);
-        }
-    }
-
-    /**
      * PDF를 페이지 단위로 잘라 maxPagesPerChunk 크기의 조각들로 분할하여 반환합니다.
      *
      * @param sourcePdfBytes     원본 PDF 바이트
