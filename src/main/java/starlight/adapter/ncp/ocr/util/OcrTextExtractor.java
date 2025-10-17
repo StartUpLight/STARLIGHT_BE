@@ -9,6 +9,8 @@ public final class OcrTextExtractor {
 
     private OcrTextExtractor() {}
 
+    private static final double MINIMUM_CONFIDENCE_THRESHOLD = 0.85;
+
     /**
      * 모든 페이지를 하나의 문자열로 병합.
      * 페이지 사이에는 "\n\n-----\n\n" 구분선을 넣는다.
@@ -47,7 +49,7 @@ public final class OcrTextExtractor {
 
                 // 낮은 신뢰도는 스킵
                 Double confidence = fieldItem.inferConfidence();
-                if (confidence != null && confidence < 0.85) {
+                if (confidence != null && confidence < MINIMUM_CONFIDENCE_THRESHOLD) {
                     continue;
                 }
 

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import starlight.adapter.ncp.ocr.ClovaOcrProvider;
+import starlight.application.infrastructure.provided.OcrProvider;
 import starlight.shared.dto.ClovaOcrResponse;
 import starlight.shared.apiPayload.response.ApiResponse;
 
@@ -14,7 +15,7 @@ import starlight.shared.apiPayload.response.ApiResponse;
 @RequiredArgsConstructor
 public class OcrController {
 
-    private final ClovaOcrProvider service;
+    private final OcrProvider service;
 
     @PostMapping("/pdf")
     public ApiResponse<ClovaOcrResponse> ocrPdf(@RequestParam String url) {
