@@ -5,10 +5,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import starlight.adapter.ncp.ocr.ClovaOcrProvider;
 import starlight.application.infrastructure.provided.OcrProvider;
-import starlight.shared.dto.ClovaOcrResponse;
 import starlight.shared.apiPayload.response.ApiResponse;
+import starlight.shared.dto.ClovaOcrResponse;
 
 @RestController
 @RequestMapping("/v1/ocr")

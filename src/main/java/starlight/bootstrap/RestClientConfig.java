@@ -27,13 +27,10 @@ public class RestClientConfig {
     @Bean(name = "clovaOcrRestClient")
     public RestClient clovaOcrRestClient(
             @Value("${cloud.ncp.ocr.endpoint}") String endpoint,
-            @Value("${cloud.ncp.ocr.secret}") String secretRaw
+            @Value("${cloud.ncp.ocr.secret}") String secret
     ) {
-        String secret = secretRaw == null ? "" : secretRaw.trim(); // 공백 제거
-        if (secret.isEmpty()) throw new IllegalStateException("Missing 'clova.ocr.secret'");
-
-        var factory = new JdkClientHttpRequestFactory();
-        factory.setReadTimeout(Duration.ofSeconds(120));     // ↑ OCR 대기시간 확보
+        JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory();
+        factory.setReadTimeout(Duration.ofSeconds(120));
 
         return RestClient.builder()
                 .baseUrl(endpoint)
