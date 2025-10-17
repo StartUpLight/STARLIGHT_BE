@@ -54,7 +54,7 @@ public class PdfDownloadClient {
         } catch (OcrException e) {
             throw e;
         } catch (Exception e) {
-            log.info("PDF 다운로드 실패: {}", e.getMessage());
+            log.error("PDF 다운로드 실패: {}", e.getMessage());
             throw new OcrException(OcrErrorType.PDF_DOWNLOAD_ERROR);
         }
     }

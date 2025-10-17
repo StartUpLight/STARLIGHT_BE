@@ -52,7 +52,7 @@ public final class PdfUtils {
 
             return chunks;
         } catch (Exception e) {
-            log.info("PDF 분할 실패: {}", e.getMessage());
+            log.error("PDF 분할 실패: {}", e.getMessage());
             throw new OcrException(OcrErrorType.PDF_SPLIT_ERROR);
         }
     }
