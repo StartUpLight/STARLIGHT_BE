@@ -36,7 +36,6 @@ public class ClovaOcrProvider implements OcrProvider {
      *         - {@code PDF_EMPTY_RESPONSE} : 응답 본문이 비어 있음
      *         - {@code PDF_TOO_LARGE}      : 허용된 최대 크기를 초과
      *         - {@code PDF_SPLIT_ERROR}    : PDF 분할 실패
-     *         - {@code OCR_TIMEOUT}        : OCR 호출 타임아웃/네트워크 실패
      *         - {@code OCR_CLIENT_ERROR}   : OCR 서버에서 4xx/5xx 등 오류 응답
      */
     @Override
@@ -65,6 +64,7 @@ public class ClovaOcrProvider implements OcrProvider {
     @Override
     public String ocrPdfTextByUrl(String pdfUrl, double minConfidence) {
         ClovaOcrResponse clovaOcrResponse = ocrPdfByUrl(pdfUrl);
+
         return OcrTextExtractor.toPlainText(clovaOcrResponse, minConfidence);
     }
 }
