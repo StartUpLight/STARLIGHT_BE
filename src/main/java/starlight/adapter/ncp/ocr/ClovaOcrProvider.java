@@ -58,13 +58,12 @@ public class ClovaOcrProvider implements OcrProvider {
      * - OcrTextExtractor로 토큰을 정제/라인브레이크 반영하여 평문 텍스트를 생성.
      *
      * @param pdfUrl         원격 PDF URL
-     * @param minConfidence  신뢰도 하한 (이 값보다 낮은 토큰은 제거)
      * @return 페이지 구분선(“-----”)이 포함된 최종 텍스트
      */
     @Override
-    public String ocrPdfTextByUrl(String pdfUrl, double minConfidence) {
+    public String ocrPdfTextByUrl(String pdfUrl) {
         ClovaOcrResponse clovaOcrResponse = ocrPdfByUrl(pdfUrl);
 
-        return OcrTextExtractor.toPlainText(clovaOcrResponse, minConfidence);
+        return OcrTextExtractor.toPlainText(clovaOcrResponse);
     }
 }

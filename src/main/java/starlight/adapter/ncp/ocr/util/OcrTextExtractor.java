@@ -14,11 +14,10 @@ public final class OcrTextExtractor {
      * 페이지 사이에는 "\n\n-----\n\n" 구분선을 넣는다.
      *
      * @param response                  OCR 원본 응답 (널 가능)
-     * @param minConfidenceThreshold    추출 최소 신뢰도(예: 0.8). 미만은 스킵
      * @return                          결합된 전체 텍스트 (널 입력이면 빈 문자열)
      */
-    public static String toPlainText(ClovaOcrResponse response, double minConfidenceThreshold) {
-        List<String> pageTexts = toPages(response, minConfidenceThreshold);
+    public static String toPlainText(ClovaOcrResponse response) {
+        List<String> pageTexts = toPages(response);
         return String.join("\n\n-----\n\n", pageTexts);
     }
 
@@ -26,10 +25,9 @@ public final class OcrTextExtractor {
      * 페이지(= images 배열의 각 요소)별 텍스트를 리스트로 반환.
      *
      * @param clovaOcrResponse          OCR 원본 응답
-     * @param minConfidenceThreshold    추출 최소 신뢰도
      * @return                          각 페이지의 문자열 (images가 비었거나 널이면 빈 리스트)
      */
-    public static List<String> toPages(ClovaOcrResponse clovaOcrResponse, double minConfidenceThreshold) {
+    public static List<String> toPages(ClovaOcrResponse clovaOcrResponse) {
         List<String> pages = new ArrayList<>();
         if (clovaOcrResponse == null || clovaOcrResponse.images() == null) {
             return pages;
@@ -49,7 +47,7 @@ public final class OcrTextExtractor {
 
                 // 낮은 신뢰도는 스킵
                 Double confidence = fieldItem.inferConfidence();
-                if (confidence != null && confidence < minConfidenceThreshold) {
+                if (confidence != null && confidence < 0.85) {
                     continue;
                 }
 

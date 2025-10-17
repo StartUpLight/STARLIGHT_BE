@@ -22,9 +22,8 @@ public class OcrController {
     }
 
     @PostMapping("/pdf/text")
-    public ApiResponse<String> ocrPdfText(@RequestParam String url, @RequestParam Double minConfidence) {
-        double minConf = (minConfidence == null) ? 0.85 : minConfidence;
-        return ApiResponse.success(service.ocrPdfTextByUrl(url, minConf));
+    public ApiResponse<String> ocrPdfText(@RequestParam String url) {
+        return ApiResponse.success(service.ocrPdfTextByUrl(url));
     }
 }
 
