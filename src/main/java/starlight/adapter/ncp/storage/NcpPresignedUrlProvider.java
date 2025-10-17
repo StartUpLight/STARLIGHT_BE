@@ -99,10 +99,9 @@ public class NcpPresignedUrlProvider implements PresignedUrlProvider {
      * 가상호스트 형태의 공개 URL 생성
      */
     private String buildObjectUrl(String key) {
-        String host = endpoint;
-        if (host.endsWith("/")) host = host.substring(0, host.length() - 1);
+        String host = endpoint.replaceFirst("^https?://", "").replaceAll("/$", "");
 
-        return String.format("https://%s.kr.object.ncloudstorage.com/%s", bucket, key);
+        return String.format("https://%s.%s/%s", bucket, host, key);
     }
 
     /**
