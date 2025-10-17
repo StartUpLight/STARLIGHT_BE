@@ -3,14 +3,14 @@ package starlight.adapter.ncp.ocr;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import starlight.shared.dto.ClovaOcrResponse;
 import starlight.adapter.ncp.ocr.exception.OcrException;
 import starlight.adapter.ncp.ocr.infra.ClovaOcrClient;
+import starlight.adapter.ncp.ocr.infra.PdfDownloadClient;
 import starlight.adapter.ncp.ocr.util.OcrResponseMerger;
 import starlight.adapter.ncp.ocr.util.OcrTextExtractor;
 import starlight.adapter.ncp.ocr.util.PdfUtils;
-import starlight.adapter.ncp.ocr.infra.PdfDownloadClient;
 import starlight.application.infrastructure.provided.OcrProvider;
+import starlight.shared.dto.ClovaOcrResponse;
 
 import java.util.ArrayList;
 import java.util.List;

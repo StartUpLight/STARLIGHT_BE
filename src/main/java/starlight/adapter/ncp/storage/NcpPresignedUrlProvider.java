@@ -1,23 +1,22 @@
 package starlight.adapter.ncp.storage;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectAclRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
-import starlight.shared.dto.PreSignedUrlResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 import starlight.application.infrastructure.provided.PresignedUrlProvider;
-import software.amazon.awssdk.services.s3.S3Client;
+import starlight.shared.dto.PreSignedUrlResponse;
 
-import java.nio.charset.StandardCharsets;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 @Slf4j
@@ -35,7 +34,11 @@ public class NcpPresignedUrlProvider implements PresignedUrlProvider {
 
     /**
      * 업로드용 Presigned URL 생성
-     * - 클라이언트는 추가 헤더 없이 PUT(binary)만 하면 됨
+     *   - 클라이언트는 추가 헤더 없이 PUT(binary)만 하면 됨
+     *
+     * @param userId
+     * @param originalFileName
+     * @return
      */
     @Override
     public PreSignedUrlResponse getPreSignedUrl(Long userId, String originalFileName) {
@@ -62,6 +65,9 @@ public class NcpPresignedUrlProvider implements PresignedUrlProvider {
 
     /**
      * 업로드 후 공개가 필요할 때 서버에서 ACL을 지정
+     *
+     * @param objectUrl
+     * @return objectUrl
      */
     @Override
     public String makePublic(String objectUrl) {
