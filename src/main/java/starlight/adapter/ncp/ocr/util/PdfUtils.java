@@ -13,7 +13,7 @@ import java.util.List;
 @Slf4j
 public final class PdfUtils {
 
-    private PdfUtils() {}
+        private PdfUtils() {}
 
     /**
      * PDF를 페이지 단위로 잘라 maxPagesPerChunk 크기의 조각들로 분할하여 반환합니다.

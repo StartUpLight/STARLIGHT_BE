@@ -51,6 +51,8 @@ public class PdfDownloadClient {
                 throw new OcrException(OcrErrorType.PDF_TOO_LARGE);
             }
             return data;
+        } catch (OcrException e)  {
+            throw e; // 이미 처리된 OcrException은 재던짐
         } catch (Exception e) {
             log.error("PDF 다운로드 실패: {}", e.getMessage());
             throw new OcrException(OcrErrorType.PDF_DOWNLOAD_ERROR);

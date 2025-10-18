@@ -2,7 +2,6 @@ package starlight.adapter.ncp.ocr.infra;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import starlight.adapter.ncp.ocr.dto.ClovaOcrRequest;
