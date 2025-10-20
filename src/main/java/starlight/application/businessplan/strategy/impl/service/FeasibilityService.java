@@ -1,4 +1,4 @@
-package starlight.domain.businessplan.strategy.service;
+package starlight.application.businessplan.strategy.impl.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.Feasibility;
-import starlight.domain.businessplan.strategy.SectionSupportUtils;
+import starlight.application.businessplan.strategy.SectionSupportUtils;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class FeasibilityService {
         entity.updateChecks(checks);
     }
 
-    public void delete(Feasibility entity, BusinessPlan plan) {
+    public void  delete(Feasibility entity, BusinessPlan plan) {
         plan.detachFeasibility();
     }
 }

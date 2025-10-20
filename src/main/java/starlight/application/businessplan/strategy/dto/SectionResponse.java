@@ -1,4 +1,4 @@
-package starlight.domain.businessplan.strategy.dto;
+package starlight.application.businessplan.strategy.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import starlight.domain.businessplan.enumerate.SectionName;

@@ -1,32 +1,32 @@
-package starlight.domain.businessplan.strategy.service;
+package starlight.application.businessplan.strategy.impl.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import starlight.domain.businessplan.entity.BusinessPlan;
-import starlight.domain.businessplan.entity.TeamCompetence;
-import starlight.domain.businessplan.strategy.SectionSupportUtils;
+import starlight.domain.businessplan.entity.Overview;
+import starlight.application.businessplan.strategy.SectionSupportUtils;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class TeamCompetenceService {
+public class OverviewService {
 
     private final ObjectMapper objectMapper;
 
-    public TeamCompetence createFrom(JsonNode rawJson, List<Boolean> checks) {
+    public Overview createFrom(JsonNode rawJson, List<Boolean> checks) {
         SectionSupportUtils.requireSize5(checks);
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
 
-        TeamCompetence entity = TeamCompetence.create(json);
+        Overview entity = Overview.create(json);
         entity.updateChecks(checks);
 
         return entity;
     }
 
-    public void updateFrom(TeamCompetence entity, JsonNode rawJson, List<Boolean> checks) {
+    public void updateFrom(Overview entity, JsonNode rawJson, List<Boolean> checks) {
         SectionSupportUtils.requireSize5(checks);
 
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
@@ -34,7 +34,7 @@ public class TeamCompetenceService {
         entity.updateChecks(checks);
     }
 
-    public void delete(TeamCompetence entity, BusinessPlan plan) {
-        plan.detachTeamCompetence();
+    public void delete(Overview entity, BusinessPlan plan) {
+        plan.detachOverview();
     }
 }

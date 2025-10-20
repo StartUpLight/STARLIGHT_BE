@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor
-public class GrowthStrategy {
+public class GrowthTactic {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,22 +41,22 @@ public class GrowthStrategy {
     @Column(nullable = false)
     private boolean checkFifth;
 
-    public static GrowthStrategy create(RawJson rawJson) {
+    public static GrowthTactic create(RawJson rawJson) {
         Assert.notNull(rawJson, "rawJson must not be null");
 
-        GrowthStrategy growthStrategy = new GrowthStrategy();
-        growthStrategy.rawJson = rawJson;
+        GrowthTactic growthTactic = new GrowthTactic();
+        growthTactic.rawJson = rawJson;
 
-        return growthStrategy;
+        return growthTactic;
     }
 
-    public static GrowthStrategy create(String jsonString) {
+    public static GrowthTactic create(String jsonString) {
         Assert.notNull(jsonString, "rawJsonString은 null일 수 없습니다.");
 
-        GrowthStrategy growthStrategy = new GrowthStrategy();
-        growthStrategy.rawJson = RawJson.create(jsonString);
+        GrowthTactic growthTactic = new GrowthTactic();
+        growthTactic.rawJson = RawJson.create(jsonString);
 
-        return growthStrategy;
+        return growthTactic;
     }
 
     public void updateRawJson(String jsonString) {

@@ -36,7 +36,7 @@ public class BusinessPlan extends AbstractEntity {
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "growth_strategy_id", unique = true)
-    private  GrowthStrategy growthStrategy;
+    private GrowthTactic growthTactic;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "team_competence_id", unique = true)
@@ -90,17 +90,17 @@ public class BusinessPlan extends AbstractEntity {
         this.feasibility = null;
     }
 
-    public void attachGrowthStrategy(GrowthStrategy growthStrategy) {
-        Assert.notNull(growthStrategy, "growthStrategy must not be null");
-        Assert.state(this.growthStrategy == null, "GrowthStrategy already attached");
+    public void attachGrowthStrategy(GrowthTactic growthTactic) {
+        Assert.notNull(growthTactic, "growthStrategy must not be null");
+        Assert.state(this.growthTactic == null, "GrowthStrategy already attached");
 
-        this.growthStrategy = growthStrategy;
+        this.growthTactic = growthTactic;
     }
 
     public void detachGrowthStrategy() {
-        Assert.state(this.growthStrategy != null, "GrowthStrategy is not attached");
+        Assert.state(this.growthTactic != null, "GrowthStrategy is not attached");
 
-        this.growthStrategy = null;
+        this.growthTactic = null;
     }
 
     public void attachTeamCompetence(TeamCompetence teamCompetence) {

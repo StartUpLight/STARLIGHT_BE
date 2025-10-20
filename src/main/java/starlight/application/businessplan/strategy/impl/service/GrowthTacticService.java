@@ -1,32 +1,32 @@
-package starlight.domain.businessplan.strategy.service;
+package starlight.application.businessplan.strategy.impl.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import starlight.domain.businessplan.entity.BusinessPlan;
-import starlight.domain.businessplan.entity.GrowthStrategy;
-import starlight.domain.businessplan.strategy.SectionSupportUtils;
+import starlight.domain.businessplan.entity.GrowthTactic;
+import starlight.application.businessplan.strategy.SectionSupportUtils;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GrowthStrategyService {
+public class GrowthTacticService {
 
     private final ObjectMapper objectMapper;
 
-    public GrowthStrategy createFrom(JsonNode rawJson, List<Boolean> checks) {
+    public GrowthTactic createFrom(JsonNode rawJson, List<Boolean> checks) {
         SectionSupportUtils.requireSize5(checks);
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
 
-        GrowthStrategy entity = GrowthStrategy.create(json);
+        GrowthTactic entity = GrowthTactic.create(json);
         entity.updateChecks(checks);
 
         return entity;
     }
 
-    public void updateFrom(GrowthStrategy entity, JsonNode rawJson, List<Boolean> checks) {
+    public void updateFrom(GrowthTactic entity, JsonNode rawJson, List<Boolean> checks) {
         SectionSupportUtils.requireSize5(checks);
 
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
@@ -34,7 +34,7 @@ public class GrowthStrategyService {
         entity.updateChecks(checks);
     }
 
-    public void delete(GrowthStrategy entity, BusinessPlan plan) {
+    public void delete(GrowthTactic entity, BusinessPlan plan) {
         plan.detachGrowthStrategy();
     }
 }

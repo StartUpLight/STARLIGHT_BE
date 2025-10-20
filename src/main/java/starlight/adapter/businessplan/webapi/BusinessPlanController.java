@@ -1,13 +1,13 @@
-package starlight.adapter.bussinessplan.webapi;
+package starlight.adapter.businessplan.webapi;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import starlight.adapter.bussinessplan.webapi.dto.SectionRequest;
-import starlight.application.bussinessplan.provided.BusinessPlanService;
+import starlight.adapter.businessplan.webapi.dto.SectionRequest;
+import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.domain.businessplan.enumerate.SectionName;
-import starlight.domain.businessplan.strategy.dto.SectionResponse;
+import starlight.application.businessplan.strategy.dto.SectionResponse;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 @Validated

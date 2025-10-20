@@ -1,11 +1,13 @@
-package starlight.domain.businessplan.strategy;
+package starlight.application.businessplan.strategy;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
-import starlight.adapter.bussinessplan.webapi.dto.SectionRequest;
+import starlight.adapter.businessplan.webapi.dto.SectionRequest;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.SectionName;
-import starlight.domain.businessplan.strategy.dto.SectionResponse;
+import starlight.application.businessplan.strategy.dto.SectionResponse;
+import starlight.domain.businessplan.exception.BusinessPlanErrorType;
+import starlight.domain.businessplan.exception.BusinessPlanException;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -20,7 +22,7 @@ public class SectionRouter {
         for (SectionStrategy strategy : sectionStrategies) {
             SectionStrategy duplicate = strategies.put(strategy.key(), strategy);
             if (duplicate != null) {
-                throw new IllegalStateException("Duplicate SectionStrategy for " + strategy.key());
+                throw new BusinessPlanException(BusinessPlanErrorType.DUPLICATE_SECTION_STRATEGY);
             }
         }
     }
@@ -28,7 +30,7 @@ public class SectionRouter {
     private SectionStrategy pick(SectionName sectionName) {
         SectionStrategy strategy = strategies.get(sectionName);
         if (strategy == null) {
-            throw new UnsupportedOperationException("No strategy for " + sectionName);
+            throw new BusinessPlanException(BusinessPlanErrorType.UNSUPPORTED_SECTION_STRATEGY);
         }
         return strategy;
     }

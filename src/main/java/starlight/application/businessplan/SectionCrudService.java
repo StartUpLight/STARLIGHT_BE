@@ -1,4 +1,4 @@
-package starlight.application.bussinessplan;
+package starlight.application.businessplan;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,13 +6,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.adapter.bussinessplan.webapi.dto.SectionRequest;
-import starlight.application.bussinessplan.provided.BusinessPlanService;
+import starlight.adapter.businessplan.webapi.dto.SectionRequest;
+import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.SectionName;
-import starlight.application.bussinessplan.required.BusinessPlanRepository;
-import starlight.domain.businessplan.strategy.SectionRouter;
-import starlight.domain.businessplan.strategy.dto.SectionResponse;
+import starlight.application.businessplan.required.BusinessPlanRepository;
+import starlight.application.businessplan.strategy.SectionRouter;
+import starlight.application.businessplan.strategy.dto.SectionResponse;
 
 @Service
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package starlight.adapter.bussinessplan.webapi.dto;
+package starlight.adapter.businessplan.webapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;

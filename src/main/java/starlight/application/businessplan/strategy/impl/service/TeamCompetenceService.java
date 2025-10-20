@@ -1,32 +1,32 @@
-package starlight.domain.businessplan.strategy.service;
+package starlight.application.businessplan.strategy.impl.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import starlight.domain.businessplan.entity.BusinessPlan;
-import starlight.domain.businessplan.entity.ProblemRecognition;
-import starlight.domain.businessplan.strategy.SectionSupportUtils;
+import starlight.domain.businessplan.entity.TeamCompetence;
+import starlight.application.businessplan.strategy.SectionSupportUtils;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ProblemRecognitionService {
+public class TeamCompetenceService {
 
     private final ObjectMapper objectMapper;
 
-    public ProblemRecognition createFrom(JsonNode rawJson, List<Boolean> checks) {
+    public TeamCompetence createFrom(JsonNode rawJson, List<Boolean> checks) {
         SectionSupportUtils.requireSize5(checks);
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
 
-        ProblemRecognition entity = ProblemRecognition.create(json);
+        TeamCompetence entity = TeamCompetence.create(json);
         entity.updateChecks(checks);
 
         return entity;
     }
 
-    public void updateFrom(ProblemRecognition entity, JsonNode rawJson, List<Boolean> checks) {
+    public void updateFrom(TeamCompetence entity, JsonNode rawJson, List<Boolean> checks) {
         SectionSupportUtils.requireSize5(checks);
 
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
@@ -34,7 +34,7 @@ public class ProblemRecognitionService {
         entity.updateChecks(checks);
     }
 
-    public void delete(ProblemRecognition entity, BusinessPlan plan) {
-        plan.detachProblemRecognition();
+    public void delete(TeamCompetence entity, BusinessPlan plan) {
+        plan.detachTeamCompetence();
     }
 }

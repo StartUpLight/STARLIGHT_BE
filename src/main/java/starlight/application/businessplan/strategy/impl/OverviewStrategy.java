@@ -1,16 +1,18 @@
-package starlight.domain.businessplan.strategy.impl;
+package starlight.application.businessplan.strategy.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import starlight.adapter.bussinessplan.webapi.dto.SectionRequest;
+import starlight.adapter.businessplan.webapi.dto.SectionRequest;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.Overview;
 import starlight.domain.businessplan.enumerate.SectionName;
-import starlight.domain.businessplan.strategy.SectionStrategy;
-import starlight.domain.businessplan.strategy.SectionSupportUtils;
-import starlight.domain.businessplan.strategy.dto.SectionResponse;
-import starlight.domain.businessplan.strategy.service.OverviewService;
+import starlight.application.businessplan.strategy.SectionStrategy;
+import starlight.application.businessplan.strategy.SectionSupportUtils;
+import starlight.application.businessplan.strategy.dto.SectionResponse;
+import starlight.application.businessplan.strategy.impl.service.OverviewService;
+import starlight.domain.businessplan.exception.BusinessPlanErrorType;
+import starlight.domain.businessplan.exception.BusinessPlanException;
 
 @Component
 @RequiredArgsConstructor
@@ -26,7 +28,7 @@ public class OverviewStrategy implements SectionStrategy {
     @Override
     public SectionResponse.Created create(BusinessPlan plan, JsonNode rawJson, SectionRequest request) {
         if (plan.getOverview() != null) {
-            throw new IllegalStateException("Overview already exists for planId=" + plan.getId());
+            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_ALREADY_EXISTS);
         }
         Overview overview = overviewService.createFrom(rawJson, request.checks());
         plan.attachOverview(overview);
@@ -38,7 +40,7 @@ public class OverviewStrategy implements SectionStrategy {
     public SectionResponse.Retrieved read(BusinessPlan plan) {
         Overview entity = plan.getOverview();
         if (entity == null) {
-            throw new IllegalStateException("Overview not found for plan " + plan.getId());
+            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
 
         return new SectionResponse.Retrieved("successfully retrieved", entity.getRawJson().asTree());
@@ -48,7 +50,7 @@ public class OverviewStrategy implements SectionStrategy {
     public SectionResponse.Updated update(BusinessPlan plan, JsonNode rawJson, SectionRequest req) {
         Overview entity = plan.getOverview();
         if (entity == null) {
-            throw new IllegalStateException("Overview not found for plan " + plan.getId());
+            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
         SectionSupportUtils.requireSize5(req.checks());
         overviewService.updateFrom(entity, rawJson, req.checks());
@@ -60,7 +62,7 @@ public class OverviewStrategy implements SectionStrategy {
     public SectionResponse.Deleted delete(BusinessPlan plan) {
         Overview entity = plan.getOverview();
         if (entity == null) {
-            throw new IllegalStateException("Overview not found for plan " + plan.getId());
+            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
         overviewService.delete(entity, plan);
 

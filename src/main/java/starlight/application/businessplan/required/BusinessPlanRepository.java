@@ -1,4 +1,4 @@
-package starlight.application.bussinessplan.required;
+package starlight.application.businessplan.required;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;

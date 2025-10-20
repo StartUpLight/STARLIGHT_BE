@@ -1,8 +1,8 @@
-package starlight.application.bussinessplan.provided;
+package starlight.application.businessplan.provided;
 
-import starlight.adapter.bussinessplan.webapi.dto.SectionRequest;
+import starlight.adapter.businessplan.webapi.dto.SectionRequest;
 import starlight.domain.businessplan.enumerate.SectionName;
-import starlight.domain.businessplan.strategy.dto.SectionResponse;
+import starlight.application.businessplan.strategy.dto.SectionResponse;
 
 public interface BusinessPlanService {
 
