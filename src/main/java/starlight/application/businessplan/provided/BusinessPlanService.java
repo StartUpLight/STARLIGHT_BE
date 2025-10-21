@@ -1,6 +1,6 @@
 package starlight.application.businessplan.provided;
 
-import starlight.adapter.businessplan.webapi.dto.SectionRequest;
+import starlight.application.businessplan.strategy.dto.SectionRequest;
 import starlight.domain.businessplan.enumerate.SectionName;
 import starlight.application.businessplan.strategy.dto.SectionResponse;
 

@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.adapter.businessplan.webapi.dto.SectionRequest;
+import starlight.application.businessplan.strategy.dto.SectionRequest;
 import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.SectionName;

@@ -1,4 +1,4 @@
-package starlight.application.businessplan.strategy;
+package starlight.application.businessplan.strategy.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

@@ -1,4 +1,4 @@
-package starlight.adapter.businessplan.webapi.dto;
+package starlight.application.businessplan.strategy.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -11,7 +11,7 @@ import java.util.List;
 
 public record SectionRequest(
         @NotNull SectionName sectionName,
-        @Size(min = 3, max = 10) List<@NotNull Boolean> checks,
+        @NotNull @Size(min = 3, max = 10) List<@NotNull Boolean> checks,
         @Valid @NotNull Meta meta,
         @Valid @NotEmpty List<@Valid Block> blocks
 ) {

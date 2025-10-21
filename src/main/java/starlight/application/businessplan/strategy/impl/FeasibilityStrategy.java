@@ -3,14 +3,13 @@ package starlight.application.businessplan.strategy.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import starlight.adapter.businessplan.webapi.dto.SectionRequest;
+import starlight.application.businessplan.strategy.dto.SectionRequest;
+import starlight.application.businessplan.strategy.SectionStrategy;
+import starlight.application.businessplan.strategy.dto.SectionResponse;
+import starlight.application.businessplan.strategy.impl.service.FeasibilityService;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.Feasibility;
 import starlight.domain.businessplan.enumerate.SectionName;
-import starlight.application.businessplan.strategy.SectionStrategy;
-import starlight.application.businessplan.strategy.SectionSupportUtils;
-import starlight.application.businessplan.strategy.dto.SectionResponse;
-import starlight.application.businessplan.strategy.impl.service.FeasibilityService;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
 
@@ -30,7 +29,7 @@ public class FeasibilityStrategy implements SectionStrategy {
         if (plan.getFeasibility() != null) {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_ALREADY_EXISTS);
         }
-        SectionSupportUtils.requireSize5(req.checks());
+
         Feasibility entity = feasibilityService.createFrom(rawJson, req.checks());
         plan.attachFeasibility(entity);
 
@@ -53,7 +52,7 @@ public class FeasibilityStrategy implements SectionStrategy {
         if (entity == null) {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
-        SectionSupportUtils.requireSize5(req.checks());
+
         feasibilityService.updateFrom(entity, rawJson, req.checks());
 
         return new SectionResponse.Updated(key(), entity.getId(), "updated");
@@ -65,6 +64,7 @@ public class FeasibilityStrategy implements SectionStrategy {
         if (entity == null) {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
+
         feasibilityService.delete(entity, plan);
 
         return new SectionResponse.Deleted(key(), entity.getId(), "deleted");

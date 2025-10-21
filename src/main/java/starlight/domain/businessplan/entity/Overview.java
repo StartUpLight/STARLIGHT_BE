@@ -3,13 +3,11 @@ package starlight.domain.businessplan.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import starlight.domain.businessplan.value.RawJson;
 
 import java.util.List;
 
-@Slf4j
 @Getter
 @Entity
 @NoArgsConstructor

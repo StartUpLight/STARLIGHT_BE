@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import starlight.adapter.businessplan.webapi.dto.SectionRequest;
+import starlight.application.businessplan.strategy.dto.SectionRequest;
 import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.domain.businessplan.enumerate.SectionName;
 import starlight.application.businessplan.strategy.dto.SectionResponse;

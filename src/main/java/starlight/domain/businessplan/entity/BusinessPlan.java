@@ -44,6 +44,7 @@ public class BusinessPlan extends AbstractEntity {
 
     public static BusinessPlan create(Long memberId, String pdfUrl, PlanStatus planStatus) {
         BusinessPlan businessPlan = new BusinessPlan();
+        Assert.notNull(memberId, "memberId must not be null");
         businessPlan.memberId = memberId;
         businessPlan.pdfUrl = pdfUrl;
         businessPlan.planStatus = (planStatus != null) ? planStatus : PlanStatus.STARTED;
@@ -90,14 +91,14 @@ public class BusinessPlan extends AbstractEntity {
         this.feasibility = null;
     }
 
-    public void attachGrowthStrategy(GrowthTactic growthTactic) {
+    public void attachGrowthTactic(GrowthTactic growthTactic) {
         Assert.notNull(growthTactic, "growthStrategy must not be null");
         Assert.state(this.growthTactic == null, "GrowthStrategy already attached");
 
         this.growthTactic = growthTactic;
     }
 
-    public void detachGrowthStrategy() {
+    public void detachGrowthTactic() {
         Assert.state(this.growthTactic != null, "GrowthStrategy is not attached");
 
         this.growthTactic = null;

@@ -3,14 +3,13 @@ package starlight.application.businessplan.strategy.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import starlight.adapter.businessplan.webapi.dto.SectionRequest;
+import starlight.application.businessplan.strategy.dto.SectionRequest;
+import starlight.application.businessplan.strategy.SectionStrategy;
+import starlight.application.businessplan.strategy.dto.SectionResponse;
+import starlight.application.businessplan.strategy.impl.service.OverviewService;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.Overview;
 import starlight.domain.businessplan.enumerate.SectionName;
-import starlight.application.businessplan.strategy.SectionStrategy;
-import starlight.application.businessplan.strategy.SectionSupportUtils;
-import starlight.application.businessplan.strategy.dto.SectionResponse;
-import starlight.application.businessplan.strategy.impl.service.OverviewService;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
 
@@ -30,6 +29,7 @@ public class OverviewStrategy implements SectionStrategy {
         if (plan.getOverview() != null) {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_ALREADY_EXISTS);
         }
+
         Overview overview = overviewService.createFrom(rawJson, request.checks());
         plan.attachOverview(overview);
 
@@ -49,10 +49,11 @@ public class OverviewStrategy implements SectionStrategy {
     @Override
     public SectionResponse.Updated update(BusinessPlan plan, JsonNode rawJson, SectionRequest req) {
         Overview entity = plan.getOverview();
+
         if (entity == null) {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
-        SectionSupportUtils.requireSize5(req.checks());
+
         overviewService.updateFrom(entity, rawJson, req.checks());
 
         return new SectionResponse.Updated(key(), entity.getId(), "updated");
@@ -61,9 +62,11 @@ public class OverviewStrategy implements SectionStrategy {
     @Override
     public SectionResponse.Deleted delete(BusinessPlan plan) {
         Overview entity = plan.getOverview();
+
         if (entity == null) {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
+
         overviewService.delete(entity, plan);
 
         return new SectionResponse.Deleted(key(), entity.getId(), "deleted");

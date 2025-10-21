@@ -35,6 +35,9 @@ public class RawJson {
     }
 
     public static RawJson create(JsonNode node) {
+        if (node == null) {
+            throw new GlobalException(GlobalErrorType.JSON_PROCESSING_ERROR);
+        }
         try {
             RawJson rawJson = new RawJson();
             rawJson.value = MAPPER.writeValueAsString(node); // 이미 정규화된 문자열

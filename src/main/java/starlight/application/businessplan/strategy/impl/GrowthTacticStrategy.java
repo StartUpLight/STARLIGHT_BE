@@ -3,14 +3,13 @@ package starlight.application.businessplan.strategy.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import starlight.adapter.businessplan.webapi.dto.SectionRequest;
+import starlight.application.businessplan.strategy.dto.SectionRequest;
+import starlight.application.businessplan.strategy.SectionStrategy;
+import starlight.application.businessplan.strategy.dto.SectionResponse;
+import starlight.application.businessplan.strategy.impl.service.GrowthTacticService;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.GrowthTactic;
 import starlight.domain.businessplan.enumerate.SectionName;
-import starlight.application.businessplan.strategy.SectionStrategy;
-import starlight.application.businessplan.strategy.SectionSupportUtils;
-import starlight.application.businessplan.strategy.dto.SectionResponse;
-import starlight.application.businessplan.strategy.impl.service.GrowthTacticService;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
 
@@ -30,8 +29,9 @@ public class GrowthTacticStrategy implements SectionStrategy {
         if (plan.getGrowthTactic() != null) {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_ALREADY_EXISTS);
         }
+
         GrowthTactic section = growthTacticService.createFrom(rawJson, request.checks());
-        plan.attachGrowthStrategy(section);
+        plan.attachGrowthTactic(section);
 
         return new SectionResponse.Created(SectionName.GROWTH_STRATEGY, section.getId(), "Growth strategy created");
     }
@@ -52,7 +52,7 @@ public class GrowthTacticStrategy implements SectionStrategy {
         if (entity == null) {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
-        SectionSupportUtils.requireSize5(req.checks());
+
         growthTacticService.updateFrom(entity, rawJson, req.checks());
 
         return new SectionResponse.Updated(key(), entity.getId(), "updated");
@@ -64,6 +64,7 @@ public class GrowthTacticStrategy implements SectionStrategy {
         if (entity == null) {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
+
         growthTacticService.delete(entity, plan);
 
         return new SectionResponse.Deleted(key(), entity.getId(), "deleted");

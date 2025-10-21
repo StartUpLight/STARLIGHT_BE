@@ -2,7 +2,7 @@ package starlight.application.businessplan.strategy;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
-import starlight.adapter.businessplan.webapi.dto.SectionRequest;
+import starlight.application.businessplan.strategy.dto.SectionRequest;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.SectionName;
 import starlight.application.businessplan.strategy.dto.SectionResponse;

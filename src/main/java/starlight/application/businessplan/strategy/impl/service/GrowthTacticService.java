@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.GrowthTactic;
-import starlight.application.businessplan.strategy.SectionSupportUtils;
+import starlight.application.businessplan.strategy.util.SectionSupportUtils;
 
 import java.util.List;
 
@@ -35,6 +35,6 @@ public class GrowthTacticService {
     }
 
     public void delete(GrowthTactic entity, BusinessPlan plan) {
-        plan.detachGrowthStrategy();
+        plan.detachGrowthTactic();
     }
 }

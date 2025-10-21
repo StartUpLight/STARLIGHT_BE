@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.ProblemRecognition;
-import starlight.application.businessplan.strategy.SectionSupportUtils;
+import starlight.application.businessplan.strategy.util.SectionSupportUtils;
 
 import java.util.List;
 

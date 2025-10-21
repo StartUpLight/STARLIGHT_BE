@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import starlight.domain.businessplan.value.RawJson;
-import starlight.shared.AbstractEntity;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor
-public class ProblemRecognition extends AbstractEntity {
+public class ProblemRecognition {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
