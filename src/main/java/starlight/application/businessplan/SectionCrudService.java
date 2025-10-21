@@ -6,11 +6,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.businessplan.strategy.dto.SectionRequest;
 import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.SectionName;
-import starlight.application.businessplan.required.BusinessPlanRepository;
 import starlight.application.businessplan.strategy.SectionRouter;
 import starlight.application.businessplan.strategy.dto.SectionResponse;
 
@@ -21,11 +21,11 @@ public class SectionCrudService implements BusinessPlanService {
 
     private final ObjectMapper objectMapper;
     private final SectionRouter sectionRouter;
-    private final BusinessPlanRepository businessPlanRepository;
+    private final BusinessPlanQuery businessPlanQuery;
 
     @Transactional
     public SectionResponse.Created createSection(Long planId, @Valid SectionRequest request) {
-        BusinessPlan plan = businessPlanRepository.getOrThrow(planId);
+        BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
 
         JsonNode rawJson = objectMapper.valueToTree(request);
 
@@ -34,14 +34,14 @@ public class SectionCrudService implements BusinessPlanService {
 
     @Transactional
     public SectionResponse.Retrieved getSection(Long planId, SectionName sectionName) {
-        BusinessPlan plan = businessPlanRepository.getOrThrow(planId);
+        BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
 
         return sectionRouter.routeAndGet(plan, sectionName);
     }
 
     @Transactional
     public SectionResponse.Updated updateSection(Long planId, SectionRequest req) {
-        BusinessPlan plan = businessPlanRepository.getOrThrow(planId);
+        BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
 
         JsonNode raw = objectMapper.valueToTree(req);
 
@@ -50,7 +50,7 @@ public class SectionCrudService implements BusinessPlanService {
 
     @Transactional
     public SectionResponse.Deleted deleteSection(Long planId, SectionName sectionName) {
-        BusinessPlan plan = businessPlanRepository.getOrThrow(planId);
+        BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
 
         return sectionRouter.routeAndDelete(plan, sectionName);
     }

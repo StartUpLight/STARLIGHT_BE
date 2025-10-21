@@ -1,4 +1,4 @@
-package starlight.application.businessplan.required;
+package starlight.adapter.businessplan.persistence;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,10 +10,4 @@ public interface BusinessPlanRepository extends JpaRepository<BusinessPlan, Long
 
     @EntityGraph(attributePaths = {"feasibility", "problemRecognition", "growthTactic", "teamCompetence", "overview"})
     Optional<BusinessPlan> findById(Long id);
-
-    default BusinessPlan getOrThrow(Long id) {
-        return findById(id).orElseThrow(
-                () -> new jakarta.persistence.EntityNotFoundException("BusinessPlan not found: " + id)
-        );
-    }
 }
