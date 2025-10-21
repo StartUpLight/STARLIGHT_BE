@@ -3,7 +3,7 @@ package starlight.adapter.ncp.webapi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import starlight.application.infrastructure.dto.PreSignedUrlResponse;
+import starlight.shared.dto.PreSignedUrlResponse;
 import starlight.application.infrastructure.provided.PresignedUrlProvider;
 import starlight.adapter.ncp.webapi.swagger.ImageApiDoc;
 import starlight.shared.apiPayload.response.ApiResponse;

@@ -6,11 +6,6 @@ import starlight.domain.member.entity.Member;
 
 public interface CredentialService {
 
-    /**
-     * Credential을 생성하고 저장하는 메서드
-     * @param authRequest
-     * @return Credential
-     */
     Credential createCredential(AuthRequest authRequest);
 
     /**

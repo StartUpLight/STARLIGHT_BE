@@ -16,4 +16,7 @@ dependencies {
     implementation 'software.amazon.awssdk:s3:2.20.40'
     implementation 'software.amazon.awssdk:auth:2.20.40'
     implementation 'software.amazon.awssdk:regions:2.20.40'
+
+    // PDF Box
+    implementation 'org.apache.pdfbox:pdfbox:2.0.30'
 }
