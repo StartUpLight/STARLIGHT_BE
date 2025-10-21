@@ -3,28 +3,44 @@ package starlight.application.businessplan.strategy.dto;
 import com.fasterxml.jackson.databind.JsonNode;
 import starlight.domain.businessplan.enumerate.SectionName;
 
-public sealed interface SectionResponse {
+public record SectionResponse() {
 
-    record Created(
+    public record Created(
             SectionName section,
             Long sectionId,
             String message
-    ) implements SectionResponse {}
+    ) {
+        public static Created create(SectionName section, Long sectionId, String message) {
+            return new Created(section, sectionId, message);
+        }
+    }
 
-    record Retrieved(
+    public record Retrieved(
             String message,
             JsonNode content
-    ) implements SectionResponse {}
+    ) {
+        public static Retrieved create(String message, JsonNode content) {
+            return new Retrieved(message, content);
+        }
+    }
 
-    record Updated(
+    public record Updated(
             SectionName section,
             Long sectionId,
             String message
-    ) implements SectionResponse {}
+    ) {
+        public static Updated create(SectionName section, Long sectionId, String message) {
+            return new Updated(section, sectionId, message);
+        }
+    }
 
-    record Deleted(
+    public record Deleted(
             SectionName section,
             Long sectionId,
             String message
-    ) implements SectionResponse {}
+    ) {
+        public static Deleted create(SectionName section, Long sectionId, String message) {
+            return new Deleted(section, sectionId, message);
+        }
+    }
 }

@@ -33,7 +33,7 @@ public class OverviewStrategy implements SectionStrategy {
         Overview overview = overviewService.createFrom(rawJson, request.checks());
         plan.attachOverview(overview);
 
-        return new SectionResponse.Created(SectionName.OVERVIEW, overview.getId(), "Overview created");
+        return SectionResponse.Created.create(SectionName.OVERVIEW, overview.getId(), "Overview created");
     }
 
     @Override
@@ -43,7 +43,7 @@ public class OverviewStrategy implements SectionStrategy {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
 
-        return new SectionResponse.Retrieved("successfully retrieved", entity.getRawJson().asTree());
+        return SectionResponse.Retrieved.create("successfully retrieved", entity.getRawJson().asTree());
     }
 
     @Override
@@ -56,7 +56,7 @@ public class OverviewStrategy implements SectionStrategy {
 
         overviewService.updateFrom(entity, rawJson, req.checks());
 
-        return new SectionResponse.Updated(key(), entity.getId(), "updated");
+        return SectionResponse.Updated.create(key(), entity.getId(), "updated");
     }
 
     @Override
@@ -69,6 +69,6 @@ public class OverviewStrategy implements SectionStrategy {
 
         overviewService.delete(entity, plan);
 
-        return new SectionResponse.Deleted(key(), entity.getId(), "deleted");
+        return SectionResponse.Deleted.create(key(), entity.getId(), "deleted");
     }
 }

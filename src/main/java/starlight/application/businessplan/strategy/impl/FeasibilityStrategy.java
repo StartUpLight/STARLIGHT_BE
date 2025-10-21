@@ -33,7 +33,7 @@ public class FeasibilityStrategy implements SectionStrategy {
         Feasibility entity = feasibilityService.createFrom(rawJson, req.checks());
         plan.attachFeasibility(entity);
 
-        return new SectionResponse.Created(key(), entity.getId(), "created");
+        return SectionResponse.Created.create(key(), entity.getId(), "created");
     }
 
     @Override
@@ -43,7 +43,7 @@ public class FeasibilityStrategy implements SectionStrategy {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
 
-        return new SectionResponse.Retrieved("successfully retrieved", entity.getRawJson().asTree());
+        return SectionResponse.Retrieved.create("successfully retrieved", entity.getRawJson().asTree());
     }
 
     @Override
@@ -55,7 +55,7 @@ public class FeasibilityStrategy implements SectionStrategy {
 
         feasibilityService.updateFrom(entity, rawJson, req.checks());
 
-        return new SectionResponse.Updated(key(), entity.getId(), "updated");
+        return SectionResponse.Updated.create(key(), entity.getId(), "updated");
     }
 
     @Override
@@ -67,6 +67,6 @@ public class FeasibilityStrategy implements SectionStrategy {
 
         feasibilityService.delete(entity, plan);
 
-        return new SectionResponse.Deleted(key(), entity.getId(), "deleted");
+        return SectionResponse.Deleted.create(key(), entity.getId(), "deleted");
     }
 }

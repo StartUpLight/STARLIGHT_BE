@@ -33,7 +33,7 @@ public class ProblemRecognitionStrategy implements SectionStrategy {
         ProblemRecognition section = problemRecognitionService.createFrom(rawJson, request.checks());
         plan.attachProblemRecognition(section);
 
-        return new SectionResponse.Created(SectionName.PROBLEM_RECOGNITION, section.getId(), "Problem recognition created");
+        return SectionResponse.Created.create(SectionName.PROBLEM_RECOGNITION, section.getId(), "Problem recognition created");
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ProblemRecognitionStrategy implements SectionStrategy {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
 
-        return new SectionResponse.Retrieved("successfully retrieved", entity.getRawJson().asTree());
+        return SectionResponse.Retrieved.create("successfully retrieved", entity.getRawJson().asTree());
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ProblemRecognitionStrategy implements SectionStrategy {
 
         problemRecognitionService.updateFrom(entity, rawJson, req.checks());
 
-        return new SectionResponse.Updated(key(), entity.getId(), "updated");
+        return SectionResponse.Updated.create(key(), entity.getId(), "updated");
     }
 
     @Override
@@ -67,6 +67,6 @@ public class ProblemRecognitionStrategy implements SectionStrategy {
 
         problemRecognitionService.delete(entity, plan);
 
-        return new SectionResponse.Deleted(key(), entity.getId(), "deleted");
+        return SectionResponse.Deleted.create(key(), entity.getId(), "deleted");
     }
 }

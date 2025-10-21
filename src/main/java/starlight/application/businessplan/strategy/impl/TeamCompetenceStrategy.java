@@ -33,7 +33,7 @@ public class TeamCompetenceStrategy implements SectionStrategy {
         TeamCompetence section = teamCompetenceService.createFrom(rawJson, request.checks());
         plan.attachTeamCompetence(section);
 
-        return new SectionResponse.Created(SectionName.TEAM_COMPETENCE, section.getId(), "Team competence created");
+        return SectionResponse.Created.create(SectionName.TEAM_COMPETENCE, section.getId(), "Team competence created");
     }
 
     @Override
@@ -43,7 +43,7 @@ public class TeamCompetenceStrategy implements SectionStrategy {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
 
-        return new SectionResponse.Retrieved("successfully retrieved", entity.getRawJson().asTree());
+        return SectionResponse.Retrieved.create("successfully retrieved", entity.getRawJson().asTree());
     }
 
     @Override
@@ -55,7 +55,7 @@ public class TeamCompetenceStrategy implements SectionStrategy {
 
         teamCompetenceService.updateFrom(entity, rawJson, req.checks());
 
-        return new SectionResponse.Updated(key(), entity.getId(), "updated");
+        return SectionResponse.Updated.create(key(), entity.getId(), "updated");
     }
 
     @Override
@@ -67,7 +67,6 @@ public class TeamCompetenceStrategy implements SectionStrategy {
 
         teamCompetenceService.delete(entity, plan);
 
-        return new SectionResponse.Deleted(key(), entity.getId(), "deleted");
+        return SectionResponse.Deleted.create(key(), entity.getId(), "deleted");
     }
 }
-

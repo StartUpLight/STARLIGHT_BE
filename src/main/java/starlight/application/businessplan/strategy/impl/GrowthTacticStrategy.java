@@ -33,7 +33,7 @@ public class GrowthTacticStrategy implements SectionStrategy {
         GrowthTactic section = growthTacticService.createFrom(rawJson, request.checks());
         plan.attachGrowthTactic(section);
 
-        return new SectionResponse.Created(SectionName.GROWTH_STRATEGY, section.getId(), "Growth strategy created");
+        return SectionResponse.Created.create(SectionName.GROWTH_STRATEGY, section.getId(), "Growth strategy created");
     }
 
     @Override
@@ -43,7 +43,7 @@ public class GrowthTacticStrategy implements SectionStrategy {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
         }
 
-        return new SectionResponse.Retrieved("successfully retrieved", entity.getRawJson().asTree());
+        return SectionResponse.Retrieved.create("successfully retrieved", entity.getRawJson().asTree());
     }
 
     @Override
@@ -55,7 +55,7 @@ public class GrowthTacticStrategy implements SectionStrategy {
 
         growthTacticService.updateFrom(entity, rawJson, req.checks());
 
-        return new SectionResponse.Updated(key(), entity.getId(), "updated");
+        return SectionResponse.Updated.create(key(), entity.getId(), "updated");
     }
 
     @Override
@@ -67,6 +67,6 @@ public class GrowthTacticStrategy implements SectionStrategy {
 
         growthTacticService.delete(entity, plan);
 
-        return new SectionResponse.Deleted(key(), entity.getId(), "deleted");
+        return SectionResponse.Deleted.create(key(), entity.getId(), "deleted");
     }
 }
