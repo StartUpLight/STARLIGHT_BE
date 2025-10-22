@@ -73,7 +73,6 @@ public final class ContentPlainText {
                     break;
 
                 default:
-                    // 알 수 없는 타입은 무시
                     break;
             }
         }
