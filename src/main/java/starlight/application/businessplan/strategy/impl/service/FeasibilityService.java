@@ -36,5 +36,6 @@ public class FeasibilityService {
 
     public void  delete(Feasibility entity, BusinessPlan plan) {
         plan.detachFeasibility();
+        // TODO: Feasibility 엔티티 삭제
     }
 }

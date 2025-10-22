@@ -36,5 +36,6 @@ public class TeamCompetenceService {
 
     public void delete(TeamCompetence entity, BusinessPlan plan) {
         plan.detachTeamCompetence();
+        // TODO: TeamCompetence 엔티티 삭제
     }
 }

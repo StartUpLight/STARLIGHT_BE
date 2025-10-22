@@ -36,5 +36,6 @@ public class ProblemRecognitionService {
 
     public void delete(ProblemRecognition entity, BusinessPlan plan) {
         plan.detachProblemRecognition();
+        // TODO: ProblemRecognition 엔티티 삭제
     }
 }

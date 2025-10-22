@@ -36,5 +36,6 @@ public class OverviewService {
 
     public void delete(Overview entity, BusinessPlan plan) {
         plan.detachOverview();
+        // TODO: Overview 엔티티 삭제
     }
 }

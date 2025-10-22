@@ -36,5 +36,6 @@ public class GrowthTacticService {
 
     public void delete(GrowthTactic entity, BusinessPlan plan) {
         plan.detachGrowthTactic();
+        // TODO: GrowthTactic 엔티티 삭제
     }
 }
