@@ -3,6 +3,7 @@ package starlight.application.businessplan.strategy.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 import starlight.application.businessplan.strategy.dto.SectionRequest;
 import starlight.application.businessplan.strategy.SectionStrategy;
 import starlight.application.businessplan.strategy.dto.SectionResponse;
@@ -12,6 +13,8 @@ import starlight.domain.businessplan.entity.Feasibility;
 import starlight.domain.businessplan.enumerate.SectionName;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -68,5 +71,11 @@ public class FeasibilityStrategy implements SectionStrategy {
         feasibilityService.delete(entity, plan);
 
         return SectionResponse.Deleted.create(key(), entity.getId(), "deleted");
+    }
+
+    @Override
+    public List<Boolean> check() {
+        //TODO: implement feasibility checks
+        return List.of(false, true, true, true, true);
     }
 }

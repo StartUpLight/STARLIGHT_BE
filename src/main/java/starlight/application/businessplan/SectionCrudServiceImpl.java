@@ -14,6 +14,8 @@ import starlight.domain.businessplan.enumerate.SectionName;
 import starlight.application.businessplan.strategy.SectionRouter;
 import starlight.application.businessplan.strategy.dto.SectionResponse;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -53,5 +55,11 @@ public class SectionCrudServiceImpl implements SectionCrudService {
         BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
 
         return sectionRouter.routeAndDelete(plan, sectionName);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Boolean> checkSection(SectionRequest request){
+
+        return sectionRouter.routeAndCheck(request);
     }
 }

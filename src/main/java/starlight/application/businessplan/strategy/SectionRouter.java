@@ -50,4 +50,8 @@ public class SectionRouter {
     public SectionResponse.Deleted routeAndDelete(BusinessPlan plan, SectionName sectionName) {
         return pick(sectionName).delete(plan);
     }
+
+    public List<Boolean> routeAndCheck(SectionRequest request) {
+        return pick(request.sectionName()).check();
+    }
 }

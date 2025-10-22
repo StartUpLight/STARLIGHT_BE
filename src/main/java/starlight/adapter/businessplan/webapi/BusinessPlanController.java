@@ -14,6 +14,8 @@ import starlight.domain.businessplan.enumerate.SectionName;
 import starlight.application.businessplan.strategy.dto.SectionResponse;
 import starlight.shared.apiPayload.response.ApiResponse;
 
+import java.util.List;
+
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -53,6 +55,13 @@ public class BusinessPlanController {
             @RequestParam SectionName sectionName
     ) {
         return ApiResponse.success(sectionCrudService.deleteSection(planId, sectionName));
+    }
+
+    @PostMapping("/section/check")
+    public ApiResponse<List<Boolean>> deleteSection(
+            @Valid @RequestBody SectionRequest request
+    ) {
+        return ApiResponse.success(sectionCrudService.checkSection(request));
     }
 
     @DeleteMapping("/{planId}")
