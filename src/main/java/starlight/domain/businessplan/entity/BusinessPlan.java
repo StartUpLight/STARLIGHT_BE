@@ -42,14 +42,29 @@ public class BusinessPlan extends AbstractEntity {
     @JoinColumn(name = "team_competence_id", unique = true)
     private TeamCompetence teamCompetence;
 
-    public static BusinessPlan create(Long memberId, String pdfUrl, PlanStatus planStatus) {
-        BusinessPlan businessPlan = new BusinessPlan();
+    public static BusinessPlan create(Long memberId) {
         Assert.notNull(memberId, "memberId must not be null");
+
+        BusinessPlan businessPlan = new BusinessPlan();
+        businessPlan.memberId = memberId;
+        businessPlan.planStatus = PlanStatus.STARTED;
+
+        return businessPlan;
+    }
+
+    public static BusinessPlan createWithPdf(Long memberId, String pdfUrl, PlanStatus planStatus) {
+        Assert.notNull(memberId, "memberId must not be null");
+
+        BusinessPlan businessPlan = new BusinessPlan();
         businessPlan.memberId = memberId;
         businessPlan.pdfUrl = pdfUrl;
         businessPlan.planStatus = (planStatus != null) ? planStatus : PlanStatus.STARTED;
 
         return businessPlan;
+    }
+
+    public boolean isOwnedBy(Long memberId) {
+        return this.memberId.equals(memberId);
     }
 
     public void attachOverview(Overview overview) {

@@ -10,12 +10,22 @@ import starlight.domain.businessplan.entity.BusinessPlan;
 @RequiredArgsConstructor
 public class BusinessPlanJpa implements BusinessPlanQuery {
 
-    private final BusinessPlanRepository jpa;
+    private final BusinessPlanRepository businessPlanRepository;
 
     @Override
     public BusinessPlan getOrThrow(Long id) {
-        return jpa.findById(id).orElseThrow(
+        return businessPlanRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("BusinessPlan not found: " + id)
         );
+    }
+
+    @Override
+    public BusinessPlan save(BusinessPlan businessPlan) {
+        return businessPlanRepository.save(businessPlan);
+    }
+
+    @Override
+    public void delete(BusinessPlan businessPlan) {
+        businessPlanRepository.delete(businessPlan);
     }
 }
