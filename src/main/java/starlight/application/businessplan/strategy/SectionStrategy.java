@@ -30,7 +30,7 @@ public interface SectionStrategy {
         throw new BusinessPlanException(BusinessPlanErrorType.UNSUPPORTED_OPERATION);
     }
 
-    default List<Boolean> check() {
+    default List<Boolean> check(SectionRequest request) {
         throw new BusinessPlanException(BusinessPlanErrorType.UNSUPPORTED_OPERATION);
     }
 }

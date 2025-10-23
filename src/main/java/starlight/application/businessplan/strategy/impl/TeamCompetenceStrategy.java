@@ -73,8 +73,7 @@ public class TeamCompetenceStrategy implements SectionStrategy {
     }
 
     @Override
-    public List<Boolean> check() {
-        //TODO: implement feasibility checks
-        return List.of(true, true, true, true, false);
+    public List<Boolean> check(SectionRequest request) {
+        return teamCompetenceService.check(request);
     }
 }

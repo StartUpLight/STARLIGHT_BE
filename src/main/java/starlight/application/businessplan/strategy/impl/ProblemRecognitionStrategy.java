@@ -73,8 +73,7 @@ public class ProblemRecognitionStrategy implements SectionStrategy {
     }
 
     @Override
-    public List<Boolean> check() {
-        //TODO: implement feasibility checks
-        return List.of(true, true, true, false, true);
+    public List<Boolean> check(SectionRequest request) {
+        return problemRecognitionService.check(request);
     }
 }

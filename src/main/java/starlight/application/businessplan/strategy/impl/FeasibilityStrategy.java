@@ -3,9 +3,8 @@ package starlight.application.businessplan.strategy.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
-import starlight.application.businessplan.strategy.dto.SectionRequest;
 import starlight.application.businessplan.strategy.SectionStrategy;
+import starlight.application.businessplan.strategy.dto.SectionRequest;
 import starlight.application.businessplan.strategy.dto.SectionResponse;
 import starlight.application.businessplan.strategy.impl.service.FeasibilityService;
 import starlight.domain.businessplan.entity.BusinessPlan;
@@ -74,8 +73,7 @@ public class FeasibilityStrategy implements SectionStrategy {
     }
 
     @Override
-    public List<Boolean> check() {
-        //TODO: implement feasibility checks
-        return List.of(false, true, true, true, true);
+    public List<Boolean> check(SectionRequest request) {
+        return feasibilityService.check(request);
     }
 }

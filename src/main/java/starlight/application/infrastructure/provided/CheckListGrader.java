@@ -1,8 +1,8 @@
 package starlight.application.infrastructure.provided;
 
-import starlight.shared.dto.ClovaResponse;
+import java.util.List;
 
 public interface CheckListGrader {
 
-    ClovaResponse check(String systemMsg, String userMsg, int criteriaSize);
+    List<Boolean> check(String SectionName, String userMsg, int criteriaSize);
 }

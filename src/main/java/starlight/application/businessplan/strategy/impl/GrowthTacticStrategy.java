@@ -73,8 +73,7 @@ public class GrowthTacticStrategy implements SectionStrategy {
     }
 
     @Override
-    public List<Boolean> check() {
-        //TODO: implement feasibility checks
-        return List.of(true, false, true, true, true);
+    public List<Boolean> check(SectionRequest request) {
+        return growthTacticService.check(request);
     }
 }

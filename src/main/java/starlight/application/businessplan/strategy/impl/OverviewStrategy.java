@@ -75,8 +75,7 @@ public class OverviewStrategy implements SectionStrategy {
     }
 
     @Override
-    public List<Boolean> check() {
-        //TODO: implement feasibility checks
-        return List.of(true, true, false, true, true);
+    public List<Boolean> check(SectionRequest request) {
+        return overviewService.check(request);
     }
 }

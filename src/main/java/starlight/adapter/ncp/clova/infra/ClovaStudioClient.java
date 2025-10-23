@@ -11,7 +11,7 @@ import starlight.application.infrastructure.provided.CheckListGrader;
 import java.util.Map;
 
 @Component
-public class ClovaStudioClient implements CheckListGrader {
+public class ClovaStudioClient {
 
     private final RestClient restClient;
 
@@ -19,7 +19,6 @@ public class ClovaStudioClient implements CheckListGrader {
         this.restClient = restClient;
     }
 
-    @Override
     public ClovaResponse check(String systemMsg, String userMsg, int criteriaSize) {
         Map<String, Object> body = ClovaUtil.buildClovaRequestBody(systemMsg, userMsg, criteriaSize);
 

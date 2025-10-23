@@ -6,6 +6,8 @@ import starlight.application.prompt.required.PromptFinder;
 import starlight.shared.apiPayload.exception.GlobalErrorType;
 import starlight.shared.apiPayload.exception.GlobalException;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class PromptQueryService implements PromptFinder {
@@ -13,8 +15,13 @@ public class PromptQueryService implements PromptFinder {
     private final PromptRepository promptRepository;
 
     @Override
-    public String findPromptByTag(String tag) {
-        return promptRepository.findContentByTag(tag)
-                .orElseThrow(() -> new GlobalException(GlobalErrorType.INTERNAL_ERROR));
+    public List<String> getSectionCriteria(String tag) {
+        List<String> contents = promptRepository.findContentsByTag(tag);
+
+        if (contents == null || contents.isEmpty()) {
+            throw new GlobalException(GlobalErrorType.INTERNAL_ERROR);
+        }
+
+        return contents;
     }
 }

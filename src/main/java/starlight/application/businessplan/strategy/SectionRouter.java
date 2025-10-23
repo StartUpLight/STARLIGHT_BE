@@ -52,6 +52,6 @@ public class SectionRouter {
     }
 
     public List<Boolean> routeAndCheck(SectionRequest request) {
-        return pick(request.sectionName()).check();
+        return pick(request.sectionName()).check(request);
     }
 }

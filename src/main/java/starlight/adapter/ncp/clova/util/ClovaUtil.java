@@ -52,18 +52,16 @@ public final class ClovaUtil {
         for (int i = 0; i < criteria.size(); i++) {
             stringBuilder.append(i + 1).append(") ").append(criteria.get(i)).append("\n");
         }
-
         stringBuilder.append("\n[INPUT]\n").append(input);
+        stringBuilder.append("\n\n[REQUEST]\n").append("위의 CHECKLIST 항목에 대해 각각 TRUE 또는 FALSE로 답변해 주세요. 답변은 JSON 배열 형식으로 제공해 주세요.");
         return stringBuilder.toString();
     }
 
-    public static List<Boolean> parseClovaResponse(String contentJson, int n) {
+    public static List<Boolean> toBooleanList(String contentJson, int n) {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root;
-
         try {
             root = mapper.readTree(contentJson);
-            System.out.println(root);
         } catch (Exception e) {
             throw new IllegalStateException("Invalid JSON from Clova: " + contentJson, e);
         }
