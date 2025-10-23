@@ -25,6 +25,13 @@ public class ApiControllerAdvice {
 //        log.error("MethodArgumentNotValidException : {}", e.getMessage(), e);
 //        return new ResponseEntity<>(ApiResponse.error(GlobalErrorType.FAILED_REQUEST_VALIDATION), GlobalErrorType.FAILED_REQUEST_VALIDATION.getStatus());
 //    }
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<?>> handleBadJson(org.springframework.http.converter.HttpMessageNotReadableException e) {
+        return new ResponseEntity<>(
+                ApiResponse.error(GlobalErrorType.INVALID_REQUEST_ARGUMENT, "잘못된 JSON 형식입니다."),
+                GlobalErrorType.INVALID_REQUEST_ARGUMENT.getStatus()
+        );
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {

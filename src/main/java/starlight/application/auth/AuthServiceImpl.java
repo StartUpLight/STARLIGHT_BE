@@ -35,6 +35,7 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * 회원가입 메서드
+     *
      * @param authRequest
      * @return MemberResponse
      */
@@ -49,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * 로그인 메서드
+     *
      * @param signInRequest
      * @return TokenResponse
      */
@@ -66,6 +68,7 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * 로그아웃 메서드
+     *
      * @param refreshToken
      * @param accessToken
      */
@@ -81,6 +84,7 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * 토큰 재발급 메서드
+     *
      * @param token
      * @param member
      * @return tokenResponse
