@@ -15,6 +15,9 @@ public class BusinessPlan extends AbstractEntity {
     @Column(nullable = false)
     private Long memberId;
 
+    @Column(nullable = false)
+    private String title;
+
     @Column(length = 512)
     private String pdfUrl;
 
@@ -42,20 +45,22 @@ public class BusinessPlan extends AbstractEntity {
     @JoinColumn(name = "team_competence_id", unique = true)
     private TeamCompetence teamCompetence;
 
-    public static BusinessPlan create(Long memberId) {
+    public static BusinessPlan create(Long memberId, String title) {
         Assert.notNull(memberId, "memberId must not be null");
 
         BusinessPlan businessPlan = new BusinessPlan();
+        businessPlan.title = title;
         businessPlan.memberId = memberId;
         businessPlan.planStatus = PlanStatus.STARTED;
 
         return businessPlan;
     }
 
-    public static BusinessPlan createWithPdf(Long memberId, String pdfUrl, PlanStatus planStatus) {
+    public static BusinessPlan createWithPdf(String title, Long memberId, String pdfUrl, PlanStatus planStatus) {
         Assert.notNull(memberId, "memberId must not be null");
 
         BusinessPlan businessPlan = new BusinessPlan();
+        businessPlan.title = title;
         businessPlan.memberId = memberId;
         businessPlan.pdfUrl = pdfUrl;
         businessPlan.planStatus = (planStatus != null) ? planStatus : PlanStatus.STARTED;

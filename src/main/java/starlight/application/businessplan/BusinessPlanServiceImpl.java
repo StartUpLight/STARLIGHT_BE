@@ -14,8 +14,8 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
 
     private final BusinessPlanQuery businessPlanQuery;
 
-    public Long createBusinessPlan(Long memberId) {
-        BusinessPlan plan = BusinessPlan.create(memberId);
+    public Long createBusinessPlan(Long memberId, String title) {
+        BusinessPlan plan = BusinessPlan.create(memberId, title);
 
         return businessPlanQuery.save(plan).getId();
     }
