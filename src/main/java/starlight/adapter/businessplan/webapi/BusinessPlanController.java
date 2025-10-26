@@ -1,6 +1,7 @@
 package starlight.adapter.businessplan.webapi;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +24,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/business-plans")
+@Tag(name = "사업계획서", description = "사업계획서 API")
 public class BusinessPlanController {
 
     private final SectionCrudService sectionCrudService;
