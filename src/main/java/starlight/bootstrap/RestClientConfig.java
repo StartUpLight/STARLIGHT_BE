@@ -7,6 +7,7 @@ import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 import java.time.Duration;
+import java.util.UUID;
 
 @Configuration
 public class RestClientConfig {
@@ -53,7 +54,25 @@ public class RestClientConfig {
 
         return RestClient.builder()
                 .requestFactory(factory)
-                .defaultHeader("User-Agent", "STARLIGHT-OCR/1.0")
+                .defaultHeader("User-Agent", "Mozilla/5.0")
+                .build();
+    }
+
+    @Bean(name = "clovaClient")
+    public RestClient clovaStudioClient(
+            @Value("${cloud.ncp.studio.host}") String clovaHost,
+            @Value("${cloud.ncp.studio.api-key}") String apiKey,
+            @Value("${cloud.ncp.studio.model}") String model
+    ) {
+        JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory();
+        factory.setReadTimeout(Duration.ofSeconds(60));
+
+        return RestClient.builder()
+                .baseUrl(String.format("%s/%s", clovaHost, model))
+                .requestFactory(factory)
+                .defaultHeader("X-NCP-CLOVASTUDIO-REQUEST-ID",UUID.randomUUID().toString())
+                .defaultHeader("Authorization", "Bearer " + apiKey) // Bearer only
+                .defaultHeader("Content-Type", "application/json")
                 .build();
     }
 }

@@ -13,6 +13,8 @@ import starlight.domain.businessplan.enumerate.SectionName;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class OverviewStrategy implements SectionStrategy {
@@ -70,5 +72,10 @@ public class OverviewStrategy implements SectionStrategy {
         overviewService.delete(entity, plan);
 
         return SectionResponse.Deleted.create(key(), entity.getId(), "deleted");
+    }
+
+    @Override
+    public List<Boolean> check(SectionRequest request) {
+        return overviewService.check(request);
     }
 }

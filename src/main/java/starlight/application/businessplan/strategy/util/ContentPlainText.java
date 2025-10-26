@@ -1,4 +1,4 @@
-package starlight.domain.businessplan;
+package starlight.application.businessplan.strategy.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -73,7 +73,6 @@ public final class ContentPlainText {
                     break;
 
                 default:
-                    // 알 수 없는 타입은 무시
                     break;
             }
         }
