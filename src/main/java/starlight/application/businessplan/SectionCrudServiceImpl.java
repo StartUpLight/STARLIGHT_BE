@@ -13,6 +13,8 @@ import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.SectionName;
 import starlight.application.businessplan.strategy.SectionRouter;
 import starlight.application.businessplan.strategy.dto.SectionResponse;
+import starlight.domain.businessplan.exception.BusinessPlanErrorType;
+import starlight.domain.businessplan.exception.BusinessPlanException;
 
 import java.util.List;
 
@@ -25,15 +27,6 @@ public class SectionCrudServiceImpl implements SectionCrudService {
     private final SectionRouter sectionRouter;
     private final BusinessPlanQuery businessPlanQuery;
 
-    @Transactional
-    public SectionResponse.Created createSection(Long planId, @Valid SectionRequest request) {
-        BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
-
-        JsonNode rawJson = objectMapper.valueToTree(request);
-
-        return sectionRouter.create(plan, rawJson, request);
-    }
-
     @Transactional(readOnly = true)
     public SectionResponse.Retrieved getSection(Long planId, SectionName sectionName) {
         BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
@@ -41,16 +34,22 @@ public class SectionCrudServiceImpl implements SectionCrudService {
         return sectionRouter.get(plan, sectionName);
     }
 
-    @Transactional
-    public SectionResponse.Updated updateSection(Long planId, SectionRequest req) {
+
+    public SectionResponse.Created createOrUpdateSection(Long planId, SectionRequest req) {
         BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
 
         JsonNode raw = objectMapper.valueToTree(req);
 
-        return sectionRouter.update(plan, raw, req);
+        try {
+            return sectionRouter.update(plan, raw, req);
+        } catch (BusinessPlanException e) {
+            if (e.getErrorType() == BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND) {
+                return sectionRouter.create(plan, raw, req);
+            }
+            throw e;
+        }
     }
 
-    @Transactional
     public SectionResponse.Deleted deleteSection(Long planId, SectionName sectionName) {
         BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
 

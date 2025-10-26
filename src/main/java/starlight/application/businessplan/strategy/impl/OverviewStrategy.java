@@ -49,7 +49,7 @@ public class OverviewStrategy implements SectionStrategy {
     }
 
     @Override
-    public SectionResponse.Updated update(BusinessPlan plan, JsonNode rawJson, SectionRequest req) {
+    public SectionResponse.Created update(BusinessPlan plan, JsonNode rawJson, SectionRequest req) {
         Overview entity = plan.getOverview();
 
         if (entity == null) {
@@ -58,7 +58,7 @@ public class OverviewStrategy implements SectionStrategy {
 
         overviewService.updateFrom(entity, rawJson, req.checks());
 
-        return SectionResponse.Updated.create(key(), entity.getId(), "updated");
+        return SectionResponse.Created.create(key(), entity.getId(), "updated");
     }
 
     @Override

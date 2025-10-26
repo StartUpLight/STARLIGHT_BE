@@ -22,7 +22,7 @@ public interface SectionStrategy {
         throw new BusinessPlanException(BusinessPlanErrorType.UNSUPPORTED_OPERATION);
     }
 
-    default SectionResponse.Updated update(BusinessPlan plan, JsonNode rawJson, SectionRequest req) {
+    default SectionResponse.Created update(BusinessPlan plan, JsonNode rawJson, SectionRequest req) {
         throw new BusinessPlanException(BusinessPlanErrorType.UNSUPPORTED_OPERATION);
     }
 

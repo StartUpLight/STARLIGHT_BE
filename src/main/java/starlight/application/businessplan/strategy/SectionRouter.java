@@ -43,7 +43,7 @@ public class SectionRouter {
         return pick(sectionName).read(plan);
     }
 
-    public SectionResponse.Updated update(BusinessPlan plan, JsonNode jsonRaw, SectionRequest request) {
+    public SectionResponse.Created update(BusinessPlan plan, JsonNode jsonRaw, SectionRequest request) {
         return pick(request.sectionName()).update(plan, jsonRaw, request);
     }
 

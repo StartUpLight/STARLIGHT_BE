@@ -3,7 +3,6 @@ package starlight.adapter.businessplan.webapi;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -27,15 +26,6 @@ public class BusinessPlanController {
     private final SectionCrudService sectionCrudService;
     private final BusinessPlanService businessPlanService;
 
-    @Operation(summary = "사업 계획서 안 쪽의 섹션(개요, 성장 전략, 팀 역량 등)을 생성합니다.")
-    @PostMapping("/{planId}/section")
-    public ApiResponse<SectionResponse.Created> createSection(
-            @PathVariable Long planId,
-            @Valid @RequestBody SectionRequest request
-    ) {
-        return ApiResponse.success(sectionCrudService.createSection(planId, request));
-    }
-
     @Operation(summary = "사업 계획서 안 쪽의 섹션(개요, 성장 전략, 팀 역량 등)을 조회합니다.")
     @GetMapping("/{planId}/section")
     public ApiResponse<SectionResponse.Retrieved> getSection(
@@ -45,13 +35,13 @@ public class BusinessPlanController {
         return ApiResponse.success(sectionCrudService.getSection(planId, sectionName));
     }
 
-    @Operation(summary = "사업 계획서 안 쪽의 섹션(개요, 성장 전략, 팀 역량 등)을 수정합니다.")
-    @PutMapping("/{planId}/section")
-    public ApiResponse<SectionResponse.Updated> updateSection(
+    @Operation(summary = "사업 계획서 안 쪽의 섹션(개요, 성장 전략, 팀 역량 등)을 생성 및 수정합니다.")
+    @PostMapping("/{planId}/section")
+    public ApiResponse<SectionResponse.Created> createOrUpdateSection(
             @PathVariable Long planId,
             @Valid @RequestBody SectionRequest request
     ) {
-        return ApiResponse.success(sectionCrudService.updateSection(planId, request));
+        return ApiResponse.success(sectionCrudService.createOrUpdateSection(planId, request));
     }
 
     @Operation(summary = "사업 계획서 안 쪽의 섹션(개요, 성장 전략, 팀 역량 등)을 삭제합니다.")

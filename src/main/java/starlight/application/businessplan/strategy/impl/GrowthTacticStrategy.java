@@ -49,7 +49,7 @@ public class GrowthTacticStrategy implements SectionStrategy {
     }
 
     @Override
-    public SectionResponse.Updated update(BusinessPlan plan, JsonNode rawJson, SectionRequest req) {
+    public SectionResponse.Created update(BusinessPlan plan, JsonNode rawJson, SectionRequest req) {
         GrowthTactic entity = plan.getGrowthTactic();
         if (entity == null) {
             throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
@@ -57,7 +57,7 @@ public class GrowthTacticStrategy implements SectionStrategy {
 
         growthTacticService.updateFrom(entity, rawJson, req.checks());
 
-        return SectionResponse.Updated.create(key(), entity.getId(), "updated");
+        return SectionResponse.Created.create(key(), entity.getId(), "updated");
     }
 
     @Override
