@@ -1,6 +1,6 @@
-package starlight.application.member.required;
+package starlight.application.businessplan.required;
 
-import starlight.adapter.member.spellcheck.dto.Finding;
+import starlight.adapter.businessplan.spellcheck.dto.Finding;
 
 import java.util.List;
 

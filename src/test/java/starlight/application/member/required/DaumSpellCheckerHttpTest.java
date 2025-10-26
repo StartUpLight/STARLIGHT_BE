@@ -16,9 +16,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-import starlight.adapter.member.spellcheck.DaumSpellChecker;
-import starlight.adapter.member.spellcheck.dto.Finding;
-import starlight.adapter.member.spellcheck.util.SpellCheckUtil;
+import starlight.adapter.businessplan.spellcheck.DaumSpellChecker;
+import starlight.adapter.businessplan.spellcheck.dto.Finding;
+import starlight.adapter.businessplan.spellcheck.util.SpellCheckUtil;
 
 import java.util.List;
 

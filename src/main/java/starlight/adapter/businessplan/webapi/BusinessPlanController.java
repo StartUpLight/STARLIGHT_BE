@@ -78,7 +78,6 @@ public class BusinessPlanController {
     public ApiResponse<?> createBusinessPlan(
             @AuthenticationPrincipal AuthDetails authDetails
             ) {
-
         BusinessPlan businessPlan = businessPlanService.createBusinessPlan(authDetails.getMemberId());
 
         return ApiResponse.success(BusinessPlanResponse.from(businessPlan.getId(), businessPlan.getTitle(), businessPlan.getPlanStatus()));

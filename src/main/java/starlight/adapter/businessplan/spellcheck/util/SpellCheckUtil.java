@@ -1,10 +1,10 @@
-package starlight.adapter.member.spellcheck.util;
+package starlight.adapter.businessplan.spellcheck.util;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
-import starlight.adapter.member.spellcheck.dto.Finding;
+import starlight.adapter.businessplan.spellcheck.dto.Finding;
 
 import java.util.ArrayList;
 import java.util.HashSet;

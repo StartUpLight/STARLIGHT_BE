@@ -1,13 +1,13 @@
-package starlight.adapter.member.webapi;
+package starlight.adapter.businessplan.webapi;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import starlight.adapter.member.spellcheck.dto.Finding;
-import starlight.adapter.member.webapi.dto.SpellCheckRequest;
-import starlight.adapter.member.webapi.dto.SpellCheckResponse;
-import starlight.adapter.member.webapi.swagger.SpellCheckApiDoc;
-import starlight.application.member.required.SpellChecker;
+import starlight.adapter.businessplan.webapi.dto.SpellCheckRequest;
+import starlight.adapter.businessplan.webapi.dto.SpellCheckResponse;
+import starlight.adapter.businessplan.spellcheck.dto.Finding;
+import starlight.adapter.businessplan.webapi.swagger.SpellCheckApiDoc;
+import starlight.application.businessplan.required.SpellChecker;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;

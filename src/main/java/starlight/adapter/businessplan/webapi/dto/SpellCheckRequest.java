@@ -1,4 +1,4 @@
-package starlight.adapter.member.webapi.dto;
+package starlight.adapter.businessplan.webapi.dto;
 
 public record SpellCheckRequest(
         String text
