@@ -1,4 +1,4 @@
-package starlight.application.infrastructure.dto;
+package starlight.shared.dto;
 
 import lombok.Builder;
 
