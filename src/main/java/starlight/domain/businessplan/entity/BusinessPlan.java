@@ -15,7 +15,7 @@ public class BusinessPlan extends AbstractEntity {
     @Column(nullable = false)
     private Long memberId;
 
-    @Column(nullable = false)
+    @Column
     private String title;
 
     @Column(length = 512)
@@ -45,11 +45,10 @@ public class BusinessPlan extends AbstractEntity {
     @JoinColumn(name = "team_competence_id", unique = true)
     private TeamCompetence teamCompetence;
 
-    public static BusinessPlan create(Long memberId, String title) {
+    public static BusinessPlan create(Long memberId) {
         Assert.notNull(memberId, "memberId must not be null");
 
         BusinessPlan businessPlan = new BusinessPlan();
-        businessPlan.title = title;
         businessPlan.memberId = memberId;
         businessPlan.planStatus = PlanStatus.STARTED;
 
@@ -135,5 +134,9 @@ public class BusinessPlan extends AbstractEntity {
         Assert.state(this.teamCompetence != null, "TeamCompetence is not attached");
 
         this.teamCompetence = null;
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
     }
 }

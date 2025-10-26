@@ -14,10 +14,10 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
 
     private final BusinessPlanQuery businessPlanQuery;
 
-    public Long createBusinessPlan(Long memberId, String title) {
-        BusinessPlan plan = BusinessPlan.create(memberId, title);
+    public BusinessPlan createBusinessPlan(Long memberId) {
+        BusinessPlan plan = BusinessPlan.create(memberId);
 
-        return businessPlanQuery.save(plan).getId();
+        return businessPlanQuery.save(plan);
     }
 
     public void deleteBusinessPlan(Long planId, Long memberId) {
@@ -27,5 +27,16 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
         }
 
         businessPlanQuery.delete(plan);
+    }
+
+    public BusinessPlan updateBusinessPlanTitle(Long planId, Long memberId, String title){
+        BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
+        if (!plan.isOwnedBy(memberId)) {
+            throw new IllegalArgumentException("You do not have permission to delete this business plan.");
+        }
+
+        plan.updateTitle(title);
+
+        return businessPlanQuery.save(plan);
     }
 }

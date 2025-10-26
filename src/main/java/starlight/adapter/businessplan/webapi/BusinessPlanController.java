@@ -8,10 +8,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.businessplan.webapi.dto.BusinessPlanCreateRequest;
+import starlight.adapter.businessplan.webapi.dto.BusinessPlanResponse;
 import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.application.businessplan.provided.SectionCrudService;
 import starlight.application.businessplan.strategy.dto.SectionRequest;
 import starlight.application.businessplan.strategy.dto.SectionResponse;
+import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.SectionName;
 import starlight.shared.apiPayload.response.ApiResponse;
 
@@ -74,9 +76,23 @@ public class BusinessPlanController {
     @PostMapping
     @Operation(summary = "사업 계획서를 생성합니다.")
     public ApiResponse<?> createBusinessPlan(
-            @AuthenticationPrincipal AuthDetails authDetails,
-            @RequestBody @Valid BusinessPlanCreateRequest request
+            @AuthenticationPrincipal AuthDetails authDetails
             ) {
-        return ApiResponse.success(businessPlanService.createBusinessPlan(authDetails.getMemberId(), request.title()));
+
+        BusinessPlan businessPlan = businessPlanService.createBusinessPlan(authDetails.getMemberId());
+
+        return ApiResponse.success(BusinessPlanResponse.from(businessPlan.getId(), businessPlan.getTitle(), businessPlan.getPlanStatus()));
+    }
+
+    @PatchMapping("/{planId}")
+    @Operation(summary = "사업 계획서 제목을 수정합니다.")
+    public ApiResponse<BusinessPlanResponse> updateBusinessPlanTitle(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @RequestBody @Valid BusinessPlanCreateRequest request,
+            @PathVariable Long planId
+    ) {
+        BusinessPlan businessPlan = businessPlanService.updateBusinessPlanTitle(planId, authDetails.getMemberId(), request.title());
+
+        return ApiResponse.success(BusinessPlanResponse.from(businessPlan.getId(), businessPlan.getTitle(), businessPlan.getPlanStatus()));
     }
 }
