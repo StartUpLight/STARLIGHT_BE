@@ -31,14 +31,14 @@ public class SectionCrudServiceImpl implements SectionCrudService {
 
         JsonNode rawJson = objectMapper.valueToTree(request);
 
-        return sectionRouter.routeAndCreate(plan, rawJson, request);
+        return sectionRouter.create(plan, rawJson, request);
     }
 
     @Transactional(readOnly = true)
     public SectionResponse.Retrieved getSection(Long planId, SectionName sectionName) {
         BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
 
-        return sectionRouter.routeAndGet(plan, sectionName);
+        return sectionRouter.get(plan, sectionName);
     }
 
     @Transactional
@@ -47,19 +47,19 @@ public class SectionCrudServiceImpl implements SectionCrudService {
 
         JsonNode raw = objectMapper.valueToTree(req);
 
-        return sectionRouter.routeAndUpdate(plan, raw, req);
+        return sectionRouter.update(plan, raw, req);
     }
 
     @Transactional
     public SectionResponse.Deleted deleteSection(Long planId, SectionName sectionName) {
         BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
 
-        return sectionRouter.routeAndDelete(plan, sectionName);
+        return sectionRouter.delete(plan, sectionName);
     }
 
     @Transactional(readOnly = true)
     public List<Boolean> checkSection(SectionRequest request){
 
-        return sectionRouter.routeAndCheck(request);
+        return sectionRouter.check(request);
     }
 }
