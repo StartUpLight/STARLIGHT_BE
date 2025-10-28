@@ -23,12 +23,19 @@ public class ClovaOcrClient {
         ClovaOcrRequest request = ClovaOcrRequest.createPdfByBytes("V2", pdfBytes);
 
         try {
-            return clovaOcrRestClient.post()
+            ClovaOcrResponse resp = clovaOcrRestClient.post()
                     .body(request)
                     .retrieve()
                     .body(ClovaOcrResponse.class);
+
+            if (resp == null) {
+                log.warn("CLOVA OCR 응답이 null 입니다.");
+                throw new OcrException(OcrErrorType.OCR_CLIENT_ERROR);
+            }
+
+            return resp;
         } catch (Exception e) {
-            log.warn("CLOVA OCR 호출 실패: {}", e.getMessage());
+            log.warn("CLOVA OCR 호출 실패", e);
             throw new OcrException(OcrErrorType.OCR_CLIENT_ERROR);
         }
     }
