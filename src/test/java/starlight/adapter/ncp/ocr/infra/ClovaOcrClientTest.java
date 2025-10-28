@@ -90,7 +90,7 @@ class ClovaOcrClientTest {
     }
 
     @Test
-    @DisplayName("응답이 null인 경우에도 정상 처리된다")
+    @DisplayName("응답이 null인 경우 예외가 발생한다")
     void recognizePdfBytes_WithNullResponse() {
         // given
         when(clovaOcrRestClient.post()).thenReturn(requestBodyUriSpec);
@@ -98,11 +98,10 @@ class ClovaOcrClientTest {
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.body(OcrResponse.class)).thenReturn(null);
 
-        // when
-        OcrResponse result = clovaOcrClient.recognizePdfBytes(testPdfBytes);
-
-        // then
-        assertThat(result).isNull();
+        // when & then
+        assertThatThrownBy(() -> clovaOcrClient.recognizePdfBytes(testPdfBytes))
+                .isInstanceOf(OcrException.class)
+                .hasFieldOrPropertyWithValue("errorType", OcrErrorType.OCR_CLIENT_ERROR);
     }
 
     @Test
