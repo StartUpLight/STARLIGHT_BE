@@ -7,7 +7,7 @@ import org.springframework.web.client.RestClient;
 import starlight.adapter.ncp.ocr.dto.ClovaOcrRequest;
 import starlight.adapter.ncp.ocr.exception.OcrErrorType;
 import starlight.adapter.ncp.ocr.exception.OcrException;
-import starlight.shared.dto.ClovaOcrResponse;
+import starlight.shared.dto.infrastructure.ClovaOcrResponse;
 
 @Slf4j
 @Component

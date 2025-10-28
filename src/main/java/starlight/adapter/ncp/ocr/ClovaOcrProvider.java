@@ -10,7 +10,7 @@ import starlight.adapter.ncp.ocr.util.OcrResponseMerger;
 import starlight.adapter.ncp.ocr.util.OcrTextExtractor;
 import starlight.adapter.ncp.ocr.util.PdfUtils;
 import starlight.application.infrastructure.provided.OcrProvider;
-import starlight.shared.dto.ClovaOcrResponse;
+import starlight.shared.dto.infrastructure.ClovaOcrResponse;
 
 import java.util.ArrayList;
 import java.util.List;

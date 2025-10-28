@@ -4,9 +4,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import starlight.shared.dto.ClovaResponse;
+import starlight.shared.dto.infrastructure.ClovaStudioResponse;
 import starlight.adapter.ncp.clova.util.ClovaUtil;
-import starlight.application.infrastructure.provided.CheckListGrader;
 
 import java.util.Map;
 
@@ -19,7 +18,7 @@ public class ClovaStudioClient {
         this.restClient = restClient;
     }
 
-    public ClovaResponse check(String systemMsg, String userMsg, int criteriaSize) {
+    public ClovaStudioResponse check(String systemMsg, String userMsg, int criteriaSize) {
         Map<String, Object> body = ClovaUtil.buildClovaRequestBody(systemMsg, userMsg, criteriaSize);
 
         return restClient.post()
@@ -27,6 +26,6 @@ public class ClovaStudioClient {
                 .accept(MediaType.APPLICATION_JSON)
                 .body(body)
                 .retrieve()
-                .body(ClovaResponse.class);
+                .body(ClovaStudioResponse.class);
     }
 }

@@ -1,6 +1,6 @@
 package starlight.application.infrastructure.provided;
 
-import starlight.shared.dto.ClovaOcrResponse;
+import starlight.shared.dto.infrastructure.ClovaOcrResponse;
 
 public interface OcrProvider {
 

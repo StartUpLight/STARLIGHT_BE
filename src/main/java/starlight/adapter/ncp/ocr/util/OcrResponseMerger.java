@@ -1,6 +1,6 @@
 package starlight.adapter.ncp.ocr.util;
 
-import starlight.shared.dto.ClovaOcrResponse;
+import starlight.shared.dto.infrastructure.ClovaOcrResponse;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -7,7 +7,7 @@ import starlight.adapter.ncp.clova.infra.ClovaStudioClient;
 import starlight.adapter.ncp.clova.util.ClovaUtil;
 import starlight.application.infrastructure.provided.CheckListGrader;
 import starlight.application.prompt.required.PromptFinder;
-import starlight.shared.dto.ClovaResponse;
+import starlight.shared.dto.infrastructure.ClovaStudioResponse;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class ClovaStudioProvider implements CheckListGrader {
         List<String> criteria = promptFinder.getSectionCriteria(SectionName);
         String userPrompt = ClovaUtil.buildUserContent(userMsg, criteria);
 
-        ClovaResponse response = clovaStudioClient.check(systemPrompt, userPrompt, criteriaSize);
+        ClovaStudioResponse response = clovaStudioClient.check(systemPrompt, userPrompt, criteriaSize);
 
         return ClovaUtil.toBooleanList(response.result().message().content(), criteriaSize);
     }

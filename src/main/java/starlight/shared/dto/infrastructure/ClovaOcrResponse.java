@@ -1,4 +1,4 @@
-package starlight.shared.dto;
+package starlight.shared.dto.infrastructure;
 
 import java.util.List;
 

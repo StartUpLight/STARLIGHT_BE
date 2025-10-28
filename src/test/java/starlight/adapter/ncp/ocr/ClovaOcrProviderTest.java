@@ -15,14 +15,13 @@ import starlight.adapter.ncp.ocr.infra.PdfDownloadClient;
 import starlight.adapter.ncp.ocr.util.OcrResponseMerger;
 import starlight.adapter.ncp.ocr.util.OcrTextExtractor;
 import starlight.adapter.ncp.ocr.util.PdfUtils;
-import starlight.shared.dto.ClovaOcrResponse;
+import starlight.shared.dto.infrastructure.ClovaOcrResponse;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
