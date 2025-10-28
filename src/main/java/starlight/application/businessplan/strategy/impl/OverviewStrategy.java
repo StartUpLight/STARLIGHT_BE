@@ -8,6 +8,7 @@ import starlight.application.businessplan.strategy.SectionStrategy;
 import starlight.application.businessplan.strategy.dto.SectionResponse;
 import starlight.application.businessplan.strategy.impl.service.OverviewService;
 import starlight.domain.businessplan.entity.BusinessPlan;
+import starlight.domain.businessplan.entity.GrowthTactic;
 import starlight.domain.businessplan.entity.Overview;
 import starlight.domain.businessplan.enumerate.SectionName;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
@@ -40,21 +41,14 @@ public class OverviewStrategy implements SectionStrategy {
 
     @Override
     public SectionResponse.Retrieved read(BusinessPlan plan) {
-        Overview entity = plan.getOverview();
-        if (entity == null) {
-            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
-        }
+        Overview entity = getGrowthOverviewOrThrow(plan);
 
         return SectionResponse.Retrieved.create("successfully retrieved", entity.getRawJson().asTree());
     }
 
     @Override
     public SectionResponse.Created update(BusinessPlan plan, JsonNode rawJson, SectionRequest req) {
-        Overview entity = plan.getOverview();
-
-        if (entity == null) {
-            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
-        }
+        Overview entity = getGrowthOverviewOrThrow(plan);
 
         overviewService.updateFrom(entity, rawJson, req.checks());
 
@@ -63,11 +57,7 @@ public class OverviewStrategy implements SectionStrategy {
 
     @Override
     public SectionResponse.Deleted delete(BusinessPlan plan) {
-        Overview entity = plan.getOverview();
-
-        if (entity == null) {
-            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
-        }
+        Overview entity = getGrowthOverviewOrThrow(plan);
 
         overviewService.delete(entity, plan);
 
@@ -77,5 +67,14 @@ public class OverviewStrategy implements SectionStrategy {
     @Override
     public List<Boolean> check(SectionRequest request) {
         return overviewService.check(request);
+    }
+
+    private Overview getGrowthOverviewOrThrow(BusinessPlan plan) {
+        Overview entity = plan.getOverview();
+        if (entity == null) {
+            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
+        }
+
+        return entity;
     }
 }

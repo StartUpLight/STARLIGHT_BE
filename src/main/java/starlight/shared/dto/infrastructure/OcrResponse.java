@@ -2,7 +2,7 @@ package starlight.shared.dto.infrastructure;
 
 import java.util.List;
 
-public record ClovaOcrResponse(
+public record OcrResponse(
         String version,
         String requestId,
         long timestamp,
@@ -24,8 +24,8 @@ public record ClovaOcrResponse(
         ) {}
     }
 
-    public static ClovaOcrResponse create(String version, String requestId, List<ImageResult> images) {
-        return new ClovaOcrResponse(
+    public static OcrResponse create(String version, String requestId, List<ImageResult> images) {
+        return new OcrResponse(
                 version,
                 requestId,
                 System.currentTimeMillis(),
@@ -33,7 +33,7 @@ public record ClovaOcrResponse(
         );
     }
 
-    public static ClovaOcrResponse createEmpty() {
+    public static OcrResponse createEmpty() {
         return create("V2", "empty", List.of());
     }
 }

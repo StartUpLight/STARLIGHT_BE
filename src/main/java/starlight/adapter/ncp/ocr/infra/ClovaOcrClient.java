@@ -7,7 +7,7 @@ import org.springframework.web.client.RestClient;
 import starlight.adapter.ncp.ocr.dto.ClovaOcrRequest;
 import starlight.adapter.ncp.ocr.exception.OcrErrorType;
 import starlight.adapter.ncp.ocr.exception.OcrException;
-import starlight.shared.dto.infrastructure.ClovaOcrResponse;
+import starlight.shared.dto.infrastructure.OcrResponse;
 
 @Slf4j
 @Component
@@ -19,14 +19,14 @@ public class ClovaOcrClient {
         this.clovaOcrRestClient = restClient;
     }
 
-    public ClovaOcrResponse recognizePdfBytes(byte[] pdfBytes) {
+    public OcrResponse recognizePdfBytes(byte[] pdfBytes) {
         ClovaOcrRequest request = ClovaOcrRequest.createPdfByBytes("V2", pdfBytes);
 
         try {
-            ClovaOcrResponse resp = clovaOcrRestClient.post()
+            OcrResponse resp = clovaOcrRestClient.post()
                     .body(request)
                     .retrieve()
-                    .body(ClovaOcrResponse.class);
+                    .body(OcrResponse.class);
 
             if (resp == null) {
                 log.warn("CLOVA OCR 응답이 null 입니다.");

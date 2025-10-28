@@ -111,14 +111,14 @@ public class BusinessPlan extends AbstractEntity {
     }
 
     public void attachGrowthTactic(GrowthTactic growthTactic) {
-        Assert.notNull(growthTactic, "growthStrategy must not be null");
-        Assert.state(this.growthTactic == null, "GrowthStrategy already attached");
+        Assert.notNull(growthTactic, "GrowthTactic must not be null");
+        Assert.state(this.growthTactic == null, "GrowthTactic already attached");
 
         this.growthTactic = growthTactic;
     }
 
     public void detachGrowthTactic() {
-        Assert.state(this.growthTactic != null, "GrowthStrategy is not attached");
+        Assert.state(this.growthTactic != null, "GrowthTactic is not attached");
 
         this.growthTactic = null;
     }

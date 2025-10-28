@@ -1,6 +1,6 @@
 package starlight.adapter.ncp.ocr.util;
 
-import starlight.shared.dto.infrastructure.ClovaOcrResponse;
+import starlight.shared.dto.infrastructure.OcrResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public final class OcrTextExtractor {
      * @param response                  OCR 원본 응답 (널 가능)
      * @return                          결합된 전체 텍스트 (널 입력이면 빈 문자열)
      */
-    public static String toPlainText(ClovaOcrResponse response) {
+    public static String toPlainText(OcrResponse response) {
         List<String> pageTexts = toPages(response);
         return String.join("\n\n-----\n\n", pageTexts);
     }
@@ -26,16 +26,16 @@ public final class OcrTextExtractor {
     /**
      * 페이지(= images 배열의 각 요소)별 텍스트를 리스트로 반환.
      *
-     * @param clovaOcrResponse          OCR 원본 응답
+     * @param ocrResponse          OCR 원본 응답
      * @return                          각 페이지의 문자열 (images가 비었거나 널이면 빈 리스트)
      */
-    public static List<String> toPages(ClovaOcrResponse clovaOcrResponse) {
+    public static List<String> toPages(OcrResponse ocrResponse) {
         List<String> pages = new ArrayList<>();
-        if (clovaOcrResponse == null || clovaOcrResponse.images() == null) {
+        if (ocrResponse == null || ocrResponse.images() == null) {
             return pages;
         }
 
-        for (ClovaOcrResponse.ImageResult page : clovaOcrResponse.images()) {
+        for (OcrResponse.ImageResult page : ocrResponse.images()) {
             if (page == null || page.fields() == null || page.fields().isEmpty()) {
                 pages.add("");
                 continue;
@@ -44,7 +44,7 @@ public final class OcrTextExtractor {
             StringBuilder pageBuilder = new StringBuilder();
             boolean atLineStart = true;
 
-            for (ClovaOcrResponse.ImageResult.Field fieldItem : page.fields()) {
+            for (OcrResponse.ImageResult.Field fieldItem : page.fields()) {
                 if (fieldItem == null) {
                     continue;
                 }

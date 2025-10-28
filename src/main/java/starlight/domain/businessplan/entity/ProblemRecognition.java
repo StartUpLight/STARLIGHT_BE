@@ -42,10 +42,11 @@ public class ProblemRecognition {
     private boolean checkFifth;
 
     public static ProblemRecognition create(RawJson rawJson) {
-        Assert.notNull(rawJson, "rawJson must not be null");
+        Assert.notNull(rawJson, "rawJson은 null일 수 없습니다.");
 
         ProblemRecognition problemRecognition = new ProblemRecognition();
         problemRecognition.rawJson = rawJson;
+        problemRecognition.initializeChecks();
 
         return problemRecognition;
     }
@@ -78,5 +79,13 @@ public class ProblemRecognition {
         this.checkThird = Boolean.TRUE.equals(checks.get(2));
         this.checkFourth = Boolean.TRUE.equals(checks.get(3));
         this.checkFifth = Boolean.TRUE.equals(checks.get(4));
+    }
+
+    private void initializeChecks() {
+        this.checkFirst = false;
+        this.checkSecond = false;
+        this.checkThird = false;
+        this.checkFourth = false;
+        this.checkFifth = false;
     }
 }

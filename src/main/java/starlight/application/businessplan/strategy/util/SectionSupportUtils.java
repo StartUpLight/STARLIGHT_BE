@@ -23,8 +23,15 @@ public final class SectionSupportUtils {
         }
     }
 
-    public static void requireSize5(List<Boolean> checks) {
-        if (checks == null || checks.size() != 5) {
+    /**
+     +     * 리스트가 지정된 크기를 가지는지 검증합니다.
+     +     *
+     +     * @param checks 검증할 Boolean 리스트
+     +     * @param expectedSize 기대되는 리스트 크기
+     +     * @throws BusinessPlanException 리스트가 null이거나 크기가 일치하지 않는 경우
+     +     */
+    public static void requireSize(List<Boolean> checks, int expectedSize) {
+        if (checks == null || checks.size() != expectedSize) {
             throw new BusinessPlanException(BusinessPlanErrorType.CHECKS_LIST_SIZE_INVALID);
         }
     }

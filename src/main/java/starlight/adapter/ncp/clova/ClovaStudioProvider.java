@@ -20,9 +20,9 @@ public class ClovaStudioProvider implements CheckListGrader {
     private final PromptFinder promptFinder;
 
     @Override
-    public List<Boolean> check(String SectionName, String userMsg, int criteriaSize){
+    public List<Boolean> check(String sectionName, String userMsg, int criteriaSize){
         String systemPrompt = "너는 사업계획서 전문가야";
-        List<String> criteria = promptFinder.getSectionCriteria(SectionName);
+        List<String> criteria = promptFinder.getSectionCriteria(sectionName);
         String userPrompt = ClovaUtil.buildUserContent(userMsg, criteria);
 
         ClovaStudioResponse response = clovaStudioClient.check(systemPrompt, userPrompt, criteriaSize);

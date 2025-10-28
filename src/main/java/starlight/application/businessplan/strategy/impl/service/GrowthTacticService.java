@@ -19,7 +19,7 @@ public class GrowthTacticService {
     private final ObjectMapper objectMapper;
 
     public GrowthTactic createFrom(JsonNode rawJson, List<Boolean> checks) {
-        SectionSupportUtils.requireSize5(checks);
+        SectionSupportUtils.requireSize(checks, 5);
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
 
         GrowthTactic entity = GrowthTactic.create(json);
@@ -29,7 +29,7 @@ public class GrowthTacticService {
     }
 
     public void updateFrom(GrowthTactic entity, JsonNode rawJson, List<Boolean> checks) {
-        SectionSupportUtils.requireSize5(checks);
+        SectionSupportUtils.requireSize(checks, 5);
 
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
         entity.updateRawJson(json);
