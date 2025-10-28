@@ -19,7 +19,7 @@ public class TeamCompetenceService {
     private final ObjectMapper objectMapper;
 
     public TeamCompetence createFrom(JsonNode rawJson, List<Boolean> checks) {
-        SectionSupportUtils.requireSize5(checks);
+        SectionSupportUtils.requireSize(checks, 5);
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
 
         TeamCompetence entity = TeamCompetence.create(json);
@@ -29,7 +29,7 @@ public class TeamCompetenceService {
     }
 
     public void updateFrom(TeamCompetence entity, JsonNode rawJson, List<Boolean> checks) {
-        SectionSupportUtils.requireSize5(checks);
+        SectionSupportUtils.requireSize(checks, 5);
 
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
         entity.updateRawJson(json);

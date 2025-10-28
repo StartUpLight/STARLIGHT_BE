@@ -1,4 +1,4 @@
-package starlight.adapter.member.webapi.swagger;
+package starlight.adapter.businessplan.webapi.swagger;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -8,11 +8,11 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
-import starlight.adapter.member.webapi.dto.SpellCheckRequest;
-import starlight.adapter.member.webapi.dto.SpellCheckResponse;
+import starlight.adapter.businessplan.webapi.dto.SpellCheckResponse;
+import starlight.application.businessplan.strategy.dto.SectionRequest;
 import starlight.shared.apiPayload.response.ApiResponse;
 
-@Tag(name = "맞춤법 검사", description = "다음 맞춤법 검사 API")
+@Tag(name = "사업계획서", description = "사업계획서 API")
 public interface SpellCheckApiDoc {
 
     @Operation(
@@ -71,7 +71,7 @@ public interface SpellCheckApiDoc {
                     )
             )
     })
-    @PostMapping("/check")
+    @PostMapping("/spellcheck")
     ApiResponse<SpellCheckResponse> check(
             @RequestBody(
                     description = "검사할 텍스트",
@@ -87,7 +87,6 @@ public interface SpellCheckApiDoc {
                             )
                     )
             )
-            @org.springframework.web.bind.annotation.RequestBody
-            SpellCheckRequest request
+            @org.springframework.web.bind.annotation.RequestBody SectionRequest sectionRequest
     );
 }

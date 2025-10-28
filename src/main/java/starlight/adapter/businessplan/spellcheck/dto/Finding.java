@@ -1,4 +1,4 @@
-package starlight.adapter.member.spellcheck.dto;
+package starlight.adapter.businessplan.spellcheck.dto;
 
 import java.util.List;
 

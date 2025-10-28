@@ -19,7 +19,7 @@ public class ProblemRecognitionService {
     private final ObjectMapper objectMapper;
 
     public ProblemRecognition createFrom(JsonNode rawJson, List<Boolean> checks) {
-        SectionSupportUtils.requireSize5(checks);
+        SectionSupportUtils.requireSize(checks, 5);
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
 
         ProblemRecognition entity = ProblemRecognition.create(json);
@@ -29,7 +29,7 @@ public class ProblemRecognitionService {
     }
 
     public void updateFrom(ProblemRecognition entity, JsonNode rawJson, List<Boolean> checks) {
-        SectionSupportUtils.requireSize5(checks);
+        SectionSupportUtils.requireSize(checks, 5);
 
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
         entity.updateRawJson(json);

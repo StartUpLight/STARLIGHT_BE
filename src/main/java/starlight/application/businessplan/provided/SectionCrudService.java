@@ -8,11 +8,9 @@ import java.util.List;
 
 public interface SectionCrudService {
 
-    SectionResponse.Created createSection(Long planId, SectionRequest request);
-
     SectionResponse.Retrieved getSection(Long planId, SectionName sectionName);
 
-    SectionResponse.Updated updateSection(Long planId, SectionRequest request);
+    SectionResponse.Created createOrUpdateSection(Long planId, SectionRequest request);
 
     SectionResponse.Deleted deleteSection(Long planId, SectionName sectionName);
 

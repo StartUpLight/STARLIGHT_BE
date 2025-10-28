@@ -24,16 +24,6 @@ public record SectionResponse() {
         }
     }
 
-    public record Updated(
-            SectionName section,
-            Long sectionId,
-            String message
-    ) {
-        public static Updated create(SectionName section, Long sectionId, String message) {
-            return new Updated(section, sectionId, message);
-        }
-    }
-
     public record Deleted(
             SectionName section,
             Long sectionId,

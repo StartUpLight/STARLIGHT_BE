@@ -1,4 +1,4 @@
-package starlight.adapter.member.spellcheck;
+package starlight.adapter.businessplan.spellcheck;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
-import starlight.adapter.member.spellcheck.dto.Finding;
-import starlight.adapter.member.spellcheck.util.SpellCheckUtil;
-import starlight.application.member.required.SpellChecker;
+import starlight.adapter.businessplan.spellcheck.dto.Finding;
+import starlight.adapter.businessplan.spellcheck.util.SpellCheckUtil;
+import starlight.application.businessplan.required.SpellChecker;
 
 import java.util.ArrayList;
 import java.util.Comparator;

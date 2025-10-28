@@ -15,14 +15,13 @@ import starlight.adapter.ncp.ocr.infra.PdfDownloadClient;
 import starlight.adapter.ncp.ocr.util.OcrResponseMerger;
 import starlight.adapter.ncp.ocr.util.OcrTextExtractor;
 import starlight.adapter.ncp.ocr.util.PdfUtils;
-import starlight.shared.dto.ClovaOcrResponse;
+import starlight.shared.dto.infrastructure.OcrResponse;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,14 +39,14 @@ class ClovaOcrProviderTest {
 
     private static final String TEST_PDF_URL = "https://example.com/test.pdf";
     private byte[] testPdfBytes;
-    private ClovaOcrResponse mockResponse1;
-    private ClovaOcrResponse mockResponse2;
+    private OcrResponse mockResponse1;
+    private OcrResponse mockResponse2;
 
     @BeforeEach
     void setUp() {
         testPdfBytes = "test pdf content".getBytes();
-        mockResponse1 = ClovaOcrResponse.createEmpty();
-        mockResponse2 = ClovaOcrResponse.createEmpty();
+        mockResponse1 = OcrResponse.createEmpty();
+        mockResponse2 = OcrResponse.createEmpty();
     }
 
     @Test
@@ -55,7 +54,7 @@ class ClovaOcrProviderTest {
     void ocrPdfByUrl_Success_SingleChunk() {
         // given
         byte[] chunk = "chunk1".getBytes();
-        ClovaOcrResponse expectedResponse = ClovaOcrResponse.createEmpty();
+        OcrResponse expectedResponse = OcrResponse.createEmpty();
 
         when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
 
@@ -69,7 +68,7 @@ class ClovaOcrProviderTest {
                     .thenReturn(expectedResponse);
 
             // when
-            ClovaOcrResponse result = clovaOcrProvider.ocrPdfByUrl(TEST_PDF_URL);
+            OcrResponse result = clovaOcrProvider.ocrPdfByUrl(TEST_PDF_URL);
 
             // then
             assertThat(result).isEqualTo(expectedResponse);
@@ -84,7 +83,7 @@ class ClovaOcrProviderTest {
         // given
         byte[] chunk1 = "chunk1".getBytes();
         byte[] chunk2 = "chunk2".getBytes();
-        ClovaOcrResponse mergedResponse = ClovaOcrResponse.createEmpty();
+        OcrResponse mergedResponse = OcrResponse.createEmpty();
 
         when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
 
@@ -99,7 +98,7 @@ class ClovaOcrProviderTest {
                     .thenReturn(mergedResponse);
 
             // when
-            ClovaOcrResponse result = clovaOcrProvider.ocrPdfByUrl(TEST_PDF_URL);
+            OcrResponse result = clovaOcrProvider.ocrPdfByUrl(TEST_PDF_URL);
 
             // then
             assertThat(result).isEqualTo(mergedResponse);
@@ -173,7 +172,7 @@ class ClovaOcrProviderTest {
     void ocrPdfTextByUrl_Success() {
         // given
         byte[] chunk = "chunk1".getBytes();
-        ClovaOcrResponse ocrResponse = ClovaOcrResponse.createEmpty();
+        OcrResponse ocrResponse = OcrResponse.createEmpty();
         String expectedText = "Extracted text content";
 
         when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
@@ -217,7 +216,7 @@ class ClovaOcrProviderTest {
     @DisplayName("빈 청크 리스트 처리")
     void ocrPdfByUrl_WithEmptyChunks() {
         // given
-        ClovaOcrResponse emptyResponse = ClovaOcrResponse.createEmpty();
+        OcrResponse emptyResponse = OcrResponse.createEmpty();
 
         when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
 
@@ -230,7 +229,7 @@ class ClovaOcrProviderTest {
                     .thenReturn(emptyResponse);
 
             // when
-            ClovaOcrResponse result = clovaOcrProvider.ocrPdfByUrl(TEST_PDF_URL);
+            OcrResponse result = clovaOcrProvider.ocrPdfByUrl(TEST_PDF_URL);
 
             // then
             assertThat(result).isEqualTo(emptyResponse);
@@ -245,7 +244,7 @@ class ClovaOcrProviderTest {
         // given
         byte[] chunk1 = "chunk1".getBytes();
         byte[] chunk2 = "chunk2".getBytes();
-        ClovaOcrResponse mergedResponse = ClovaOcrResponse.createEmpty();
+        OcrResponse mergedResponse = OcrResponse.createEmpty();
 
         when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
 
@@ -260,7 +259,7 @@ class ClovaOcrProviderTest {
                     .thenReturn(mergedResponse);
 
             // when
-            ClovaOcrResponse result = clovaOcrProvider.ocrPdfByUrl(TEST_PDF_URL);
+            OcrResponse result = clovaOcrProvider.ocrPdfByUrl(TEST_PDF_URL);
 
             // then
             assertThat(result).isEqualTo(mergedResponse);

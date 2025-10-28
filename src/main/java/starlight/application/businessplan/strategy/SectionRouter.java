@@ -35,23 +35,23 @@ public class SectionRouter {
         return strategy;
     }
 
-    public SectionResponse.Created routeAndCreate(BusinessPlan plan, JsonNode jsonRaw, SectionRequest request) {
+    public SectionResponse.Created create(BusinessPlan plan, JsonNode jsonRaw, SectionRequest request) {
         return pick(request.sectionName()).create(plan, jsonRaw, request);
     }
 
-    public SectionResponse.Retrieved routeAndGet(BusinessPlan plan, SectionName sectionName) {
+    public SectionResponse.Retrieved get(BusinessPlan plan, SectionName sectionName) {
         return pick(sectionName).read(plan);
     }
 
-    public SectionResponse.Updated routeAndUpdate(BusinessPlan plan, JsonNode jsonRaw, SectionRequest request) {
+    public SectionResponse.Created update(BusinessPlan plan, JsonNode jsonRaw, SectionRequest request) {
         return pick(request.sectionName()).update(plan, jsonRaw, request);
     }
 
-    public SectionResponse.Deleted routeAndDelete(BusinessPlan plan, SectionName sectionName) {
+    public SectionResponse.Deleted delete(BusinessPlan plan, SectionName sectionName) {
         return pick(sectionName).delete(plan);
     }
 
-    public List<Boolean> routeAndCheck(SectionRequest request) {
+    public List<Boolean> check(SectionRequest request) {
         return pick(request.sectionName()).check(request);
     }
 }

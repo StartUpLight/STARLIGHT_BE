@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 import starlight.application.infrastructure.provided.PresignedUrlProvider;
-import starlight.shared.dto.PreSignedUrlResponse;
+import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -36,9 +36,9 @@ public class NcpPresignedUrlProvider implements PresignedUrlProvider {
      * 업로드용 Presigned URL 생성
      *   - 클라이언트는 추가 헤더 없이 PUT(binary)만 하면 됨
      *
-     * @param userId
-     * @param originalFileName
-     * @return
+     * @param userId 사용자 ID (파일 경로 생성에 사용)
+     * @param originalFileName 원본 파일명 (확장자 추출에 사용)
+     * @return Presigned URL 및 최종 공개 URL을 포함한 응답 객체
      */
     @Override
     public PreSignedUrlResponse getPreSignedUrl(Long userId, String originalFileName) {
@@ -66,8 +66,8 @@ public class NcpPresignedUrlProvider implements PresignedUrlProvider {
     /**
      * 업로드 후 공개가 필요할 때 서버에서 ACL을 지정
      *
-     * @param objectUrl
-     * @return objectUrl
+     * @param objectUrl objectUrl ACL 변경 대상 오브젝트의 URL
+     * @return 공개 설정이 완료된 오브젝트 URL
      */
     @Override
     public String makePublic(String objectUrl) {

@@ -44,6 +44,7 @@ public class Overview {
 
         Overview overview = new Overview();
         overview.rawJson = rawJson;
+        overview.initializeChecks();
 
         return overview;
     }
@@ -76,5 +77,13 @@ public class Overview {
         this.checkThird = Boolean.TRUE.equals(checks.get(2));
         this.checkFourth = Boolean.TRUE.equals(checks.get(3));
         this.checkFifth = Boolean.TRUE.equals(checks.get(4));
+    }
+
+    private void initializeChecks() {
+        this.checkFirst = false;
+        this.checkSecond = false;
+        this.checkThird = false;
+        this.checkFourth = false;
+        this.checkFifth = false;
     }
 }

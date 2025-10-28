@@ -70,7 +70,9 @@ public class RestClientConfig {
         return RestClient.builder()
                 .baseUrl(String.format("%s/%s", clovaHost, model))
                 .requestFactory(factory)
-                .defaultHeader("X-NCP-CLOVASTUDIO-REQUEST-ID",UUID.randomUUID().toString())
+                .defaultRequest(request -> {
+                    request.header("X-NCP-CLOVASTUDIO-REQUEST-ID", UUID.randomUUID().toString());
+                })
                 .defaultHeader("Authorization", "Bearer " + apiKey) // Bearer only
                 .defaultHeader("Content-Type", "application/json")
                 .build();

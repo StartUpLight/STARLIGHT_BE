@@ -1,6 +1,6 @@
-package starlight.shared.dto;
+package starlight.shared.dto.infrastructure;
 
-public record ClovaResponse(
+public record ClovaStudioResponse(
         Status status,
         Result result
 ) {

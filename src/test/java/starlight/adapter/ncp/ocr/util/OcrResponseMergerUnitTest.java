@@ -2,7 +2,7 @@ package starlight.adapter.ncp.ocr.util;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import starlight.shared.dto.ClovaOcrResponse;
+import starlight.shared.dto.infrastructure.OcrResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ class OcrResponseMergerUnitTest {
     @DisplayName("null 입력 시 빈 응답 반환")
     void merge_ReturnsEmpty_WhenInputIsNull() {
         // when
-        ClovaOcrResponse result = OcrResponseMerger.merge(null);
+        OcrResponse result = OcrResponseMerger.merge(null);
 
         // then
         assertThat(result).isNotNull();
@@ -29,7 +29,7 @@ class OcrResponseMergerUnitTest {
     @DisplayName("빈 리스트 입력 시 빈 응답 반환")
     void merge_ReturnsEmpty_WhenInputIsEmpty() {
         // when
-        ClovaOcrResponse result = OcrResponseMerger.merge(List.of());
+        OcrResponse result = OcrResponseMerger.merge(List.of());
 
         // then
         assertThat(result).isNotNull();
@@ -40,16 +40,16 @@ class OcrResponseMergerUnitTest {
     @DisplayName("단일 응답 병합")
     void merge_SingleResponse() {
         // given
-        ClovaOcrResponse.ImageResult.Field field1 = new ClovaOcrResponse.ImageResult.Field(
+        OcrResponse.ImageResult.Field field1 = new OcrResponse.ImageResult.Field(
                 "text", "Hello", 0.95, "normal", false
         );
-        ClovaOcrResponse.ImageResult image1 = new ClovaOcrResponse.ImageResult(
+        OcrResponse.ImageResult image1 = new OcrResponse.ImageResult(
                 "img1", "page1", "SUCCESS", null, List.of(field1)
         );
-        ClovaOcrResponse response = ClovaOcrResponse.create("V2", "req1", List.of(image1));
+        OcrResponse response = OcrResponse.create("V2", "req1", List.of(image1));
 
         // when
-        ClovaOcrResponse result = OcrResponseMerger.merge(List.of(response));
+        OcrResponse result = OcrResponseMerger.merge(List.of(response));
 
         // then
         assertThat(result.version()).isEqualTo("V2");
@@ -63,31 +63,31 @@ class OcrResponseMergerUnitTest {
     @DisplayName("다중 응답 병합 - 이미지 순서 유지")
     void merge_MultipleResponses_MaintainsOrder() {
         // given
-        ClovaOcrResponse.ImageResult.Field field1 = new ClovaOcrResponse.ImageResult.Field(
+        OcrResponse.ImageResult.Field field1 = new OcrResponse.ImageResult.Field(
                 "text", "Page1", 0.95, "normal", false
         );
-        ClovaOcrResponse.ImageResult.Field field2 = new ClovaOcrResponse.ImageResult.Field(
+        OcrResponse.ImageResult.Field field2 = new OcrResponse.ImageResult.Field(
                 "text", "Page2", 0.95, "normal", false
         );
-        ClovaOcrResponse.ImageResult.Field field3 = new ClovaOcrResponse.ImageResult.Field(
+        OcrResponse.ImageResult.Field field3 = new OcrResponse.ImageResult.Field(
                 "text", "Page3", 0.95, "normal", false
         );
 
-        ClovaOcrResponse.ImageResult image1 = new ClovaOcrResponse.ImageResult(
+        OcrResponse.ImageResult image1 = new OcrResponse.ImageResult(
                 "img1", "page1", "SUCCESS", null, List.of(field1)
         );
-        ClovaOcrResponse.ImageResult image2 = new ClovaOcrResponse.ImageResult(
+        OcrResponse.ImageResult image2 = new OcrResponse.ImageResult(
                 "img2", "page2", "SUCCESS", null, List.of(field2)
         );
-        ClovaOcrResponse.ImageResult image3 = new ClovaOcrResponse.ImageResult(
+        OcrResponse.ImageResult image3 = new OcrResponse.ImageResult(
                 "img3", "page3", "SUCCESS", null, List.of(field3)
         );
 
-        ClovaOcrResponse response1 = ClovaOcrResponse.create("V2", "req1", List.of(image1));
-        ClovaOcrResponse response2 = ClovaOcrResponse.create("V2", "req2", List.of(image2, image3));
+        OcrResponse response1 = OcrResponse.create("V2", "req1", List.of(image1));
+        OcrResponse response2 = OcrResponse.create("V2", "req2", List.of(image2, image3));
 
         // when
-        ClovaOcrResponse result = OcrResponseMerger.merge(List.of(response1, response2));
+        OcrResponse result = OcrResponseMerger.merge(List.of(response1, response2));
 
         // then
         assertThat(result.images()).hasSize(3);
@@ -100,11 +100,11 @@ class OcrResponseMergerUnitTest {
     @DisplayName("첫 번째 응답의 version과 requestId 사용")
     void merge_UsesFirstResponseMetadata() {
         // given
-        ClovaOcrResponse response1 = ClovaOcrResponse.create("V2", "first-request", List.of());
-        ClovaOcrResponse response2 = ClovaOcrResponse.create("V3", "second-request", List.of());
+        OcrResponse response1 = OcrResponse.create("V2", "first-request", List.of());
+        OcrResponse response2 = OcrResponse.create("V3", "second-request", List.of());
 
         // when
-        ClovaOcrResponse result = OcrResponseMerger.merge(List.of(response1, response2));
+        OcrResponse result = OcrResponseMerger.merge(List.of(response1, response2));
 
         // then
         assertThat(result.version()).isEqualTo("V2");
@@ -115,18 +115,18 @@ class OcrResponseMergerUnitTest {
     @DisplayName("images가 null인 응답 포함 시 안전하게 병합")
     void merge_HandlesNullImages() {
         // given
-        ClovaOcrResponse.ImageResult.Field field1 = new ClovaOcrResponse.ImageResult.Field(
+        OcrResponse.ImageResult.Field field1 = new OcrResponse.ImageResult.Field(
                 "text", "Hello", 0.95, "normal", false
         );
-        ClovaOcrResponse.ImageResult image1 = new ClovaOcrResponse.ImageResult(
+        OcrResponse.ImageResult image1 = new OcrResponse.ImageResult(
                 "img1", "page1", "SUCCESS", null, List.of(field1)
         );
 
-        ClovaOcrResponse response1 = ClovaOcrResponse.create("V2", "req1", List.of(image1));
-        ClovaOcrResponse response2 = new ClovaOcrResponse("V2", "req2", System.currentTimeMillis(), null);
+        OcrResponse response1 = OcrResponse.create("V2", "req1", List.of(image1));
+        OcrResponse response2 = new OcrResponse("V2", "req2", System.currentTimeMillis(), null);
 
         // when
-        ClovaOcrResponse result = OcrResponseMerger.merge(List.of(response1, response2));
+        OcrResponse result = OcrResponseMerger.merge(List.of(response1, response2));
 
         // then
         assertThat(result.images()).hasSize(1);
@@ -137,19 +137,19 @@ class OcrResponseMergerUnitTest {
     @DisplayName("10개 이상의 응답 병합")
     void merge_ManyResponses() {
         // given
-        List<ClovaOcrResponse> responses = new ArrayList<>();
+        List<OcrResponse> responses = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
-            ClovaOcrResponse.ImageResult.Field field = new ClovaOcrResponse.ImageResult.Field(
+            OcrResponse.ImageResult.Field field = new OcrResponse.ImageResult.Field(
                     "text", "Page" + i, 0.95, "normal", false
             );
-            ClovaOcrResponse.ImageResult image = new ClovaOcrResponse.ImageResult(
+            OcrResponse.ImageResult image = new OcrResponse.ImageResult(
                     "img" + i, "page" + i, "SUCCESS", null, List.of(field)
             );
-            responses.add(ClovaOcrResponse.create("V2", "req" + i, List.of(image)));
+            responses.add(OcrResponse.create("V2", "req" + i, List.of(image)));
         }
 
         // when
-        ClovaOcrResponse result = OcrResponseMerger.merge(responses);
+        OcrResponse result = OcrResponseMerger.merge(responses);
 
         // then
         assertThat(result.images()).hasSize(15);
@@ -161,11 +161,11 @@ class OcrResponseMergerUnitTest {
     @DisplayName("빈 images를 가진 응답들 병합")
     void merge_EmptyImagesResponses() {
         // given
-        ClovaOcrResponse response1 = ClovaOcrResponse.create("V2", "req1", List.of());
-        ClovaOcrResponse response2 = ClovaOcrResponse.create("V2", "req2", List.of());
+        OcrResponse response1 = OcrResponse.create("V2", "req1", List.of());
+        OcrResponse response2 = OcrResponse.create("V2", "req2", List.of());
 
         // when
-        ClovaOcrResponse result = OcrResponseMerger.merge(List.of(response1, response2));
+        OcrResponse result = OcrResponseMerger.merge(List.of(response1, response2));
 
         // then
         assertThat(result.images()).isEmpty();

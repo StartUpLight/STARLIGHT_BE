@@ -19,7 +19,7 @@ public class OverviewService {
     private final ObjectMapper objectMapper;
 
     public Overview createFrom(JsonNode rawJson, List<Boolean> checks) {
-        SectionSupportUtils.requireSize5(checks);
+        SectionSupportUtils.requireSize(checks, 5);
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
 
         Overview entity = Overview.create(json);
@@ -29,7 +29,7 @@ public class OverviewService {
     }
 
     public void updateFrom(Overview entity, JsonNode rawJson, List<Boolean> checks) {
-        SectionSupportUtils.requireSize5(checks);
+        SectionSupportUtils.requireSize(checks, 5);
 
         String json = SectionSupportUtils.toJson(objectMapper, rawJson);
         entity.updateRawJson(json);

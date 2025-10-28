@@ -11,7 +11,7 @@ import org.springframework.web.client.RestClient;
 import starlight.adapter.ncp.ocr.dto.ClovaOcrRequest;
 import starlight.adapter.ncp.ocr.exception.OcrErrorType;
 import starlight.adapter.ncp.ocr.exception.OcrException;
-import starlight.shared.dto.ClovaOcrResponse;
+import starlight.shared.dto.infrastructure.OcrResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,15 +39,15 @@ class ClovaOcrClientTest {
     @DisplayName("PDF 바이트를 전달하면 OCR 응답을 반환한다")
     void recognizePdfBytes_Success() {
         // given
-        ClovaOcrResponse expectedResponse = ClovaOcrResponse.createEmpty();
+        OcrResponse expectedResponse = OcrResponse.createEmpty();
 
         when(clovaOcrRestClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.body(ArgumentMatchers.<ClovaOcrRequest>any())).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(ClovaOcrResponse.class)).thenReturn(expectedResponse);
+        when(responseSpec.body(OcrResponse.class)).thenReturn(expectedResponse);
 
         // when
-        ClovaOcrResponse result = clovaOcrClient.recognizePdfBytes(testPdfBytes);
+        OcrResponse result = clovaOcrClient.recognizePdfBytes(testPdfBytes);
 
         // then
         assertThat(result).isNotNull();
@@ -61,7 +61,7 @@ class ClovaOcrClientTest {
         when(clovaOcrRestClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.body(ArgumentMatchers.<ClovaOcrRequest>any())).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(ClovaOcrResponse.class)).thenThrow(new RuntimeException("Network error"));
+        when(responseSpec.body(OcrResponse.class)).thenThrow(new RuntimeException("Network error"));
 
         // when & then
         assertThatThrownBy(() -> clovaOcrClient.recognizePdfBytes(testPdfBytes))
@@ -74,15 +74,15 @@ class ClovaOcrClientTest {
     void recognizePdfBytes_WithEmptyBytes() {
         // given
         byte[] emptyBytes = new byte[0];
-        ClovaOcrResponse expectedResponse = ClovaOcrResponse.createEmpty();
+        OcrResponse expectedResponse = OcrResponse.createEmpty();
 
         when(clovaOcrRestClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.body(ArgumentMatchers.<ClovaOcrRequest>any())).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(ClovaOcrResponse.class)).thenReturn(expectedResponse);
+        when(responseSpec.body(OcrResponse.class)).thenReturn(expectedResponse);
 
         // when
-        ClovaOcrResponse result = clovaOcrClient.recognizePdfBytes(emptyBytes);
+        OcrResponse result = clovaOcrClient.recognizePdfBytes(emptyBytes);
 
         // then
         assertThat(result).isNotNull();
@@ -96,10 +96,10 @@ class ClovaOcrClientTest {
         when(clovaOcrRestClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.body(ArgumentMatchers.<ClovaOcrRequest>any())).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(ClovaOcrResponse.class)).thenReturn(null);
+        when(responseSpec.body(OcrResponse.class)).thenReturn(null);
 
         // when
-        ClovaOcrResponse result = clovaOcrClient.recognizePdfBytes(testPdfBytes);
+        OcrResponse result = clovaOcrClient.recognizePdfBytes(testPdfBytes);
 
         // then
         assertThat(result).isNull();
@@ -126,7 +126,7 @@ class ClovaOcrClientTest {
         when(clovaOcrRestClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.body(ArgumentMatchers.<ClovaOcrRequest>any())).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(ClovaOcrResponse.class)).thenThrow(new RuntimeException("JSON parse error"));
+        when(responseSpec.body(OcrResponse.class)).thenThrow(new RuntimeException("JSON parse error"));
 
         // when & then
         assertThatThrownBy(() -> clovaOcrClient.recognizePdfBytes(testPdfBytes))

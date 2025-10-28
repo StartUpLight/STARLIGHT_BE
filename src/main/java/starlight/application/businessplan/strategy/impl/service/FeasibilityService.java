@@ -21,7 +21,7 @@ public class FeasibilityService {
     private final CheckListGrader checkListGrader;
 
     public Feasibility createFrom(JsonNode raw, List<Boolean> checks) {
-        SectionSupportUtils.requireSize5(checks);
+        SectionSupportUtils.requireSize(checks, 5);
         String json = SectionSupportUtils.toJson(objectMapper, raw);
 
         Feasibility entity = Feasibility.create(json);
@@ -31,7 +31,7 @@ public class FeasibilityService {
     }
 
     public void updateFrom(Feasibility entity, JsonNode raw, List<Boolean> checks) {
-        SectionSupportUtils.requireSize5(checks);
+        SectionSupportUtils.requireSize(checks, 5);
 
         String json = SectionSupportUtils.toJson(objectMapper, raw);
         entity.updateRawJson(json);

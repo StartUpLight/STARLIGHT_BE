@@ -1,6 +1,6 @@
-package starlight.adapter.member.webapi.dto;
+package starlight.adapter.businessplan.webapi.dto;
 
-import starlight.adapter.member.spellcheck.dto.Finding;
+import starlight.adapter.businessplan.spellcheck.dto.Finding;
 
 import java.util.List;
 

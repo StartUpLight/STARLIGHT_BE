@@ -1,10 +1,10 @@
 package starlight.application.infrastructure.provided;
 
-import starlight.shared.dto.ClovaOcrResponse;
+import starlight.shared.dto.infrastructure.OcrResponse;
 
 public interface OcrProvider {
 
-    ClovaOcrResponse ocrPdfByUrl(String pdfUrl) ;
+    OcrResponse ocrPdfByUrl(String pdfUrl) ;
 
     String ocrPdfTextByUrl(String pdfUrl);
 }

@@ -40,32 +40,23 @@ public class FeasibilityStrategy implements SectionStrategy {
 
     @Override
     public SectionResponse.Retrieved read(BusinessPlan plan) {
-        Feasibility entity = plan.getFeasibility();
-        if (entity == null) {
-            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
-        }
+        Feasibility entity = getFeasibilityOrThrow(plan);
 
         return SectionResponse.Retrieved.create("successfully retrieved", entity.getRawJson().asTree());
     }
 
     @Override
-    public SectionResponse.Updated update(BusinessPlan plan, JsonNode rawJson, SectionRequest req) {
-        Feasibility entity = plan.getFeasibility();
-        if (entity == null) {
-            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
-        }
+    public SectionResponse.Created update(BusinessPlan plan, JsonNode rawJson, SectionRequest req) {
+        Feasibility entity = getFeasibilityOrThrow(plan);
 
         feasibilityService.updateFrom(entity, rawJson, req.checks());
 
-        return SectionResponse.Updated.create(key(), entity.getId(), "updated");
+        return SectionResponse.Created.create(key(), entity.getId(), "updated");
     }
 
     @Override
     public SectionResponse.Deleted delete(BusinessPlan plan) {
-        Feasibility entity = plan.getFeasibility();
-        if (entity == null) {
-            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
-        }
+        Feasibility entity = getFeasibilityOrThrow(plan);
 
         feasibilityService.delete(entity, plan);
 
@@ -75,5 +66,13 @@ public class FeasibilityStrategy implements SectionStrategy {
     @Override
     public List<Boolean> check(SectionRequest request) {
         return feasibilityService.check(request);
+    }
+
+    private Feasibility getFeasibilityOrThrow(BusinessPlan plan) {
+        Feasibility entity = plan.getFeasibility();
+        if (entity == null) {
+            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
+        }
+        return entity;
     }
 }

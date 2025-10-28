@@ -68,7 +68,7 @@ public final class ContentPlainText {
                     break;
 
                 case "table":
-                    List<String> tableLines = extractTable(contentItem);
+                    List<String> tableLines = extractTable_new(contentItem);
                     outputLines.addAll(tableLines);
                     break;
 
@@ -115,6 +115,36 @@ public final class ContentPlainText {
         return Optional.of(IMAGE_TOKEN + " " + caption);
     }
 
+    static List<String> extractTable_new(JsonNode contentItem) {
+        List<String> tableLines = new ArrayList<>();
+        JsonNode columnArrayNode = contentItem.path("columns");
+        JsonNode rowArrayNode = contentItem.path("rows");
+        if (!columnArrayNode.isArray() || !rowArrayNode.isArray()) {
+            return tableLines;
+        }
+
+        // 헤더 추가
+        List<String> headers = new ArrayList<>();
+        for (JsonNode col : columnArrayNode) {
+            headers.add("\"" + col.asText() + "\"");
+        }
+        tableLines.add("[" + String.join(", ", headers) + "]");
+
+        // 각 행 추가
+        for (JsonNode rowNode : rowArrayNode) {
+            if (rowNode.isArray()) {
+                List<String> rowValues = new ArrayList<>();
+                for (JsonNode cell : rowNode) {
+                    rowValues.add("\"" + cell.asText() + "\"");
+                }
+                tableLines.add("[" + String.join(", ", rowValues) + "]");
+            }
+        }
+
+        System.out.println(tableLines);
+        return tableLines;
+    }
+
     /** 테이블 항목: 각 행을 "col1: v1, col2: v2 ..." */
     static List<String> extractTable(JsonNode contentItem) {
         List<String> tableLines = new ArrayList<>();
@@ -130,6 +160,8 @@ public final class ContentPlainText {
                 tableLines.add(line);
             }
         }
+
+        System.out.println(tableLines);
         return tableLines;
     }
 

@@ -8,6 +8,7 @@ import starlight.application.businessplan.strategy.SectionStrategy;
 import starlight.application.businessplan.strategy.dto.SectionResponse;
 import starlight.application.businessplan.strategy.impl.service.ProblemRecognitionService;
 import starlight.domain.businessplan.entity.BusinessPlan;
+import starlight.domain.businessplan.entity.Overview;
 import starlight.domain.businessplan.entity.ProblemRecognition;
 import starlight.domain.businessplan.enumerate.SectionName;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
@@ -40,32 +41,23 @@ public class ProblemRecognitionStrategy implements SectionStrategy {
 
     @Override
     public SectionResponse.Retrieved read(BusinessPlan plan) {
-        ProblemRecognition entity = plan.getProblemRecognition();
-        if (entity == null) {
-            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
-        }
+        ProblemRecognition entity = getProblemRecognitionOrThrow(plan);
 
         return SectionResponse.Retrieved.create("successfully retrieved", entity.getRawJson().asTree());
     }
 
     @Override
-    public SectionResponse.Updated update(BusinessPlan plan, JsonNode rawJson, SectionRequest req) {
-        ProblemRecognition entity = plan.getProblemRecognition();
-        if (entity == null) {
-            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
-        }
+    public SectionResponse.Created update(BusinessPlan plan, JsonNode rawJson, SectionRequest req) {
+        ProblemRecognition entity = getProblemRecognitionOrThrow(plan);
 
         problemRecognitionService.updateFrom(entity, rawJson, req.checks());
 
-        return SectionResponse.Updated.create(key(), entity.getId(), "updated");
+        return SectionResponse.Created.create(key(), entity.getId(), "updated");
     }
 
     @Override
     public SectionResponse.Deleted delete(BusinessPlan plan) {
-        ProblemRecognition entity = plan.getProblemRecognition();
-        if (entity == null) {
-            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
-        }
+        ProblemRecognition entity = getProblemRecognitionOrThrow(plan);
 
         problemRecognitionService.delete(entity, plan);
 
@@ -75,5 +67,14 @@ public class ProblemRecognitionStrategy implements SectionStrategy {
     @Override
     public List<Boolean> check(SectionRequest request) {
         return problemRecognitionService.check(request);
+    }
+
+    private ProblemRecognition getProblemRecognitionOrThrow(BusinessPlan plan) {
+        ProblemRecognition entity = plan.getProblemRecognition();
+        if (entity == null) {
+            throw new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND);
+        }
+
+        return entity;
     }
 }

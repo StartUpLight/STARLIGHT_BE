@@ -10,7 +10,7 @@ import starlight.adapter.ncp.ocr.util.OcrResponseMerger;
 import starlight.adapter.ncp.ocr.util.OcrTextExtractor;
 import starlight.adapter.ncp.ocr.util.PdfUtils;
 import starlight.application.infrastructure.provided.OcrProvider;
-import starlight.shared.dto.ClovaOcrResponse;
+import starlight.shared.dto.infrastructure.OcrResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +39,12 @@ public class ClovaOcrProvider implements OcrProvider {
      *         - {@code OCR_CLIENT_ERROR}   : OCR 서버에서 4xx/5xx 등 오류 응답
      */
     @Override
-    public ClovaOcrResponse ocrPdfByUrl(String pdfUrl) {
+    public OcrResponse ocrPdfByUrl(String pdfUrl) {
         byte[] pdfBytes = pdfDownloadClient.downloadPdfFromUrl(pdfUrl);
 
         List<byte[]> chunks = PdfUtils.splitByPageLimit(pdfBytes, MAX_PAGES_PER_REQUEST);
 
-        List<ClovaOcrResponse> parts = new ArrayList<>();
+        List<OcrResponse> parts = new ArrayList<>();
         for (byte[] chunk : chunks) {
             parts.add(clovaOcrClient.recognizePdfBytes(chunk));
         }
@@ -62,8 +62,8 @@ public class ClovaOcrProvider implements OcrProvider {
      */
     @Override
     public String ocrPdfTextByUrl(String pdfUrl) {
-        ClovaOcrResponse clovaOcrResponse = ocrPdfByUrl(pdfUrl);
+        OcrResponse ocrResponse = ocrPdfByUrl(pdfUrl);
 
-        return OcrTextExtractor.toPlainText(clovaOcrResponse);
+        return OcrTextExtractor.toPlainText(ocrResponse);
     }
 }
