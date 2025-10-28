@@ -1,4 +1,4 @@
-package starlight.application.member.required;
+package starlight.adapter.member.persistence;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import starlight.domain.member.entity.Member;

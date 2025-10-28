@@ -6,7 +6,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import starlight.adapter.auth.webapi.dto.request.AuthRequest;
-import starlight.application.member.required.MemberRepository;
+import starlight.adapter.member.persistence.MemberRepository;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
