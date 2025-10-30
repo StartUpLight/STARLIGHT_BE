@@ -25,5 +25,15 @@ public class Overview {
 
     private void initializeSubSection() {
         this.overviewBasic = SubSection.createEmptySubSection(SubSectionName.OVERVIEW_BASIC);
+        this.overviewBasic.attachToParentSection(this);
+    }
+
+    /**
+     * 양방향 매핑을 위한 메서드
+     */
+    public void setSubSectionByType(SubSection subSection) {
+        if (subSection.getSubSectionName() == SubSectionName.OVERVIEW_BASIC) {
+            this.overviewBasic = subSection;
+        }
     }
 }

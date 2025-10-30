@@ -32,7 +32,23 @@ public class GrowthTactic {
 
     private void initializeSubSections() {
         this.growthModel = SubSection.createEmptySubSection(SubSectionName.GROWTH_MODEL);
+        this.growthModel.attachToParentSection(this);
+        
         this.growthFunding = SubSection.createEmptySubSection(SubSectionName.GROWTH_FUNDING);
+        this.growthFunding.attachToParentSection(this);
+        
         this.growthEntry = SubSection.createEmptySubSection(SubSectionName.GROWTH_ENTRY);
+        this.growthEntry.attachToParentSection(this);
+    }
+
+    /**
+     * 양방향 매핑을 위한 메서드
+     */
+    public void setSubSectionByType(SubSection subSection) {
+        switch (subSection.getSubSectionName()) {
+            case GROWTH_MODEL -> this.growthModel = subSection;
+            case GROWTH_FUNDING -> this.growthFunding = subSection;
+            case GROWTH_ENTRY -> this.growthEntry = subSection;
+        }
     }
 }

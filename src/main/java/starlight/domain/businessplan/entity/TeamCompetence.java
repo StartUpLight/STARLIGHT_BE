@@ -28,6 +28,19 @@ public class TeamCompetence {
 
     private void initializeSubSections() {
         this.teamFounder = SubSection.createEmptySubSection(SubSectionName.TEAM_FOUNDER);
+        this.teamFounder.attachToParentSection(this);
+        
         this.teamMembers = SubSection.createEmptySubSection(SubSectionName.TEAM_MEMBERS);
+        this.teamMembers.attachToParentSection(this);
+    }
+
+    /**
+     * 양방향 매핑을 위한 메서드
+     */
+    public void setSubSectionByType(SubSection subSection) {
+        switch (subSection.getSubSectionName()) {
+            case TEAM_FOUNDER -> this.teamFounder = subSection;
+            case TEAM_MEMBERS -> this.teamMembers = subSection;
+        }
     }
 }

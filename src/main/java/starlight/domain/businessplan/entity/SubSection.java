@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
+import starlight.domain.businessplan.enumerate.SectionName;
 import starlight.domain.businessplan.enumerate.SubSectionName;
 import starlight.domain.businessplan.value.RawJson;
 import starlight.shared.AbstractEntity;
@@ -15,6 +16,26 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SubSection extends AbstractEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "feasibility_id")
+    private Feasibility feasibility;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "overview_id")
+    private Overview overview;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem_recognition_id")
+    private ProblemRecognition problemRecognition;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "growth_tactic_id")
+    private GrowthTactic growthTactic;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_competence_id")
+    private TeamCompetence teamCompetence;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
@@ -78,5 +99,35 @@ public class SubSection extends AbstractEntity {
         this.checkThird = Boolean.TRUE.equals(checks.get(2));
         this.checkFourth = Boolean.TRUE.equals(checks.get(3));
         this.checkFifth = Boolean.TRUE.equals(checks.get(4));
+    }
+
+    /**
+     * SubSectionName의 SectionName을 이용한 양방향 매핑
+     */
+    public void attachToParentSection(Object parentSection) {
+        SectionName sectionName = this.subSectionName.getSection();
+        
+        switch (sectionName) {
+            case OVERVIEW -> {
+                this.overview = (Overview) parentSection;
+                ((Overview) parentSection).setSubSectionByType(this);
+            }
+            case PROBLEM_RECOGNITION -> {
+                this.problemRecognition = (ProblemRecognition) parentSection;
+                ((ProblemRecognition) parentSection).setSubSectionByType(this);
+            }
+            case FEASIBILITY -> {
+                this.feasibility = (Feasibility) parentSection;
+                ((Feasibility) parentSection).setSubSectionByType(this);
+            }
+            case GROWTH_STRATEGY -> {
+                this.growthTactic = (GrowthTactic) parentSection;
+                ((GrowthTactic) parentSection).setSubSectionByType(this);
+            }
+            case TEAM_COMPETENCE -> {
+                this.teamCompetence = (TeamCompetence) parentSection;
+                ((TeamCompetence) parentSection).setSubSectionByType(this);
+            }
+        }
     }
 }

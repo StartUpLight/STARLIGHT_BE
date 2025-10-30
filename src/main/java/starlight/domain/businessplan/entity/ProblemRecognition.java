@@ -34,7 +34,23 @@ public class ProblemRecognition {
 
     private void initializeSubSections() {
         this.problemBackground = SubSection.createEmptySubSection(SubSectionName.PROBLEM_BACKGROUND);
+        this.problemBackground.attachToParentSection(this);
+        
         this.problemPurpose = SubSection.createEmptySubSection(SubSectionName.PROBLEM_PURPOSE);
+        this.problemPurpose.attachToParentSection(this);
+        
         this.problemMarket = SubSection.createEmptySubSection(SubSectionName.PROBLEM_MARKET);
+        this.problemMarket.attachToParentSection(this);
+    }
+
+    /**
+     * 양방향 매핑을 위한 메서드
+     */
+    public void setSubSectionByType(SubSection subSection) {
+        switch (subSection.getSubSectionName()) {
+            case PROBLEM_BACKGROUND -> this.problemBackground = subSection;
+            case PROBLEM_PURPOSE -> this.problemPurpose = subSection;
+            case PROBLEM_MARKET -> this.problemMarket = subSection;
+        }
     }
 }

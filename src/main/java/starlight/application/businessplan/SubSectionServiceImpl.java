@@ -14,7 +14,9 @@ import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.businessplan.util.PlainTextExtractUtils;
 import starlight.application.businessplan.required.ChecklistGrader;
 import starlight.application.businessplan.util.SubSectionSupportUtils;
+import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.SubSection;
+import starlight.domain.businessplan.enumerate.SectionName;
 import starlight.domain.businessplan.enumerate.SubSectionName;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
@@ -33,10 +35,10 @@ public class SubSectionServiceImpl implements SubSectionService {
 
     @Override
     public SubSectionResponse.Created createOrUpdateSection(Long planId, @Valid SubSectionRequest request) {
-        businessPlanQuery.getOrThrow(planId);
+        BusinessPlan businessPlan = businessPlanQuery.getOrThrow(planId);
         SubSectionName subSectionName = request.subSectionName();
         JsonNode rawJson = objectMapper.valueToTree(request);
-        String rawJsonStr = SubSectionSupportUtils.serializeJsonNodeSafely(objectMapper,rawJson); // 유효한 JSON인지 확인
+        String rawJsonStr = SubSectionSupportUtils.serializeJsonNodeSafely(objectMapper, rawJson);
 
         String content = PlainTextExtractUtils.extractPlainText(objectMapper, request);
 
@@ -48,6 +50,11 @@ public class SubSectionServiceImpl implements SubSectionService {
         if (subSection == null) {
             // 새로 생성
             subSection = SubSection.create(subSectionName, content, rawJsonStr);
+
+            // SubSectionName의 SectionName을 통해 BusinessPlan에서 해당 섹션 조회 후 양방향 매핑
+            Object parentSection = getParentSectionBySubSectionName(businessPlan, subSectionName);
+            subSection.attachToParentSection(parentSection);
+
             responseMessage = "created";
         } else {
             // 기존 것 업데이트
@@ -97,5 +104,20 @@ public class SubSectionServiceImpl implements SubSectionService {
         subSection.updateChecks(checks);
 
         return checks;
+    }
+
+    /**
+     * SubSectionName의 SectionName을 통해 BusinessPlan에서 해당 섹션 조회
+     */
+    private Object getParentSectionBySubSectionName(BusinessPlan businessPlan, SubSectionName subSectionName) {
+        SectionName sectionName = subSectionName.getSection();
+
+        return switch (sectionName) {
+            case OVERVIEW -> businessPlan.getOverview();
+            case PROBLEM_RECOGNITION -> businessPlan.getProblemRecognition();
+            case FEASIBILITY -> businessPlan.getFeasibility();
+            case GROWTH_STRATEGY -> businessPlan.getGrowthTactic();
+            case TEAM_COMPETENCE -> businessPlan.getTeamCompetence();
+        };
     }
 }

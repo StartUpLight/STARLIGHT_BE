@@ -28,6 +28,16 @@ public class Feasibility {
 
     private void initializeSubSections() {
         this.feasibilityStrategy = SubSection.createEmptySubSection(SubSectionName.FEASIBILITY_STRATEGY);
+        this.feasibilityStrategy.attachToParentSection(this);
+        
         this.feasibilityMarket = SubSection.createEmptySubSection(SubSectionName.FEASIBILITY_MARKET);
+        this.feasibilityMarket.attachToParentSection(this);
+    }
+
+    public void setSubSectionByType(SubSection subSection) {
+        switch (subSection.getSubSectionName()) {
+            case FEASIBILITY_STRATEGY -> this.feasibilityStrategy = subSection;
+            case FEASIBILITY_MARKET -> this.feasibilityMarket = subSection;
+        }
     }
 }
