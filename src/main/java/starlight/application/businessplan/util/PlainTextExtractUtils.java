@@ -141,7 +141,6 @@ public final class PlainTextExtractUtils {
             }
         }
 
-        System.out.println(tableLines);
         return tableLines;
     }
 
@@ -161,7 +160,6 @@ public final class PlainTextExtractUtils {
             }
         }
 
-        System.out.println(tableLines);
         return tableLines;
     }
 
