@@ -97,7 +97,14 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
                 .findSubSectionByParentSectionIdAndName(parentSectionIdForQuery, subSectionName)
                 .orElseThrow(() -> new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND));
 
-        return SubSectionResponse.Retrieved.create("retrieved", subSection.getRawJson().asTree());
+        java.util.List<Boolean> checks = java.util.List.of(
+                subSection.isCheckFirst(),
+                subSection.isCheckSecond(),
+                subSection.isCheckThird(),
+                subSection.isCheckFourth(),
+                subSection.isCheckFifth());
+
+        return SubSectionResponse.Retrieved.create("retrieved", subSection.getRawJson().asTree(), checks);
     }
 
     @Override
