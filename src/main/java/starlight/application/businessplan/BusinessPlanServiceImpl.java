@@ -121,19 +121,20 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     }
 
     @Override
-    public List<Boolean> checkSubSection(Long planId, JsonNode jsonNode, SubSectionName subSectionName) {
+    public List<Boolean> checkAndUpdateSubSection(Long planId, JsonNode jsonNode, SubSectionName subSectionName) {
         BusinessPlan businessPlan = businessPlanQuery.getOrThrow(planId);
         Long parentSectionIdForQuery = getParentSectionId(businessPlan, subSectionName);
         SubSection subSection = businessPlanQuery
                 .findSubSectionByParentSectionIdAndName(parentSectionIdForQuery, subSectionName)
                 .orElseThrow(() -> new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND));
 
+        String rawJsonStr = SubSectionSupportUtils.serializeJsonNodeSafely(objectMapper, jsonNode);
         String content = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
 
         List<Boolean> checks = checklistGrader.check(subSectionName, content);
-
         SubSectionSupportUtils.requireSize(checks, SubSection.getCHECKLIST_SIZE());
 
+        subSection.updateContent(content, rawJsonStr);
         subSection.updateChecks(checks);
         businessPlanQuery.saveSubSection(subSection);
 

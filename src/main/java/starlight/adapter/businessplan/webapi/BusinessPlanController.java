@@ -91,7 +91,7 @@ public class BusinessPlanController {
     public ApiResponse<java.util.List<Boolean>> checkSubSection(
             @PathVariable Long planId,
             @Valid @RequestBody SubSectionRequest request) {
-        return ApiResponse.success(businessPlanService.checkSubSection(
+        return ApiResponse.success(businessPlanService.checkAndUpdateSubSection(
                 planId, objectMapper.valueToTree(request), request.subSectionName()
         ));
     }

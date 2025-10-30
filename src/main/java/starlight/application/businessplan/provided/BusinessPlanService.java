@@ -21,5 +21,5 @@ public interface BusinessPlanService {
 
     SubSectionResponse.Deleted deleteSubSection(Long planId, SubSectionName subSectionName);
 
-    List<Boolean> checkSubSection(Long planId, JsonNode jsonNode, SubSectionName subSectionName);
+    List<Boolean> checkAndUpdateSubSection(Long planId, JsonNode jsonNode, SubSectionName subSectionName);
 }
