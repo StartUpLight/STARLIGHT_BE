@@ -1,10 +1,5 @@
 ext {
-    set('springAiVersion', "1.0.0-SNAPSHOT")
-}
-
-repositories {
-    maven { url 'https://central.sonatype.com/repository/maven-snapshots/' }
-    maven { url 'https://repo.spring.io/snapshot' }
+    set('springAiVersion', "1.0.0")
 }
 
 dependencyManagement {
