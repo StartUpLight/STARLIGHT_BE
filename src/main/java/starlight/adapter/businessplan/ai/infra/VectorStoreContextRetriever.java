@@ -2,12 +2,14 @@ package starlight.adapter.businessplan.ai.infra;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.document.Document;
 import org.springframework.stereotype.Component;
 import starlight.application.infrastructure.provided.ContextRetriever;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Spring AI를 사용한 RAG 구현체
@@ -19,7 +21,6 @@ import java.util.List;
 public class VectorStoreContextRetriever implements ContextRetriever {
 
     private final VectorStore vectorStore;
-    private final EmbeddingModel embeddingModel;
 
     /**
      * 주어진 서브섹션 태그(예: feasibility_strategy)와 사용자 입력의 순수 텍스트를 사용해
@@ -27,25 +28,24 @@ public class VectorStoreContextRetriever implements ContextRetriever {
      */
     @Override
     public String retrieveContext(String subSectionTag, String content, int topK) {
-        // TODO: Spring AI 의존성 해결 후 구현
-        log.warn("SpringAiRagRetriever is not yet implemented due to dependency issues");
-        return "";
-    }
+        String query = content;
 
-    /**
-     * 문서를 VectorStore에 추가합니다.
-     * TODO: Spring AI 의존성 해결 후 구현
-     */
-    public void addDocument(String content, java.util.Map<String, Object> metadata) {
-        log.warn("addDocument is not yet implemented due to dependency issues");
-    }
+        // Pinecone 메타데이터 필터: tag == subSectionTag
+        String filter = "tag == '" + subSectionTag + "'";
 
-    /**
-     * 특정 메타데이터 필터를 사용하여 검색합니다.
-     * TODO: Spring AI 의존성 해결 후 구현
-     */
-    public List<Object> searchWithFilter(String query, int topK, String filterExpression) {
-        log.warn("searchWithFilter is not yet implemented due to dependency issues");
-        return List.of();
+        List<Document> docs = vectorStore.similaritySearch(
+                SearchRequest.builder()
+                        .query(query)
+                        .topK(topK)
+                        .filterExpression(filter)
+                        .build()
+        );
+
+        String joined = docs.stream()
+                .map(doc -> doc.getText())
+                .collect(Collectors.joining("\n---\n"));
+
+        log.debug("Retrieved {} docs for tag={} topK={}", docs.size(), subSectionTag, topK);
+        return joined;
     }
 }
