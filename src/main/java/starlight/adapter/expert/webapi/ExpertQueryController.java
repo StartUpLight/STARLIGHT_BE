@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import starlight.adapter.expert.dto.ExpertListResponse;
+import starlight.adapter.expert.webapi.swagger.ExpertQueryApiDoc;
 import starlight.application.expert.provided.ExpertFinder;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expert.enumerate.TagCategory;
@@ -17,7 +18,7 @@ import java.util.Set;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/experts")
-public class ExpertQueryController {
+public class ExpertQueryController implements ExpertQueryApiDoc {
 
     private final ExpertFinder expertFinder;
 
