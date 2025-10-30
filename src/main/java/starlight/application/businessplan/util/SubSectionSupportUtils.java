@@ -1,4 +1,4 @@
-package starlight.application.businessplan.strategy.util;
+package starlight.application.businessplan.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -8,11 +8,19 @@ import starlight.domain.businessplan.exception.BusinessPlanException;
 
 import java.util.List;
 
-public final class SectionSupportUtils {
+public final class SubSectionSupportUtils {
 
-    private SectionSupportUtils() {}
+    private SubSectionSupportUtils() {}
 
-    public static String toJson(ObjectMapper objectMapper, JsonNode node) {
+    /**
+     * JsonNode를 문자열로 변환하며 안정성 검사
+     *
+     * @param objectMapper JSON 처리를 위한 ObjectMapper
+     * @param node 변환할 JsonNode
+     * @return JSON 문자열
+     * @throws BusinessPlanException 변환에 실패하거나 node가 null인 경우
+     */
+    public static String serializeJsonNodeSafely(ObjectMapper objectMapper, JsonNode node) {
         if (node == null) {
             throw new BusinessPlanException(BusinessPlanErrorType.REQUEST_EMPTY_RAW_JSON);
         }

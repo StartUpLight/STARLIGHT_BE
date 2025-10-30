@@ -1,4 +1,4 @@
-package starlight.application.businessplan.strategy.util;
+package starlight.application.businessplan.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,9 +19,9 @@ import java.util.Optional;
  *  (1) {"content":[ ... ]}
  *  (2) {"blocks":[ {"content":[ ... ]}, ... ]}
  */
-public final class ContentPlainText {
+public final class PlainTextExtractUtils {
 
-    private ContentPlainText() {}
+    private PlainTextExtractUtils() {}
 
     // 고정 포맷 상수
     private static final String IMAGE_TOKEN = "[사진]";
