@@ -10,7 +10,12 @@ import starlight.domain.businessplan.enumerate.SubSectionName;
 @NoArgsConstructor
 public class TeamCompetence {
     @Id
+    @Column(name="business_plan_id")
     private Long id;
+
+    @OneToOne @MapsId
+    @JoinColumn(name = "business_plan_id", referencedColumnName = "id")
+    private BusinessPlan businessPlan;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "team_founder_id", unique = true)
@@ -22,17 +27,7 @@ public class TeamCompetence {
 
     public static TeamCompetence create() {
         TeamCompetence teamCompetence = new TeamCompetence();
-        teamCompetence.initializeSubSections();
         return teamCompetence;
-    }
-
-    @SuppressWarnings("deprecation")
-    private void initializeSubSections() {
-        this.teamFounder = SubSection.createEmptySubSection(SubSectionName.TEAM_FOUNDER);
-        this.teamFounder.attachToTeamCompetence(this);
-        
-        this.teamMembers = SubSection.createEmptySubSection(SubSectionName.TEAM_MEMBERS);
-        this.teamMembers.attachToTeamCompetence(this);
     }
 
     /**
@@ -43,5 +38,9 @@ public class TeamCompetence {
             case TEAM_FOUNDER -> this.teamFounder = subSection;
             case TEAM_MEMBERS -> this.teamMembers = subSection;
         }
+    }
+
+    public void attachBusinessPlan(BusinessPlan businessPlan) {
+        this.businessPlan = businessPlan;
     }
 }

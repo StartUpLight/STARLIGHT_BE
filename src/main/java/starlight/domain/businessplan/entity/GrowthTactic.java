@@ -10,7 +10,12 @@ import starlight.domain.businessplan.enumerate.SubSectionName;
 @NoArgsConstructor
 public class GrowthTactic {
     @Id
+    @Column(name="business_plan_id")
     private Long id;
+
+    @OneToOne @MapsId
+    @JoinColumn(name = "business_plan_id", referencedColumnName = "id")
+    private BusinessPlan businessPlan;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "growth_model_id", unique = true)
@@ -26,20 +31,7 @@ public class GrowthTactic {
 
     public static GrowthTactic create() {
         GrowthTactic growthTactic = new GrowthTactic();
-        growthTactic.initializeSubSections();
         return growthTactic;
-    }
-
-    @SuppressWarnings("deprecation")
-    private void initializeSubSections() {
-        this.growthModel = SubSection.createEmptySubSection(SubSectionName.GROWTH_MODEL);
-        this.growthModel.attachToGrowthTactic(this);
-
-        this.growthFunding = SubSection.createEmptySubSection(SubSectionName.GROWTH_FUNDING);
-        this.growthFunding.attachToGrowthTactic(this);
-
-        this.growthEntry = SubSection.createEmptySubSection(SubSectionName.GROWTH_ENTRY);
-        this.growthEntry.attachToGrowthTactic(this);
     }
 
     /**
@@ -51,5 +43,9 @@ public class GrowthTactic {
             case GROWTH_FUNDING -> this.growthFunding = subSection;
             case GROWTH_ENTRY -> this.growthEntry = subSection;
         }
+    }
+
+    public void attachBusinessPlan(BusinessPlan businessPlan) {
+        this.businessPlan = businessPlan;
     }
 }

@@ -10,7 +10,12 @@ import starlight.domain.businessplan.enumerate.SubSectionName;
 @NoArgsConstructor
 public class Feasibility {
     @Id
+    @Column(name="business_plan_id")
     private Long id;
+
+    @OneToOne @MapsId
+    @JoinColumn(name = "business_plan_id", referencedColumnName = "id")
+    private BusinessPlan businessPlan;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "feasibility_strategy_id", unique = true)
@@ -22,17 +27,7 @@ public class Feasibility {
 
     public static Feasibility create() {
         Feasibility feasibility = new Feasibility();
-        feasibility.initializeSubSections();
         return feasibility;
-    }
-
-    @SuppressWarnings("deprecation")
-    private void initializeSubSections() {
-        this.feasibilityStrategy = SubSection.createEmptySubSection(SubSectionName.FEASIBILITY_STRATEGY);
-        this.feasibilityStrategy.attachToFeasibility(this);
-
-        this.feasibilityMarket = SubSection.createEmptySubSection(SubSectionName.FEASIBILITY_MARKET);
-        this.feasibilityMarket.attachToFeasibility(this);
     }
 
     public void setSubSectionByType(SubSection subSection) {
@@ -40,5 +35,9 @@ public class Feasibility {
             case FEASIBILITY_STRATEGY -> this.feasibilityStrategy = subSection;
             case FEASIBILITY_MARKET -> this.feasibilityMarket = subSection;
         }
+    }
+
+    public void attachBusinessPlan(BusinessPlan businessPlan) {
+        this.businessPlan = businessPlan;
     }
 }

@@ -12,7 +12,13 @@ import starlight.domain.businessplan.enumerate.SubSectionName;
 @NoArgsConstructor
 public class ProblemRecognition {
     @Id
+    @Column(name = "business_plan_id")
     private Long id;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "business_plan_id", referencedColumnName = "id")
+    private BusinessPlan businessPlan;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_background_id")
@@ -28,20 +34,7 @@ public class ProblemRecognition {
 
     public static ProblemRecognition create() {
         ProblemRecognition problemRecognition = new ProblemRecognition();
-        problemRecognition.initializeSubSections();
         return problemRecognition;
-    }
-
-    @SuppressWarnings("deprecation")
-    private void initializeSubSections() {
-        this.problemBackground = SubSection.createEmptySubSection(SubSectionName.PROBLEM_BACKGROUND);
-        this.problemBackground.attachToProblemRecognition(this);
-
-        this.problemPurpose = SubSection.createEmptySubSection(SubSectionName.PROBLEM_PURPOSE);
-        this.problemPurpose.attachToProblemRecognition(this);
-
-        this.problemMarket = SubSection.createEmptySubSection(SubSectionName.PROBLEM_MARKET);
-        this.problemMarket.attachToProblemRecognition(this);
     }
 
     /**
@@ -53,5 +46,9 @@ public class ProblemRecognition {
             case PROBLEM_PURPOSE -> this.problemPurpose = subSection;
             case PROBLEM_MARKET -> this.problemMarket = subSection;
         }
+    }
+
+    public void attachBusinessPlan(BusinessPlan businessPlan) {
+        this.businessPlan = businessPlan;
     }
 }

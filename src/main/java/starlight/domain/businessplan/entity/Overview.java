@@ -10,7 +10,12 @@ import starlight.domain.businessplan.enumerate.SubSectionName;
 @NoArgsConstructor
 public class Overview {
     @Id
+    @Column(name="business_plan_id")
     private Long id;
+
+    @OneToOne @MapsId
+    @JoinColumn(name = "business_plan_id", referencedColumnName = "id")
+    private BusinessPlan businessPlan;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "overview_basic_id", unique = true)
@@ -18,15 +23,7 @@ public class Overview {
 
     public static Overview create() {
         Overview overview = new Overview();
-        overview.initializeSubSection();
-
         return overview;
-    }
-
-    @SuppressWarnings("deprecation")
-    private void initializeSubSection() {
-        this.overviewBasic = SubSection.createEmptySubSection(SubSectionName.OVERVIEW_BASIC);
-        this.overviewBasic.attachToOverview(this);
     }
 
     /**
@@ -36,5 +33,9 @@ public class Overview {
         if (subSection.getSubSectionName() == SubSectionName.OVERVIEW_BASIC) {
             this.overviewBasic = subSection;
         }
+    }
+
+    public void attachBusinessPlan(BusinessPlan businessPlan) {
+        this.businessPlan = businessPlan;
     }
 }

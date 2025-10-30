@@ -25,29 +25,19 @@ public class BusinessPlan extends AbstractEntity {
     @Column(nullable = false, length = 30)
     private PlanStatus planStatus;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "overview_id", unique = true)
-    @MapsId
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "businessPlan")
     private Overview overview;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "problem_recognition_id", unique = true)
-    @MapsId
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "businessPlan")
     private ProblemRecognition problemRecognition;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "feasibility_id", unique = true)
-    @MapsId
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "businessPlan")
     private Feasibility feasibility;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "growth_strategy_id", unique = true)
-    @MapsId
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "businessPlan")
     private GrowthTactic growthTactic;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "team_competence_id", unique = true)
-    @MapsId
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "businessPlan")
     private TeamCompetence teamCompetence;
 
     public static BusinessPlan create(Long memberId) {
@@ -85,11 +75,20 @@ public class BusinessPlan extends AbstractEntity {
     }
 
     private void initializeSections() {
-        // 각 섹션 엔티티 생성 (@MapsId를 사용하므로 JPA가 자동으로 ID를 설정)
+        // 공유 기본키 매핑: 자식이 부모와 같은 PK를 사용
         this.overview = Overview.create();
+        this.overview.attachBusinessPlan(this);
+
         this.problemRecognition = ProblemRecognition.create();
+        this.problemRecognition.attachBusinessPlan(this);
+
         this.feasibility = Feasibility.create();
+        this.feasibility.attachBusinessPlan(this);
+
         this.growthTactic = GrowthTactic.create();
+        this.growthTactic.attachBusinessPlan(this);
+
         this.teamCompetence = TeamCompetence.create();
+        this.teamCompetence.attachBusinessPlan(this);
     }
 }
