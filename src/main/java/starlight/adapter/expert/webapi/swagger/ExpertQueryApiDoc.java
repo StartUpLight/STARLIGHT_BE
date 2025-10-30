@@ -24,6 +24,7 @@ public interface ExpertQueryApiDoc {
             description = """
             카테고리 파라미터가 없으면 전체 전문가를 반환합니다.
             \n카테고리를 하나 이상 전달하면 **전달된 모든 카테고리**를 보유한 전문가만 반환합니다(AND 매칭).
+            \n MARKET_BM: 시장성/BM,  TEAM_CAPABILITY: 팀 역량, PROBLEM_DEFINITION: 문제 정의, GROWTH_STRATEGY: 성장 전략, METRIC_DATA: 지표/데이터 
             \nSwagger UI에서는 'Add item'으로 항목을 추가하면 ?categories=A&categories=B 형태로 전송됩니다.
             \n예) GET /v1/experts?categories=GROWTH_STRATEGY&categories=TEAM_CAPABILITY 
             \n예) GET /v1/experts?categories=GROWTH_STRATEGY,TEAM_CAPABILITY
