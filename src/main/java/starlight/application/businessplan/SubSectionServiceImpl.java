@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.adapter.businessplan.persistence.SubSectionRepository;
 import starlight.adapter.businessplan.webapi.dto.SubSectionResponse;
 import starlight.application.businessplan.provided.SubSectionService;
 import starlight.application.businessplan.required.BusinessPlanQuery;
+import starlight.application.businessplan.required.SubSectionQuery;
 import starlight.application.businessplan.util.PlainTextExtractUtils;
 import starlight.application.businessplan.required.ChecklistGrader;
 import starlight.application.businessplan.util.SubSectionSupportUtils;
@@ -27,21 +27,21 @@ import java.util.List;
 public class SubSectionServiceImpl implements SubSectionService {
 
     private final ObjectMapper objectMapper;
-    private final SubSectionRepository subSectionRepository;
+    private final SubSectionQuery subSectionQuery;
     private final BusinessPlanQuery businessPlanQuery;
     private final ChecklistGrader checklistGrader;
 
     @Override
     public SubSectionResponse.Created createOrUpdateSection(
-            Long planId, JsonNode request, SubSectionName subSectionName
+            Long planId, JsonNode jsonNode, SubSectionName subSectionName
     ) {
         BusinessPlan businessPlan = businessPlanQuery.getOrThrow(planId);
 
-        String rawJsonStr = SubSectionSupportUtils.serializeJsonNodeSafely(objectMapper, request);
-        String content = PlainTextExtractUtils.extractPlainText(objectMapper, request);
+        String rawJsonStr = SubSectionSupportUtils.serializeJsonNodeSafely(objectMapper, jsonNode);
+        String content = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
 
         // 기존 서브섹션이 있는지 확인
-        SubSection subSection = subSectionRepository.findByBusinessPlanIdAndSubSectionName(planId, subSectionName)
+        SubSection subSection = subSectionQuery.findByBusinessPlanIdAndSubSectionName(planId, subSectionName)
                 .orElse(null);
 
         String responseMessage;
@@ -59,14 +59,14 @@ public class SubSectionServiceImpl implements SubSectionService {
             responseMessage = "updated";
         }
 
-        SubSection savedSubSection = subSectionRepository.save(subSection);
+        SubSection savedSubSection = subSectionQuery.save(subSection);
         return SubSectionResponse.Created.create(subSectionName, savedSubSection.getId(), responseMessage);
     }
 
     @Override
     @Transactional(readOnly = true)
     public SubSectionResponse.Retrieved getSubSection(Long planId, SubSectionName subSectionName) {
-        SubSection subSection = subSectionRepository.findByBusinessPlanIdAndSubSectionName(planId, subSectionName)
+        SubSection subSection = subSectionQuery.findByBusinessPlanIdAndSubSectionName(planId, subSectionName)
                 .orElseThrow(() -> new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND));
 
         return SubSectionResponse.Retrieved.create("retrieved", subSection.getRawJson().asTree());
@@ -74,22 +74,22 @@ public class SubSectionServiceImpl implements SubSectionService {
 
     @Override
     public SubSectionResponse.Deleted deleteSubSection(Long planId, SubSectionName subSectionName) {
-        SubSection subSection = subSectionRepository.findByBusinessPlanIdAndSubSectionName(planId, subSectionName)
+        SubSection subSection = subSectionQuery.findByBusinessPlanIdAndSubSectionName(planId, subSectionName)
                 .orElseThrow(() -> new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND));
 
-        subSectionRepository.delete(subSection);
+        subSectionQuery.delete(subSection);
 
         return SubSectionResponse.Deleted.create(subSectionName, subSection.getId(), "deleted");
     }
 
     @Override
     public List<Boolean> checkSubSection(
-            Long planId, JsonNode request, SubSectionName subSectionName
-            ) {
-        SubSection subSection = subSectionRepository.findByBusinessPlanIdAndSubSectionName(planId, subSectionName)
+            Long planId, JsonNode jsonNode, SubSectionName subSectionName
+    ) {
+        SubSection subSection = subSectionQuery.findByBusinessPlanIdAndSubSectionName(planId, subSectionName)
                 .orElseThrow(() -> new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND));
 
-        String content = PlainTextExtractUtils.extractPlainText(objectMapper, request);
+        String content = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
 
         // RAG 기반 서브섹션별 체크리스트 수행
         List<Boolean> checks = checklistGrader.check(
@@ -99,6 +99,8 @@ public class SubSectionServiceImpl implements SubSectionService {
         SubSectionSupportUtils.requireSize(checks, SubSection.getCHECKLIST_SIZE());
 
         subSection.updateChecks(checks);
+
+        subSectionQuery.save(subSection);
 
         return checks;
     }

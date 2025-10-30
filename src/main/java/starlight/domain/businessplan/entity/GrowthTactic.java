@@ -30,15 +30,16 @@ public class GrowthTactic {
         return growthTactic;
     }
 
+    @SuppressWarnings("deprecation")
     private void initializeSubSections() {
         this.growthModel = SubSection.createEmptySubSection(SubSectionName.GROWTH_MODEL);
-        this.growthModel.attachToParentSection(this);
-        
+        this.growthModel.attachToGrowthTactic(this);
+
         this.growthFunding = SubSection.createEmptySubSection(SubSectionName.GROWTH_FUNDING);
-        this.growthFunding.attachToParentSection(this);
-        
+        this.growthFunding.attachToGrowthTactic(this);
+
         this.growthEntry = SubSection.createEmptySubSection(SubSectionName.GROWTH_ENTRY);
-        this.growthEntry.attachToParentSection(this);
+        this.growthEntry.attachToGrowthTactic(this);
     }
 
     /**

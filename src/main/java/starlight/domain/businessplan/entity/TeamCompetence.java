@@ -26,6 +26,7 @@ public class TeamCompetence {
         return teamCompetence;
     }
 
+    @SuppressWarnings("deprecation")
     private void initializeSubSections() {
         this.teamFounder = SubSection.createEmptySubSection(SubSectionName.TEAM_FOUNDER);
         this.teamFounder.attachToTeamCompetence(this);

@@ -26,12 +26,13 @@ public class Feasibility {
         return feasibility;
     }
 
+    @SuppressWarnings("deprecation")
     private void initializeSubSections() {
         this.feasibilityStrategy = SubSection.createEmptySubSection(SubSectionName.FEASIBILITY_STRATEGY);
-        this.feasibilityStrategy.attachToParentSection(this);
-        
+        this.feasibilityStrategy.attachToFeasibility(this);
+
         this.feasibilityMarket = SubSection.createEmptySubSection(SubSectionName.FEASIBILITY_MARKET);
-        this.feasibilityMarket.attachToParentSection(this);
+        this.feasibilityMarket.attachToFeasibility(this);
     }
 
     public void setSubSectionByType(SubSection subSection) {

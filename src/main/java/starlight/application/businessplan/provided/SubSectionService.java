@@ -9,11 +9,11 @@ import java.util.List;
 
 public interface SubSectionService {
 
-    SubSectionResponse.Created createOrUpdateSection(Long planId, JsonNode request, SubSectionName subSectionName);
+    SubSectionResponse.Created createOrUpdateSection(Long planId, JsonNode jsonNode, SubSectionName subSectionName);
 
     SubSectionResponse.Retrieved getSubSection(Long planId, SubSectionName subSectionName);
 
     SubSectionResponse.Deleted deleteSubSection(Long planId, SubSectionName subSectionName);
 
-    List<Boolean> checkSubSection(Long planId, JsonNode request, SubSectionName subSectionName);
+    List<Boolean> checkSubSection(Long planId, JsonNode jsonNode, SubSectionName subSectionName);
 }

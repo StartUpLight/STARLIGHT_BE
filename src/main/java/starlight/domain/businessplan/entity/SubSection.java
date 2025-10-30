@@ -32,10 +32,7 @@ public class SubSection extends AbstractEntity {
     private String content;
 
     @Embedded
-    @AttributeOverride(
-            name = "value",
-            column = @Column(name = "raw_json", columnDefinition = "TEXT", nullable = false)
-    )
+    @AttributeOverride(name = "value", column = @Column(name = "raw_json", columnDefinition = "TEXT", nullable = false))
     private RawJson rawJson;
 
     @Column(nullable = false)
@@ -103,5 +100,65 @@ public class SubSection extends AbstractEntity {
 
         this.parentSectionId = parentSectionId;
         this.parentSectionName = parentSectionType;
+    }
+
+    /**
+     * 타입 안전한 Overview 섹션 연결
+     * 
+     * @deprecated attachToParent를 사용하세요
+     */
+    @Deprecated
+    public void attachToOverview(Overview overview) {
+        this.parentSectionId = overview.getId();
+        this.parentSectionName = SectionName.OVERVIEW;
+        overview.setSubSectionByType(this);
+    }
+
+    /**
+     * 타입 안전한 ProblemRecognition 섹션 연결
+     * 
+     * @deprecated attachToParent를 사용하세요
+     */
+    @Deprecated
+    public void attachToProblemRecognition(ProblemRecognition problemRecognition) {
+        this.parentSectionId = problemRecognition.getId();
+        this.parentSectionName = SectionName.PROBLEM_RECOGNITION;
+        problemRecognition.setSubSectionByType(this);
+    }
+
+    /**
+     * 타입 안전한 Feasibility 섹션 연결
+     * 
+     * @deprecated attachToParent를 사용하세요
+     */
+    @Deprecated
+    public void attachToFeasibility(Feasibility feasibility) {
+        this.parentSectionId = feasibility.getId();
+        this.parentSectionName = SectionName.FEASIBILITY;
+        feasibility.setSubSectionByType(this);
+    }
+
+    /**
+     * 타입 안전한 GrowthTactic 섹션 연결
+     * 
+     * @deprecated attachToParent를 사용하세요
+     */
+    @Deprecated
+    public void attachToGrowthTactic(GrowthTactic growthTactic) {
+        this.parentSectionId = growthTactic.getId();
+        this.parentSectionName = SectionName.GROWTH_STRATEGY;
+        growthTactic.setSubSectionByType(this);
+    }
+
+    /**
+     * 타입 안전한 TeamCompetence 섹션 연결
+     * 
+     * @deprecated attachToParent를 사용하세요
+     */
+    @Deprecated
+    public void attachToTeamCompetence(TeamCompetence teamCompetence) {
+        this.parentSectionId = teamCompetence.getId();
+        this.parentSectionName = SectionName.TEAM_COMPETENCE;
+        teamCompetence.setSubSectionByType(this);
     }
 }

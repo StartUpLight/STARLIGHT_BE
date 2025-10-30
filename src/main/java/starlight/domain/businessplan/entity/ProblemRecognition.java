@@ -32,15 +32,16 @@ public class ProblemRecognition {
         return problemRecognition;
     }
 
+    @SuppressWarnings("deprecation")
     private void initializeSubSections() {
         this.problemBackground = SubSection.createEmptySubSection(SubSectionName.PROBLEM_BACKGROUND);
-        this.problemBackground.attachToParentSection(this);
-        
+        this.problemBackground.attachToProblemRecognition(this);
+
         this.problemPurpose = SubSection.createEmptySubSection(SubSectionName.PROBLEM_PURPOSE);
-        this.problemPurpose.attachToParentSection(this);
-        
+        this.problemPurpose.attachToProblemRecognition(this);
+
         this.problemMarket = SubSection.createEmptySubSection(SubSectionName.PROBLEM_MARKET);
-        this.problemMarket.attachToParentSection(this);
+        this.problemMarket.attachToProblemRecognition(this);
     }
 
     /**

@@ -23,9 +23,10 @@ public class Overview {
         return overview;
     }
 
+    @SuppressWarnings("deprecation")
     private void initializeSubSection() {
         this.overviewBasic = SubSection.createEmptySubSection(SubSectionName.OVERVIEW_BASIC);
-        this.overviewBasic.attachToParentSection(this);
+        this.overviewBasic.attachToOverview(this);
     }
 
     /**
