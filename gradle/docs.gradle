@@ -1,4 +1,5 @@
 dependencies {
     // Swagger (OpenAPI)
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
+    implementation 'io.swagger.core.v3:swagger-core-jakarta:2.2.24'
 }
