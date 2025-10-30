@@ -2,12 +2,10 @@ package starlight.application.businessplan;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.adapter.businessplan.persistence.SubSectionRepository;
-import starlight.adapter.businessplan.webapi.dto.SubSectionRequest;
 import starlight.adapter.businessplan.webapi.dto.SubSectionResponse;
 import starlight.application.businessplan.provided.SubSectionService;
 import starlight.application.businessplan.required.BusinessPlanQuery;
@@ -34,12 +32,12 @@ public class SubSectionServiceImpl implements SubSectionService {
     private final ChecklistGrader checklistGrader;
 
     @Override
-    public SubSectionResponse.Created createOrUpdateSection(Long planId, @Valid SubSectionRequest request) {
+    public SubSectionResponse.Created createOrUpdateSection(
+            Long planId, JsonNode request, SubSectionName subSectionName
+    ) {
         BusinessPlan businessPlan = businessPlanQuery.getOrThrow(planId);
-        SubSectionName subSectionName = request.subSectionName();
-        JsonNode rawJson = objectMapper.valueToTree(request);
-        String rawJsonStr = SubSectionSupportUtils.serializeJsonNodeSafely(objectMapper, rawJson);
 
+        String rawJsonStr = SubSectionSupportUtils.serializeJsonNodeSafely(objectMapper, request);
         String content = PlainTextExtractUtils.extractPlainText(objectMapper, request);
 
         // 기존 서브섹션이 있는지 확인
@@ -52,8 +50,7 @@ public class SubSectionServiceImpl implements SubSectionService {
             subSection = SubSection.create(subSectionName, content, rawJsonStr);
 
             // SubSectionName의 SectionName을 통해 BusinessPlan에서 해당 섹션 조회 후 양방향 매핑
-            Object parentSection = getParentSectionBySubSectionName(businessPlan, subSectionName);
-            subSection.attachToParentSection(parentSection);
+            attachSubSectionToParent(subSection, businessPlan);
 
             responseMessage = "created";
         } else {
@@ -70,7 +67,7 @@ public class SubSectionServiceImpl implements SubSectionService {
     @Transactional(readOnly = true)
     public SubSectionResponse.Retrieved getSubSection(Long planId, SubSectionName subSectionName) {
         SubSection subSection = subSectionRepository.findByBusinessPlanIdAndSubSectionName(planId, subSectionName)
-                .orElseThrow(() -> new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND));
 
         return SubSectionResponse.Retrieved.create("retrieved", subSection.getRawJson().asTree());
     }
@@ -78,7 +75,7 @@ public class SubSectionServiceImpl implements SubSectionService {
     @Override
     public SubSectionResponse.Deleted deleteSubSection(Long planId, SubSectionName subSectionName) {
         SubSection subSection = subSectionRepository.findByBusinessPlanIdAndSubSectionName(planId, subSectionName)
-                .orElseThrow(() -> new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND));
 
         subSectionRepository.delete(subSection);
 
@@ -86,11 +83,11 @@ public class SubSectionServiceImpl implements SubSectionService {
     }
 
     @Override
-    public List<Boolean> checkSubSection(Long planId, @Valid SubSectionRequest request) {
-
-        SubSectionName subSectionName = request.subSectionName();
+    public List<Boolean> checkSubSection(
+            Long planId, JsonNode request, SubSectionName subSectionName
+            ) {
         SubSection subSection = subSectionRepository.findByBusinessPlanIdAndSubSectionName(planId, subSectionName)
-                .orElseThrow(() -> new BusinessPlanException(BusinessPlanErrorType.SECTIONAL_CONTENT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND));
 
         String content = PlainTextExtractUtils.extractPlainText(objectMapper, request);
 
@@ -99,7 +96,7 @@ public class SubSectionServiceImpl implements SubSectionService {
                 subSectionName,
                 content);
 
-        SubSectionSupportUtils.requireSize(List.of(), SubSectionName.getChecklistCount(subSectionName));
+        SubSectionSupportUtils.requireSize(checks, SubSection.getCHECKLIST_SIZE());
 
         subSection.updateChecks(checks);
 
@@ -107,17 +104,21 @@ public class SubSectionServiceImpl implements SubSectionService {
     }
 
     /**
-     * SubSectionName의 SectionName을 통해 BusinessPlan에서 해당 섹션 조회
+     * 단일 parent 참조 방식으로 SubSection을 부모 섹션에 연결
      */
-    private Object getParentSectionBySubSectionName(BusinessPlan businessPlan, SubSectionName subSectionName) {
-        SectionName sectionName = subSectionName.getSection();
+    private void attachSubSectionToParent(SubSection subSection, BusinessPlan businessPlan) {
+        SectionName sectionName = subSection.getSubSectionName().getSectionName();
+        Long parentSectionId;
 
-        return switch (sectionName) {
-            case OVERVIEW -> businessPlan.getOverview();
-            case PROBLEM_RECOGNITION -> businessPlan.getProblemRecognition();
-            case FEASIBILITY -> businessPlan.getFeasibility();
-            case GROWTH_STRATEGY -> businessPlan.getGrowthTactic();
-            case TEAM_COMPETENCE -> businessPlan.getTeamCompetence();
-        };
+        switch (sectionName) {
+            case OVERVIEW -> parentSectionId = businessPlan.getOverview().getId();
+            case PROBLEM_RECOGNITION -> parentSectionId = businessPlan.getProblemRecognition().getId();
+            case FEASIBILITY -> parentSectionId = businessPlan.getFeasibility().getId();
+            case GROWTH_STRATEGY -> parentSectionId = businessPlan.getGrowthTactic().getId();
+            case TEAM_COMPETENCE -> parentSectionId = businessPlan.getTeamCompetence().getId();
+            default -> throw new IllegalStateException("Unknown section name: " + sectionName);
+        }
+
+        subSection.attachToParent(parentSectionId, sectionName);
     }
 }

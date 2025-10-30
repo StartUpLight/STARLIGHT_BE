@@ -13,11 +13,11 @@ public class TeamCompetence {
     private Long id;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_founder_id")
+    @JoinColumn(name = "team_founder_id", unique = true)
     private SubSection teamFounder;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_members_id")
+    @JoinColumn(name = "team_members_id", unique = true)
     private SubSection teamMembers;
 
     public static TeamCompetence create() {
@@ -28,10 +28,10 @@ public class TeamCompetence {
 
     private void initializeSubSections() {
         this.teamFounder = SubSection.createEmptySubSection(SubSectionName.TEAM_FOUNDER);
-        this.teamFounder.attachToParentSection(this);
+        this.teamFounder.attachToTeamCompetence(this);
         
         this.teamMembers = SubSection.createEmptySubSection(SubSectionName.TEAM_MEMBERS);
-        this.teamMembers.attachToParentSection(this);
+        this.teamMembers.attachToTeamCompetence(this);
     }
 
     /**

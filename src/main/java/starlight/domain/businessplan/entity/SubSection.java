@@ -17,25 +17,12 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SubSection extends AbstractEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "feasibility_id")
-    private Feasibility feasibility;
+    @Column(name = "parent_section_id")
+    private Long parentSectionId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "overview_id")
-    private Overview overview;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "problem_recognition_id")
-    private ProblemRecognition problemRecognition;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "growth_tactic_id")
-    private GrowthTactic growthTactic;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_competence_id")
-    private TeamCompetence teamCompetence;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "parent_section_type", length = 50)
+    private SectionName parentSectionName;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
@@ -66,6 +53,9 @@ public class SubSection extends AbstractEntity {
     @Column(nullable = false)
     private boolean checkFifth = false;
 
+    @Getter
+    private static final int CHECKLIST_SIZE = 5;
+
     public static SubSection create(SubSectionName subSectionName, String content, String rawJson) {
         SubSection subSection = new SubSection();
         subSection.subSectionName = subSectionName;
@@ -88,7 +78,7 @@ public class SubSection extends AbstractEntity {
 
     public void updateChecks(List<Boolean> checks) {
         Assert.notNull(checks, "checks 리스트는 null일 수 없습니다.");
-        Assert.isTrue(checks.size() == 5, "checks 리스트는 길이 5 여야 합니다.");
+        Assert.isTrue(checks.size() == CHECKLIST_SIZE, "checks 리스트는 길이 5 여야 합니다.");
 
         applyChecks(checks);
     }
@@ -102,32 +92,16 @@ public class SubSection extends AbstractEntity {
     }
 
     /**
-     * SubSectionName의 SectionName을 이용한 양방향 매핑
+     * 부모 섹션에 연결 (단일 parent 참조 방식)
+     * 
+     * @param parentSectionId   부모 섹션 ID (Overview, ProblemRecognition 등의 ID)
+     * @param parentSectionType 부모 섹션 타입
      */
-    public void attachToParentSection(Object parentSection) {
-        SectionName sectionName = this.subSectionName.getSection();
-        
-        switch (sectionName) {
-            case OVERVIEW -> {
-                this.overview = (Overview) parentSection;
-                ((Overview) parentSection).setSubSectionByType(this);
-            }
-            case PROBLEM_RECOGNITION -> {
-                this.problemRecognition = (ProblemRecognition) parentSection;
-                ((ProblemRecognition) parentSection).setSubSectionByType(this);
-            }
-            case FEASIBILITY -> {
-                this.feasibility = (Feasibility) parentSection;
-                ((Feasibility) parentSection).setSubSectionByType(this);
-            }
-            case GROWTH_STRATEGY -> {
-                this.growthTactic = (GrowthTactic) parentSection;
-                ((GrowthTactic) parentSection).setSubSectionByType(this);
-            }
-            case TEAM_COMPETENCE -> {
-                this.teamCompetence = (TeamCompetence) parentSection;
-                ((TeamCompetence) parentSection).setSubSectionByType(this);
-            }
-        }
+    public void attachToParent(Long parentSectionId, SectionName parentSectionType) {
+        Assert.notNull(parentSectionId, "parentSectionId는 null일 수 없습니다.");
+        Assert.notNull(parentSectionType, "parentSectionType은 null일 수 없습니다.");
+
+        this.parentSectionId = parentSectionId;
+        this.parentSectionName = parentSectionType;
     }
 }

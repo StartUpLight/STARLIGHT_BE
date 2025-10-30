@@ -1,5 +1,6 @@
 package starlight.adapter.businessplan.webapi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequestMapping("/v1/business-plans/{planId}/subsections")
 public class SubSectionController {
 
+    private final ObjectMapper objectMapper;
     private final SubSectionService subSectionService;
 
     @Operation(summary = "서브섹션을 생성 또는 수정합니다.")
@@ -26,7 +28,8 @@ public class SubSectionController {
     public ApiResponse<SubSectionResponse.Created> createOrUpdateSection(
             @PathVariable Long planId,
             @Valid @RequestBody SubSectionRequest request) {
-        return ApiResponse.success(subSectionService.createOrUpdateSection(planId, request));
+        return ApiResponse.success(
+                subSectionService.createOrUpdateSection(planId, objectMapper.valueToTree(request), request.subSectionName()));
     }
 
     @Operation(summary = "서브섹션을 조회합니다.")
@@ -50,6 +53,7 @@ public class SubSectionController {
     public ApiResponse<List<Boolean>> checkSubSection(
             @PathVariable Long planId,
             @Valid @RequestBody SubSectionRequest request) {
-        return ApiResponse.success(subSectionService.checkSubSection(planId, request));
+        return ApiResponse.success(
+                subSectionService.checkSubSection(planId, objectMapper.valueToTree(request), request.subSectionName()));
     }
 }

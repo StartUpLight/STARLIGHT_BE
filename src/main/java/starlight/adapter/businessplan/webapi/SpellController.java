@@ -29,7 +29,6 @@ public class SpellController implements SpellCheckApiDoc {
             @Valid @RequestBody SubSectionRequest subSectionRequest
     ) {
         String text = PlainTextExtractUtils.extractPlainText(objectMapper, subSectionRequest);
-        System.out.println("text = " + text);
 
         List<Finding> typos = spellChecker.check(text);
         String corrected = spellChecker.applyTopSuggestions(text, typos);

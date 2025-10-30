@@ -29,10 +29,6 @@ public enum SubSectionName {
     TEAM_MEMBERS("팀 역량", SectionName.TEAM_COMPETENCE, "team_members");
 
     private final String description;
-    private final SectionName section;
+    private final SectionName sectionName;
     private final String tag; // RAG tag 용도
-
-    public static int getChecklistCount(SubSectionName subSectionName) {
-        return 5; // 현재 모든 서브섹션은 5개 체크 기준을 갖는다
-    }
 }
