@@ -20,7 +20,7 @@ public record ExpertListResponse(
 
         List<String> careers,
 
-        List<String> categories
+        List<String> tags
 ) {
     public static ExpertListResponse from(Expert expert) {
         List<String> labels = expert.getCategories().stream()
