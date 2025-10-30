@@ -1,4 +1,4 @@
-package starlight.adapter.businessplan.webapi.dto;
+package starlight.application.businessplan.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import starlight.domain.businessplan.enumerate.SubSectionName;
