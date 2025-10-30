@@ -3,87 +3,31 @@ package starlight.domain.businessplan.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.Assert;
-import starlight.domain.businessplan.value.RawJson;
-
-import java.util.List;
+import starlight.domain.businessplan.enumerate.SubSectionName;
 
 @Getter
 @Entity
 @NoArgsConstructor
 public class Feasibility {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Embedded
-    @AttributeOverride(
-            name = "value",
-            column = @Column(name = "raw_json", columnDefinition = "TEXT", nullable = false)
-    )
-    private RawJson rawJson;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "feasibility_strategy_id", unique = true)
+    private SubSection feasibilityStrategy;
 
-    @Column(nullable = false)
-    private boolean checkFirst;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "feasibility_market_id", unique = true)
+    private SubSection feasibilityMarket;
 
-    @Column(nullable = false)
-    private boolean checkSecond;
-
-    @Column(nullable = false)
-    private boolean checkThird;
-
-    @Column(nullable = false)
-    private boolean checkFourth;
-
-    @Column(nullable = false)
-    private boolean checkFifth;
-
-    public static Feasibility create(RawJson rawJson) {
-        Assert.notNull(rawJson, "rawJson must not be null");
-
+    public static Feasibility create() {
         Feasibility feasibility = new Feasibility();
-        feasibility.rawJson = rawJson;
-        feasibility.initializeChecks();
-
+        feasibility.initializeSubSections();
         return feasibility;
     }
 
-    public static Feasibility create(String jsonString) {
-        Assert.notNull(jsonString, "rawJsonString은 null일 수 없습니다.");
-
-        Feasibility feasibility = new Feasibility();
-        feasibility.rawJson = RawJson.create(jsonString);
-
-        return feasibility;
-    }
-
-    public void updateRawJson(String jsonString) {
-        Assert.notNull(jsonString, "rawJsonString은 null일 수 없습니다.");
-
-        this.rawJson = RawJson.create(jsonString);
-    }
-
-    public void updateChecks(List<Boolean> checks) {
-        Assert.notNull(checks, "checks 리스트는 null일 수 없습니다.");
-        Assert.isTrue(checks.size() == 5, "checks 리스트는 길이 5 여야 합니다.");
-
-        applyChecks(checks);
-    }
-
-    private void applyChecks(List<Boolean> checks) {
-        this.checkFirst = Boolean.TRUE.equals(checks.get(0));
-        this.checkSecond = Boolean.TRUE.equals(checks.get(1));
-        this.checkThird = Boolean.TRUE.equals(checks.get(2));
-        this.checkFourth = Boolean.TRUE.equals(checks.get(3));
-        this.checkFifth = Boolean.TRUE.equals(checks.get(4));
-    }
-
-    private void initializeChecks() {
-        this.checkFirst = false;
-        this.checkSecond = false;
-        this.checkThird = false;
-        this.checkFourth = false;
-        this.checkFifth = false;
+    private void initializeSubSections() {
+        this.feasibilityStrategy = SubSection.createEmptySubSection(SubSectionName.FEASIBILITY_STRATEGY);
+        this.feasibilityMarket = SubSection.createEmptySubSection(SubSectionName.FEASIBILITY_MARKET);
     }
 }

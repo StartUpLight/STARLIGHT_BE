@@ -4,88 +4,37 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
-import starlight.domain.businessplan.value.RawJson;
-
-import java.util.List;
+import starlight.domain.businessplan.enumerate.SubSectionName;
 
 @Slf4j
 @Getter
 @Entity
 @NoArgsConstructor
 public class ProblemRecognition {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Embedded
-    @AttributeOverride(
-            name = "value",
-            column = @Column(name = "raw_json", columnDefinition = "TEXT", nullable = false)
-    )
-    private RawJson rawJson;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem_background_id")
+    private SubSection problemBackground;
 
-    @Column(nullable = false)
-    private boolean checkFirst;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem_purpose_id")
+    private SubSection problemPurpose;
 
-    @Column(nullable = false)
-    private boolean checkSecond;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem_market_id")
+    private SubSection problemMarket;
 
-    @Column(nullable = false)
-    private boolean checkThird;
-
-    @Column(nullable = false)
-    private boolean checkFourth;
-
-    @Column(nullable = false)
-    private boolean checkFifth;
-
-    public static ProblemRecognition create(RawJson rawJson) {
-        Assert.notNull(rawJson, "rawJson은 null일 수 없습니다.");
-
+    public static ProblemRecognition create() {
         ProblemRecognition problemRecognition = new ProblemRecognition();
-        problemRecognition.rawJson = rawJson;
-        problemRecognition.initializeChecks();
-
+        problemRecognition.initializeSubSections();
         return problemRecognition;
     }
 
-    public static ProblemRecognition create(String jsonString) {
-        Assert.notNull(jsonString, "rawJsonString은 null일 수 없습니다.");
-
-        ProblemRecognition problemRecognition = new ProblemRecognition();
-        problemRecognition.rawJson = RawJson.create(jsonString);
-
-        return problemRecognition;
-    }
-
-    public void updateRawJson(String jsonString) {
-        Assert.notNull(jsonString, "rawJsonString은 null일 수 없습니다.");
-
-        this.rawJson = RawJson.create(jsonString);
-    }
-
-    public void updateChecks(List<Boolean> checks) {
-        Assert.notNull(checks, "checks 리스트는 null일 수 없습니다.");
-        Assert.isTrue(checks.size() == 5, "checks 리스트는 길이 5 여야 합니다.");
-
-        applyChecks(checks);
-    }
-
-    private void applyChecks(List<Boolean> checks) {
-        this.checkFirst = Boolean.TRUE.equals(checks.get(0));
-        this.checkSecond = Boolean.TRUE.equals(checks.get(1));
-        this.checkThird = Boolean.TRUE.equals(checks.get(2));
-        this.checkFourth = Boolean.TRUE.equals(checks.get(3));
-        this.checkFifth = Boolean.TRUE.equals(checks.get(4));
-    }
-
-    private void initializeChecks() {
-        this.checkFirst = false;
-        this.checkSecond = false;
-        this.checkThird = false;
-        this.checkFourth = false;
-        this.checkFifth = false;
+    private void initializeSubSections() {
+        this.problemBackground = SubSection.createEmptySubSection(SubSectionName.PROBLEM_BACKGROUND);
+        this.problemPurpose = SubSection.createEmptySubSection(SubSectionName.PROBLEM_PURPOSE);
+        this.problemMarket = SubSection.createEmptySubSection(SubSectionName.PROBLEM_MARKET);
     }
 }
