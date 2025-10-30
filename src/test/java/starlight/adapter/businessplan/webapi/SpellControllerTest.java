@@ -1,4 +1,4 @@
-package starlight.adapter.member.webapi;
+package starlight.adapter.businessplan.webapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
