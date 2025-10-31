@@ -3,87 +3,39 @@ package starlight.domain.businessplan.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.Assert;
-import starlight.domain.businessplan.value.RawJson;
-
-import java.util.List;
+import starlight.domain.businessplan.enumerate.SubSectionName;
 
 @Getter
 @Entity
 @NoArgsConstructor
 public class Overview {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="business_plan_id")
     private Long id;
 
-    @Embedded
-    @AttributeOverride(
-            name = "value",
-            column = @Column(name = "raw_json", columnDefinition = "TEXT", nullable = false)
-    )
-    private RawJson rawJson;
+    @OneToOne @MapsId
+    @JoinColumn(name = "business_plan_id", referencedColumnName = "id")
+    private BusinessPlan businessPlan;
 
-    @Column(nullable = false)
-    private boolean checkFirst;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "overview_basic_id", unique = true)
+    private SubSection overviewBasic;
 
-    @Column(nullable = false)
-    private boolean checkSecond;
-
-    @Column(nullable = false)
-    private boolean checkThird;
-
-    @Column(nullable = false)
-    private boolean checkFourth;
-
-    @Column(nullable = false)
-    private boolean checkFifth;
-
-    public static Overview create(RawJson rawJson) {
-        Assert.notNull(rawJson, "rawJson must not be null");
-
+    public static Overview create() {
         Overview overview = new Overview();
-        overview.rawJson = rawJson;
-        overview.initializeChecks();
-
         return overview;
     }
 
-    public static Overview create(String jsonString) {
-        Assert.notNull(jsonString, "rawJsonString은 null일 수 없습니다.");
-
-        Overview overview = new Overview();
-        overview.rawJson = RawJson.create(jsonString);
-
-        return overview;
+    /**
+     * 양방향 매핑을 위한 메서드
+     */
+    public void setSubSectionByType(SubSection subSection) {
+        if (subSection.getSubSectionName() == SubSectionName.OVERVIEW_BASIC) {
+            this.overviewBasic = subSection;
+        }
     }
 
-    public void updateRawJson(String jsonString) {
-        Assert.notNull(jsonString, "rawJsonString은 null일 수 없습니다.");
-
-        this.rawJson = RawJson.create(jsonString);
-    }
-
-    public void updateChecks(List<Boolean> checks) {
-        Assert.notNull(checks, "checks 리스트는 null일 수 없습니다.");
-        Assert.isTrue(checks.size() == 5, "checks 리스트는 길이 5 여야 합니다.");
-
-        applyChecks(checks);
-    }
-
-    private void applyChecks(List<Boolean> checks) {
-        this.checkFirst = Boolean.TRUE.equals(checks.get(0));
-        this.checkSecond = Boolean.TRUE.equals(checks.get(1));
-        this.checkThird = Boolean.TRUE.equals(checks.get(2));
-        this.checkFourth = Boolean.TRUE.equals(checks.get(3));
-        this.checkFifth = Boolean.TRUE.equals(checks.get(4));
-    }
-
-    private void initializeChecks() {
-        this.checkFirst = false;
-        this.checkSecond = false;
-        this.checkThird = false;
-        this.checkFourth = false;
-        this.checkFifth = false;
+    public void attachBusinessPlan(BusinessPlan businessPlan) {
+        this.businessPlan = businessPlan;
     }
 }

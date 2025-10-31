@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 import starlight.adapter.businessplan.webapi.dto.SpellCheckResponse;
-import starlight.application.businessplan.strategy.dto.SectionRequest;
+import starlight.adapter.businessplan.webapi.dto.SubSectionRequest;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 @Tag(name = "사업계획서", description = "사업계획서 API")
@@ -87,6 +87,6 @@ public interface SpellCheckApiDoc {
                             )
                     )
             )
-            @org.springframework.web.bind.annotation.RequestBody SectionRequest sectionRequest
+            @org.springframework.web.bind.annotation.RequestBody SubSectionRequest subSectionRequest
     );
 }

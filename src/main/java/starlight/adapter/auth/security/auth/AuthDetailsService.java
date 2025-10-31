@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.application.member.required.MemberRepository;
+import starlight.adapter.member.persistence.MemberRepository;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.exception.MemberErrorType;
 import starlight.domain.member.exception.MemberException;

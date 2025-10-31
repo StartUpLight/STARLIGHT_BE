@@ -3,87 +3,49 @@ package starlight.domain.businessplan.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.Assert;
-import starlight.domain.businessplan.value.RawJson;
-
-import java.util.List;
+import starlight.domain.businessplan.enumerate.SubSectionName;
 
 @Getter
 @Entity
 @NoArgsConstructor
 public class GrowthTactic {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="business_plan_id")
     private Long id;
 
-    @Embedded
-    @AttributeOverride(
-            name = "value",
-            column = @Column(name = "raw_json", columnDefinition = "TEXT", nullable = false)
-    )
-    private RawJson rawJson;
+    @OneToOne @MapsId
+    @JoinColumn(name = "business_plan_id", referencedColumnName = "id")
+    private BusinessPlan businessPlan;
 
-    @Column(nullable = false)
-    private boolean checkFirst;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "growth_model_id", unique = true)
+    private SubSection growthModel;
 
-    @Column(nullable = false)
-    private boolean checkSecond;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "growth_funding_id", unique = true)
+    private SubSection growthFunding;
 
-    @Column(nullable = false)
-    private boolean checkThird;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "growth_entry_id", unique = true)
+    private SubSection growthEntry;
 
-    @Column(nullable = false)
-    private boolean checkFourth;
-
-    @Column(nullable = false)
-    private boolean checkFifth;
-
-    public static GrowthTactic create(RawJson rawJson) {
-        Assert.notNull(rawJson, "rawJson must not be null");
-
+    public static GrowthTactic create() {
         GrowthTactic growthTactic = new GrowthTactic();
-        growthTactic.rawJson = rawJson;
-        growthTactic.initializeChecks();
-
         return growthTactic;
     }
 
-    public static GrowthTactic create(String jsonString) {
-        Assert.notNull(jsonString, "rawJsonString은 null일 수 없습니다.");
-
-        GrowthTactic growthTactic = new GrowthTactic();
-        growthTactic.rawJson = RawJson.create(jsonString);
-
-        return growthTactic;
+    /**
+     * 양방향 매핑을 위한 메서드
+     */
+    public void setSubSectionByType(SubSection subSection) {
+        switch (subSection.getSubSectionName()) {
+            case GROWTH_MODEL -> this.growthModel = subSection;
+            case GROWTH_FUNDING -> this.growthFunding = subSection;
+            case GROWTH_ENTRY -> this.growthEntry = subSection;
+        }
     }
 
-    public void updateRawJson(String jsonString) {
-        Assert.notNull(jsonString, "rawJsonString은 null일 수 없습니다.");
-
-        this.rawJson = RawJson.create(jsonString);
-    }
-
-    public void updateChecks(List<Boolean> checks) {
-        Assert.notNull(checks, "checks 리스트는 null일 수 없습니다.");
-        Assert.isTrue(checks.size() == 5, "checks 리스트는 길이 5 여야 합니다.");
-
-        applyChecks(checks);
-    }
-
-    private void applyChecks(List<Boolean> checks) {
-        this.checkFirst = Boolean.TRUE.equals(checks.get(0));
-        this.checkSecond = Boolean.TRUE.equals(checks.get(1));
-        this.checkThird = Boolean.TRUE.equals(checks.get(2));
-        this.checkFourth = Boolean.TRUE.equals(checks.get(3));
-        this.checkFifth = Boolean.TRUE.equals(checks.get(4));
-    }
-
-    private void initializeChecks() {
-        this.checkFirst = false;
-        this.checkSecond = false;
-        this.checkThird = false;
-        this.checkFourth = false;
-        this.checkFifth = false;
+    public void attachBusinessPlan(BusinessPlan businessPlan) {
+        this.businessPlan = businessPlan;
     }
 }

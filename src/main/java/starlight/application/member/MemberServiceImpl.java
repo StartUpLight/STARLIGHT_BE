@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import starlight.adapter.auth.webapi.dto.request.AuthRequest;
 import starlight.application.member.provided.MemberService;
-import starlight.application.member.required.MemberRepository;
+import starlight.adapter.member.persistence.MemberRepository;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.exception.MemberErrorType;

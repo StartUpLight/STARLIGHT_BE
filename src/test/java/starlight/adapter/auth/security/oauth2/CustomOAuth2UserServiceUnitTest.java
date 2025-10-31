@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.test.util.ReflectionTestUtils;
 import starlight.adapter.auth.security.auth.AuthDetails;
-import starlight.application.member.required.MemberRepository;
+import starlight.adapter.member.persistence.MemberRepository;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
 
