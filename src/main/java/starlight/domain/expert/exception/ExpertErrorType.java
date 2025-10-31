@@ -1,0 +1,18 @@
+package starlight.domain.expert.exception;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import starlight.shared.apiPayload.exception.ErrorType;
+
+@Getter
+@RequiredArgsConstructor
+public enum ExpertErrorType implements ErrorType {
+
+    EXPERT_QUERY_ERROR(HttpStatus.NOT_FOUND, "전문가 정보를 조회하는 중에 오류가 발생했습니다.")
+    ;
+
+    private final HttpStatus status;
+
+    private final String message;
+}
