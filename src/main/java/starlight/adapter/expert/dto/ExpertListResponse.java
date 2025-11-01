@@ -23,9 +23,16 @@ public record ExpertListResponse(
 
         List<String> careers,
 
-        List<String> tags
+        List<String> tags,
+
+        List<String> categories
 ) {
     public static ExpertListResponse from(Expert expert) {
+        List <String> categories = expert.getCategories().stream()
+                .map(TagCategory::name)
+                .distinct()
+                .toList();
+
         return new ExpertListResponse(
                 expert.getId(),
                 expert.getName(),
@@ -34,7 +41,8 @@ public record ExpertListResponse(
                 expert.getEmail(),
                 expert.getMentoringPriceWon(),
                 expert.getCareers(),
-                expert.getTags().stream().distinct().toList()
+                expert.getTags().stream().distinct().toList(),
+                categories
         );
     }
 
