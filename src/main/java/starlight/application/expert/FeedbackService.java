@@ -24,7 +24,6 @@ public class FeedbackService {
     private final BusinessPlanQuery businessPlanQuery;
     private final ExpertApplicationFinder expertApplicationFinder;
 
-    @Transactional(readOnly = true)
     public void requestFeedback(Long expertId, Long planId, MultipartFile file, String menteeName) throws IOException {
 
         ExpertApplication application = ExpertApplication.create(planId, expertId);
