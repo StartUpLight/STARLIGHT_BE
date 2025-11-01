@@ -1,4 +1,4 @@
-package starlight.application.expert.required;
+package starlight.application.expertApplicaiton.required.dto;
 
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.expert.entity.Expert;
@@ -29,24 +29,18 @@ public record FeedbackRequestEmailDto(
             BusinessPlan plan,
             byte[] attachedFile,
             String filename,
-            String baseUrl
+            String requestUrl
     ) {
         String deadline = LocalDate.now().plusDays(7).format(DateTimeFormatter.ISO_DATE);
-        String url = buildFeedbackUrl(baseUrl, plan.getId(), expert.getId());
         return new FeedbackRequestEmailDto(
                 expert.getEmail(),
                 expert.getName(),
                 menteeName,
                 plan.getTitle(),
                 deadline,
-                url,
+                requestUrl,
                 attachedFile,
                 filename
         );
-    }
-
-    private static String buildFeedbackUrl(String baseUrl, long planId, long mentorId) {
-        String normalized = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
-        return normalized + "/feedback/" + planId + "/" + mentorId;
     }
 }

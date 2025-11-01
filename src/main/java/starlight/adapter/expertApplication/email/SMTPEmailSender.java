@@ -1,4 +1,4 @@
-package starlight.adapter.businessplan.email;
+package starlight.adapter.expertApplication.email;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -11,8 +11,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-import starlight.application.expert.required.EmailSender;
-import starlight.application.expert.required.FeedbackRequestEmailDto;
+import starlight.application.expertApplicaiton.required.EmailSender;
+import starlight.application.expertApplicaiton.required.dto.FeedbackRequestEmailDto;
 
 @Slf4j
 @Service
@@ -33,7 +33,7 @@ public class SMTPEmailSender implements EmailSender {
 
             helper.setFrom(senderEmail);
             helper.setTo(dto.mentorEmail());
-            helper.setSubject("[피드백 요청] " + dto.menteeName() + "의 사업계획서 검토 요청");
+            helper.setSubject("[STARLIGHT] " + dto.menteeName() + "의 사업계획서 검토 요청");
 
             Context ctx = new Context();
             ctx.setVariable("mentorName", dto.mentorName());

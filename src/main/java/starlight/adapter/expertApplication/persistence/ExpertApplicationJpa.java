@@ -1,27 +1,19 @@
 package starlight.adapter.expertApplication.persistence;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import starlight.application.expert.required.ExpertQuery;
-import starlight.application.expertApplicaiton.provided.ExpertApplicationFinder;
-import starlight.domain.businessplan.entity.BusinessPlan;
-import starlight.domain.expert.entity.Expert;
-import starlight.domain.expert.enumerate.TagCategory;
-import starlight.domain.expert.exception.ExpertErrorType;
-import starlight.domain.expert.exception.ExpertException;
+import starlight.application.expertApplicaiton.required.ExpertApplicationQuery;
 import starlight.domain.expertApplication.entity.ExpertApplication;
 import starlight.domain.expertApplication.exception.ExpertApplicationErrorType;
 import starlight.domain.expertApplication.exception.ExpertApplicationException;
 
-import java.util.Collection;
 import java.util.List;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ExpertApplicationJpa implements ExpertApplicationFinder {
+public class ExpertApplicationJpa implements ExpertApplicationQuery {
 
     private final ExpertApplicationRepository repository;
 

@@ -1,10 +1,10 @@
-package starlight.application.expertApplicaiton.provided;
+package starlight.application.expertApplicaiton.required;
 
 import starlight.domain.expertApplication.entity.ExpertApplication;
 
 import java.util.List;
 
-public interface ExpertApplicationFinder {
+public interface ExpertApplicationQuery {
 
     List<Long> findRequestedExpertIds(Long businessPlanId);
 
