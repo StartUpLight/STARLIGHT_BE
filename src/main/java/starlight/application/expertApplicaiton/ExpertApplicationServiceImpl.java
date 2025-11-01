@@ -27,6 +27,7 @@ public class ExpertApplicationServiceImpl implements ExpertApplicationService {
     @Override
     public void requestFeedback(Long expertId, Long planId, MultipartFile file, String menteeName) throws IOException {
 
+        // TODO: 중복 신청 방지 로직 추가 필요
         ExpertApplication application = ExpertApplication.create(planId, expertId);
         expertApplicationFinder.save(application);
 
