@@ -1,9 +1,11 @@
 package starlight.adapter.expert.persistence;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import starlight.application.expert.required.ExpertQuery;
+import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expert.enumerate.TagCategory;
 import starlight.domain.expert.exception.ExpertErrorType;
@@ -18,6 +20,13 @@ import java.util.List;
 public class ExpertJpa implements ExpertQuery {
 
     private final ExpertRepository repository;
+
+    @Override
+    public Expert getOrThrow(Long id) {
+        return repository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("BusinessPlan not found: " + id)
+        );
+    }
 
     @Override
     public List<Expert> findAllWithDetails() {

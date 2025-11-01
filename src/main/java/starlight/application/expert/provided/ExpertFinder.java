@@ -11,4 +11,6 @@ public interface ExpertFinder {
     List<Expert> loadAll();
 
     List<Expert> findByAllCategories(Collection<TagCategory> categories);
+
+
 }
