@@ -13,7 +13,7 @@ import java.util.List;
 public interface ExpertRepository extends JpaRepository<Expert, Long> {
 
     @Query("select distinct e from Expert e")
-    @EntityGraph(attributePaths = {"categories", "careers"})
+    @EntityGraph(attributePaths = {"categories", "careers", "tags"})
     List<Expert> findAllWithDetails();
 
     @Query("""
@@ -25,7 +25,7 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
         group by e2.id
         having count(distinct c2) = :size)
     """)
-    @EntityGraph(attributePaths = {"categories", "careers"})
+    @EntityGraph(attributePaths = {"categories", "careers", "tags"})
     List<Expert> findByAllCategories(@Param("cats") Collection<TagCategory> cats,
                                      @Param("size") long size);
 }
