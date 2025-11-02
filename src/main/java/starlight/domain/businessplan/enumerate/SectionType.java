@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum SectionName {
+public enum SectionType {
 
     OVERVIEW("개요"),
     PROBLEM_RECOGNITION("문제 인식"),

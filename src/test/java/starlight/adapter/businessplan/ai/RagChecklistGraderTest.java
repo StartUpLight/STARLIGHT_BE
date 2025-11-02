@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import starlight.adapter.businessplan.ai.infra.ChatClientLlmGenerator;
 import starlight.adapter.businessplan.ai.infra.VectorStoreContextRetriever;
 import starlight.adapter.businessplan.ai.infra.ChecklistCatalog;
-import starlight.domain.businessplan.enumerate.SubSectionName;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 
 import java.util.List;
 
@@ -31,10 +31,10 @@ class RagChecklistGraderTest {
 
         RagChecklistGrader sut = new RagChecklistGrader(retriever, generator, catalog);
 
-        List<Boolean> result = sut.check(SubSectionName.OVERVIEW_BASIC, "input text");
+        List<Boolean> result = sut.check(SubSectionType.OVERVIEW_BASIC, "input text");
         assertThat(result).containsExactly(true, false, true, false, true);
         verify(generator).generateChecklistArray(anyString());
-        verify(retriever, atLeastOnce()).retrieveContext(eq(SubSectionName.OVERVIEW_BASIC.getTag()), anyString(), eq(3));
+        verify(retriever, atLeastOnce()).retrieveContext(eq(SubSectionType.OVERVIEW_BASIC.getTag()), anyString(), eq(3));
     }
 
     @Test
@@ -51,7 +51,7 @@ class RagChecklistGraderTest {
                 .thenReturn(List.of("c1", "c2", "c3", "c4", "c5"));
 
         RagChecklistGrader sut = new RagChecklistGrader(retriever, generator, catalog);
-        List<Boolean> result = sut.check(SubSectionName.OVERVIEW_BASIC, "input text");
+        List<Boolean> result = sut.check(SubSectionType.OVERVIEW_BASIC, "input text");
         assertThat(result).containsExactly(true, false, false, false, false);
     }
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import starlight.adapter.businessplan.ai.infra.ChatClientLlmGenerator;
 import starlight.adapter.businessplan.ai.infra.VectorStoreContextRetriever;
 import starlight.application.businessplan.required.ChecklistGrader;
-import starlight.domain.businessplan.enumerate.SubSectionName;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -22,8 +22,8 @@ public class RagChecklistGrader implements ChecklistGrader {
     private final ChecklistCatalog checklistCatalog;
 
     @Override
-    public List<Boolean> check(SubSectionName subSectionName, String content) {
-        String tag = subSectionName.getTag();
+    public List<Boolean> check(SubSectionType subSectionType, String content) {
+        String tag = subSectionType.getTag();
 
         // 1) 서브섹션별 체크리스트 기준 5개 확보
         List<String> criteria = checklistCatalog.getCriteriaByTag(tag);
