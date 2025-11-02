@@ -24,8 +24,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 class SpellControllerTest {
 
-    @Autowired MockMvc mvc;
-    @Autowired ObjectMapper om;
+    @Autowired
+    MockMvc mvc;
+    @Autowired
+    ObjectMapper om;
 
     @TestConfiguration
     static class TestBeans {
@@ -40,11 +42,11 @@ class SpellControllerTest {
                                 List.of("the"),
                                 "맞춤법 오류", "teh", "teh cat",
                                 "맞춤법을 확인하세요",
-                                List.of()
-                        ));
+                                List.of()));
                     }
                     return List.of();
                 }
+
                 @Override
                 public String applyTopSuggestions(String original, List<Finding> findings) {
                     return original.replace("teh", "the");
@@ -57,26 +59,20 @@ class SpellControllerTest {
     @DisplayName("End-to-End - 가짜 맞춤법 검사기로 통합 테스트")
     void endToEnd_withFakeSpellChecker() throws Exception {
         var body = Map.of(
-                "sectionName", "OVERVIEW",
-                "checks", List.of(true, false, true), // 3~10개 사이
+                "subSectionType", "OVERVIEW_BASIC",
                 "meta", Map.of(
                         "author", "tester",
-                        "createdAt", "2025-10-28"
-                ),
+                        "createdAt", "2025-10-28"),
                 "blocks", List.of(
                         Map.of(
                                 "meta", Map.of("title", "Intro"),
                                 "content", List.of(
-                                        Map.of("type", "text", "value", "teh cat")
-                                )
-                        )
-                )
-        );
+                                        Map.of("type", "text", "value", "teh cat")))));
 
         mvc.perform(post("/v1/business-plans/spellcheck")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("UTF-8")
-                        .content(om.writeValueAsBytes(body)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+                .content(om.writeValueAsBytes(body)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.corrected").value("the cat"))
                 .andExpect(jsonPath("$.data.typos").isArray())
