@@ -61,6 +61,14 @@ public class ExpertApplicationServiceImpl implements ExpertApplicationService {
 
     private void sendFeedbackEmail(Expert expert, BusinessPlan plan, MultipartFile file, String menteeName) {
         try {
+            if (file.getSize() > 20 * 1024 * 1024) {
+                throw new ExpertApplicationException(ExpertApplicationErrorType.FILE_SIZE_EXCEEDED);
+            }
+
+            if (file.getContentType() == null || !file.getContentType().equals("application/pdf")) {
+                throw new ExpertApplicationException(ExpertApplicationErrorType.UNSUPPORTED_FILE_TYPE);
+            }
+
             byte[] fileBytes = file.getBytes();
             String filename = generateFilename(file, plan, menteeName);
             String feedbackUrl = buildFeedbackRequestUrl(expert.getId(), plan.getId());

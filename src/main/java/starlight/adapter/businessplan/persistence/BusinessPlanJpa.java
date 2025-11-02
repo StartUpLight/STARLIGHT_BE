@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.domain.businessplan.entity.BusinessPlan;
+import starlight.domain.businessplan.exception.BusinessPlanErrorType;
+import starlight.domain.businessplan.exception.BusinessPlanException;
 
 @Repository
 @RequiredArgsConstructor
@@ -15,7 +17,7 @@ public class BusinessPlanJpa implements BusinessPlanQuery {
     @Override
     public BusinessPlan getOrThrow(Long id) {
         return businessPlanRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("BusinessPlan not found: " + id)
+                () -> new BusinessPlanException(BusinessPlanErrorType.BUSINESS_PLAN_NOT_FOUND)
         );
     }
 

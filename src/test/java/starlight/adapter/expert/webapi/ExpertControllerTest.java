@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(
-        controllers = ExpertQueryController.class,
+        controllers = ExpertController.class,
         excludeAutoConfiguration = JpaRepositoriesAutoConfiguration.class,
         excludeFilters = @ComponentScan.Filter(
                 type = FilterType.ASSIGNABLE_TYPE,
@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         )
 )
 @AutoConfigureMockMvc(addFilters = false)
-class ExpertQueryControllerTest {
+class ExpertControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper om;

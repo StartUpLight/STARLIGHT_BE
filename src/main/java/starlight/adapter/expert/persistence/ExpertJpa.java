@@ -24,7 +24,7 @@ public class ExpertJpa implements ExpertQuery {
     @Override
     public Expert getOrThrow(Long id) {
         return repository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("BusinessPlan not found: " + id)
+                () -> new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND)
         );
     }
 

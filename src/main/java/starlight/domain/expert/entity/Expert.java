@@ -20,7 +20,7 @@ public class Expert extends AbstractEntity {
     @Column(length = 320)
     private String name;
 
-    @Column(length = 5)
+    @Column
     private Long workedPeriod;
 
     @Column
@@ -39,7 +39,6 @@ public class Expert extends AbstractEntity {
 
     @ElementCollection
     @CollectionTable(name = "expert_tags", joinColumns = @JoinColumn(name = "expert_id"))
-    @Enumerated(EnumType.STRING)
     @Column(name = "tag", length = 40, nullable = false)
     private Set<String> tags = new LinkedHashSet<>();
 

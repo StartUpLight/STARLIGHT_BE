@@ -13,6 +13,8 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import starlight.application.expertApplication.required.EmailSender;
 import starlight.application.expertApplication.required.dto.FeedbackRequestEmailDto;
+import starlight.domain.expertApplication.exception.ExpertApplicationErrorType;
+import starlight.domain.expertApplication.exception.ExpertApplicationException;
 
 @Slf4j
 @Service
@@ -54,7 +56,7 @@ public class SMTPEmailSender implements EmailSender {
 
         } catch (MessagingException e) {
             log.error("피드백 요청 메일 발송 실패 - To: {}", dto.mentorEmail(), e);
-            throw new RuntimeException("피드백 요청 메일 발송 실패", e);
+            throw new ExpertApplicationException(ExpertApplicationErrorType.EMAIL_SEND_ERROR);
         }
     }
 }
