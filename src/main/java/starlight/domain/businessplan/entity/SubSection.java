@@ -5,8 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
-import starlight.domain.businessplan.enumerate.SectionName;
-import starlight.domain.businessplan.enumerate.SubSectionName;
+import starlight.domain.businessplan.enumerate.SectionType;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.value.RawJson;
 import starlight.shared.AbstractEntity;
 
@@ -17,16 +17,9 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SubSection extends AbstractEntity {
 
-    @Column(name = "parent_section_id")
-    private Long parentSectionId;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "parent_section_type", length = 50)
-    private SectionName parentSectionName;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private SubSectionName subSectionName;
+    private SubSectionType subSectionType;
 
     @Column(columnDefinition = "TEXT")
     private String content;
@@ -53,16 +46,12 @@ public class SubSection extends AbstractEntity {
     @Getter
     private static final int CHECKLIST_SIZE = 5;
 
-    public static SubSection create(SubSectionName subSectionName, String content, String rawJson) {
+    public static SubSection create(SubSectionType subSectionType, String content, String rawJson) {
         SubSection subSection = new SubSection();
-        subSection.subSectionName = subSectionName;
+        subSection.subSectionType = subSectionType;
         subSection.content = content;
         subSection.rawJson = RawJson.create(rawJson);
         return subSection;
-    }
-
-    public static SubSection createEmptySubSection(SubSectionName subSectionType) {
-        return create(subSectionType, "", "");
     }
 
     public void updateContent(String content, String rawJson) {
@@ -86,79 +75,5 @@ public class SubSection extends AbstractEntity {
         this.checkThird = Boolean.TRUE.equals(checks.get(2));
         this.checkFourth = Boolean.TRUE.equals(checks.get(3));
         this.checkFifth = Boolean.TRUE.equals(checks.get(4));
-    }
-
-    /**
-     * 부모 섹션에 연결 (단일 parent 참조 방식)
-     * 
-     * @param parentSectionId   부모 섹션 ID (Overview, ProblemRecognition 등의 ID)
-     * @param parentSectionType 부모 섹션 타입
-     */
-    public void attachToParent(Long parentSectionId, SectionName parentSectionType) {
-        Assert.notNull(parentSectionId, "parentSectionId는 null일 수 없습니다.");
-        Assert.notNull(parentSectionType, "parentSectionType은 null일 수 없습니다.");
-
-        this.parentSectionId = parentSectionId;
-        this.parentSectionName = parentSectionType;
-    }
-
-    /**
-     * 타입 안전한 Overview 섹션 연결
-     * 
-     * @deprecated attachToParent를 사용하세요
-     */
-    @Deprecated
-    public void attachToOverview(Overview overview) {
-        this.parentSectionId = overview.getId();
-        this.parentSectionName = SectionName.OVERVIEW;
-        overview.setSubSectionByType(this);
-    }
-
-    /**
-     * 타입 안전한 ProblemRecognition 섹션 연결
-     * 
-     * @deprecated attachToParent를 사용하세요
-     */
-    @Deprecated
-    public void attachToProblemRecognition(ProblemRecognition problemRecognition) {
-        this.parentSectionId = problemRecognition.getId();
-        this.parentSectionName = SectionName.PROBLEM_RECOGNITION;
-        problemRecognition.setSubSectionByType(this);
-    }
-
-    /**
-     * 타입 안전한 Feasibility 섹션 연결
-     * 
-     * @deprecated attachToParent를 사용하세요
-     */
-    @Deprecated
-    public void attachToFeasibility(Feasibility feasibility) {
-        this.parentSectionId = feasibility.getId();
-        this.parentSectionName = SectionName.FEASIBILITY;
-        feasibility.setSubSectionByType(this);
-    }
-
-    /**
-     * 타입 안전한 GrowthTactic 섹션 연결
-     * 
-     * @deprecated attachToParent를 사용하세요
-     */
-    @Deprecated
-    public void attachToGrowthTactic(GrowthTactic growthTactic) {
-        this.parentSectionId = growthTactic.getId();
-        this.parentSectionName = SectionName.GROWTH_STRATEGY;
-        growthTactic.setSubSectionByType(this);
-    }
-
-    /**
-     * 타입 안전한 TeamCompetence 섹션 연결
-     * 
-     * @deprecated attachToParent를 사용하세요
-     */
-    @Deprecated
-    public void attachToTeamCompetence(TeamCompetence teamCompetence) {
-        this.parentSectionId = teamCompetence.getId();
-        this.parentSectionName = SectionName.TEAM_COMPETENCE;
-        teamCompetence.setSubSectionByType(this);
     }
 }

@@ -3,39 +3,43 @@ package starlight.domain.businessplan.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import starlight.domain.businessplan.enumerate.SubSectionName;
+import starlight.domain.businessplan.enumerate.SectionType;
+import starlight.domain.businessplan.enumerate.SubSectionType;
+
+import java.util.Objects;
 
 @Getter
 @Entity
 @NoArgsConstructor
-public class Overview {
-    @Id
-    @Column(name="business_plan_id")
-    private Long id;
+public class Overview extends BaseSection {
 
-    @OneToOne @MapsId
-    @JoinColumn(name = "business_plan_id", referencedColumnName = "id")
-    private BusinessPlan businessPlan;
-
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "overview_basic_id", unique = true)
     private SubSection overviewBasic;
 
     public static Overview create() {
-        Overview overview = new Overview();
-        return overview;
+        return new Overview();
     }
 
-    /**
-     * 양방향 매핑을 위한 메서드
-     */
-    public void setSubSectionByType(SubSection subSection) {
-        if (subSection.getSubSectionName() == SubSectionName.OVERVIEW_BASIC) {
-            this.overviewBasic = subSection;
-        }
+    @Override
+    protected SectionType getSectionType() {
+        return SectionType.OVERVIEW;
     }
 
-    public void attachBusinessPlan(BusinessPlan businessPlan) {
-        this.businessPlan = businessPlan;
+    @Override
+    public SubSection getSubSectionByType(SubSectionType type) {
+        return switch (type) {
+            case OVERVIEW_BASIC -> this.overviewBasic;
+            default -> throw new IllegalArgumentException("Unsupported type: " + type);
+        };
+    }
+
+    @Override
+    protected void setSubSectionByType(SubSection subSection, SubSectionType type) {
+        switch (type) {
+            case OVERVIEW_BASIC -> this.overviewBasic = subSection;
+            default -> throw new IllegalArgumentException("Unsupported type: " + type);
+        };
     }
 }
+

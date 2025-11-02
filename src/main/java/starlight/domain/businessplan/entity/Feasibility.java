@@ -3,41 +3,46 @@ package starlight.domain.businessplan.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import starlight.domain.businessplan.enumerate.SubSectionName;
+import starlight.domain.businessplan.enumerate.SectionType;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 
 @Getter
 @Entity
 @NoArgsConstructor
-public class Feasibility {
-    @Id
-    @Column(name="business_plan_id")
-    private Long id;
+public class Feasibility extends BaseSection {
 
-    @OneToOne @MapsId
-    @JoinColumn(name = "business_plan_id", referencedColumnName = "id")
-    private BusinessPlan businessPlan;
-
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "feasibility_strategy_id", unique = true)
     private SubSection feasibilityStrategy;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "feasibility_market_id", unique = true)
     private SubSection feasibilityMarket;
 
     public static Feasibility create() {
-        Feasibility feasibility = new Feasibility();
-        return feasibility;
+        return new Feasibility();
     }
 
-    public void setSubSectionByType(SubSection subSection) {
-        switch (subSection.getSubSectionName()) {
+    @Override
+    protected SectionType getSectionType() {
+        return SectionType.GROWTH_STRATEGY;
+    }
+
+    @Override
+    public SubSection getSubSectionByType(SubSectionType type) {
+        return switch (type) {
+            case FEASIBILITY_STRATEGY -> this.feasibilityStrategy;
+            case FEASIBILITY_MARKET -> this.feasibilityMarket;
+            default -> throw new IllegalArgumentException("Unsupported type: " + type);
+        };
+    }
+
+    @Override
+    protected void setSubSectionByType(SubSection subSection, SubSectionType type) {
+        switch (type) {
             case FEASIBILITY_STRATEGY -> this.feasibilityStrategy = subSection;
             case FEASIBILITY_MARKET -> this.feasibilityMarket = subSection;
-        }
-    }
-
-    public void attachBusinessPlan(BusinessPlan businessPlan) {
-        this.businessPlan = businessPlan;
+            default -> throw new IllegalArgumentException("Unsupported type: " + type);
+        };
     }
 }

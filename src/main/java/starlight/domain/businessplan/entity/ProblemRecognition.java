@@ -4,51 +4,53 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import starlight.domain.businessplan.enumerate.SubSectionName;
+import starlight.domain.businessplan.enumerate.SectionType;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 
 @Slf4j
 @Getter
 @Entity
 @NoArgsConstructor
-public class ProblemRecognition {
-    @Id
-    @Column(name = "business_plan_id")
-    private Long id;
+public class ProblemRecognition extends BaseSection{
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "business_plan_id", referencedColumnName = "id")
-    private BusinessPlan businessPlan;
-
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_background_id")
     private SubSection problemBackground;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_purpose_id")
     private SubSection problemPurpose;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_market_id")
     private SubSection problemMarket;
 
     public static ProblemRecognition create() {
-        ProblemRecognition problemRecognition = new ProblemRecognition();
-        return problemRecognition;
+        return new ProblemRecognition();
     }
 
-    /**
-     * 양방향 매핑을 위한 메서드
-     */
-    public void setSubSectionByType(SubSection subSection) {
-        switch (subSection.getSubSectionName()) {
+    @Override
+    protected SectionType getSectionType() {
+        return SectionType.PROBLEM_RECOGNITION;
+    }
+
+    @Override
+    public SubSection getSubSectionByType(SubSectionType type) {
+        return switch (type) {
+            case PROBLEM_BACKGROUND -> this.problemBackground;
+            case PROBLEM_PURPOSE -> this.problemPurpose;
+            case PROBLEM_MARKET -> this.problemMarket;
+            default -> throw new IllegalArgumentException("Unsupported type: " + type);
+        };
+    }
+
+    @Override
+    public void setSubSectionByType(SubSection subSection, SubSectionType type) {
+        switch (type) {
             case PROBLEM_BACKGROUND -> this.problemBackground = subSection;
             case PROBLEM_PURPOSE -> this.problemPurpose = subSection;
             case PROBLEM_MARKET -> this.problemMarket = subSection;
+            default -> throw new IllegalArgumentException("Unsupported type: " + type);
         }
-    }
-
-    public void attachBusinessPlan(BusinessPlan businessPlan) {
-        this.businessPlan = businessPlan;
     }
 }

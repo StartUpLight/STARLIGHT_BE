@@ -3,49 +3,54 @@ package starlight.domain.businessplan.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import starlight.domain.businessplan.enumerate.SubSectionName;
+import starlight.domain.businessplan.enumerate.SectionType;
+import starlight.domain.businessplan.enumerate.SubSectionType;
+
+import java.util.Objects;
 
 @Getter
 @Entity
 @NoArgsConstructor
-public class GrowthTactic {
-    @Id
-    @Column(name="business_plan_id")
-    private Long id;
+public class GrowthTactic extends BaseSection{
 
-    @OneToOne @MapsId
-    @JoinColumn(name = "business_plan_id", referencedColumnName = "id")
-    private BusinessPlan businessPlan;
-
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "growth_model_id", unique = true)
     private SubSection growthModel;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "growth_funding_id", unique = true)
     private SubSection growthFunding;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "growth_entry_id", unique = true)
     private SubSection growthEntry;
 
     public static GrowthTactic create() {
-        GrowthTactic growthTactic = new GrowthTactic();
-        return growthTactic;
+        return new GrowthTactic();
     }
 
-    /**
-     * 양방향 매핑을 위한 메서드
-     */
-    public void setSubSectionByType(SubSection subSection) {
-        switch (subSection.getSubSectionName()) {
+    @Override
+    protected SectionType getSectionType() {
+        return SectionType.GROWTH_STRATEGY;
+    }
+
+    @Override
+    public SubSection getSubSectionByType(SubSectionType type) {
+        return switch (type) {
+            case GROWTH_MODEL -> this.growthModel;
+            case GROWTH_FUNDING -> this.growthFunding;
+            case GROWTH_ENTRY -> this.growthEntry;
+            default -> throw new IllegalArgumentException("Unsupported type: " + type);
+        };
+    }
+
+    @Override
+    public void setSubSectionByType(SubSection subSection, SubSectionType type) {
+        switch (type) {
             case GROWTH_MODEL -> this.growthModel = subSection;
             case GROWTH_FUNDING -> this.growthFunding = subSection;
             case GROWTH_ENTRY -> this.growthEntry = subSection;
+            default -> throw new IllegalArgumentException("Unsupported type: " + type);
         }
-    }
-
-    public void attachBusinessPlan(BusinessPlan businessPlan) {
-        this.businessPlan = businessPlan;
     }
 }
