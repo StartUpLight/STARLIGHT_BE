@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
-import starlight.domain.businessplan.enumerate.SectionType;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.value.RawJson;
 import starlight.shared.AbstractEntity;
