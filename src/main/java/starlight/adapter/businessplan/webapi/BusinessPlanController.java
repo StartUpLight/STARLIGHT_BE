@@ -62,7 +62,7 @@ public class BusinessPlanController {
 
     @Operation(summary = "서브섹션을 생성 또는 수정합니다.")
     @PostMapping("/{planId}/subsections")
-    public ApiResponse<SubSectionResponse.Created> createOrUpdateSection(
+    public ApiResponse<SubSectionResponse.Created> createOrUpdateSubSection(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId,
             @Valid @RequestBody SubSectionRequest request

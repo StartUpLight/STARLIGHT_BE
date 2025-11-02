@@ -13,15 +13,15 @@ import starlight.domain.businessplan.enumerate.SubSectionType;
 public class ProblemRecognition extends BaseSection{
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "problem_background_id")
+    @JoinColumn(name = "problem_background_id", unique = true)
     private SubSection problemBackground;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "problem_purpose_id")
+    @JoinColumn(name = "problem_purpose_id", unique = true)
     private SubSection problemPurpose;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "problem_market_id")
+    @JoinColumn(name = "problem_market_id", unique = true)
     private SubSection problemMarket;
 
     public static ProblemRecognition create() {
