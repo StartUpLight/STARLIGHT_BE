@@ -72,7 +72,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/ops.html").permitAll()
                         .requestMatchers("/v1/auth/**","/v1/user/**").permitAll()
                         .requestMatchers("/login/**", "/oauth2/**", "/login/oauth2/**", "/public/**").permitAll()
-                        .requestMatchers("v3/api-docs/**", "/v1/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/v1/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
                         .loginPage("/login/oauth2/code/kakao")

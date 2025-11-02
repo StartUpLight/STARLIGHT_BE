@@ -1,6 +1,7 @@
 package starlight.adapter.auth.security.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -149,7 +150,12 @@ public class JwtTokenProvider implements TokenProvider {
      */
     @Override
     public Long getExpirationTime(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration().getTime();
+        try {
+            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration().getTime();
+        } catch (ExpiredJwtException e) {
+            // 만료된 토큰의 경우에도 만료 시간을 반환
+            return e.getClaims().getExpiration().getTime();
+        }
     }
 
     /**

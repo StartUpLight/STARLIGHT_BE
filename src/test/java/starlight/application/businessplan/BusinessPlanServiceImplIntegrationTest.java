@@ -1,23 +1,28 @@
 package starlight.application.businessplan;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import starlight.adapter.businessplan.persistence.BusinessPlanJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
+import starlight.application.businessplan.required.ChecklistGrader;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.SubSection;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-@org.junit.jupiter.api.Disabled("Temporarily disabled due to JPA identifier mapping issue in domain @MapsId; enable after mapping fix or testcontainer config")
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Import({ BusinessPlanServiceImpl.class, BusinessPlanJpa.class })
+@Import({ BusinessPlanServiceImpl.class, BusinessPlanJpa.class, BusinessPlanServiceImplIntegrationTest.TestBeans.class })
 class BusinessPlanServiceImplIntegrationTest {
 
     @Autowired
@@ -26,6 +31,19 @@ class BusinessPlanServiceImplIntegrationTest {
     BusinessPlanRepository businessPlanRepository;
     @Autowired
     EntityManager em;
+
+    @TestConfiguration
+    static class TestBeans {
+        @Bean
+        ChecklistGrader checklistGrader() {
+            return (subSectionType, content) -> List.of(false, false, false, false, false);
+        }
+
+        @Bean
+        ObjectMapper objectMapper() {
+            return new ObjectMapper();
+        }
+    }
 
     @Test
     void create_and_update_title_and_delete_with_subsections_cleanup() {
