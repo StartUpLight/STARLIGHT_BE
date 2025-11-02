@@ -96,9 +96,9 @@ public class BusinessPlanController {
         );
     }
 
-    @Operation(summary = "서브섹션의 체크리스트를 점검합니다.")
-    @PostMapping("/{planId}/subsections/check")
-    public ApiResponse<java.util.List<Boolean>> checkSubSection(
+    @Operation(summary = "서브섹션의 체크리스트를 점검 후 업데이트합니다.")
+    @PostMapping("/{planId}/subsections/check-and-update")
+    public ApiResponse<java.util.List<Boolean>> checkAndUpdateSubSection(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId,
             @Valid @RequestBody SubSectionRequest request
