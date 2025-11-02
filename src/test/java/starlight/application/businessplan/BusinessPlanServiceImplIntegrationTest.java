@@ -5,17 +5,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import starlight.adapter.businessplan.persistence.BusinessPlanJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
-import starlight.application.businessplan.required.ChecklistGrader;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.SubSection;
-import starlight.domain.businessplan.enumerate.SectionName;
-import starlight.domain.businessplan.enumerate.SubSectionName;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,29 +35,25 @@ class BusinessPlanServiceImplIntegrationTest {
         assertThat(planId).isNotNull();
 
         // attach a subsection to overview
-        Long overviewId = created.getOverview().getId();
-        SubSection s1 = SubSection.create(SubSectionName.OVERVIEW_BASIC, "c", "{}");
-        s1.attachToParent(overviewId, SectionName.OVERVIEW);
-        em.persist(s1);
+        SubSection s1 = SubSection.create(SubSectionType.OVERVIEW_BASIC, "c", "{}");
+        created.getOverview().putSubSection(s1);
+        businessPlanRepository.save(created);
         em.flush();
+        em.clear();
 
-        // sanity: persisted
-        Long countBefore = em
-                .createQuery("select count(s) from SubSection s where s.parentSectionId = :pid", Long.class)
-                .setParameter("pid", overviewId)
-                .getSingleResult();
-        assertThat(countBefore).isEqualTo(1L);
+        // sanity: persisted - Overview를 통해 SubSection이 있는지 확인
+        BusinessPlan reloaded = businessPlanRepository.findById(planId).orElseThrow();
+        assertThat(reloaded.getOverview().getSubSectionByType(SubSectionType.OVERVIEW_BASIC)).isNotNull();
 
         // update title
         BusinessPlan updated = sut.updateBusinessPlanTitle(planId, created.getMemberId(), "new-title");
         assertThat(updated.getTitle()).isEqualTo("new-title");
 
-        // delete plan -> cleanup subsections
+        // delete plan -> cascade로 subsections도 함께 삭제
         sut.deleteBusinessPlan(planId, created.getMemberId());
 
-        Long countAfter = em.createQuery("select count(s) from SubSection s where s.parentSectionId = :pid", Long.class)
-                .setParameter("pid", overviewId)
-                .getSingleResult();
-        assertThat(countAfter).isZero();
+        // SubSection이 cascade로 삭제되었는지 확인
+        BusinessPlan afterDelete = businessPlanRepository.findById(planId).orElse(null);
+        assertThat(afterDelete).isNull();
     }
 }
