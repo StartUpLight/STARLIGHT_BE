@@ -30,6 +30,7 @@ public class ClovaOcrClient {
 
             if (resp == null) {
                 log.warn("CLOVA OCR 응답이 null 입니다.");
+                throw new OcrException(OcrErrorType.OCR_CLIENT_ERROR);
             }
 
             return resp;
