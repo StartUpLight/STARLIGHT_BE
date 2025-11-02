@@ -150,12 +150,7 @@ public class JwtTokenProvider implements TokenProvider {
      */
     @Override
     public Long getExpirationTime(String token) {
-        try {
-            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration().getTime();
-        } catch (ExpiredJwtException e) {
-            // 만료된 토큰의 경우에도 만료 시간을 반환
-            return e.getClaims().getExpiration().getTime();
-        }
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration().getTime();
     }
 
     /**
