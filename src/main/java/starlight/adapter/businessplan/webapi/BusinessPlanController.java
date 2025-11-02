@@ -15,7 +15,7 @@ import starlight.adapter.businessplan.webapi.dto.SubSectionRequest;
 import starlight.application.businessplan.dto.SubSectionResponse;
 import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.domain.businessplan.entity.BusinessPlan;
-import starlight.domain.businessplan.enumerate.SubSectionName;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 @Validated
@@ -63,36 +63,48 @@ public class BusinessPlanController {
     @Operation(summary = "서브섹션을 생성 또는 수정합니다.")
     @PostMapping("/{planId}/subsections")
     public ApiResponse<SubSectionResponse.Created> createOrUpdateSection(
+            @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId,
-            @Valid @RequestBody SubSectionRequest request) {
-        return ApiResponse.success(businessPlanService.createOrUpdateSection(
-                planId, objectMapper.valueToTree(request), request.subSectionName()
+            @Valid @RequestBody SubSectionRequest request
+    ) {
+        return ApiResponse.success(businessPlanService.createOrUpdateSubSection(
+                planId, objectMapper.valueToTree(request), request.subSectionType(), authDetails.getMemberId()
         ));
     }
 
     @Operation(summary = "서브섹션을 조회합니다.")
-    @GetMapping("/{planId}/subsections/{subSectionName}")
+    @GetMapping("/{planId}/subsections/{subSectionType}")
     public ApiResponse<SubSectionResponse.Retrieved> getSubSection(
+            @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId,
-            @PathVariable SubSectionName subSectionName) {
-        return ApiResponse.success(businessPlanService.getSubSection(planId, subSectionName));
+            @PathVariable SubSectionType subSectionType
+    ) {
+        return ApiResponse.success(businessPlanService.getSubSection(
+                planId, subSectionType, authDetails.getMemberId())
+        );
     }
 
     @Operation(summary = "서브섹션을 삭제합니다.")
-    @DeleteMapping("/{planId}/subsections/{subSectionName}")
+    @DeleteMapping("/{planId}/subsections/{subSectionType}")
     public ApiResponse<SubSectionResponse.Deleted> deleteSubSection(
+            @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId,
-            @PathVariable SubSectionName subSectionName) {
-        return ApiResponse.success(businessPlanService.deleteSubSection(planId, subSectionName));
+            @PathVariable SubSectionType subSectionType
+    ) {
+        return ApiResponse.success(businessPlanService.deleteSubSection(
+                planId, subSectionType, authDetails.getMemberId())
+        );
     }
 
     @Operation(summary = "서브섹션의 체크리스트를 점검합니다.")
     @PostMapping("/{planId}/subsections/check")
     public ApiResponse<java.util.List<Boolean>> checkSubSection(
+            @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId,
-            @Valid @RequestBody SubSectionRequest request) {
+            @Valid @RequestBody SubSectionRequest request
+    ) {
         return ApiResponse.success(businessPlanService.checkAndUpdateSubSection(
-                planId, objectMapper.valueToTree(request), request.subSectionName()
+                planId, objectMapper.valueToTree(request), request.subSectionType(), authDetails.getMemberId()
         ));
     }
 }

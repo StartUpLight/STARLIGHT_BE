@@ -3,7 +3,7 @@ package starlight.application.businessplan.provided;
 import com.fasterxml.jackson.databind.JsonNode;
 import starlight.application.businessplan.dto.SubSectionResponse;
 import starlight.domain.businessplan.entity.BusinessPlan;
-import starlight.domain.businessplan.enumerate.SubSectionName;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 
 import java.util.List;
 
@@ -15,11 +15,11 @@ public interface BusinessPlanService {
 
     BusinessPlan updateBusinessPlanTitle(Long planId, Long memberId, String title);
 
-    SubSectionResponse.Created createOrUpdateSection(Long planId, JsonNode jsonNode, SubSectionName subSectionName);
+    SubSectionResponse.Created createOrUpdateSubSection(Long planId, JsonNode jsonNode, SubSectionType subSectionType, Long memberId);
 
-    SubSectionResponse.Retrieved getSubSection(Long planId, SubSectionName subSectionName);
+    SubSectionResponse.Retrieved getSubSection(Long planId, SubSectionType subSectionType, Long memberId);
 
-    SubSectionResponse.Deleted deleteSubSection(Long planId, SubSectionName subSectionName);
+    SubSectionResponse.Deleted deleteSubSection(Long planId, SubSectionType subSectionType, Long memberId);
 
-    List<Boolean> checkAndUpdateSubSection(Long planId, JsonNode jsonNode, SubSectionName subSectionName);
+    List<Boolean> checkAndUpdateSubSection(Long planId, JsonNode jsonNode, SubSectionType subSectionType, Long memberId);
 }
