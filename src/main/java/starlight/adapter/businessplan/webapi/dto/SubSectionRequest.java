@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import starlight.domain.businessplan.enumerate.SubSectionName;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 
 import java.util.List;
 
 public record SubSectionRequest(
-        @NotNull SubSectionName subSectionName,
+        @NotNull SubSectionType subSectionType,
         @Valid @NotNull SubSectionRequest.Meta meta,
         @Valid @NotEmpty List<@Valid Block> blocks) {
     public record Meta(

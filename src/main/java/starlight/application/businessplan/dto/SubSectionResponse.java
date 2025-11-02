@@ -1,19 +1,19 @@
 package starlight.application.businessplan.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import starlight.domain.businessplan.enumerate.SubSectionName;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 import java.util.List;
 
 public record SubSectionResponse() {
 
     public record Created(
-            SubSectionName subSectionName,
+            SubSectionType subSectionType,
             Long subSectionId,
             String message) {
         public static SubSectionResponse.Created create(
-                SubSectionName subSectionName, Long subSectionId, String message
+                SubSectionType subSectionType, Long subSectionId, String message
         ) {
-            return new SubSectionResponse.Created(subSectionName, subSectionId, message);
+            return new SubSectionResponse.Created(subSectionType, subSectionId, message);
         }
     }
 
@@ -28,13 +28,13 @@ public record SubSectionResponse() {
     }
 
     public record Deleted(
-            SubSectionName subSectionName,
+            SubSectionType subSectionType,
             Long subSectionId,
             String message
     ) {
         public static SubSectionResponse.Deleted create(
-                SubSectionName subSectionName, Long subSectionId, String message) {
-            return new SubSectionResponse.Deleted(subSectionName, subSectionId, message);
+                SubSectionType subSectionType, Long subSectionId, String message) {
+            return new SubSectionResponse.Deleted(subSectionType, subSectionId, message);
         }
     }
 }
