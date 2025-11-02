@@ -24,11 +24,6 @@ public class Feasibility extends BaseSection {
     }
 
     @Override
-    protected SectionType getSectionType() {
-        return SectionType.GROWTH_STRATEGY;
-    }
-
-    @Override
     public SubSection getSubSectionByType(SubSectionType type) {
         return switch (type) {
             case FEASIBILITY_STRATEGY -> this.feasibilityStrategy;

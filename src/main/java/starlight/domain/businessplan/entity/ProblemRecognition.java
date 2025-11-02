@@ -30,11 +30,6 @@ public class ProblemRecognition extends BaseSection{
     }
 
     @Override
-    protected SectionType getSectionType() {
-        return SectionType.PROBLEM_RECOGNITION;
-    }
-
-    @Override
     public SubSection getSubSectionByType(SubSectionType type) {
         return switch (type) {
             case PROBLEM_BACKGROUND -> this.problemBackground;

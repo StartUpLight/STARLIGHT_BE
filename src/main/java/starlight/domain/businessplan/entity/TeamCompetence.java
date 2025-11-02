@@ -24,11 +24,6 @@ public class TeamCompetence extends BaseSection{
     }
 
     @Override
-    protected SectionType getSectionType() {
-        return SectionType.TEAM_COMPETENCE;
-    }
-
-    @Override
     public SubSection getSubSectionByType(SubSectionType type) {
         return switch (type) {
             case TEAM_FOUNDER   -> this.teamFounder;

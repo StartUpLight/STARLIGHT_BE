@@ -30,11 +30,6 @@ public class GrowthTactic extends BaseSection{
     }
 
     @Override
-    protected SectionType getSectionType() {
-        return SectionType.GROWTH_STRATEGY;
-    }
-
-    @Override
     public SubSection getSubSectionByType(SubSectionType type) {
         return switch (type) {
             case GROWTH_MODEL -> this.growthModel;

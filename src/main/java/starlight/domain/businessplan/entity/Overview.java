@@ -22,11 +22,6 @@ public class Overview extends BaseSection {
     }
 
     @Override
-    protected SectionType getSectionType() {
-        return SectionType.OVERVIEW;
-    }
-
-    @Override
     public SubSection getSubSectionByType(SubSectionType type) {
         return switch (type) {
             case OVERVIEW_BASIC -> this.overviewBasic;
