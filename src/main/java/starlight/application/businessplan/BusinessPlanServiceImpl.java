@@ -110,9 +110,13 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     public SubSectionResponse.Deleted deleteSubSection(Long planId, SubSectionType subSectionType, Long memberId) {
         BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
 
-        // BusinessPlan과 각 섹션의 id가 같아 NullPointerException 발생 불가
         SectionType sectionType = subSectionType.getSectionType();
-        getSectionByPlanAndType(plan, sectionType).removeSubSection(subSectionType);
+        BaseSection section = getSectionByPlanAndType(plan, sectionType);
+        SubSection target = section.getSubSectionByType(subSectionType);
+        if (target == null) {
+            throw new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND);
+        }
+        section.removeSubSection(subSectionType);
 
         businessPlanQuery.save(plan);
 
