@@ -11,8 +11,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-import starlight.application.expertApplicaiton.required.EmailSender;
-import starlight.application.expertApplicaiton.required.dto.FeedbackRequestEmailDto;
+import starlight.application.expertApplication.required.EmailSender;
+import starlight.application.expertApplication.required.dto.FeedbackRequestEmailDto;
 
 @Slf4j
 @Service

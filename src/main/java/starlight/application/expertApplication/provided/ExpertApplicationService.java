@@ -1,4 +1,4 @@
-package starlight.application.expertApplicaiton.provided;
+package starlight.application.expertApplication.provided;
 
 import org.springframework.web.multipart.MultipartFile;
 

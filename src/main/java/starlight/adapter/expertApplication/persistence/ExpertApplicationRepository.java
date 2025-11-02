@@ -9,8 +9,10 @@ import java.util.List;
 
 public interface ExpertApplicationRepository extends JpaRepository<ExpertApplication, Long> {
 
+    Boolean existsByExpertIdAndBusinessPlanId(Long mentorId, Long businessPlanId);
+
     @Query("""
-           select distinct e.mentorId
+           select distinct e.expertId
            from ExpertApplication e
            where e.businessPlanId = :businessPlanId
            """)

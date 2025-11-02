@@ -1,4 +1,4 @@
-package starlight.application.expertApplicaiton.required.dto;
+package starlight.application.expertApplication.required.dto;
 
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.expert.entity.Expert;
