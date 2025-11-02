@@ -35,7 +35,7 @@ public class ExpertApplicationServiceImpl implements ExpertApplicationService {
         BusinessPlan plan = planQuery.getOrThrow(planId);
         Expert expert = expertQuery.getOrThrow(expertId);
 
-        registerApplicationRecord(planId, expertId);
+        registerApplicationRecord(expertId, planId);
 
         sendFeedbackEmail(expert, plan, file, menteeName);
     }
