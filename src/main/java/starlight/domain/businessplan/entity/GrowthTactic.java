@@ -37,7 +37,7 @@ public class GrowthTactic extends BaseSection{
     }
 
     @Override
-    public void setSubSectionByType(SubSection subSection, SubSectionType type) {
+    protected void setSubSectionByType(SubSection subSection, SubSectionType type) {
         switch (type) {
             case GROWTH_MODEL -> this.growthModel = subSection;
             case GROWTH_FUNDING -> this.growthFunding = subSection;

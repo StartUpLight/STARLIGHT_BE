@@ -39,7 +39,7 @@ public class ProblemRecognition extends BaseSection{
     }
 
     @Override
-    public void setSubSectionByType(SubSection subSection, SubSectionType type) {
+    protected void setSubSectionByType(SubSection subSection, SubSectionType type) {
         switch (type) {
             case PROBLEM_BACKGROUND -> this.problemBackground = subSection;
             case PROBLEM_PURPOSE -> this.problemPurpose = subSection;

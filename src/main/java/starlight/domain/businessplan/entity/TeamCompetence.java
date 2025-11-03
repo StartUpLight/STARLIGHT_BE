@@ -32,7 +32,7 @@ public class TeamCompetence extends BaseSection{
     }
 
     @Override
-    public void setSubSectionByType(SubSection subSection, SubSectionType type) {
+    protected void setSubSectionByType(SubSection subSection, SubSectionType type) {
         switch (type) {
             case TEAM_FOUNDER -> this.teamFounder = subSection;
             case TEAM_MEMBERS -> this.teamMembers = subSection;
