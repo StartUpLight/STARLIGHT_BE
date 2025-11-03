@@ -16,7 +16,7 @@ import starlight.shared.apiPayload.response.ApiResponse;
 import java.util.List;
 import java.util.Set;
 
-@Tag(name = "전문가", description = "전문가 API")
+@Tag(name = "전문가", description = "전문가 관련 API")
 public interface ExpertQueryApiDoc {
 
     @Operation(

@@ -5,6 +5,7 @@ import starlight.domain.expert.enumerate.TagCategory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public record ExpertListResponse(
 
@@ -14,27 +15,34 @@ public record ExpertListResponse(
 
         String profileImageUrl,
 
+        Long workedPeriod,
+
         String email,
 
         Integer mentoringPriceWon,
 
         List<String> careers,
 
-        List<String> tags
+        List<String> tags,
+
+        List<String> categories
 ) {
     public static ExpertListResponse from(Expert expert) {
-        List<String> labels = expert.getCategories().stream()
-                .map(TagCategory::getDescription)
+        List <String> categories = expert.getCategories().stream()
+                .map(TagCategory::name)
+                .distinct()
                 .toList();
 
         return new ExpertListResponse(
                 expert.getId(),
                 expert.getName(),
                 expert.getProfileImageUrl(),
+                expert.getWorkedPeriod(),
                 expert.getEmail(),
                 expert.getMentoringPriceWon(),
                 expert.getCareers(),
-                labels
+                expert.getTags().stream().distinct().toList(),
+                categories
         );
     }
 
