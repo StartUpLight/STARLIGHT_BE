@@ -1,5 +1,6 @@
 package starlight.adapter.businessplan.webapi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -10,15 +11,12 @@ import org.springframework.web.bind.annotation.*;
 import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.businessplan.webapi.dto.BusinessPlanCreateRequest;
 import starlight.adapter.businessplan.webapi.dto.BusinessPlanResponse;
+import starlight.adapter.businessplan.webapi.dto.SubSectionRequest;
+import starlight.application.businessplan.dto.SubSectionResponse;
 import starlight.application.businessplan.provided.BusinessPlanService;
-import starlight.application.businessplan.provided.SectionCrudService;
-import starlight.application.businessplan.strategy.dto.SectionRequest;
-import starlight.application.businessplan.strategy.dto.SectionResponse;
 import starlight.domain.businessplan.entity.BusinessPlan;
-import starlight.domain.businessplan.enumerate.SectionName;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.shared.apiPayload.response.ApiResponse;
-
-import java.util.List;
 
 @Validated
 @RestController
@@ -27,43 +25,8 @@ import java.util.List;
 @Tag(name = "사업계획서", description = "사업계획서 API")
 public class BusinessPlanController {
 
-    private final SectionCrudService sectionCrudService;
     private final BusinessPlanService businessPlanService;
-
-    @Operation(summary = "사업 계획서 안 쪽의 섹션(개요, 성장 전략, 팀 역량 등)을 조회합니다.")
-    @GetMapping("/{planId}/section")
-    public ApiResponse<SectionResponse.Retrieved> getSection(
-            @PathVariable Long planId,
-            @RequestParam SectionName sectionName
-    ) {
-        return ApiResponse.success(sectionCrudService.getSection(planId, sectionName));
-    }
-
-    @Operation(summary = "사업 계획서 안 쪽의 섹션(개요, 성장 전략, 팀 역량 등)을 생성 및 수정합니다.")
-    @PostMapping("/{planId}/section")
-    public ApiResponse<SectionResponse.Created> createOrUpdateSection(
-            @PathVariable Long planId,
-            @Valid @RequestBody SectionRequest request
-    ) {
-        return ApiResponse.success(sectionCrudService.createOrUpdateSection(planId, request));
-    }
-
-    @Operation(summary = "사업 계획서 안 쪽의 섹션(개요, 성장 전략, 팀 역량 등)을 삭제합니다.")
-    @DeleteMapping("/{planId}/section")
-    public ApiResponse<SectionResponse.Deleted> deleteSection(
-            @PathVariable Long planId,
-            @RequestParam SectionName sectionName
-    ) {
-        return ApiResponse.success(sectionCrudService.deleteSection(planId, sectionName));
-    }
-
-    @Operation(summary = "사업 계획서 안 쪽의 섹션(개요, 성장 전략, 팀 역량 등)에서 체크리스트를 점검합니다.")
-    @PostMapping("/section/check")
-    public ApiResponse<List<Boolean>> deleteSection(
-            @Valid @RequestBody SectionRequest request
-    ) {
-        return ApiResponse.success(sectionCrudService.checkSection(request));
-    }
+    private final ObjectMapper objectMapper;
 
     @Operation(summary = "사업 계획서를 삭제합니다.")
     @DeleteMapping("/{planId}")
@@ -95,5 +58,53 @@ public class BusinessPlanController {
         BusinessPlan businessPlan = businessPlanService.updateBusinessPlanTitle(planId, authDetails.getMemberId(), request.title());
 
         return ApiResponse.success(BusinessPlanResponse.from(businessPlan.getId(), businessPlan.getTitle(), businessPlan.getPlanStatus()));
+    }
+
+    @Operation(summary = "서브섹션을 생성 또는 수정합니다.")
+    @PostMapping("/{planId}/subsections")
+    public ApiResponse<SubSectionResponse.Created> createOrUpdateSubSection(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @PathVariable Long planId,
+            @Valid @RequestBody SubSectionRequest request
+    ) {
+        return ApiResponse.success(businessPlanService.createOrUpdateSubSection(
+                planId, objectMapper.valueToTree(request), request.subSectionType(), authDetails.getMemberId()
+        ));
+    }
+
+    @Operation(summary = "서브섹션을 조회합니다.")
+    @GetMapping("/{planId}/subsections/{subSectionType}")
+    public ApiResponse<SubSectionResponse.Retrieved> getSubSection(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @PathVariable Long planId,
+            @PathVariable SubSectionType subSectionType
+    ) {
+        return ApiResponse.success(businessPlanService.getSubSection(
+                planId, subSectionType, authDetails.getMemberId())
+        );
+    }
+
+    @Operation(summary = "서브섹션을 삭제합니다.")
+    @DeleteMapping("/{planId}/subsections/{subSectionType}")
+    public ApiResponse<SubSectionResponse.Deleted> deleteSubSection(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @PathVariable Long planId,
+            @PathVariable SubSectionType subSectionType
+    ) {
+        return ApiResponse.success(businessPlanService.deleteSubSection(
+                planId, subSectionType, authDetails.getMemberId())
+        );
+    }
+
+    @Operation(summary = "서브섹션의 체크리스트를 점검 후 업데이트합니다.")
+    @PostMapping("/{planId}/subsections/check-and-update")
+    public ApiResponse<java.util.List<Boolean>> checkAndUpdateSubSection(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @PathVariable Long planId,
+            @Valid @RequestBody SubSectionRequest request
+    ) {
+        return ApiResponse.success(businessPlanService.checkAndUpdateSubSection(
+                planId, objectMapper.valueToTree(request), request.subSectionType(), authDetails.getMemberId()
+        ));
     }
 }

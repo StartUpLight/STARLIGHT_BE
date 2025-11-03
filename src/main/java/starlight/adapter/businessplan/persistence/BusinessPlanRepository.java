@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface BusinessPlanRepository extends JpaRepository<BusinessPlan, Long> {
 
-    @EntityGraph(attributePaths = {"feasibility", "problemRecognition", "growthTactic", "teamCompetence", "overview"})
+    @EntityGraph(attributePaths = { "feasibility", "problemRecognition", "growthTactic", "teamCompetence", "overview" })
     Optional<BusinessPlan> findById(Long id);
 }
