@@ -3,10 +3,8 @@ package starlight.domain.businessplan.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 
-@Slf4j
 @Getter
 @Entity
 @NoArgsConstructor
