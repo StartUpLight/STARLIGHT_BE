@@ -3,87 +3,46 @@ package starlight.domain.businessplan.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.Assert;
-import starlight.domain.businessplan.value.RawJson;
-
-import java.util.List;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 
 @Getter
 @Entity
 @NoArgsConstructor
-public class GrowthTactic {
+public class GrowthTactic extends BaseSection{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "growth_model_id", unique = true)
+    private SubSection growthModel;
 
-    @Embedded
-    @AttributeOverride(
-            name = "value",
-            column = @Column(name = "raw_json", columnDefinition = "TEXT", nullable = false)
-    )
-    private RawJson rawJson;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "growth_funding_id", unique = true)
+    private SubSection growthFunding;
 
-    @Column(nullable = false)
-    private boolean checkFirst;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "growth_entry_id", unique = true)
+    private SubSection growthEntry;
 
-    @Column(nullable = false)
-    private boolean checkSecond;
-
-    @Column(nullable = false)
-    private boolean checkThird;
-
-    @Column(nullable = false)
-    private boolean checkFourth;
-
-    @Column(nullable = false)
-    private boolean checkFifth;
-
-    public static GrowthTactic create(RawJson rawJson) {
-        Assert.notNull(rawJson, "rawJson must not be null");
-
-        GrowthTactic growthTactic = new GrowthTactic();
-        growthTactic.rawJson = rawJson;
-        growthTactic.initializeChecks();
-
-        return growthTactic;
+    public static GrowthTactic create() {
+        return new GrowthTactic();
     }
 
-    public static GrowthTactic create(String jsonString) {
-        Assert.notNull(jsonString, "rawJsonString은 null일 수 없습니다.");
-
-        GrowthTactic growthTactic = new GrowthTactic();
-        growthTactic.rawJson = RawJson.create(jsonString);
-
-        return growthTactic;
+    @Override
+    public SubSection getSubSectionByType(SubSectionType type) {
+        return switch (type) {
+            case GROWTH_MODEL -> this.growthModel;
+            case GROWTH_FUNDING -> this.growthFunding;
+            case GROWTH_ENTRY -> this.growthEntry;
+            default -> throw new IllegalArgumentException("Unsupported type: " + type);
+        };
     }
 
-    public void updateRawJson(String jsonString) {
-        Assert.notNull(jsonString, "rawJsonString은 null일 수 없습니다.");
-
-        this.rawJson = RawJson.create(jsonString);
-    }
-
-    public void updateChecks(List<Boolean> checks) {
-        Assert.notNull(checks, "checks 리스트는 null일 수 없습니다.");
-        Assert.isTrue(checks.size() == 5, "checks 리스트는 길이 5 여야 합니다.");
-
-        applyChecks(checks);
-    }
-
-    private void applyChecks(List<Boolean> checks) {
-        this.checkFirst = Boolean.TRUE.equals(checks.get(0));
-        this.checkSecond = Boolean.TRUE.equals(checks.get(1));
-        this.checkThird = Boolean.TRUE.equals(checks.get(2));
-        this.checkFourth = Boolean.TRUE.equals(checks.get(3));
-        this.checkFifth = Boolean.TRUE.equals(checks.get(4));
-    }
-
-    private void initializeChecks() {
-        this.checkFirst = false;
-        this.checkSecond = false;
-        this.checkThird = false;
-        this.checkFourth = false;
-        this.checkFifth = false;
+    @Override
+    protected void setSubSectionByType(SubSection subSection, SubSectionType type) {
+        switch (type) {
+            case GROWTH_MODEL -> this.growthModel = subSection;
+            case GROWTH_FUNDING -> this.growthFunding = subSection;
+            case GROWTH_ENTRY -> this.growthEntry = subSection;
+            default -> throw new IllegalArgumentException("Unsupported type: " + type);
+        }
     }
 }
