@@ -12,7 +12,7 @@ import starlight.application.businessplan.required.ChecklistGrader;
 import starlight.application.businessplan.util.PlainTextExtractUtils;
 import starlight.application.businessplan.util.SubSectionSupportUtils;
 import starlight.domain.businessplan.entity.*;
-import starlight.domain.businessplan.enumerate.SectionType;
+import starlight.shared.domain.enumerate.SectionType;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
 import starlight.domain.businessplan.exception.BusinessPlanException;

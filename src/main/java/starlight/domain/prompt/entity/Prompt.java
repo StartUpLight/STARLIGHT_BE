@@ -5,7 +5,7 @@ import jakarta.persistence.Entity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import starlight.shared.AbstractEntity;
+import starlight.shared.domain.AbstractEntity;
 
 @Entity
 @Getter

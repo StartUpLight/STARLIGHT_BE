@@ -1,4 +1,4 @@
-package starlight.domain.businessplan.enumerate;
+package starlight.shared.domain.enumerate;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

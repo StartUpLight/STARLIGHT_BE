@@ -1,4 +1,4 @@
-package starlight.shared;
+package starlight.shared.domain;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

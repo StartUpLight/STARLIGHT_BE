@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import starlight.domain.businessplan.enumerate.SubSectionType;
-import starlight.shared.BaseEntity;
+import starlight.shared.domain.BaseEntity;
 
 import java.util.Objects;
 
