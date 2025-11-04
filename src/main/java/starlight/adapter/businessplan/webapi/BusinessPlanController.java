@@ -68,7 +68,7 @@ public class BusinessPlanController {
             @Valid @RequestBody SubSectionRequest request
     ) {
         return ApiResponse.success(businessPlanService.createOrUpdateSubSection(
-                planId, objectMapper.valueToTree(request), request.subSectionType(), authDetails.getMemberId()
+                planId, objectMapper.valueToTree(request), request.checks(), request.subSectionType(), authDetails.getMemberId()
         ));
     }
 

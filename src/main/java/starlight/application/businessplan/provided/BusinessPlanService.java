@@ -15,7 +15,7 @@ public interface BusinessPlanService {
 
     BusinessPlan updateBusinessPlanTitle(Long planId, Long memberId, String title);
 
-    SubSectionResponse.Created createOrUpdateSubSection(Long planId, JsonNode jsonNode, SubSectionType subSectionType, Long memberId);
+    SubSectionResponse.Created createOrUpdateSubSection(Long planId, JsonNode jsonNode, List<Boolean> checks, SubSectionType subSectionType, Long memberId);
 
     SubSectionResponse.Retrieved getSubSection(Long planId, SubSectionType subSectionType, Long memberId);
 

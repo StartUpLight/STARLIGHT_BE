@@ -11,6 +11,7 @@ import java.util.List;
 
 public record SubSectionRequest(
         @NotNull SubSectionType subSectionType,
+        @NotNull List<Boolean> checks,
         @Valid @NotNull SubSectionRequest.Meta meta,
         @Valid @NotEmpty List<@Valid Block> blocks) {
     public record Meta(
