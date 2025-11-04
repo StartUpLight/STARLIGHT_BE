@@ -14,6 +14,7 @@ import starlight.application.businessplan.required.ChecklistGrader;
 import starlight.application.businessplan.util.PlainTextExtractUtils;
 import starlight.application.businessplan.util.SubSectionSupportUtils;
 import starlight.domain.businessplan.entity.*;
+import starlight.domain.businessplan.enumerate.PlanStatus;
 import starlight.shared.domain.enumerate.SectionType;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
@@ -74,7 +75,6 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
         String message;
 
         if (subSection == null) {
-            plan.
             SubSection newSubSection = SubSection.create(subSectionType, content, rawJsonStr, checks);
             section.putSubSection(newSubSection);
             targetSubSection = newSubSection;
@@ -83,6 +83,10 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
             subSection.update(content, rawJsonStr, checks);
             targetSubSection = subSection;
             message = "updated";
+        }
+
+        if (plan.areDrafted()) {
+            plan.updateStatus(PlanStatus.DRAFTED);
         }
 
         businessPlanQuery.save(plan);
@@ -103,7 +107,8 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
 
         return SubSectionResponse.Retrieved.create(
                 "retrieved",
-                subSection.getRawJson().asTree());
+                subSection.getRawJson().asTree()
+        );
     }
 
     @Override
@@ -124,15 +129,9 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     }
 
     @Override
-    public List<Boolean> checkAndUpdateSubSection(
-            Long planId,
-            JsonNode jsonNode,
-            SubSectionType subSectionType,
-            Long memberId
-    ) {
+    public List<Boolean> checkAndUpdateSubSection(Long planId, JsonNode jsonNode, SubSectionType subSectionType, Long memberId) {
         BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
 
-        String content = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
 
         SectionType sectionType = subSectionType.getSectionType();
         SubSection subSection = getSectionByPlanAndType(plan, sectionType).getSubSectionByType(subSectionType);
@@ -140,6 +139,7 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
             throw new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND);
         }
 
+        String content = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
         List<Boolean> checks = checklistGrader.check(subSectionType, content);
         SubSectionSupportUtils.requireSize(checks, SubSection.getCHECKLIST_SIZE());
         String rawJsonStr = getSerializedJsonNodesWithUpdatedChecks(jsonNode, checks);

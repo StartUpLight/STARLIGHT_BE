@@ -38,4 +38,6 @@ public abstract class BaseSection extends BaseEntity {
     public abstract SubSection getSubSectionByType(SubSectionType type);
 
     protected abstract void setSubSectionByType(SubSection subSection, SubSectionType type);
+
+    protected abstract boolean areAllSubSectionsCreated();
 }
