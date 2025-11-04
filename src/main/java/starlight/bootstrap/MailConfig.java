@@ -15,31 +15,32 @@ public class MailConfig {
 
     @Bean
     public JavaMailSender javaMailSender(MailProperties mailProperties) {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        JavaMailSenderImpl sender = new JavaMailSenderImpl();
+        sender.setHost(mailProperties.getHost());
+        sender.setPort(mailProperties.getPort());
+        sender.setUsername(mailProperties.getUsername());
+        sender.setPassword(mailProperties.getPassword());
+        sender.setJavaMailProperties(buildJavaMailProps(mailProperties)); // ⬅ 추출된 메서드 사용
+        return sender;
+    }
 
-        mailSender.setHost(mailProperties.getHost());
-        mailSender.setPort(mailProperties.getPort());
-        mailSender.setUsername(mailProperties.getUsername());
-        mailSender.setPassword(mailProperties.getPassword());
-
-        Properties props = mailSender.getJavaMailProperties();
+    private Properties buildJavaMailProps(MailProperties mailProperties) {
+        Properties props = new Properties();
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.starttls.required", "true");
 
-        // 타임아웃 설정 (밀리초)
+        if (mailProperties.getPort() == 465) {
+            props.put("mail.smtp.ssl.enable", "true");
+        } else {
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.starttls.required", "true");
+        }
+
         props.put("mail.smtp.connectiontimeout", "10000");
         props.put("mail.smtp.timeout", "10000");
         props.put("mail.smtp.writetimeout", "10000");
 
-        // SSL 설정 (필요한 경우)
-        if (mailProperties.getPort() == 465) {
-            props.put("mail.smtp.ssl.enable", "true");
-        }
-
         props.putAll(mailProperties.getProperties());
-
-        return mailSender;
+        return props;
     }
 }
