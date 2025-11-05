@@ -45,4 +45,9 @@ public class ProblemRecognition extends BaseSection{
             default -> throw new IllegalArgumentException("Unsupported type: " + type);
         }
     }
+
+    @Override
+    protected boolean areAllSubSectionsCreated() {
+        return this.problemBackground != null && this.problemPurpose != null && this.problemMarket != null;
+    }
 }

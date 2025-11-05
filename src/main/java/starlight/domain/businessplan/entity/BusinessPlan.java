@@ -74,6 +74,19 @@ public class BusinessPlan extends AbstractEntity {
         this.title = title;
     }
 
+    public void updateStatus(PlanStatus planStatus) {
+        this.planStatus = planStatus;
+    }
+
+    // 모든 서브 섹션 생성 시에 작성 완료로 판단
+    public boolean areDrafted() {
+        return overview.areAllSubSectionsCreated()
+                && problemRecognition.areAllSubSectionsCreated()
+                && feasibility.areAllSubSectionsCreated()
+                && growthTactic.areAllSubSectionsCreated()
+                && teamCompetence.areAllSubSectionsCreated();
+    }
+
     private void initializeSections() {
         // 공유 기본키 매핑: 자식이 부모와 같은 PK를 사용
         this.overview = Overview.create();

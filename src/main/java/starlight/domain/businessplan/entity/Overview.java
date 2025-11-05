@@ -33,5 +33,10 @@ public class Overview extends BaseSection {
             default -> throw new IllegalArgumentException("Unsupported type: " + type);
         };
     }
+
+    @Override
+    protected boolean areAllSubSectionsCreated() {
+        return this.overviewBasic != null;
+    }
 }
 

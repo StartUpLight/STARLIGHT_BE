@@ -2,6 +2,7 @@ package starlight.domain.businessplan.enumerate;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import starlight.shared.enumerate.SectionType;
 
 @Getter
 @RequiredArgsConstructor

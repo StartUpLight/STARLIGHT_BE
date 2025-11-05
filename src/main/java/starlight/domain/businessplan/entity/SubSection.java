@@ -45,26 +45,25 @@ public class SubSection extends AbstractEntity {
     @Getter
     private static final int CHECKLIST_SIZE = 5;
 
-    public static SubSection create(SubSectionType subSectionType, String content, String rawJson) {
+    public static SubSection create(
+            SubSectionType subSectionType, String content, String rawJson, List<Boolean> checks
+    ) {
         SubSection subSection = new SubSection();
         subSection.subSectionType = subSectionType;
         subSection.content = content;
         subSection.rawJson = RawJson.create(rawJson);
+        subSection.applyChecks(checks);
         return subSection;
     }
 
-    public void updateContent(String content, String rawJson) {
+    public void update(String content, String rawJson, List<Boolean> checks) {
         Assert.notNull(content, "content은 null일 수 없습니다.");
         Assert.notNull(rawJson, "rawJson은 null일 수 없습니다.");
-
-        this.content = content;
-        this.rawJson = RawJson.create(rawJson);
-    }
-
-    public void updateChecks(List<Boolean> checks) {
         Assert.notNull(checks, "checks 리스트는 null일 수 없습니다.");
         Assert.isTrue(checks.size() == CHECKLIST_SIZE, "checks 리스트는 길이 5 여야 합니다.");
 
+        this.content = content;
+        this.rawJson = RawJson.create(rawJson);
         applyChecks(checks);
     }
 

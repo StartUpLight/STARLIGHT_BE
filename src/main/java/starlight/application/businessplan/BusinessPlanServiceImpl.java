@@ -2,6 +2,8 @@ package starlight.application.businessplan;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +14,8 @@ import starlight.application.businessplan.required.ChecklistGrader;
 import starlight.application.businessplan.util.PlainTextExtractUtils;
 import starlight.application.businessplan.util.SubSectionSupportUtils;
 import starlight.domain.businessplan.entity.*;
-import starlight.domain.businessplan.enumerate.SectionType;
+import starlight.domain.businessplan.enumerate.PlanStatus;
+import starlight.shared.enumerate.SectionType;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
@@ -52,28 +55,38 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     }
 
     @Override
-    public SubSectionResponse.Created createOrUpdateSubSection(Long planId, JsonNode jsonNode, SubSectionType subSectionType, Long memberId) {
+    public SubSectionResponse.Created createOrUpdateSubSection(
+            Long planId,
+            JsonNode jsonNode,
+            List<Boolean> checks,
+            SubSectionType subSectionType,
+            Long memberId
+    ) {
         BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
 
         SectionType sectionType = subSectionType.getSectionType();
         BaseSection section = getSectionByPlanAndType(plan, sectionType);
         SubSection subSection = section.getSubSectionByType(subSectionType);
 
-        String rawJsonStr = SubSectionSupportUtils.serializeJsonNodeSafely(objectMapper, jsonNode);
+        String rawJsonStr = getSerializedJsonNodesWithUpdatedChecks(jsonNode, checks);
         String content = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
 
         SubSection targetSubSection;
         String message;
 
         if (subSection == null) {
-            SubSection newSubSection = SubSection.create(subSectionType, content, rawJsonStr);
+            SubSection newSubSection = SubSection.create(subSectionType, content, rawJsonStr, checks);
             section.putSubSection(newSubSection);
             targetSubSection = newSubSection;
             message = "created";
         } else {
-            subSection.updateContent(content, rawJsonStr);
+            subSection.update(content, rawJsonStr, checks);
             targetSubSection = subSection;
             message = "updated";
+        }
+
+        if (plan.areDrafted()) {
+            plan.updateStatus(PlanStatus.DRAFTED);
         }
 
         businessPlanQuery.save(plan);
@@ -92,17 +105,9 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
             throw new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND);
         }
 
-        List<Boolean> checks = List.of(
-                subSection.isCheckFirst(),
-                subSection.isCheckSecond(),
-                subSection.isCheckThird(),
-                subSection.isCheckFourth(),
-                subSection.isCheckFifth()
-        );
         return SubSectionResponse.Retrieved.create(
                 "retrieved",
-                subSection.getRawJson().asTree(),
-                checks
+                subSection.getRawJson().asTree()
         );
     }
 
@@ -127,8 +132,6 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     public List<Boolean> checkAndUpdateSubSection(Long planId, JsonNode jsonNode, SubSectionType subSectionType, Long memberId) {
         BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
 
-        String rawJsonStr = SubSectionSupportUtils.serializeJsonNodeSafely(objectMapper, jsonNode);
-        String content = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
 
         SectionType sectionType = subSectionType.getSectionType();
         SubSection subSection = getSectionByPlanAndType(plan, sectionType).getSubSectionByType(subSectionType);
@@ -136,14 +139,34 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
             throw new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND);
         }
 
+        String content = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
         List<Boolean> checks = checklistGrader.check(subSectionType, content);
         SubSectionSupportUtils.requireSize(checks, SubSection.getCHECKLIST_SIZE());
-        subSection.updateContent(content, rawJsonStr);
-        subSection.updateChecks(checks);
+        String rawJsonStr = getSerializedJsonNodesWithUpdatedChecks(jsonNode, checks);
+
+        subSection.update(content, rawJsonStr, checks);
 
         businessPlanQuery.save(plan);
 
         return checks;
+    }
+
+    private String getSerializedJsonNodesWithUpdatedChecks(JsonNode jsonNode, List<Boolean> checks) {
+
+        ObjectNode updatedJsonNode = (ObjectNode) objectMapper.valueToTree(jsonNode);
+
+        // 기존 checks 배열이 있으면 가져오고 업데이트
+        ArrayNode checkListArray;
+        if (updatedJsonNode.has("checks") && updatedJsonNode.get("checks").isArray()) {
+            checkListArray = (ArrayNode) updatedJsonNode.get("checks");
+            checkListArray.removeAll();
+
+            for (Boolean check : checks) {
+                checkListArray.add(check);
+            }
+        }
+
+        return SubSectionSupportUtils.serializeJsonNodeSafely(objectMapper, updatedJsonNode);
     }
 
     private BusinessPlan getOwnedBusinessPlanOrThrow(Long planId, Long memberId) {

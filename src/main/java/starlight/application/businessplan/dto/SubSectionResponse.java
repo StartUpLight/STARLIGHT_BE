@@ -19,11 +19,10 @@ public record SubSectionResponse() {
 
     public record Retrieved(
             String message,
-            JsonNode content,
-            List<Boolean> checks
+            JsonNode content
     ) {
-        public static SubSectionResponse.Retrieved create(String message, JsonNode content, List<Boolean> checks) {
-            return new SubSectionResponse.Retrieved(message, content, checks);
+        public static SubSectionResponse.Retrieved create(String message, JsonNode content) {
+            return new SubSectionResponse.Retrieved(message, content);
         }
     }
 

@@ -53,7 +53,7 @@ class BusinessPlanServiceImplIntegrationTest {
         assertThat(planId).isNotNull();
 
         // attach a subsection to overview
-        SubSection s1 = SubSection.create(SubSectionType.OVERVIEW_BASIC, "c", "{}");
+        SubSection s1 = SubSection.create(SubSectionType.OVERVIEW_BASIC, "c", "{}", List.of(false, false, false, false, false));
         created.getOverview().putSubSection(s1);
         businessPlanRepository.save(created);
         em.flush();

@@ -45,4 +45,9 @@ public class GrowthTactic extends BaseSection{
             default -> throw new IllegalArgumentException("Unsupported type: " + type);
         }
     }
+
+    @Override
+    protected boolean areAllSubSectionsCreated() {
+        return this.growthModel != null && this.growthFunding != null && this.growthEntry != null;
+    }
 }
