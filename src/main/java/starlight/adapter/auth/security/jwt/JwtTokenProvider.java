@@ -1,6 +1,7 @@
 package starlight.adapter.auth.security.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -47,8 +48,9 @@ public class JwtTokenProvider implements TokenProvider {
 
     /**
      * AccessToken을 생성하는 메서드
+     *
      * @param member
-     * @return
+     * @return String AccessToken
      */
     @Override
     public String createAccessToken(Member member) {
@@ -64,8 +66,9 @@ public class JwtTokenProvider implements TokenProvider {
 
     /**
      * RefreshToken을 생성하는 메서드
+     *
      * @param member
-     * @return
+     * @return String RefreshToken
      */
     private String createRefreshToken(Member member) {
         Claims claims = getClaims(member);
@@ -80,8 +83,9 @@ public class JwtTokenProvider implements TokenProvider {
 
     /**
      * AccessToken과 RefreshToken을 생성하는 메서드
+     *
      * @param member
-     * @return
+     * @return TokenResponse
      */
     @Override
     public TokenResponse createToken(Member member) {
@@ -93,9 +97,10 @@ public class JwtTokenProvider implements TokenProvider {
 
     /**
      * AccessToken과 RefreshToken을 재발급하는 메서드
+     *
      * @param member
      * @param refreshToken
-     * @return
+     * @return TokenResponse
      */
     @Override
     public TokenResponse recreate(Member member, String refreshToken) {
@@ -109,6 +114,7 @@ public class JwtTokenProvider implements TokenProvider {
 
     /**
      * 토큰 유효성 검사 메서드
+     *
      * @param token
      * @return boolean
      */
@@ -127,8 +133,9 @@ public class JwtTokenProvider implements TokenProvider {
 
     /**
      * Bearer Token에서 이메일을 추출하는 메서드
+     *
      * @param token
-     * @return
+     * @return String
      */
     @Override
     public String getEmail(String token) {
@@ -137,8 +144,9 @@ public class JwtTokenProvider implements TokenProvider {
 
     /**
      * AccessToken의 만료 시간을 가져오는 메서드
+     *
      * @param token
-     * @return
+     * @return Long
      */
     @Override
     public Long getExpirationTime(String token) {
@@ -147,8 +155,9 @@ public class JwtTokenProvider implements TokenProvider {
 
     /**
      * Claims 객체를 생성하는 메서드
+     *
      * @param member
-     * @return
+     * @return Claims
      */
     private Claims getClaims(Member member) {
         return Jwts.claims().setSubject(member.getEmail());
@@ -157,8 +166,9 @@ public class JwtTokenProvider implements TokenProvider {
 
     /**
      * Bearer Token에서 RefreshToken을 추출하는 메서드
+     *
      * @param request
-     * @return
+     * @return String
      */
     @Override
     public String resolveRefreshToken(HttpServletRequest request) {
@@ -171,8 +181,9 @@ public class JwtTokenProvider implements TokenProvider {
 
     /**
      * Bearer Token에서 AccessToken을 추출하는 메서드
+     *
      * @param request
-     * @return
+     * @return String
      */
     @Override
     public String resolveAccessToken(HttpServletRequest request) {
@@ -185,6 +196,7 @@ public class JwtTokenProvider implements TokenProvider {
 
     /**
      * 토큰을 무효화하는 메서드
+     *
      * @param refreshToken
      * @param accessToken
      * @throws GlobalException

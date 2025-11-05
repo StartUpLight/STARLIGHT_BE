@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import starlight.adapter.auth.webapi.dto.request.AuthRequest;
-import starlight.application.member.required.CredentialRepository;
+import starlight.adapter.member.persistence.CredentialRepository;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
 

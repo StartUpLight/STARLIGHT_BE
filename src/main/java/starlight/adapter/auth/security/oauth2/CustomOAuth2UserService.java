@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.adapter.auth.security.auth.AuthDetails;
-import starlight.application.member.required.MemberRepository;
+import starlight.adapter.member.persistence.MemberRepository;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
 

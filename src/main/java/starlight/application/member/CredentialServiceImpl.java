@@ -5,7 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import starlight.adapter.auth.webapi.dto.request.AuthRequest;
 import starlight.application.member.provided.CredentialService;
-import starlight.application.member.required.CredentialRepository;
+import starlight.adapter.member.persistence.CredentialRepository;
 import starlight.domain.auth.exception.AuthErrorType;
 import starlight.domain.auth.exception.AuthException;
 import starlight.domain.member.entity.Credential;

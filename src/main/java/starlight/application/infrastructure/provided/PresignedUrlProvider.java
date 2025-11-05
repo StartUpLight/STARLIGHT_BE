@@ -1,6 +1,6 @@
 package starlight.application.infrastructure.provided;
 
-import starlight.application.infrastructure.dto.PreSignedUrlResponse;
+import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 
 public interface PresignedUrlProvider {
 
