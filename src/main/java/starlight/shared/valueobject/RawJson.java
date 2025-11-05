@@ -1,4 +1,4 @@
-package starlight.domain.businessplan.value;
+package starlight.shared.valueobject;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
