@@ -11,4 +11,6 @@ public interface ExpertQuery {
     List<Expert> findAllWithDetails();
 
     List<Expert> findByAllCategories(Collection<TagCategory> categories);
+
+    Expert getOrThrow(Long id);
 }
