@@ -1,4 +1,4 @@
-package starlight.shared.domain;
+package starlight.shared;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

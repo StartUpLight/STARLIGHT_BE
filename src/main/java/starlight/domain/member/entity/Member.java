@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import starlight.domain.member.enumerate.MemberType;
-import starlight.shared.domain.AbstractEntity;
+import starlight.shared.AbstractEntity;
 
 @Getter
 @Entity

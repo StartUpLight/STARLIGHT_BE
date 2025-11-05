@@ -14,7 +14,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import starlight.shared.domain.AbstractEntity;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

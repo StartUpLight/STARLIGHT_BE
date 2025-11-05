@@ -14,14 +14,14 @@ import starlight.shared.AbstractEntity;
 @ToString
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Entity
-//@Table(
-//        uniqueConstraints = {
-//                @UniqueConstraint(
-//                        name = "uk_app_active_one",
-//                        columnNames = {"business_plan_id", "expert_id"}
-//                )
-//        }
-//)
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_app_active_one",
+                        columnNames = {"business_plan_id", "expert_id"}
+                )
+        }
+)
 public class ExpertApplication extends AbstractEntity {
 
     @Column(nullable = false)

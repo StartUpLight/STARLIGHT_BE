@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import starlight.domain.expert.enumerate.TagCategory;
-import starlight.shared.domain.AbstractEntity;
+import starlight.shared.AbstractEntity;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;

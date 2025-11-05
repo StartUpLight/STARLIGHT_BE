@@ -18,7 +18,7 @@ import starlight.domain.businessplan.entity.SubSection;
 import starlight.domain.businessplan.entity.BaseSection;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
-import starlight.shared.domain.enumerate.SectionType;
+import starlight.shared.enumerate.SectionType;
 
 import java.util.List;
 
