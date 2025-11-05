@@ -36,7 +36,7 @@ class BusinessPlanServiceImplIntegrationTest {
     static class TestBeans {
         @Bean
         ChecklistGrader checklistGrader() {
-            return (subSectionType, content) -> List.of(false, false, false, false, false);
+            return (subSectionType, newContent, previousContent, previousChecks) -> List.of(false, false, false, false, false);
         }
 
         @Bean
