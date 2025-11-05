@@ -353,8 +353,8 @@ class BusinessPlanServiceImplUnitTest {
         List<Boolean> checks = List.of(false, false, false, false, false);
         sut.createOrUpdateSubSection(1L, jsonNode, checks, SubSectionType.TEAM_MEMBERS, 10L);
 
-        // then - 상태가 DRAFTED로 변경되어야 함
-        verify(plan).updateStatus(starlight.domain.businessplan.enumerate.PlanStatus.DRAFTED);
+        // then - 상태가 WRITTEN_COMPLETED로 변경되어야 함
+        verify(plan).updateStatus(starlight.domain.businessplan.enumerate.PlanStatus.WRITTEN_COMPLETED);
     }
 
     @Test

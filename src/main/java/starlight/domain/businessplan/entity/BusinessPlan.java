@@ -79,7 +79,7 @@ public class BusinessPlan extends AbstractEntity {
     }
 
     // 모든 서브 섹션 생성 시에 작성 완료로 판단
-    public boolean areDrafted() {
+    public boolean areWritingCompleted() {
         return overview.areAllSubSectionsCreated()
                 && problemRecognition.areAllSubSectionsCreated()
                 && feasibility.areAllSubSectionsCreated()

@@ -85,8 +85,8 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
             message = "updated";
         }
 
-        if (plan.areDrafted()) {
-            plan.updateStatus(PlanStatus.DRAFTED);
+        if (plan.areWritingCompleted()) {
+            plan.updateStatus(PlanStatus.WRITTEN_COMPLETED);
         }
 
         businessPlanQuery.save(plan);
