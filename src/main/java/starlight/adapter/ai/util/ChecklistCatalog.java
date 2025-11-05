@@ -1,4 +1,4 @@
-package starlight.adapter.businessplan.ai.infra;
+package starlight.adapter.ai.util;
 
 import org.springframework.stereotype.Component;
 
