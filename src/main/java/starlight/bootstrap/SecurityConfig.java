@@ -70,7 +70,7 @@ public class SecurityConfig {
                         .requestMatchers("/error/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/", "/index.html", "/ops.html").permitAll()
-                        .requestMatchers("/v1/auth/**","/v1/user/**").permitAll()
+                        .requestMatchers("/v1/auth/**","/v1/user/**", "/v1/experts").permitAll()
                         .requestMatchers("/login/**", "/oauth2/**", "/login/oauth2/**", "/public/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/v1/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**").permitAll()
                         .anyRequest().authenticated())

@@ -2,9 +2,7 @@ name: Deployment Workflow
 
 on:
   push:
-    branches: [ "develop" ]
-#  pull_request:
-#    branches: [ "develop" ]
+    branches: [ "main" ]
 
 jobs:
   build-and-push:
@@ -61,11 +59,11 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
-          sed -i "s|image:.*|image: ${DOCKERHUB_USERNAME}/startuplight-be:${IMAGE_TAG}|g" manifest/staging/deployment.yml
+          sed -i "s|image:.*|image: ${DOCKERHUB_USERNAME}/startuplight-be:${IMAGE_TAG}|g" manifest/production/deployment.yml
           
           # 변경사항 확인
           echo "Updated deployment.yml:"
-          cat manifest/staging/deployment.yml
+          cat manifest/production/deployment.yml
 
       - name: Commit and push changes
         env:
@@ -74,6 +72,6 @@ jobs:
           cd manifest
           git config --local user.email "kjeng7897@gmail.com"
           git config --local user.name "SeongHo5356"
-          git add staging/deployment.yml
+          git add production/deployment.yml
           git commit -m "Update image tag to $IMAGE_TAG" || exit 0
           git push

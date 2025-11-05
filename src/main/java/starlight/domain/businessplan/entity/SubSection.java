@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.value.RawJson;
-import starlight.shared.domain.AbstractEntity;
+import starlight.shared.AbstractEntity;
 
 import java.util.List;
 

@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
 import starlight.domain.businessplan.enumerate.PlanStatus;
-import starlight.shared.domain.AbstractEntity;
+import starlight.shared.AbstractEntity;
 
 @Getter
 @Entity

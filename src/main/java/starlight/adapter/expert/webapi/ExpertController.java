@@ -18,7 +18,7 @@ import java.util.Set;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/experts")
-public class ExpertQueryController implements ExpertQueryApiDoc {
+public class ExpertController implements ExpertQueryApiDoc {
 
     private final ExpertFinder expertFinder;
 
