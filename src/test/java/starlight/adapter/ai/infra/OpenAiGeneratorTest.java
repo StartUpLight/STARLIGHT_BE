@@ -4,9 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
-import starlight.adapter.ai.infra.OpenAiGenerator;
-import starlight.adapter.ai.infra.PromptProvider;
-import starlight.adapter.ai.infra.AdvisorProvider;
 
 import java.util.List;
 
@@ -19,11 +16,13 @@ class OpenAiGeneratorTest {
     @Test
     @DisplayName("올바른 JSON 배열을 파싱해 반환")
     void generateChecklistArray_parsesJson() {
-        ChatClient chatClient = mock(ChatClient.class);
+        ChatClient chatClient = mock(ChatClient.class, RETURNS_DEEP_STUBS);
         ChatClient.Builder builder = mock(ChatClient.Builder.class);
         when(builder.build()).thenReturn(chatClient);
 
-        when(chatClient.prompt(any(Prompt.class)).call().content())
+        // RETURNS_DEEP_STUBS를 사용하여 체인이 자동으로 처리되도록 하고,
+        // 실제 content() 호출 시 값을 반환하도록 설정
+        lenient().when(chatClient.prompt(any(Prompt.class)).call().content())
                 .thenReturn("[true,false,true,false,true]");
 
         PromptProvider promptProvider = mock(PromptProvider.class);
@@ -41,11 +40,11 @@ class OpenAiGeneratorTest {
     @Test
     @DisplayName("파싱 실패 시 보수적으로 모두 false 반환")
     void generateChecklistArray_parseFail_returnsAllFalse() {
-        ChatClient chatClient = mock(ChatClient.class);
+        ChatClient chatClient = mock(ChatClient.class, RETURNS_DEEP_STUBS);
         ChatClient.Builder builder = mock(ChatClient.Builder.class);
         when(builder.build()).thenReturn(chatClient);
 
-        when(chatClient.prompt(any(Prompt.class)).call().content())
+        lenient().when(chatClient.prompt(any(Prompt.class)).call().content())
                 .thenReturn("not-json");
 
         PromptProvider promptProvider = mock(PromptProvider.class);
