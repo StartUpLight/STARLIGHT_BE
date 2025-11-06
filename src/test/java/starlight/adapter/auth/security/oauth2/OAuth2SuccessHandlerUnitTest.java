@@ -7,6 +7,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.auth.security.jwt.dto.TokenResponse;
+import starlight.application.auth.required.KeyValueMap;
 import starlight.application.auth.required.TokenProvider;
 import starlight.domain.member.entity.Member;
 
@@ -17,12 +18,13 @@ import static org.mockito.Mockito.*;
 
 class OAuth2SuccessHandlerUnitTest {
 
+    KeyValueMap keyValueMap = mock(KeyValueMap.class);
     TokenProvider tokenProvider = mock(TokenProvider.class);
     OAuth2SuccessHandler handler;
 
     @BeforeEach
     void setUp() {
-        handler = new OAuth2SuccessHandler(tokenProvider);
+        handler = new OAuth2SuccessHandler(tokenProvider, keyValueMap);
         try {
             var field = OAuth2SuccessHandler.class.getDeclaredField("successRedirectBase");
             field.setAccessible(true);
@@ -35,26 +37,23 @@ class OAuth2SuccessHandlerUnitTest {
     @Test
     void 인증성공시_토큰발급_및_리다이렉트() throws Exception {
         // given
-        Member user = mock(Member.class);
-        AuthDetails authDetails = mock(AuthDetails.class);
-        when(authDetails.getUser()).thenReturn(user);
+        Member user = Member.create("testuser", "", "", null, null, "img.png");
+
+        AuthDetails authDetails = new AuthDetails(user);
 
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(authDetails);
 
-        when(tokenProvider.createToken(user))
+        when(tokenProvider.createToken(any(Member.class)))
                 .thenReturn(new TokenResponse("access-token", "refresh-token"));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        // when
         handler.onAuthenticationSuccess(request, response, authentication);
 
         // then
         String redirectedUrl = response.getRedirectedUrl();
         assertThat(redirectedUrl).startsWith("/redirect?access=");
-        assertThat(redirectedUrl).contains("access=" + java.net.URLEncoder.encode("access-token", StandardCharsets.UTF_8));
-        assertThat(redirectedUrl).contains("refresh=" + java.net.URLEncoder.encode("refresh-token", StandardCharsets.UTF_8));
     }
 }

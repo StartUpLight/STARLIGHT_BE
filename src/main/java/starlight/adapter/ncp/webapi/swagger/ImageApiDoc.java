@@ -7,9 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 import starlight.shared.apiPayload.response.ApiResponse;
 
@@ -44,7 +46,7 @@ public interface ImageApiDoc {
     })
     @GetMapping(value = "/v1/image/upload-url", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<PreSignedUrlResponse> getPresignedUrl(
-            @io.swagger.v3.oas.annotations.Parameter(description = "UserId", required = true) @RequestParam Long userId,
+            @AuthenticationPrincipal AuthDetails authDetails,
             @io.swagger.v3.oas.annotations.Parameter(description = "파일명", required = true) @RequestParam String fileName
     );
 
