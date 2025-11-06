@@ -1,5 +1,6 @@
 package starlight.adapter.member.webapi;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +17,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "사용자", description = "사용자 관련 API")
 @RequestMapping("/v1/members")
 public class MemberController {
 
