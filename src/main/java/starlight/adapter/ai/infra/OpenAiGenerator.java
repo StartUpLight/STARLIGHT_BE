@@ -46,7 +46,6 @@ public class OpenAiGenerator implements LlmGenerator {
             return objectMapper.readValue(output, new TypeReference<List<Boolean>>() {
             });
         } catch (Exception e) {
-            log.warn("Failed to parse LLM output as boolean array. output={}", output, e);
             return List.of(false, false, false, false, false);
         }
     }
