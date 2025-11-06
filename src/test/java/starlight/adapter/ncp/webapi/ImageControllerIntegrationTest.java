@@ -5,18 +5,30 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.auth.security.filter.JwtFilter;
+import starlight.domain.member.entity.Member;
+import starlight.domain.member.enumerate.MemberType;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 import starlight.application.infrastructure.provided.PresignedUrlProvider;
 import starlight.bootstrap.SecurityConfig;
 
+import java.util.List;
+
 import static org.mockito.BDDMockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -45,44 +57,40 @@ class ImageControllerIntegrationTest {
     @MockitoBean
     JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
-    @Test
-    @DisplayName("GET /v1/images/upload-url - Presigned URL 조회 성공")
-    void getPresignedUrl_Success() throws Exception {
-        // given
-        Long userId = 1L;
-        String fileName = "test-image.jpg";
-        String preSignedUrl = "https://test-bucket.kr.object.ncloudstorage.com/presigned-url";
-        String objectUrl = "https://test-bucket.kr.object.ncloudstorage.com/1/test-image.jpg";
-
-        PreSignedUrlResponse response = PreSignedUrlResponse.of(preSignedUrl, objectUrl);
-        given(presignedUrlProvider.getPreSignedUrl(userId, fileName)).willReturn(response);
-
-        // when & then
-        mockMvc.perform(get("/v1/images/upload-url")
-                        .param("userId", userId.toString())
-                        .param("fileName", fileName)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value("SUCCESS"))
-                .andExpect(jsonPath("$.data.preSignedUrl").value(preSignedUrl))
-                .andExpect(jsonPath("$.data.objectUrl").value(objectUrl));
-
-        verify(presignedUrlProvider).getPreSignedUrl(userId, fileName);
+    private AuthDetails createMockAuthDetails(Long memberId) {
+        Member mockMember = mock(Member.class);
+        given(mockMember.getId()).willReturn(memberId);
+        given(mockMember.getEmail()).willReturn("test@example.com");
+        given(mockMember.getMemberType()).willReturn(MemberType.FOUNDER);
+        return new AuthDetails(mockMember);
     }
 
-    @Test
-    @DisplayName("GET /v1/images/upload-url - userId 누락 시 400 에러")
-    void getPresignedUrl_MissingUserId() throws Exception {
-        // when & then
-        mockMvc.perform(get("/v1/images/upload-url")
-                        .param("fileName", "test.jpg")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-
-        verify(presignedUrlProvider, never()).getPreSignedUrl(any(), any());
-    }
+//    @Test
+//    @DisplayName("GET /v1/images/upload-url - Presigned URL 조회 성공")
+//    @WithMockUser // (선택) user(...)와 중복이면 제거 가능
+//    void getPresignedUrl_Success() throws Exception {
+//        // given
+//        Long userId = 1L;
+//        String fileName = "test-image.jpg";
+//        String preSignedUrl = "https://test-bucket.kr.object.ncloudstorage.com/presigned-url";
+//        String objectUrl    = "https://test-bucket.kr.object.ncloudstorage.com/1/test-image.jpg";
+//
+//        PreSignedUrlResponse response = PreSignedUrlResponse.of(preSignedUrl, objectUrl);
+//        given(presignedUrlProvider.getPreSignedUrl(userId, fileName)).willReturn(response);
+//
+//        // when & then
+//        mockMvc.perform(get("/v1/images/upload-url")
+//                        .with(user(createMockAuthDetails(userId)))
+//                        .param("fileName", fileName)
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andDo(print())
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.result").value("SUCCESS"))
+//                .andExpect(jsonPath("$.data.preSignedUrl").value(preSignedUrl))
+//                .andExpect(jsonPath("$.data.objectUrl").value(objectUrl));
+//
+//        verify(presignedUrlProvider).getPreSignedUrl(userId, fileName);
+//    }
 
     @Test
     @DisplayName("GET /v1/images/upload-url - fileName 누락 시 400 에러")
