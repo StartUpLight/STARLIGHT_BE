@@ -80,6 +80,7 @@ public interface AuthApiDoc {
                                     name = "회원가입 요청",
                                     value = """
                                         {
+                                          "name": "박나리",
                                           "email": "starLight@gmail.com",
                                           "phoneNumber": "010-2112-9765",
                                           "password": "password123"

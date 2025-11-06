@@ -64,7 +64,7 @@ class AuthControllerSliceTest {
                                               org.springframework.web.context.request.NativeWebRequest webRequest,
                                               org.springframework.web.bind.support.WebDataBinderFactory binderFactory) {
                     AuthDetails authDetails = Mockito.mock(AuthDetails.class);
-                    Member member = Member.create("tester","tester@ex.com", null, MemberType.FOUNDER, null);
+                    Member member = Member.create("tester","tester@ex.com", null, MemberType.FOUNDER, null, "image.png");
                     when(authDetails.getUser()).thenReturn(member);
                     return authDetails;
                 }
@@ -127,7 +127,7 @@ class AuthControllerSliceTest {
 
         mvc.perform(post("/v1/auth/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"user@ex.com\",\"password\":\"pw\",\"phoneNumber\":\"010-1234-5678\"}"))
+                        .content("{\"name\":\"정성호\",\"email\":\"user@ex.com\",\"password\":\"pw\",\"phoneNumber\":\"010-1234-5678\"}"))
                 .andExpect(status().isOk());
 
         verify(authService).signUp(argThat(req ->

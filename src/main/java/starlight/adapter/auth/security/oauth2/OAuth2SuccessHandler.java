@@ -10,6 +10,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.auth.security.jwt.dto.TokenResponse;
+import starlight.application.auth.required.KeyValueMap;
 import starlight.application.auth.required.TokenProvider;
 
 import java.io.IOException;
@@ -22,9 +23,13 @@ import java.nio.charset.StandardCharsets;
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final TokenProvider tokenProvider;
+    private final KeyValueMap redisClient;
 
     @Value("${app.oauth2.success-redirect:/}")
     private String successRedirectBase;
+
+    @Value("${jwt.token.refresh-expiration-time}")
+    private Long refreshTokenExpirationTime;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest req, HttpServletResponse res, Authentication auth) throws IOException {
@@ -38,6 +43,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String redirect = successRedirectBase
                 + "?access="  + URLEncoder.encode(access, StandardCharsets.UTF_8)
                 + "&refresh=" + URLEncoder.encode(refresh, StandardCharsets.UTF_8);
+
+        redisClient.setValue(principal.member().getEmail(), tokens.refreshToken(), refreshTokenExpirationTime);
 
         res.sendRedirect(redirect);
     }
