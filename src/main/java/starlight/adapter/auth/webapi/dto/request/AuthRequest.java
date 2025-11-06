@@ -11,6 +11,10 @@ import starlight.domain.member.enumerate.MemberType;
 
 public record AuthRequest(
 
+        @NotBlank(message = "이름은 필수입니다.")
+        @Schema(description = "이름", example = "정성호")
+        String name,
+
         @NotBlank(message = "이메일은 필수입니다")
         @Email(message = "유효한 이메일 형식이어야 합니다")
         @Schema(description = "이메일", example = "starLight@gmail.com")
@@ -27,6 +31,6 @@ public record AuthRequest(
         String password
 ) {
     public Member toMember(Credential credential) {
-        return Member.create(null, email, phoneNumber, MemberType.FOUNDER, credential);
+        return Member.create(name, email, phoneNumber, MemberType.FOUNDER, credential, null);
     }
 }

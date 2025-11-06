@@ -39,7 +39,7 @@ class AuthServiceImplUnitTest {
     @Test
     void signIn_정상() {
         SignInRequest req = new SignInRequest("a@b.com", "pw");
-        Member member = Member.create("testName", "a@b.com", null, MemberType.FOUNDER, null);
+        Member member = Member.create("testName", "a@b.com", null, MemberType.FOUNDER, null, "image.png");
         TokenResponse token = new TokenResponse("AT", "RT");
         when(memberService.getUserByEmail("a@b.com")).thenReturn(member);
         when(tokenProvider.createToken(member)).thenReturn(token);
@@ -60,7 +60,7 @@ class AuthServiceImplUnitTest {
 
     @Test
     void recreate_저장된_리프레시와_불일치면_예외() {
-        Member member = Member.create("testName", "a@b.com", null, MemberType.FOUNDER, null);
+        Member member = Member.create("testName", "a@b.com", null, MemberType.FOUNDER, null, "image.png");
         when(tokenProvider.validateToken("REAL_RT")).thenReturn(true);
         when(tokenProvider.getEmail("REAL_RT")).thenReturn("a@b.com");
         when(redisClient.getValue("a@b.com")).thenReturn("OTHER_RT");

@@ -20,6 +20,8 @@ public class Member extends AbstractEntity {
     @Column(nullable = false, columnDefinition = "varchar(320)")
     private String email;
 
+    private String profileImageUrl;
+
     @Column(columnDefinition = "varchar(20)")
     private String phoneNumber;
 
@@ -37,19 +39,21 @@ public class Member extends AbstractEntity {
     @Column(length = 64)
     private String providerId;
 
-    public static Member create(String name, String email, String phoneNumber, MemberType memberType, Credential credential) {
+    public static Member create(String name, String email, String phoneNumber, MemberType memberType, Credential credential, String profileImageUrlo) {
         Member member = new Member();
         member.name = name;
         member.email = email;
         member.phoneNumber = phoneNumber;
         member.memberType = memberType != null ? memberType : MemberType.FOUNDER;
         member.credential = credential;
+        member.provider = "starlight";
+        member.providerId = profileImageUrlo;
         return member;
     }
 
     public static Member newSocial(String name, String email, String provider,
-                                   String providerId, String phoneNumber, MemberType memberType) {
-        Member member = Member.create(name, email, phoneNumber, memberType, null);
+                                   String providerId, String phoneNumber, MemberType memberType, String profileImageUrl) {
+        Member member = Member.create(name, email, phoneNumber, memberType, null, profileImageUrl);
 
         member.provider = provider;
         member.providerId = providerId;

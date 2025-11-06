@@ -50,7 +50,7 @@ class JwtTokenProviderTest {
 
     @BeforeEach
     void setUp() {
-        member = Member.create("정성호","test@example.com", "010-2112-9765", MemberType.FOUNDER, null);
+        member = Member.create("정성호","test@example.com", "010-2112-9765", MemberType.FOUNDER, null, "1234.png");
 
         byte[] secretKeyBytes = Decoders.BASE64.decode(secretKey);
         key = Keys.hmacShaKeyFor(secretKeyBytes);
