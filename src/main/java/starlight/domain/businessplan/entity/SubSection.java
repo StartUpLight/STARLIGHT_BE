@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
 import starlight.domain.businessplan.enumerate.SubSectionType;
-import starlight.domain.businessplan.value.RawJson;
+import starlight.shared.valueobject.RawJson;
 import starlight.shared.AbstractEntity;
 
 import java.util.List;
@@ -73,5 +73,9 @@ public class SubSection extends AbstractEntity {
         this.checkThird = Boolean.TRUE.equals(checks.get(2));
         this.checkFourth = Boolean.TRUE.equals(checks.get(3));
         this.checkFifth = Boolean.TRUE.equals(checks.get(4));
+    }
+
+    public List<Boolean> getChecks() {
+        return List.of(checkFirst, checkSecond, checkThird, checkFourth, checkFifth);
     }
 }

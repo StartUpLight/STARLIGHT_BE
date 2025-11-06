@@ -11,6 +11,7 @@ dependencyManagement {
 dependencies {
     implementation 'org.springframework.ai:spring-ai-starter-model-openai'
     implementation 'org.springframework.ai:spring-ai-starter-vector-store-pinecone'
+    implementation 'org.springframework.ai:spring-ai-advisors-vector-store'
 
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
