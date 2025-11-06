@@ -39,7 +39,7 @@ public class Member extends AbstractEntity {
     @Column(length = 64)
     private String providerId;
 
-    public static Member create(String name, String email, String phoneNumber, MemberType memberType, Credential credential, String profileImageUrlo) {
+    public static Member create(String name, String email, String phoneNumber, MemberType memberType, Credential credential, String profileImageUrl) {
         Member member = new Member();
         member.name = name;
         member.email = email;
@@ -47,7 +47,7 @@ public class Member extends AbstractEntity {
         member.memberType = memberType != null ? memberType : MemberType.FOUNDER;
         member.credential = credential;
         member.provider = "starlight";
-        member.providerId = profileImageUrlo;
+        member.providerId = profileImageUrl;
         return member;
     }
 
