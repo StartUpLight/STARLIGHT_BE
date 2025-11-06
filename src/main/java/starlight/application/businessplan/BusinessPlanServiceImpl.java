@@ -85,8 +85,9 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
             message = "updated";
         }
 
-        if (plan.areDrafted()) {
-            plan.updateStatus(PlanStatus.DRAFTED);
+        if (plan.areWritingCompleted()) {
+            plan.updateStatus(PlanStatus.WRITTEN_COMPLETED);
+            message = "writing completed";
         }
 
         businessPlanQuery.save(plan);
@@ -132,19 +133,25 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     public List<Boolean> checkAndUpdateSubSection(Long planId, JsonNode jsonNode, SubSectionType subSectionType, Long memberId) {
         BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
 
-
         SectionType sectionType = subSectionType.getSectionType();
         SubSection subSection = getSectionByPlanAndType(plan, sectionType).getSubSectionByType(subSectionType);
         if (subSection == null) {
             throw new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND);
         }
 
-        String content = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
-        List<Boolean> checks = checklistGrader.check(subSectionType, content);
+        String newContent = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
+
+        // 이전 정보 추출
+        String previousContent = subSection.getContent();
+        List<Boolean> previousChecks = subSection.getChecks();
+
+        // 통합된 check 메소드 사용 (이전 정보가 없으면 null 전달)
+        List<Boolean> checks = checklistGrader.check(subSectionType, newContent, previousContent, previousChecks);
+
         SubSectionSupportUtils.requireSize(checks, SubSection.getCHECKLIST_SIZE());
         String rawJsonStr = getSerializedJsonNodesWithUpdatedChecks(jsonNode, checks);
 
-        subSection.update(content, rawJsonStr, checks);
+        subSection.update(newContent, rawJsonStr, checks);
 
         businessPlanQuery.save(plan);
 
