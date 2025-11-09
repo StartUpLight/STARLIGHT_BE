@@ -11,6 +11,7 @@ import starlight.application.expert.required.ExpertQuery;
 import starlight.application.expertApplication.event.FeedbackRequestDto;
 import starlight.application.expertApplication.provided.ExpertApplicationService;
 import starlight.application.expertApplication.required.ExpertApplicationQuery;
+import starlight.application.expertReport.provided.ExpertReportService;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expertApplication.entity.ExpertApplication;
@@ -30,6 +31,7 @@ public class ExpertApplicationServiceImpl implements ExpertApplicationService {
     private final BusinessPlanQuery planQuery;
     private final ExpertApplicationQuery applicationQuery;
     private final ApplicationEventPublisher eventPublisher;
+    private final ExpertReportService expertReportService;
 
     private static final long MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
     private static final String ALLOWED_CONTENT_TYPE = "application/pdf";
@@ -114,7 +116,6 @@ public class ExpertApplicationServiceImpl implements ExpertApplicationService {
     }
 
     private String buildFeedbackRequestUrl(Long expertId, Long planId) {
-        //TODO: 해쉬값 기반으로 변경
-        return "https://www.starlight.com/feedback?expertId=" + expertId + "&planId=" + planId;
+        return expertReportService.createExpertReportLink(expertId, planId);
     }
 }
