@@ -1,6 +1,7 @@
 package starlight.application.expertReport;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.application.expertReport.provided.ExpertReportService;
@@ -8,7 +9,6 @@ import starlight.application.expertReport.required.ExpertReportQuery;
 import starlight.domain.expertReport.entity.ExpertReport;
 import starlight.domain.expertReport.entity.ExpertReportDetail;
 import starlight.domain.expertReport.enumerate.SaveType;
-import starlight.domain.expertReport.enumerate.SubmitStatus;
 
 import java.security.SecureRandom;
 import java.util.List;
@@ -18,13 +18,19 @@ import java.util.List;
 @Transactional
 public class ExpertReportServiceImpl implements ExpertReportService {
 
-    private static final String BASE62_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    private static final int TOKEN_LENGTH = 15;
+    @Value("${feedback-token.token-length}")
+    private int TOKEN_LENGTH;
+
+    @Value("${feedback-token.charset}")
+    private String BASE62_CHARS;
+
+    @Value("${feedback-token.base-url}")
+    private String FEEDBACK_BASE_URL;
 
     private final ExpertReportQuery expertReportQuery;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    @Transactional(readOnly = true)
+    @Override
     public ExpertReport getExpertReport(String token) {
         ExpertReport report = expertReportQuery.findByTokenWithDetails(token);
 
@@ -33,18 +39,21 @@ public class ExpertReportServiceImpl implements ExpertReportService {
         return report;
     }
 
+    @Override
     public String createExpertReportLink(
-            Long expertId, Long businessPlanId
+            Long expertId,
+            Long businessPlanId
     ) {
         String token = generateToken();
 
         ExpertReport report = ExpertReport.create(expertId, businessPlanId, token);
         expertReportQuery.save(report);
 
-        return "https://starlight-official.co.kr/expert-report/" + token;
+        return FEEDBACK_BASE_URL + token;
     }
 
-    public void saveReport(
+    @Override
+    public ExpertReport saveReport(
             String token,
             String overallComment,
             List<ExpertReportDetail> details,
@@ -60,7 +69,7 @@ public class ExpertReportServiceImpl implements ExpertReportService {
             case FINAL -> report.submit();
         }
 
-        expertReportQuery.save(report);
+        return expertReportQuery.save(report);
     }
 
     private String generateToken() {

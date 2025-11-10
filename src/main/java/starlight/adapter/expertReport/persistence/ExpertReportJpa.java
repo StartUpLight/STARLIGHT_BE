@@ -28,7 +28,7 @@ public class ExpertReportJpa implements ExpertReportQuery {
     @Override
     public ExpertReport getOrThrow(Long id) {
         return repository.findById(id).orElseThrow(
-                () -> new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND)
+                () -> new ExpertReportException(ExpertReportErrorType.EXPERT_REPORT_NOT_FOUND)
         );
     }
 

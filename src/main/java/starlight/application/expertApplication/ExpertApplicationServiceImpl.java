@@ -2,6 +2,7 @@ package starlight.application.expertApplication;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +36,9 @@ public class ExpertApplicationServiceImpl implements ExpertApplicationService {
 
     private static final long MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
     private static final String ALLOWED_CONTENT_TYPE = "application/pdf";
-    private static final Long FEEDBACK_DEADLINE_DAYS = 7L;
+
+    @Value("${feedback-token.expiration-date}")
+    private Long FEEDBACK_DEADLINE_DAYS = 7L;
 
     @Override
     @Transactional

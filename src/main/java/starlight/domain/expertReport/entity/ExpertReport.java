@@ -86,18 +86,6 @@ public class ExpertReport extends AbstractEntity {
         }
     }
 
-    public boolean canEdit() {
-        syncStatus();
-        return (submitStatus == SubmitStatus.PENDING ||
-                submitStatus == SubmitStatus.TEMPORARY_SAVED);
-    }
-
-    public boolean isReadOnly() {
-        syncStatus();
-        return submitStatus == SubmitStatus.SUBMITTED ||
-                submitStatus == SubmitStatus.EXPIRED;
-    }
-
     public void validateCanEdit() {
         syncStatus();
 
@@ -115,10 +103,6 @@ public class ExpertReport extends AbstractEntity {
         this.overallComment = overallComment;
     }
 
-    public void addDetail(ExpertReportDetail detail) {
-        this.details.add(detail);
-    }
-
     public void updateDetails(List<ExpertReportDetail> newDetails) {
         validateCanEdit();
         this.details.clear();
@@ -127,5 +111,11 @@ public class ExpertReport extends AbstractEntity {
 
     public void incrementViewCount() {
         this.viewCount++;
+    }
+
+    public boolean canEdit() {
+        syncStatus();
+        return submitStatus == SubmitStatus.PENDING ||
+                submitStatus == SubmitStatus.TEMPORARY_SAVED;
     }
 }

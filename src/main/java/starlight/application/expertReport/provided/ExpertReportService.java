@@ -12,5 +12,5 @@ public interface ExpertReportService{
 
     ExpertReport getExpertReport(String token);
 
-    void saveReport(String token, String overallComment, List<ExpertReportDetail> detail, SaveType saveType);
+    ExpertReport saveReport(String token, String overallComment, List<ExpertReportDetail> details, SaveType saveType);
 }
