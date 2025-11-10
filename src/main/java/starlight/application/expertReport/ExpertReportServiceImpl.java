@@ -72,10 +72,9 @@ public class ExpertReportServiceImpl implements ExpertReportService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public ExpertReportWithExpertDto getExpertReportWithExpert(String token) {
         ExpertReport report = expertReportQuery.findByTokenWithDetails(token);
-        incrementViewCountAsync(report.getId());
+        report.incrementViewCount();
 
         Expert expert = expertFinder.findExpert(report.getExpertId());
 
@@ -99,13 +98,6 @@ public class ExpertReportServiceImpl implements ExpertReportService {
                     return ExpertReportWithExpertDto.of(report, expert);
                 })
                 .toList();
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    protected void incrementViewCountAsync(Long reportId) {
-            ExpertReport report = expertReportQuery.getOrThrow(reportId);
-            report.incrementViewCount();
-            expertReportQuery.save(report);
     }
 
     private String generateToken() {
