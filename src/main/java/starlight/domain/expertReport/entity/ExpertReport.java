@@ -14,6 +14,14 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_app_active_one",
+                        columnNames = {"business_plan_id", "expert_id"}
+                )
+        }
+)
 public class ExpertReport extends AbstractEntity {
 
     @Column(nullable = false)
