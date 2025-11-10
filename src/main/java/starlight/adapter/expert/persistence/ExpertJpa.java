@@ -1,11 +1,9 @@
 package starlight.adapter.expert.persistence;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import starlight.application.expert.required.ExpertQuery;
-import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expert.enumerate.TagCategory;
 import starlight.domain.expert.exception.ExpertErrorType;
@@ -14,6 +12,7 @@ import starlight.domain.expert.exception.ExpertException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -52,7 +51,7 @@ public class ExpertJpa implements ExpertQuery {
     }
 
     @Override
-    public Map<Long, Expert> findByIds(List<Long> expertIds) {
+    public Map<Long, Expert> findByIds(Set<Long> expertIds) {
 
         List<Expert> experts = repository.findAllById(expertIds);
 

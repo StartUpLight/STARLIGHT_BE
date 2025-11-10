@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import starlight.domain.expertReport.enumerate.SubmitStatus;
+import starlight.domain.expertReport.exception.ExpertReportErrorType;
+import starlight.domain.expertReport.exception.ExpertReportException;
 import starlight.shared.AbstractEntity;
 
 import java.time.LocalDateTime;
@@ -98,11 +100,11 @@ public class ExpertReport extends AbstractEntity {
         syncStatus();
 
         if (submitStatus == SubmitStatus.SUBMITTED) {
-            throw new IllegalStateException("이미 제출된 리포트는 수정할 수 없습니다.");
+            throw new ExpertReportException(ExpertReportErrorType.ALREADY_SUBMITTED);
         }
 
         if (submitStatus == SubmitStatus.EXPIRED) {
-            throw new IllegalStateException("만료된 리포트는 수정할 수 없습니다.");
+            throw new ExpertReportException(ExpertReportErrorType.REPORT_EXPIRED);
         }
     }
 

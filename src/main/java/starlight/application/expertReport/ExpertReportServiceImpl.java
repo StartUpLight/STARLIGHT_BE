@@ -3,6 +3,7 @@ package starlight.application.expertReport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.application.expert.provided.ExpertFinder;
 import starlight.application.expertReport.provided.ExpertReportService;
@@ -16,6 +17,8 @@ import starlight.domain.expertReport.enumerate.SaveType;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,13 +26,13 @@ import java.util.Map;
 public class ExpertReportServiceImpl implements ExpertReportService {
 
     @Value("${feedback-token.token-length}")
-    private int TOKEN_LENGTH;
+    private int tokenLength;
 
     @Value("${feedback-token.charset}")
-    private String BASE62_CHARS;
+    private String base62Chars;
 
     @Value("${feedback-token.base-url}")
-    private String FEEDBACK_BASE_URL;
+    private String feedbackBaseUrl;
 
     private final ExpertReportQuery expertReportQuery;
     private final ExpertFinder expertFinder;
@@ -45,7 +48,7 @@ public class ExpertReportServiceImpl implements ExpertReportService {
         ExpertReport report = ExpertReport.create(expertId, businessPlanId, token);
         expertReportQuery.save(report);
 
-        return FEEDBACK_BASE_URL + token;
+        return feedbackBaseUrl + token;
     }
 
     @Override
@@ -72,7 +75,7 @@ public class ExpertReportServiceImpl implements ExpertReportService {
     @Transactional(readOnly = true)
     public ExpertReportWithExpertDto getExpertReportWithExpert(String token) {
         ExpertReport report = expertReportQuery.findByTokenWithDetails(token);
-        report.incrementViewCount();
+        incrementViewCountAsync(report.getId());
 
         Expert expert = expertFinder.findExpert(report.getExpertId());
 
@@ -84,10 +87,9 @@ public class ExpertReportServiceImpl implements ExpertReportService {
     public List<ExpertReportWithExpertDto> getExpertReportsWithExpertByBusinessPlanId(Long businessPlanId) {
         List<ExpertReport> reports = expertReportQuery.findAllByBusinessPlanId(businessPlanId);
 
-        List<Long> expertIds = reports.stream()
+        Set<Long> expertIds = reports.stream()
                 .map(ExpertReport::getExpertId)
-                .distinct()
-                .toList();
+                .collect(Collectors.toSet());
 
         Map<Long, Expert> expertsMap = expertFinder.findByIds(expertIds);
 
@@ -99,14 +101,21 @@ public class ExpertReportServiceImpl implements ExpertReportService {
                 .toList();
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    protected void incrementViewCountAsync(Long reportId) {
+            ExpertReport report = expertReportQuery.getOrThrow(reportId);
+            report.incrementViewCount();
+            expertReportQuery.save(report);
+    }
+
     private String generateToken() {
-        StringBuilder token = new StringBuilder(TOKEN_LENGTH);
+        StringBuilder token = new StringBuilder(tokenLength);
 
         do {
             token.setLength(0);
-            for (int i = 0; i < TOKEN_LENGTH; i++) {
-                token.append(BASE62_CHARS.charAt(
-                        secureRandom.nextInt(BASE62_CHARS.length())
+            for (int i = 0; i < tokenLength; i++) {
+                token.append(base62Chars.charAt(
+                        secureRandom.nextInt(base62Chars.length())
                 ));
             }
         } while (expertReportQuery.existsByToken(token.toString()));
