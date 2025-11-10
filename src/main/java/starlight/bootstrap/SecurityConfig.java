@@ -35,10 +35,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${cors.origin.staging}") String stagServerBaseUrl;
-    @Value("${cors.origin.production}") String prodServerBaseUrl;
-    @Value("${cors.origin.development}") String clientDevBaseUrl;
-    @Value("${cors.origin.publishing}") String clientPublishBaseUrl;
+    @Value("${cors.origin.server}") String ServerBaseUrl;
+    @Value("${cors.origin.client}") String clientBaseUrl;
 
     private final JwtFilter jwtFilter;
     private final ExceptionFilter exceptionFilter;
@@ -92,10 +90,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of(
-                clientPublishBaseUrl,
-                stagServerBaseUrl,
-                prodServerBaseUrl,
-                clientDevBaseUrl
+                clientBaseUrl,
+                ServerBaseUrl
         ));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
