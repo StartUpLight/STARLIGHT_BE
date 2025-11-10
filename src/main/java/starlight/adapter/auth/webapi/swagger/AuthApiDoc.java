@@ -18,7 +18,7 @@ import starlight.adapter.auth.webapi.dto.request.SignInRequest;
 import starlight.adapter.auth.webapi.dto.response.MemberResponse;
 import starlight.shared.apiPayload.response.ApiResponse;
 
-@Tag(name = "Auth API", description = "인증 관련 API")
+@Tag(name = "사용자", description = "사용자 관련 API")
 public interface AuthApiDoc {
 
     @Operation(
