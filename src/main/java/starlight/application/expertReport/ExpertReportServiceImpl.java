@@ -4,14 +4,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import starlight.application.expert.provided.ExpertFinder;
 import starlight.application.expertReport.provided.ExpertReportService;
+import starlight.application.expertReport.provided.dto.ExpertReportWithExpertDto;
 import starlight.application.expertReport.required.ExpertReportQuery;
+import starlight.domain.expert.entity.Expert;
 import starlight.domain.expertReport.entity.ExpertReport;
 import starlight.domain.expertReport.entity.ExpertReportDetail;
 import starlight.domain.expertReport.enumerate.SaveType;
 
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,16 +32,8 @@ public class ExpertReportServiceImpl implements ExpertReportService {
     private String FEEDBACK_BASE_URL;
 
     private final ExpertReportQuery expertReportQuery;
+    private final ExpertFinder expertFinder;
     private final SecureRandom secureRandom = new SecureRandom();
-
-    @Override
-    public ExpertReport getExpertReport(String token) {
-        ExpertReport report = expertReportQuery.findByTokenWithDetails(token);
-
-        report.incrementViewCount();
-
-        return report;
-    }
 
     @Override
     public String createExpertReportLink(
@@ -70,6 +66,37 @@ public class ExpertReportServiceImpl implements ExpertReportService {
         }
 
         return expertReportQuery.save(report);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ExpertReportWithExpertDto getExpertReportWithExpert(String token) {
+        ExpertReport report = expertReportQuery.findByTokenWithDetails(token);
+        report.incrementViewCount();
+
+        Expert expert = expertFinder.findExpert(report.getExpertId());
+
+        return ExpertReportWithExpertDto.of(report, expert);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExpertReportWithExpertDto> getExpertReportsWithExpertByBusinessPlanId(Long businessPlanId) {
+        List<ExpertReport> reports = expertReportQuery.findAllByBusinessPlanId(businessPlanId);
+
+        List<Long> expertIds = reports.stream()
+                .map(ExpertReport::getExpertId)
+                .distinct()
+                .toList();
+
+        Map<Long, Expert> expertsMap = expertFinder.findByIds(expertIds);
+
+        return reports.stream()
+                .map(report -> {
+                    Expert expert = expertsMap.get(report.getExpertId());
+                    return ExpertReportWithExpertDto.of(report, expert);
+                })
+                .toList();
     }
 
     private String generateToken() {

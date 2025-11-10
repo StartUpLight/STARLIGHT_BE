@@ -2,7 +2,7 @@ package starlight.application.expertReport.required;
 
 import starlight.domain.expertReport.entity.ExpertReport;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface ExpertReportQuery {
 
@@ -15,4 +15,6 @@ public interface ExpertReportQuery {
     boolean existsByToken(String token);
 
     ExpertReport findByTokenWithDetails(String token);
+
+    List<ExpertReport> findAllByBusinessPlanId(Long businessPlanId);
 }

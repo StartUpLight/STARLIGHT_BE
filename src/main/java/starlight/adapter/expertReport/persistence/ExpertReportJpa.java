@@ -53,4 +53,9 @@ public class ExpertReportJpa implements ExpertReportQuery {
                 () -> new ExpertReportException(ExpertReportErrorType.EXPERT_REPORT_NOT_FOUND)
         );
     }
+
+    @Override
+    public List<ExpertReport> findAllByBusinessPlanId(Long businessPlanId) {
+        return repository.findAllByBusinessPlanIdOrderByCreatedAtDesc(businessPlanId);
+    }
 }

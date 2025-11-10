@@ -5,8 +5,11 @@ import starlight.domain.expert.enumerate.TagCategory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface ExpertQuery {
+
+    Map<Long, Expert> findByIds(List<Long> expertIds);
 
     List<Expert> findAllWithDetails();
 

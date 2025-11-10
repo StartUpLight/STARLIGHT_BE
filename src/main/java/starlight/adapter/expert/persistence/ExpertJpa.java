@@ -13,6 +13,9 @@ import starlight.domain.expert.exception.ExpertException;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -46,5 +49,14 @@ public class ExpertJpa implements ExpertQuery {
             log.error("전문가 목록 필터링 중 오류가 발생했습니다.", e);
             throw new ExpertException(ExpertErrorType.EXPERT_QUERY_ERROR);
         }
+    }
+
+    @Override
+    public Map<Long, Expert> findByIds(List<Long> expertIds) {
+
+        List<Expert> experts = repository.findAllById(expertIds);
+
+        return experts.stream()
+                .collect(Collectors.toMap(Expert::getId, Function.identity()));
     }
 }

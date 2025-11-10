@@ -9,6 +9,7 @@ import starlight.adapter.expertReport.webapi.dto.ExpertReportResponse;
 import starlight.adapter.expertReport.webapi.dto.SaveExpertReportRequest;
 import starlight.adapter.expertReport.webapi.mapper.ExpertReportMapper;
 import starlight.application.expertReport.provided.ExpertReportService;
+import starlight.application.expertReport.provided.dto.ExpertReportWithExpertDto;
 import starlight.domain.expertReport.entity.ExpertReport;
 import starlight.domain.expertReport.entity.ExpertReportDetail;
 import starlight.shared.apiPayload.response.ApiResponse;
@@ -24,14 +25,37 @@ public class ExpertReportController {
     private final ExpertReportMapper mapper;
     private final ExpertReportService expertReportService;
 
+    @Operation(summary = "전문가 리포트 목록을 조회합니다.")
+    @GetMapping
+    public ApiResponse<List<ExpertReportResponse>> getExpertReports(
+            @RequestParam Long businessPlanId
+    ) {
+        List<ExpertReportWithExpertDto> dtos = expertReportService
+                .getExpertReportsWithExpertByBusinessPlanId(businessPlanId);
+
+        List<ExpertReportResponse> responses = dtos.stream()
+                .map(dto -> ExpertReportResponse.of(
+                        dto.report(),
+                        dto.expert().getName()
+                ))
+                .toList();
+
+        return ApiResponse.success(responses);
+    }
+
     @Operation(summary = "전문가 리포트를 조회합니다.")
     @GetMapping("/{token}")
     public ApiResponse<ExpertReportResponse> getExpertReport(
             @PathVariable String token
     ) {
-        ExpertReport report = expertReportService.getExpertReport(token);
+        ExpertReportWithExpertDto dto = expertReportService.getExpertReportWithExpert(token);
 
-        return ApiResponse.success(ExpertReportResponse.from(report));
+        ExpertReportResponse response = ExpertReportResponse.of(
+                dto.report(),
+                dto.expert().getName()
+        );
+
+        return ApiResponse.success(response);
     }
 
     @Operation(summary = "전문가 리포트를 저장합니다.")

@@ -10,6 +10,7 @@ import starlight.domain.expert.enumerate.TagCategory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,11 @@ public class ExpertQueryService implements ExpertFinder {
     private final ExpertQuery expertQuery;
 
     @Override
+    public Expert findExpert(Long id) {
+        return expertQuery.getOrThrow(id);
+    }
+
+    @Override
     public List<Expert> loadAll() {
         return expertQuery.findAllWithDetails();
     }
@@ -26,5 +32,10 @@ public class ExpertQueryService implements ExpertFinder {
     @Override
     public List<Expert> findByAllCategories(Collection<TagCategory> categories) {
         return expertQuery.findByAllCategories(categories);
+    }
+
+    @Override
+    public Map<Long, Expert> findByIds(List<Long> expertIds) {
+        return expertQuery.findByIds(expertIds);
     }
 }
