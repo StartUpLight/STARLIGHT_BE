@@ -1,18 +1,16 @@
 package starlight.adapter.member.webapi;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.member.webapi.dto.MemberDetailResponse;
 import starlight.shared.apiPayload.response.ApiResponse;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -22,6 +20,7 @@ import java.util.List;
 public class MemberController {
 
     @GetMapping
+    @Operation(summary = "멤버 정보를 조회합니다.")
     public ApiResponse<MemberDetailResponse> getMemberDetail(
             @AuthenticationPrincipal AuthDetails authDetails
     ) {

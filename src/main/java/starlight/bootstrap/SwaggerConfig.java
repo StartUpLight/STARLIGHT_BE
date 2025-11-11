@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,8 +17,7 @@ import java.util.Collections;
         info = @Info(title = "StarLight 명세서", description = "StarLight API 명세서", version = "v1"
         ),
         servers = {
-                @Server(url = "${openapi.server.local}", description = "로컬 서버 URL"),
-                @Server(url = "${openapi.server.url}", description = "배포 서버 URL")
+                @Server(url = "${cors.origin.server}",description = "서버 URL")
         }
 )
 

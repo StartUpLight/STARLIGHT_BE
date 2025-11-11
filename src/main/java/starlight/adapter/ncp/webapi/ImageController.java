@@ -26,7 +26,7 @@ public class ImageController implements ImageApiDoc {
     }
 
     @PostMapping("/upload-url/public")
-    public ApiResponse<?> finalizePublic(@RequestParam String objectUrl) {
+    public ApiResponse<String> finalizePublic(@RequestParam String objectUrl) {
         return ApiResponse.success(presignedUrlReader.makePublic(objectUrl));
     }
 }
