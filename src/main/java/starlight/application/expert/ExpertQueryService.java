@@ -21,7 +21,7 @@ public class ExpertQueryService implements ExpertFinder {
     private final ExpertQuery expertQuery;
 
     @Override
-    public Expert findExpert(Long id) {
+    public Expert findById(Long id) {
         return expertQuery.getOrThrow(id);
     }
 
@@ -37,6 +37,6 @@ public class ExpertQueryService implements ExpertFinder {
 
     @Override
     public Map<Long, Expert> findByIds(Set<Long> expertIds) {
-        return expertQuery.findByIds(expertIds);
+        return expertQuery.findExpertMapByIds(expertIds);
     }
 }

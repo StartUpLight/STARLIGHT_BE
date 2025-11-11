@@ -10,7 +10,7 @@ import java.util.Set;
 
 public interface ExpertQuery {
 
-    Map<Long, Expert> findByIds(Set<Long> expertIds);
+    Map<Long, Expert> findExpertMapByIds(Set<Long> expertIds);
 
     List<Expert> findAllWithDetails();
 

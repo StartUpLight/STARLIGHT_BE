@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ExpertFinder {
-    Expert findExpert(Long id);
+    Expert findById(Long id);
 
     List<Expert> loadAll();
 

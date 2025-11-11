@@ -51,7 +51,7 @@ public class ExpertJpa implements ExpertQuery {
     }
 
     @Override
-    public Map<Long, Expert> findByIds(Set<Long> expertIds) {
+    public Map<Long, Expert> findExpertMapByIds(Set<Long> expertIds) {
 
         List<Expert> experts = repository.findAllById(expertIds);
 

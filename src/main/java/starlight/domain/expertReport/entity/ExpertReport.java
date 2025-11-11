@@ -19,7 +19,7 @@ import java.util.List;
 @Table(
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_app_active_one",
+                        name = "uk_expert_report_business_plan_expert",
                         columnNames = {"business_plan_id", "expert_id"}
                 )
         }

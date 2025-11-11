@@ -76,7 +76,7 @@ public class ExpertReportServiceImpl implements ExpertReportService {
         ExpertReport report = expertReportQuery.findByTokenWithDetails(token);
         report.incrementViewCount();
 
-        Expert expert = expertFinder.findExpert(report.getExpertId());
+        Expert expert = expertFinder.findById(report.getExpertId());
 
         return ExpertReportWithExpertDto.of(report, expert);
     }
