@@ -158,6 +158,12 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
         return checks;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<BusinessPlan> getBusinessPlanList(Long memberId) {
+        return businessPlanQuery.findAllByMemberIdOrderByModifiedAtDesc(memberId);
+    }
+
     private String getSerializedJsonNodesWithUpdatedChecks(JsonNode jsonNode, List<Boolean> checks) {
 
         ObjectNode updatedJsonNode = (ObjectNode) objectMapper.valueToTree(jsonNode);
