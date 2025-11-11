@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.Assert;
 import starlight.domain.expertReport.enumerate.SubmitStatus;
 import starlight.domain.expertReport.exception.ExpertReportErrorType;
 import starlight.domain.expertReport.exception.ExpertReportException;
@@ -39,7 +40,7 @@ public class ExpertReport extends AbstractEntity {
     private String token;
 
     @Column
-    private Long viewCount = 0L;
+    private int viewCount = 0;
 
     @Column(columnDefinition = "TEXT")
     private String overallComment;
@@ -66,6 +67,10 @@ public class ExpertReport extends AbstractEntity {
         // expiredAt가 현재 시간보다 이전이면 EXPIRED 상태로 변경
 
     public static ExpertReport create(Long expertId, Long businessPlanId, String token) {
+        Assert.notNull(expertId, "expertId는 필수입니다");
+        Assert.notNull(businessPlanId, "businessPlanId는 필수입니다");
+        Assert.hasText(token, "token은 필수입니다");
+
         ExpertReport expertReport = new ExpertReport();
         expertReport.expertId = expertId;
         expertReport.businessPlanId = businessPlanId;
@@ -75,6 +80,8 @@ public class ExpertReport extends AbstractEntity {
     }
 
     public boolean isExpired() {
+        Assert.notNull(expiredAt, "expiredAt이 설정되지 않았습니다");
+
         return LocalDateTime.now().isAfter(expiredAt);
     }
 
@@ -114,12 +121,16 @@ public class ExpertReport extends AbstractEntity {
     }
 
     public void updateDetails(List<ExpertReportDetail> newDetails) {
+        Assert.notNull(newDetails, "details는 null일 수 없습니다");
+
         validateCanEdit();
         this.details.clear();
         this.details.addAll(newDetails);
     }
 
     public void incrementViewCount() {
+        Assert.notNull(this.viewCount, "viewCount가 초기화되지 않았습니다");
+
         this.viewCount++;
     }
 
