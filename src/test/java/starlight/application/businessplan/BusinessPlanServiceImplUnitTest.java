@@ -260,6 +260,40 @@ class BusinessPlanServiceImplUnitTest {
     }
 
     @Test
+    @DisplayName("사업계획서 전체 서브섹션을 조회하면 존재하는 서브섹션만 반환한다")
+    void getBusinessPlanSubSections_returnsExistingSubSections() {
+        BusinessPlan plan = buildPlanWithSections(10L);
+
+        SubSection overview = SubSection.create(SubSectionType.OVERVIEW_BASIC, "overview", "{\"text\":\"overview\"}", List.of(false, false, false, false, false));
+        plan.getOverview().putSubSection(overview);
+
+        SubSection problem = SubSection.create(SubSectionType.PROBLEM_BACKGROUND, "problem", "{\"text\":\"problem\"}", List.of(false, false, false, false, false));
+        plan.getProblemRecognition().putSubSection(problem);
+
+        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+
+        List<SubSectionResponse.Snapshot> result = sut.getBusinessPlanSubSections(1L, 10L);
+
+        assertThat(result).hasSize(2);
+        assertThat(result)
+                .extracting(SubSectionResponse.Snapshot::subSectionType)
+                .containsExactly(SubSectionType.OVERVIEW_BASIC, SubSectionType.PROBLEM_BACKGROUND);
+        assertThat(result.get(0).content().path("text").asText()).isEqualTo("overview");
+        assertThat(result.get(1).content().path("text").asText()).isEqualTo("problem");
+    }
+
+    @Test
+    @DisplayName("사업계획서 전체 서브섹션 조회: 소유자 아님이면 예외")
+    void getBusinessPlanSubSections_unauthorized_throws() {
+        BusinessPlan plan = mock(BusinessPlan.class);
+        when(plan.isOwnedBy(10L)).thenReturn(false);
+        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+
+        org.junit.jupiter.api.Assertions.assertThrows(BusinessPlanException.class,
+                () -> sut.getBusinessPlanSubSections(1L, 10L));
+    }
+
+    @Test
     @DisplayName("서브섹션 체크: 체크리스트가 저장된다")
     void checkAndUpdateSubSection_savesChecks() {
         BusinessPlan plan = buildPlanWithSections(10L);
@@ -418,8 +452,8 @@ class BusinessPlanServiceImplUnitTest {
     }
 
     @Test
-    @DisplayName("서브섹션 삭제: 상태 변경 없이 삭제된다")
-    void deleteSubSection_notAllSubSectionsCreated_noStatusChange() {
+    @DisplayName("서브섹션 삭제: 삭제 시 상태 변경이 발생하지 않는다")
+    void deleteSubSection_noStatusChange() {
         // given
         BusinessPlan plan = spy(buildPlanWithSections(10L));
         doReturn(true).when(plan).isOwnedBy(10L);

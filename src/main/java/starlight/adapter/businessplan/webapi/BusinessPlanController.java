@@ -12,6 +12,7 @@ import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.businessplan.webapi.dto.BusinessPlanCreateRequest;
 import starlight.adapter.businessplan.webapi.dto.BusinessPlanListResponse;
 import starlight.adapter.businessplan.webapi.dto.BusinessPlanResponse;
+import starlight.adapter.businessplan.webapi.dto.BusinessPlanSubSectionResponse;
 import starlight.adapter.businessplan.webapi.dto.SubSectionRequest;
 import starlight.application.businessplan.dto.SubSectionResponse;
 import starlight.application.businessplan.provided.BusinessPlanService;
@@ -38,6 +39,17 @@ public class BusinessPlanController {
     ) {
         List<BusinessPlan> businessPlans = businessPlanService.getBusinessPlanList(authDetails.getMemberId());
         return ApiResponse.success(BusinessPlanListResponse.fromAll(businessPlans));
+    }
+
+    @GetMapping("/{planId}/subsections")
+    @Operation(summary = "사업 계획서의 모든 서브섹션을 조회합니다.")
+    public ApiResponse<List<BusinessPlanSubSectionResponse>> getBusinessPlanSubSections(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @PathVariable Long planId
+    ) {
+        return ApiResponse.success(BusinessPlanSubSectionResponse.fromAll(
+                businessPlanService.getBusinessPlanSubSections(planId, authDetails.getMemberId())
+        ));
     }
 
     @Operation(summary = "사업 계획서를 삭제합니다.")
