@@ -33,7 +33,7 @@ public class BusinessPlanController {
     private final ObjectMapper objectMapper;
 
     @GetMapping
-    @Operation(summary = "사업 계획서 목록을 조회합니다.")
+    @Operation(summary = "사업 계획서 목록을 조회합니다. (마이페이지 용)")
     public ApiResponse<List<BusinessPlanListResponse>> getBusinessPlanList(
             @AuthenticationPrincipal AuthDetails authDetails
     ) {
@@ -42,7 +42,7 @@ public class BusinessPlanController {
     }
 
     @GetMapping("/{planId}/subsections")
-    @Operation(summary = "사업 계획서의 모든 서브섹션을 조회합니다.")
+    @Operation(summary = "사업 계획서의 모든 서브섹션을 조회합니다. (미리보기 용)")
     public ApiResponse<List<BusinessPlanSubSectionResponse>> getBusinessPlanSubSections(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId
