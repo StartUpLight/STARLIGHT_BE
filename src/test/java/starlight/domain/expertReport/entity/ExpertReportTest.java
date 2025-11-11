@@ -20,6 +20,7 @@ class ExpertReportTest {
         Long expertId = 1L;
         Long businessPlanId = 10L;
         String token = "abc123";
+        LocalDateTime beforeCreation = LocalDateTime.now();
 
         // when
         ExpertReport report = ExpertReport.create(expertId, businessPlanId, token);
@@ -31,7 +32,7 @@ class ExpertReportTest {
         assertThat(report.getToken()).isEqualTo(token);
         assertThat(report.getSubmitStatus()).isEqualTo(SubmitStatus.PENDING);
         assertThat(report.getViewCount()).isEqualTo(0);
-        assertThat(report.getExpiredAt()).isAfter(LocalDateTime.now());
+        assertThat(report.getExpiredAt()).isAfter(beforeCreation);
     }
 
     @Test

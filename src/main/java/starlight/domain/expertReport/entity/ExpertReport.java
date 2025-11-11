@@ -129,8 +129,6 @@ public class ExpertReport extends AbstractEntity {
     }
 
     public void incrementViewCount() {
-        Assert.notNull(this.viewCount, "viewCount가 초기화되지 않았습니다");
-
         this.viewCount++;
     }
 
