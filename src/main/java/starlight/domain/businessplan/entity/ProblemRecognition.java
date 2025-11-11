@@ -1,0 +1,53 @@
+package starlight.domain.businessplan.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import starlight.domain.businessplan.enumerate.SubSectionType;
+
+@Getter
+@Entity
+@NoArgsConstructor
+public class ProblemRecognition extends BaseSection{
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem_background_id", unique = true)
+    private SubSection problemBackground;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem_purpose_id", unique = true)
+    private SubSection problemPurpose;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem_market_id", unique = true)
+    private SubSection problemMarket;
+
+    public static ProblemRecognition create() {
+        return new ProblemRecognition();
+    }
+
+    @Override
+    public SubSection getSubSectionByType(SubSectionType type) {
+        return switch (type) {
+            case PROBLEM_BACKGROUND -> this.problemBackground;
+            case PROBLEM_PURPOSE -> this.problemPurpose;
+            case PROBLEM_MARKET -> this.problemMarket;
+            default -> throw new IllegalArgumentException("Unsupported type: " + type);
+        };
+    }
+
+    @Override
+    protected void setSubSectionByType(SubSection subSection, SubSectionType type) {
+        switch (type) {
+            case PROBLEM_BACKGROUND -> this.problemBackground = subSection;
+            case PROBLEM_PURPOSE -> this.problemPurpose = subSection;
+            case PROBLEM_MARKET -> this.problemMarket = subSection;
+            default -> throw new IllegalArgumentException("Unsupported type: " + type);
+        }
+    }
+
+    @Override
+    protected boolean areAllSubSectionsCreated() {
+        return this.problemBackground != null && this.problemPurpose != null && this.problemMarket != null;
+    }
+}

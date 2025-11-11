@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>사업계획서 피드백 요청</title>
+    <style>
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background: #fafafa; padding: 30px; color: #333; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; }
+        h2 { color: #0056b3; }
+        a.button {
+            display: inline-block;
+            background: #0078ff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        .footer { font-size: 12px; color: #999; margin-top: 30px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>멘토님, 안녕하세요!</h2>
+    <p><b th:text="${studentName}"></b> 님의 <b th:text="${planTitle}"></b> 사업계획서가 도착했습니다.</p>
+
+    <p>첨부된 파일을 확인하시고, <b th:text="${feedbackDeadline}"></b> 까지 피드백을 완료해 주세요.</p>
+
+    <p>
+        아래 버튼을 클릭하시면 평가 페이지로 이동합니다:
+    </p>
+
+    <a th:href="${feedbackUrl}" class="button">피드백 페이지로 이동</a>
+
+    <p class="footer">
+        이 메일은 시스템에서 자동 발송되었습니다. 문의사항은 관리자에게 연락해주세요.
+    </p>
+</div>
+</body>
+</html>
