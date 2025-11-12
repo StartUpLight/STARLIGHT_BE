@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 import starlight.application.infrastructure.provided.PresignedUrlProvider;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 
-import java.net.URLEncoder;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
@@ -42,8 +42,8 @@ public class NcpPresignedUrlProvider implements PresignedUrlProvider {
      */
     @Override
     public PreSignedUrlResponse getPreSignedUrl(Long userId, String originalFileName) {
-        String safeFileName = encodePathSegment(originalFileName);
-        String key = String.format("%d/%s", userId, safeFileName);
+        String normalizedName = normalizeToUnicode(originalFileName);
+        String key = userId + "/" + normalizedName;
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
@@ -89,13 +89,6 @@ public class NcpPresignedUrlProvider implements PresignedUrlProvider {
     }
 
     /**
-     * 파일명/경로 segment-safe 인코딩 (공백을 %20으로 보존)
-     */
-    private static String encodePathSegment(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
-    }
-
-    /**
      * 가상호스트 형태의 공개 URL 생성
      */
     private String buildObjectUrl(String key) {
@@ -115,5 +108,19 @@ public class NcpPresignedUrlProvider implements PresignedUrlProvider {
         if (pathStart == -1) throw new IllegalArgumentException("잘못된 URL 형식 - path가 없습니다");
 
         return objectUrl.substring(pathStart + 1);
+    }
+
+    private static String normalizeToUnicode(String name) {
+        String once = tryDecode(name);
+        String twice = tryDecode(once);
+        return twice;
+    }
+
+    private static String tryDecode(String s) {
+        try {
+            return URLDecoder.decode(s, StandardCharsets.UTF_8);
+        } catch (Exception ignored) {
+            return s;
+        }
     }
 }
