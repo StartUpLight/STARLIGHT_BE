@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
+import org.springframework.util.Assert;
 import starlight.domain.member.enumerate.MemberType;
 import starlight.shared.AbstractEntity;
 
@@ -47,7 +48,7 @@ public class Member extends AbstractEntity {
         member.memberType = memberType != null ? memberType : MemberType.FOUNDER;
         member.credential = credential;
         member.provider = "starlight";
-        member.providerId = profileImageUrl;
+        member.profileImageUrl = profileImageUrl;
         return member;
     }
 
@@ -59,5 +60,11 @@ public class Member extends AbstractEntity {
         member.providerId = providerId;
 
         return member;
+    }
+
+    public void updateProfileImage(String profileImageUrl) {
+        Assert.notNull(profileImageUrl, "profileImageUrl must not be null");
+
+        this.profileImageUrl = profileImageUrl;
     }
 }

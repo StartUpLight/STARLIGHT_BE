@@ -40,6 +40,13 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 memberRepository.save(Member.newSocial(parsed.name(), parsed.email(), parsed.provider(), parsed.providerId(), null, MemberType.FOUNDER, parsed.profileImageUrl()))
         );
 
+        String newImage = parsed.profileImageUrl();
+        if (newImage != null && !newImage.isBlank() && (member.getProfileImageUrl() == null || !member.getProfileImageUrl().equals(newImage))) {
+            member.updateProfileImage(newImage);
+
+            memberRepository.save(member);
+        }
+
         return AuthDetails.of(member, oAuth2User.getAttributes(), parsed.nameAttributeKey());
     }
 }
