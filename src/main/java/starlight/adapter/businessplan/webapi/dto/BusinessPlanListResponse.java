@@ -1,5 +1,6 @@
 package starlight.adapter.businessplan.webapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.PlanStatus;
 
@@ -13,6 +14,7 @@ public record BusinessPlanListResponse(
 
         String title,
 
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime lastSavedAt,
 
         PlanStatus planStatus
