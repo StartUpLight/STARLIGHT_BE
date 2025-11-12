@@ -10,13 +10,17 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.businessplan.webapi.dto.BusinessPlanCreateRequest;
+import starlight.adapter.businessplan.webapi.dto.BusinessPlanListResponse;
 import starlight.adapter.businessplan.webapi.dto.BusinessPlanResponse;
+import starlight.adapter.businessplan.webapi.dto.BusinessPlanSubSectionResponse;
 import starlight.adapter.businessplan.webapi.dto.SubSectionRequest;
 import starlight.application.businessplan.dto.SubSectionResponse;
 import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.shared.apiPayload.response.ApiResponse;
+
+import java.util.List;
 
 @Validated
 @RestController
@@ -27,6 +31,26 @@ public class BusinessPlanController {
 
     private final BusinessPlanService businessPlanService;
     private final ObjectMapper objectMapper;
+
+    @GetMapping
+    @Operation(summary = "사업 계획서 목록을 조회합니다. (마이페이지 용)")
+    public ApiResponse<List<BusinessPlanListResponse>> getBusinessPlanList(
+            @AuthenticationPrincipal AuthDetails authDetails
+    ) {
+        List<BusinessPlan> businessPlans = businessPlanService.getBusinessPlanList(authDetails.getMemberId());
+        return ApiResponse.success(BusinessPlanListResponse.fromAll(businessPlans));
+    }
+
+    @GetMapping("/{planId}/subsections")
+    @Operation(summary = "사업 계획서의 모든 서브섹션을 조회합니다. (미리보기 용)")
+    public ApiResponse<List<BusinessPlanSubSectionResponse>> getBusinessPlanSubSections(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @PathVariable Long planId
+    ) {
+        return ApiResponse.success(BusinessPlanSubSectionResponse.fromAll(
+                businessPlanService.getBusinessPlanSubSections(planId, authDetails.getMemberId())
+        ));
+    }
 
     @Operation(summary = "사업 계획서를 삭제합니다.")
     @DeleteMapping("/{planId}")

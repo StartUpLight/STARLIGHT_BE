@@ -2,7 +2,6 @@ package starlight.application.businessplan.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import starlight.domain.businessplan.enumerate.SubSectionType;
-import java.util.List;
 
 public record SubSectionResponse() {
 
@@ -34,6 +33,20 @@ public record SubSectionResponse() {
         public static SubSectionResponse.Deleted create(
                 SubSectionType subSectionType, Long subSectionId, String message) {
             return new SubSectionResponse.Deleted(subSectionType, subSectionId, message);
+        }
+    }
+
+    public record Snapshot(
+            SubSectionType subSectionType,
+            Long subSectionId,
+            JsonNode content
+    ) {
+        public static SubSectionResponse.Snapshot create(
+                SubSectionType subSectionType,
+                Long subSectionId,
+                JsonNode content
+        ) {
+            return new SubSectionResponse.Snapshot(subSectionType, subSectionId, content);
         }
     }
 }

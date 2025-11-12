@@ -20,7 +20,9 @@ import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -156,6 +158,28 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
         businessPlanQuery.save(plan);
 
         return checks;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BusinessPlan> getBusinessPlanList(Long memberId) {
+        return businessPlanQuery.findAllByMemberIdOrderByModifiedAtDesc(memberId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubSectionResponse.Snapshot> getBusinessPlanSubSections(Long planId, Long memberId) {
+        BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
+
+        return Arrays.stream(SubSectionType.values())
+                .map(type -> getSectionByPlanAndType(plan, type.getSectionType()).getSubSectionByType(type))
+                .filter(Objects::nonNull)
+                .map(subSection -> SubSectionResponse.Snapshot.create(
+                        subSection.getSubSectionType(),
+                        subSection.getId(),
+                        subSection.getRawJson().asTree()
+                ))
+                .toList();
     }
 
     private String getSerializedJsonNodesWithUpdatedChecks(JsonNode jsonNode, List<Boolean> checks) {

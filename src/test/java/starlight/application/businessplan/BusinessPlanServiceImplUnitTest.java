@@ -246,30 +246,100 @@ class BusinessPlanServiceImplUnitTest {
                 () -> sut.deleteSubSection(1L, SubSectionType.OVERVIEW_BASIC, 10L));
     }
 
-//    @Test
-//    @DisplayName("서브섹션 체크: 체크리스트가 저장된다")
-//    void checkAndUpdateSubSection_savesChecks() {
-//        BusinessPlan plan = buildPlanWithSections(10L);
-//        Overview overview = plan.getOverview();
-//
-//        SubSection sub = SubSection.create(SubSectionType.OVERVIEW_BASIC, "content", "{}", List.of(false, false, false, false, false));
-//        overview.putSubSection(sub);
-//
-//        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
-//        when(businessPlanQuery.save(any(BusinessPlan.class)))
-//                .thenAnswer(invocation -> invocation.getArgument(0));
-//        when(checklistGrader.check(eq(SubSectionType.OVERVIEW_BASIC), anyString()))
-//                .thenReturn(List.of(true, true, true, true, true));
-//
-//        JsonNode node = mock(JsonNode.class);
-//        when(objectMapper.valueToTree(any())).thenReturn(node);
-//        try { when(objectMapper.writeValueAsString(eq(node))).thenReturn("{}"); } catch (Exception ignored) {}
-//
-//        List<Boolean> result = sut.checkAndUpdateSubSection(1L, node, SubSectionType.OVERVIEW_BASIC, 10L);
-//
-//        assertThat(result).containsExactly(true, true, true, true, true);
-//        verify(businessPlanQuery).save(plan);
-//    }
+    @Test
+    @DisplayName("사업계획서 목록 조회 시 memberId 기준 정렬된 리스트를 반환한다")
+    void getBusinessPlanList_returnsOrderedList() {
+        BusinessPlan plan = buildPlanWithSections(1L);
+        when(businessPlanQuery.findAllByMemberIdOrderByModifiedAtDesc(1L))
+                .thenReturn(List.of(plan));
+
+        List<BusinessPlan> result = sut.getBusinessPlanList(1L);
+
+        assertThat(result).containsExactly(plan);
+        verify(businessPlanQuery).findAllByMemberIdOrderByModifiedAtDesc(1L);
+    }
+
+    @Test
+    @DisplayName("사업계획서 전체 서브섹션을 조회하면 존재하는 서브섹션만 반환한다")
+    void getBusinessPlanSubSections_returnsExistingSubSections() {
+        BusinessPlan plan = buildPlanWithSections(10L);
+
+        SubSection overview = SubSection.create(SubSectionType.OVERVIEW_BASIC, "overview", "{\"text\":\"overview\"}", List.of(false, false, false, false, false));
+        plan.getOverview().putSubSection(overview);
+
+        SubSection problem = SubSection.create(SubSectionType.PROBLEM_BACKGROUND, "problem", "{\"text\":\"problem\"}", List.of(false, false, false, false, false));
+        plan.getProblemRecognition().putSubSection(problem);
+
+        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+
+        List<SubSectionResponse.Snapshot> result = sut.getBusinessPlanSubSections(1L, 10L);
+
+        assertThat(result).hasSize(2);
+        assertThat(result)
+                .extracting(SubSectionResponse.Snapshot::subSectionType)
+                .containsExactly(SubSectionType.OVERVIEW_BASIC, SubSectionType.PROBLEM_BACKGROUND);
+        assertThat(result.get(0).content().path("text").asText()).isEqualTo("overview");
+        assertThat(result.get(1).content().path("text").asText()).isEqualTo("problem");
+    }
+
+    @Test
+    @DisplayName("사업계획서 전체 서브섹션 조회: 소유자 아님이면 예외")
+    void getBusinessPlanSubSections_unauthorized_throws() {
+        BusinessPlan plan = mock(BusinessPlan.class);
+        when(plan.isOwnedBy(10L)).thenReturn(false);
+        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+
+        org.junit.jupiter.api.Assertions.assertThrows(BusinessPlanException.class,
+                () -> sut.getBusinessPlanSubSections(1L, 10L));
+    }
+
+    @Test
+    @DisplayName("서브섹션 체크: 체크리스트가 저장된다")
+    void checkAndUpdateSubSection_savesChecks() {
+        BusinessPlan plan = buildPlanWithSections(10L);
+        Overview overview = plan.getOverview();
+
+        List<Boolean> previousChecks = List.of(false, false, false, false, false);
+        SubSection sub = SubSection.create(SubSectionType.OVERVIEW_BASIC, "previous-content", "{}", previousChecks);
+        overview.putSubSection(sub);
+
+        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.save(any(BusinessPlan.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<Boolean> updatedChecks = List.of(true, true, true, true, true);
+        when(checklistGrader.check(
+                eq(SubSectionType.OVERVIEW_BASIC),
+                eq("updated content"),
+                eq("previous-content"),
+                anyList()
+        )).thenReturn(updatedChecks);
+
+        com.fasterxml.jackson.databind.ObjectMapper realObjectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        com.fasterxml.jackson.databind.node.ObjectNode jsonNode = realObjectMapper.createObjectNode();
+        jsonNode.putArray("content")
+                .addObject()
+                .put("type", "text")
+                .put("value", "updated content");
+        jsonNode.putArray("checks")
+                .add(false)
+                .add(false)
+                .add(false)
+                .add(false)
+                .add(false);
+
+        when(objectMapper.valueToTree(any())).thenReturn(jsonNode);
+        try {
+            when(objectMapper.writeValueAsString(any())).thenReturn(jsonNode.toString());
+        } catch (Exception ignored) {}
+
+        List<Boolean> result = sut.checkAndUpdateSubSection(1L, jsonNode, SubSectionType.OVERVIEW_BASIC, 10L);
+
+        assertThat(result).containsExactlyElementsOf(updatedChecks);
+        assertThat(sub.getChecks()).containsExactlyElementsOf(updatedChecks);
+        assertThat(sub.getContent()).isEqualTo("updated content");
+        verify(businessPlanQuery).save(plan);
+    }
 
     @Test
     @DisplayName("서브섹션 체크: 없으면 예외")
@@ -381,29 +451,29 @@ class BusinessPlanServiceImplUnitTest {
         verify(plan, never()).updateStatus(any());
     }
 
-//    @Test
-//    @DisplayName("서브섹션 삭제: 모든 서브섹션이 생성되지 않으면 상태가 STARTED로 변경된다")
-//    void deleteSubSection_notAllSubSectionsCreated_updatesStatusToStarted() {
-//        // given
-//        BusinessPlan plan = spy(buildPlanWithSections(10L));
-//        doReturn(true).when(plan).isOwnedBy(10L);
-//
-//        // 모든 서브섹션 생성
-//        for (SubSectionType type : SubSectionType.values()) {
-//            SubSection sub = SubSection.create(type, "content", "{}", List.of(false, false, false, false, false));
-//            getSectionByPlanAndType(plan, type.getSectionType()).putSubSection(sub);
-//        }
-//
-//        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
-//        when(businessPlanQuery.save(any(BusinessPlan.class)))
-//                .thenAnswer(invocation -> invocation.getArgument(0));
-//
-//        // when - 서브섹션 삭제
-//        sut.deleteSubSection(1L, SubSectionType.OVERVIEW_BASIC, 10L);
-//
-//        // then - 상태가 STARTED로 변경되어야 함
-//        verify(plan).updateStatus(starlight.domain.businessplan.enumerate.PlanStatus.STARTED);
-//    }
+    @Test
+    @DisplayName("서브섹션 삭제: 삭제 시 상태 변경이 발생하지 않는다")
+    void deleteSubSection_noStatusChange() {
+        // given
+        BusinessPlan plan = spy(buildPlanWithSections(10L));
+        doReturn(true).when(plan).isOwnedBy(10L);
+
+        // 모든 서브섹션 생성
+        for (SubSectionType type : SubSectionType.values()) {
+            SubSection sub = SubSection.create(type, "content", "{}", List.of(false, false, false, false, false));
+            getSectionByPlanAndType(plan, type.getSectionType()).putSubSection(sub);
+        }
+
+        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.save(any(BusinessPlan.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when - 서브섹션 삭제
+        sut.deleteSubSection(1L, SubSectionType.OVERVIEW_BASIC, 10L);
+
+        // then - 상태가 변경되지 않아야 함
+        verify(plan, never()).updateStatus(any());
+    }
 
     private BaseSection getSectionByPlanAndType(BusinessPlan plan, SectionType type) {
         return switch (type) {
