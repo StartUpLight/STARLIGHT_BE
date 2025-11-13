@@ -1,4 +1,4 @@
-package starlight.application.businessplan.dto;
+package starlight.application.businessplan.provided.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import starlight.domain.businessplan.entity.SubSection;
@@ -9,26 +9,31 @@ public record SubSectionResponse() {
     public record Result(
             SubSectionType subSectionType,
             Long subSectionId,
-            String message) {
+            String message
+    ) {
         public static Result from(
                 SubSection subSection,
-                String message) {
+                String message
+        ) {
             return new Result(
                     subSection.getSubSectionType(),
                     subSection.getId(),
-                    message);
+                    message
+            );
         }
     }
 
     public record Detail(
             SubSectionType subSectionType,
             Long subSectionId,
-            JsonNode content) {
+            JsonNode content
+    ) {
         public static Detail from(SubSection subSection) {
             return new Detail(
                     subSection.getSubSectionType(),
                     subSection.getId(),
-                    subSection.getRawJson().asTree());
+                    subSection.getRawJson().asTree()
+            );
         }
     }
 }

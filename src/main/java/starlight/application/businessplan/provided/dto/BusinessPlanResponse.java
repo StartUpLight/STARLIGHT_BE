@@ -1,4 +1,4 @@
-package starlight.application.businessplan.dto;
+package starlight.application.businessplan.provided.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import starlight.domain.businessplan.entity.BusinessPlan;
@@ -13,13 +13,15 @@ public record BusinessPlanResponse() {
             Long businessPlanId,
             String title,
             PlanStatus planStatus,
-            String message) {
+            String message
+    ) {
         public static Result from(BusinessPlan businessPlan, String message) {
             return new Result(
                     businessPlan.getId(),
                     businessPlan.getTitle(),
                     businessPlan.getPlanStatus(),
-                    message);
+                    message
+            );
         }
     }
 
@@ -27,15 +29,18 @@ public record BusinessPlanResponse() {
             Long businessPlanId,
             String title,
             PlanStatus planStatus,
-            List<SubSectionResponse.Detail> subSectionDetailList) {
+            List<SubSectionResponse.Detail> subSectionDetailList
+    ) {
         public static Detail from(
                 BusinessPlan businessPlan,
-                List<SubSectionResponse.Detail> subSectionDetailList) {
+                List<SubSectionResponse.Detail> subSectionDetailList
+        ) {
             return new Detail(
                     businessPlan.getId(),
                     businessPlan.getTitle(),
                     businessPlan.getPlanStatus(),
-                    subSectionDetailList);
+                    subSectionDetailList
+            );
         }
     }
 
@@ -43,7 +48,8 @@ public record BusinessPlanResponse() {
             Long businessPlanId,
             String title,
             @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime lastSavedAt,
-            PlanStatus planStatus) {
+            PlanStatus planStatus
+    ) {
         public static Preview from(BusinessPlan businessPlan) {
             LocalDateTime lastSavedAt = businessPlan.getModifiedAt() != null
                     ? businessPlan.getModifiedAt()
@@ -53,7 +59,8 @@ public record BusinessPlanResponse() {
                     businessPlan.getId(),
                     businessPlan.getTitle(),
                     lastSavedAt,
-                    businessPlan.getPlanStatus());
+                    businessPlan.getPlanStatus()
+            );
         }
 
         public static List<Preview> fromAll(List<BusinessPlan> businessPlans) {
