@@ -1,52 +1,34 @@
 package starlight.application.businessplan.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import starlight.domain.businessplan.entity.SubSection;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 
 public record SubSectionResponse() {
 
-    public record Created(
+    public record Result(
             SubSectionType subSectionType,
             Long subSectionId,
             String message) {
-        public static SubSectionResponse.Created create(
-                SubSectionType subSectionType, Long subSectionId, String message
-        ) {
-            return new SubSectionResponse.Created(subSectionType, subSectionId, message);
+        public static Result from(
+                SubSection subSection,
+                String message) {
+            return new Result(
+                    subSection.getSubSectionType(),
+                    subSection.getId(),
+                    message);
         }
     }
 
-    public record Retrieved(
-            String message,
-            JsonNode content
-    ) {
-        public static SubSectionResponse.Retrieved create(String message, JsonNode content) {
-            return new SubSectionResponse.Retrieved(message, content);
-        }
-    }
-
-    public record Deleted(
+    public record Detail(
             SubSectionType subSectionType,
             Long subSectionId,
-            String message
-    ) {
-        public static SubSectionResponse.Deleted create(
-                SubSectionType subSectionType, Long subSectionId, String message) {
-            return new SubSectionResponse.Deleted(subSectionType, subSectionId, message);
-        }
-    }
-
-    public record Snapshot(
-            SubSectionType subSectionType,
-            Long subSectionId,
-            JsonNode content
-    ) {
-        public static SubSectionResponse.Snapshot create(
-                SubSectionType subSectionType,
-                Long subSectionId,
-                JsonNode content
-        ) {
-            return new SubSectionResponse.Snapshot(subSectionType, subSectionId, content);
+            JsonNode content) {
+        public static Detail from(SubSection subSection) {
+            return new Detail(
+                    subSection.getSubSectionType(),
+                    subSection.getId(),
+                    subSection.getRawJson().asTree());
         }
     }
 }
