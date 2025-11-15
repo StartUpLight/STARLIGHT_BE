@@ -65,7 +65,7 @@ class BusinessPlanServiceImplIntegrationTest {
         assertThat(reloaded.getOverview().getSubSectionByType(SubSectionType.OVERVIEW_BASIC)).isNotNull();
 
         // update title
-        String updatedTitle = sut.updateBusinessPlanTitle(planId, createdEntity.getMemberId(), "new-title");
+        String updatedTitle = sut.updateBusinessPlanTitle(planId, "new-title", createdEntity.getMemberId());
         assertThat(updatedTitle).isEqualTo("new-title");
 
         // delete plan -> cascade로 subsections도 함께 삭제
@@ -74,5 +74,27 @@ class BusinessPlanServiceImplIntegrationTest {
         // SubSection이 cascade로 삭제되었는지 확인
         BusinessPlan afterDelete = businessPlanRepository.findById(planId).orElse(null);
         assertThat(afterDelete).isNull();
+    }
+
+    @Test
+    void createBusinessPlanWithPdf_createsPlanWithPdfInfo() {
+        // given
+        String title = "PDF 사업계획서";
+        String pdfUrl = "https://example.com/test.pdf";
+        Long memberId = 1L;
+
+        // when
+        var createdResult = sut.createBusinessPlanWithPdf(title, pdfUrl, memberId);
+        Long planId = createdResult.businessPlanId();
+
+        // then
+        assertThat(planId).isNotNull();
+        assertThat(createdResult.title()).isEqualTo(title);
+
+        BusinessPlan createdPlan = businessPlanRepository.findById(planId).orElseThrow();
+        assertThat(createdPlan.getTitle()).isEqualTo(title);
+        assertThat(createdPlan.getPdfUrl()).isEqualTo(pdfUrl);
+        assertThat(createdPlan.getMemberId()).isEqualTo(memberId);
+        assertThat(createdPlan.getPlanStatus()).isEqualTo(starlight.domain.businessplan.enumerate.PlanStatus.WRITTEN_COMPLETED);
     }
 }

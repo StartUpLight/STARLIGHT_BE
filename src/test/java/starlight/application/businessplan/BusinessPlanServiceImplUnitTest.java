@@ -72,6 +72,24 @@ class BusinessPlanServiceImplUnitTest {
     }
 
     @Test
+    @DisplayName("PDF URL을 기반으로 사업계획서를 생성하면 저장된다")
+    void createBusinessPlanWithPdf_savesRoot() {
+        when(businessPlanQuery.save(any(BusinessPlan.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        String title = "테스트 사업계획서";
+        String pdfUrl = "https://example.com/test.pdf";
+        Long memberId = 1L;
+
+        BusinessPlanResponse.Result created = sut.createBusinessPlanWithPdf(title, pdfUrl, memberId);
+
+        assertThat(created).isNotNull();
+        assertThat(created.message()).isEqualTo("PDF Business plan created");
+        assertThat(created.title()).isEqualTo(title);
+        verify(businessPlanQuery).save(any(BusinessPlan.class));
+    }
+
+    @Test
     @DisplayName("사업계획서 제목 수정은 소유자 검증 후 저장한다")
     void updateTitle_checksOwnership_thenSaves() {
         BusinessPlan plan = spy(buildPlanWithSections(10L));
@@ -80,7 +98,7 @@ class BusinessPlanServiceImplUnitTest {
         when(businessPlanQuery.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        String updatedTitle = sut.updateBusinessPlanTitle(100L, 10L, "new-title");
+        String updatedTitle = sut.updateBusinessPlanTitle(100L, "new-title", 10L);
 
         assertThat(updatedTitle).isEqualTo("new-title");
         verify(businessPlanQuery).save(plan);
@@ -94,7 +112,7 @@ class BusinessPlanServiceImplUnitTest {
         when(businessPlanQuery.getOrThrow(100L)).thenReturn(plan);
 
         org.junit.jupiter.api.Assertions.assertThrows(BusinessPlanException.class,
-                () -> sut.updateBusinessPlanTitle(100L, 10L, "title"));
+                () -> sut.updateBusinessPlanTitle(100L, "title", 10L));
     }
 
     @Test
