@@ -1,4 +1,4 @@
-package starlight.adapter.ai.util;
+package starlight.application.businessplan.util;
 
 import org.springframework.stereotype.Component;
 import starlight.domain.businessplan.entity.BaseSection;
