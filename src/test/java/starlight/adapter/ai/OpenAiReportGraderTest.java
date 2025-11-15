@@ -4,9 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import starlight.adapter.ai.infra.OpenAiGenerator;
 import starlight.adapter.ai.util.AiReportResponseParser;
-import starlight.adapter.ai.util.BusinessPlanContentExtractor;
-import starlight.application.aireport.dto.AiReportResponse;
-import starlight.domain.businessplan.entity.BusinessPlan;
+import starlight.application.aireport.provided.dto.AiReportResponse;
 
 import java.util.List;
 
@@ -18,11 +16,10 @@ import static org.mockito.Mockito.*;
 class OpenAiReportGraderTest {
 
     @Test
-    @DisplayName("BusinessPlan을 채점하여 AiReportResponse를 반환한다")
-    void grade_returnsAiReportResponse() {
+    @DisplayName("컨텐츠를 채점하여 AiReportResponse를 반환한다")
+    void gradeContent_returnsAiReportResponse() {
         // given
-        BusinessPlan businessPlan = mock(BusinessPlan.class);
-        String extractedContent = "사업계획서 내용";
+        String content = "사업계획서 내용";
         String llmResponse = """
                 {
                     "problemRecognitionScore": 20,
@@ -44,11 +41,8 @@ class OpenAiReportGraderTest {
                 }
                 """;
 
-        BusinessPlanContentExtractor contentExtractor = mock(BusinessPlanContentExtractor.class);
-        when(contentExtractor.extractContent(businessPlan)).thenReturn(extractedContent);
-
         OpenAiGenerator generator = mock(OpenAiGenerator.class);
-        when(generator.generateReport(extractedContent)).thenReturn(llmResponse);
+        when(generator.generateReport(content)).thenReturn(llmResponse);
 
         AiReportResponseParser parser = mock(AiReportResponseParser.class);
         AiReportResponse expectedResponse = AiReportResponse.fromGradingResult(
@@ -59,10 +53,10 @@ class OpenAiReportGraderTest {
         );
         when(parser.parse(llmResponse)).thenReturn(expectedResponse);
 
-        OpenAiReportGrader sut = new OpenAiReportGrader(generator, contentExtractor, parser);
+        OpenAiReportGrader sut = new OpenAiReportGrader(generator, parser);
 
         // when
-        AiReportResponse result = sut.grade(businessPlan);
+        AiReportResponse result = sut.gradeContent(content);
 
         // then
         assertThat(result).isNotNull();
@@ -75,21 +69,16 @@ class OpenAiReportGraderTest {
         assertThat(result.weaknesses()).hasSize(1);
         assertThat(result.sectionScores()).hasSize(1);
 
-        verify(contentExtractor).extractContent(businessPlan);
-        verify(generator).generateReport(extractedContent);
+        verify(generator).generateReport(content);
         verify(parser).parse(llmResponse);
     }
 
     @Test
     @DisplayName("각 컴포넌트가 순서대로 호출된다")
-    void grade_callsComponentsInOrder() {
+    void gradeContent_callsComponentsInOrder() {
         // given
-        BusinessPlan businessPlan = mock(BusinessPlan.class);
-        String extractedContent = "사업계획서 내용";
+        String content = "사업계획서 내용";
         String llmResponse = "{}";
-
-        BusinessPlanContentExtractor contentExtractor = mock(BusinessPlanContentExtractor.class);
-        when(contentExtractor.extractContent(any())).thenReturn(extractedContent);
 
         OpenAiGenerator generator = mock(OpenAiGenerator.class);
         when(generator.generateReport(any())).thenReturn(llmResponse);
@@ -97,15 +86,14 @@ class OpenAiReportGraderTest {
         AiReportResponseParser parser = mock(AiReportResponseParser.class);
         when(parser.parse(any())).thenReturn(AiReportResponse.fromGradingResult(0, 0, 0, 0, List.of(), List.of(), List.of()));
 
-        OpenAiReportGrader sut = new OpenAiReportGrader(generator, contentExtractor, parser);
+        OpenAiReportGrader sut = new OpenAiReportGrader(generator, parser);
 
         // when
-        sut.grade(businessPlan);
+        sut.gradeContent(content);
 
         // then
-        var inOrder = inOrder(contentExtractor, generator, parser);
-        inOrder.verify(contentExtractor).extractContent(businessPlan);
-        inOrder.verify(generator).generateReport(extractedContent);
+        var inOrder = inOrder(generator, parser);
+        inOrder.verify(generator).generateReport(content);
         inOrder.verify(parser).parse(llmResponse);
     }
 }

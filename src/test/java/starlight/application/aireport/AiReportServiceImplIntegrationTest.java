@@ -15,8 +15,12 @@ import starlight.adapter.aireport.persistence.AiReportJpa;
 import starlight.adapter.aireport.persistence.AiReportRepository;
 import starlight.adapter.businessplan.persistence.BusinessPlanJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
-import starlight.application.aireport.dto.AiReportResponse;
+import starlight.application.aireport.provided.dto.AiReportResponse;
 import starlight.application.aireport.required.AiReportGrader;
+import starlight.application.businessplan.provided.BusinessPlanService;
+import starlight.application.businessplan.provided.dto.BusinessPlanResponse;
+import starlight.application.businessplan.util.BusinessPlanContentExtractor;
+import starlight.application.infrastructure.provided.OcrProvider;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.SubSection;
@@ -49,9 +53,10 @@ class AiReportServiceImplIntegrationTest {
 
     @TestConfiguration
     static class TestBeans {
+        
         @Bean
         AiReportGrader aiReportGrader() {
-            return businessPlan -> {
+            return content -> {
                 // 간단한 mock 응답 반환
                 return AiReportResponse.fromGradingResult(
                         20, 25, 30, 20,
@@ -70,6 +75,95 @@ class AiReportServiceImplIntegrationTest {
         @Bean
         AiReportResponseParser responseParser() {
             return new AiReportResponseParser(new ObjectMapper());
+        }
+
+        @Bean
+        BusinessPlanService businessPlanService(BusinessPlanRepository businessPlanRepository) {
+            return new BusinessPlanService() {
+                @Override
+                public BusinessPlanResponse.Result createBusinessPlan(Long memberId) {
+                    BusinessPlan plan = BusinessPlan.create(memberId);
+                    BusinessPlan saved = businessPlanRepository.save(plan);
+                    return BusinessPlanResponse.Result.from(saved, "Business plan created");
+                }
+
+                @Override
+                public BusinessPlanResponse.Result createBusinessPlanWithPdf(String title, String pdfUrl, Long memberId) {
+                    BusinessPlan plan = BusinessPlan.createWithPdf(title, memberId, pdfUrl, PlanStatus.WRITTEN_COMPLETED);
+                    BusinessPlan saved = businessPlanRepository.save(plan);
+                    return BusinessPlanResponse.Result.from(saved, "PDF Business plan created");
+                }
+
+                @Override
+                public BusinessPlanResponse.Result getBusinessPlanInfo(Long planId, Long memberId) {
+                    throw new UnsupportedOperationException("Not implemented in test");
+                }
+
+                @Override
+                public BusinessPlanResponse.Detail getBusinessPlanDetail(Long planId, Long memberId) {
+                    throw new UnsupportedOperationException("Not implemented in test");
+                }
+
+                @Override
+                public List<BusinessPlanResponse.Preview> getBusinessPlanList(Long memberId) {
+                    throw new UnsupportedOperationException("Not implemented in test");
+                }
+
+                @Override
+                public String updateBusinessPlanTitle(Long planId, String title, Long memberId) {
+                    throw new UnsupportedOperationException("Not implemented in test");
+                }
+
+                @Override
+                public BusinessPlanResponse.Result deleteBusinessPlan(Long planId, Long memberId) {
+                    throw new UnsupportedOperationException("Not implemented in test");
+                }
+
+                @Override
+                public starlight.application.businessplan.provided.dto.SubSectionResponse.Result createOrUpdateSubSection(
+                        Long planId, com.fasterxml.jackson.databind.JsonNode jsonNode, List<Boolean> checks,
+                        starlight.domain.businessplan.enumerate.SubSectionType subSectionType, Long memberId) {
+                    throw new UnsupportedOperationException("Not implemented in test");
+                }
+
+                @Override
+                public starlight.application.businessplan.provided.dto.SubSectionResponse.Detail getSubSectionDetail(
+                        Long planId, starlight.domain.businessplan.enumerate.SubSectionType subSectionType, Long memberId) {
+                    throw new UnsupportedOperationException("Not implemented in test");
+                }
+
+                @Override
+                public List<Boolean> checkAndUpdateSubSection(Long planId, com.fasterxml.jackson.databind.JsonNode jsonNode,
+                        starlight.domain.businessplan.enumerate.SubSectionType subSectionType, Long memberId) {
+                    throw new UnsupportedOperationException("Not implemented in test");
+                }
+
+                @Override
+                public starlight.application.businessplan.provided.dto.SubSectionResponse.Result deleteSubSection(
+                        Long planId, starlight.domain.businessplan.enumerate.SubSectionType subSectionType, Long memberId) {
+                    throw new UnsupportedOperationException("Not implemented in test");
+                }
+            };
+        }
+
+        @Bean
+        OcrProvider ocrProvider() {
+            return new OcrProvider() {
+                @Override
+                public starlight.shared.dto.infrastructure.OcrResponse ocrPdfByUrl(String pdfUrl) {
+                    throw new UnsupportedOperationException("Not implemented in test");
+                }
+
+                @Override
+                public String ocrPdfTextByUrl(String pdfUrl) {
+                    return "PDF에서 추출한 텍스트 내용입니다. 이것은 테스트용 OCR 결과입니다.";
+                }
+            };
+        }
+
+        @Bean
+        BusinessPlanContentExtractor businessPlanContentExtractor() {
+            return new BusinessPlanContentExtractor();
         }
     }
 
@@ -241,6 +335,71 @@ class AiReportServiceImplIntegrationTest {
         assertThat(retrievedResult.strengths()).hasSize(gradingResult.strengths().size());
         assertThat(retrievedResult.weaknesses()).hasSize(gradingResult.weaknesses().size());
         assertThat(retrievedResult.sectionScores()).hasSize(gradingResult.sectionScores().size());
+    }
+
+    @Test
+    @DisplayName("PDF URL을 기반으로 사업계획서를 생성하고 AI 리포트를 생성한다")
+    void createAndGradePdfBusinessPlan_createsBusinessPlanAndReport() {
+        // given
+        Long memberId = 1L;
+        String title = "테스트 사업계획서";
+        String pdfUrl = "https://example.com/test.pdf";
+
+        // when
+        AiReportResponse result = sut.createAndGradePdfBusinessPlan(title, pdfUrl, memberId);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isNotNull();
+        assertThat(result.businessPlanId()).isNotNull();
+        assertThat(result.totalScore()).isEqualTo(95);
+        assertThat(result.problemRecognitionScore()).isEqualTo(20);
+        assertThat(result.feasibilityScore()).isEqualTo(25);
+        assertThat(result.growthStrategyScore()).isEqualTo(30);
+        assertThat(result.teamCompetenceScore()).isEqualTo(20);
+        assertThat(result.strengths()).hasSize(1);
+        assertThat(result.weaknesses()).hasSize(1);
+        assertThat(result.sectionScores()).hasSize(1);
+
+        // BusinessPlan이 생성되었는지 확인
+        BusinessPlan createdPlan = businessPlanRepository.findById(result.businessPlanId()).orElseThrow();
+        assertThat(createdPlan.getTitle()).isEqualTo(title);
+        assertThat(createdPlan.getPdfUrl()).isEqualTo(pdfUrl);
+        assertThat(createdPlan.getMemberId()).isEqualTo(memberId);
+        assertThat(createdPlan.getPlanStatus()).isEqualTo(PlanStatus.AI_REVIEWED);
+
+        // AiReport가 생성되었는지 확인
+        Optional<AiReport> savedReport = aiReportRepository.findByBusinessPlanId(result.businessPlanId());
+        assertThat(savedReport).isPresent();
+        assertThat(savedReport.get().getBusinessPlanId()).isEqualTo(result.businessPlanId());
+    }
+
+    @Test
+    @DisplayName("PDF 기반으로 생성한 사업계획서의 리포트를 조회할 수 있다")
+    void createAndGradePdfBusinessPlan_canRetrieveReport() {
+        // given
+        Long memberId = 1L;
+        String title = "테스트 사업계획서";
+        String pdfUrl = "https://example.com/test.pdf";
+
+        // when - PDF로 사업계획서 생성 및 채점
+        AiReportResponse createdResult = sut.createAndGradePdfBusinessPlan(title, pdfUrl, memberId);
+        Long planId = createdResult.businessPlanId();
+        em.flush();
+        em.clear();
+
+        // when - 리포트 조회
+        AiReportResponse retrievedResult = sut.getAiReport(planId, memberId);
+
+        // then
+        assertThat(retrievedResult).isNotNull();
+        assertThat(retrievedResult.id()).isEqualTo(createdResult.id());
+        assertThat(retrievedResult.businessPlanId()).isEqualTo(planId);
+        assertThat(retrievedResult.totalScore()).isEqualTo(95);
+        assertThat(retrievedResult.problemRecognitionScore()).isEqualTo(createdResult.problemRecognitionScore());
+        assertThat(retrievedResult.feasibilityScore()).isEqualTo(createdResult.feasibilityScore());
+        assertThat(retrievedResult.growthStrategyScore()).isEqualTo(createdResult.growthStrategyScore());
+        assertThat(retrievedResult.teamCompetenceScore()).isEqualTo(createdResult.teamCompetenceScore());
     }
 }
 
