@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import starlight.application.aireport.dto.AiReportResponse;
+import starlight.application.aireport.provided.dto.AiReportResponse;
 import starlight.domain.aireport.entity.AiReport;
 
 import java.util.ArrayList;

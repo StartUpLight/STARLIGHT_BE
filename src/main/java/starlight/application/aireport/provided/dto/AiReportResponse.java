@@ -1,4 +1,4 @@
-package starlight.application.aireport.dto;
+package starlight.application.aireport.provided.dto;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import java.util.List;
