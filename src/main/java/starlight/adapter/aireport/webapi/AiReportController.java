@@ -16,14 +16,14 @@ import starlight.shared.apiPayload.response.ApiResponse;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/ai-reports/{planId}")
+@RequestMapping("/v1/ai-reports")
 @Tag(name = "AI 리포트", description = "AI 리포트 채점 및 조회 API")
 public class AiReportController {
 
     private final AiReportService aiReportService;
 
     @Operation(summary = "사업계획서를 AI로 채점 및 생성합니다.")
-    @PostMapping("/grade")
+    @PostMapping("/evaluation/{planId}")
     public ApiResponse<AiReportResponse> gradeBusinessPlan(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId
@@ -32,7 +32,7 @@ public class AiReportController {
     }
 
     @Operation(summary = "PDF URL을 기반으로 사업계획서를 생성하고, AI로 채점 및 생성합니다.")
-    @PostMapping("/grade-with-pdf")
+    @PostMapping("/evaluation/pdf")
     public ApiResponse<AiReportResponse> createAndGradeBusinessPlan(
             @AuthenticationPrincipal AuthDetails authDetails,
             @Valid @RequestBody BusinessPlanCreateWithPdfRequest request
@@ -45,7 +45,7 @@ public class AiReportController {
     }
 
     @Operation(summary = "AI 리포트를 조회합니다.")
-    @GetMapping
+    @GetMapping("/{planId}")
     public ApiResponse<AiReportResponse> getAiReport(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId

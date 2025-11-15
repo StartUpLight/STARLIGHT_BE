@@ -69,7 +69,7 @@ public class BusinessPlanController {
         return ApiResponse.success(businessPlanService.createBusinessPlan(authDetails.getMemberId()));
     }
 
-    @PostMapping("/with-pdf")
+    @PostMapping("/pdf")
     @Operation(summary = "PDF URL을 기반으로 사업계획서를 생성합니다.")
     public ApiResponse<BusinessPlanResponse.Result> createBusinessPlanWithPdfAndAiReport(
             @AuthenticationPrincipal AuthDetails authDetails,

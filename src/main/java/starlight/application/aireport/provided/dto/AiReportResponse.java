@@ -41,11 +41,8 @@ public record AiReportResponse(
             List<StrengthWeakness> strengths,
             List<StrengthWeakness> weaknesses
     ) {
-        Integer totalScore = (problemRecognitionScore != null ? problemRecognitionScore : 0) +
-                           (feasibilityScore != null ? feasibilityScore : 0) +
-                           (growthStrategyScore != null ? growthStrategyScore : 0) +
-                           (teamCompetenceScore != null ? teamCompetenceScore : 0);
-        
+        Integer totalScore = sumTotalScore(problemRecognitionScore, feasibilityScore, growthStrategyScore, teamCompetenceScore);
+
         return new AiReportResponse(
                 null,
                 null,
@@ -58,6 +55,13 @@ public record AiReportResponse(
                 strengths,
                 weaknesses
         );
+    }
+
+    private static Integer sumTotalScore(Integer problemRecognitionScore, Integer feasibilityScore, Integer growthStrategyScore, Integer teamCompetenceScore) {
+        return (problemRecognitionScore != null ? problemRecognitionScore : 0) +
+               (feasibilityScore != null ? feasibilityScore : 0) +
+               (growthStrategyScore != null ? growthStrategyScore : 0) +
+               (teamCompetenceScore != null ? teamCompetenceScore : 0);
     }
 }
 

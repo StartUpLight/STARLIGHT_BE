@@ -40,9 +40,10 @@ public class AiReportServiceImpl implements AiReportService {
 
     @Override
     public AiReportResponse gradeBusinessPlan(Long planId, Long memberId) {
-        BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
 
-        checkBusinessPlanReadyToGetAiReport(plan, memberId);
+        BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
+        checkBusinessPlanOwned(plan, memberId);
+        checkBusinessPlanWritingCompleted(plan, memberId);
 
         AiReportResponse gradingResult = aiReportGrader.gradeContent(contentExtractor.extractContent(plan));
 
@@ -78,6 +79,8 @@ public class AiReportServiceImpl implements AiReportService {
     @Override
     @Transactional(readOnly = true)
     public AiReportResponse getAiReport(Long planId, Long memberId) {
+        BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
+        checkBusinessPlanOwned(plan, memberId);
 
         AiReport aiReport = aiReportQuery.findByBusinessPlanId(planId)
                 .orElseThrow(() -> new AiReportException(AiReportErrorType.AI_REPORT_NOT_FOUND));
@@ -97,10 +100,8 @@ public class AiReportServiceImpl implements AiReportService {
     }
 
     private AiReport createOrUpdateAiReportWithRawJsonStr(String rawJsonString, BusinessPlan plan) {
-        // 기존 리포트 확인
         Optional<AiReport> existingReport = aiReportQuery.findByBusinessPlanId(plan.getId());
 
-        // AiReport 생성 또는 업데이트
         AiReport aiReport;
         if (existingReport.isPresent()) {
             aiReport = existingReport.get();
@@ -112,11 +113,13 @@ public class AiReportServiceImpl implements AiReportService {
         return aiReport;
     }
 
-    private void checkBusinessPlanReadyToGetAiReport(BusinessPlan plan, Long memberId) {
-        // 소유자 검증 및 작성 완료 검증
+    private void checkBusinessPlanOwned(BusinessPlan plan, Long memberId) {
         if (!plan.isOwnedBy(memberId)) {
             throw new AiReportException(AiReportErrorType.UNAUTHORIZED_ACCESS);
         }
+    }
+
+    private void checkBusinessPlanWritingCompleted(BusinessPlan plan, Long memberId) {
         if (!plan.areWritingCompleted()) {
             throw new AiReportException(AiReportErrorType.NOT_READY_FOR_AI_REPORT);
         }
