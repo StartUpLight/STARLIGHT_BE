@@ -1,12 +1,14 @@
 package starlight.adapter.expertReport.webapi.dto;
 
+import starlight.adapter.expert.webapi.dto.ExpertDetailResponse;
+import starlight.domain.expert.entity.Expert;
 import starlight.domain.expertReport.entity.ExpertReport;
 import starlight.domain.expertReport.enumerate.SubmitStatus;
 
 import java.util.List;
 
 public record ExpertReportResponse(
-        String expertName,
+        ExpertDetailResponse expertDetailResponse,
 
         SubmitStatus status,
 
@@ -16,9 +18,9 @@ public record ExpertReportResponse(
 
         List<ExpertReportDetailResponse> details
 ) {
-    public static ExpertReportResponse of(ExpertReport report, String expertName) {
+    public static ExpertReportResponse fromEntities(ExpertReport report, Expert expert) {
         return new ExpertReportResponse(
-                expertName,
+                ExpertDetailResponse.from(expert),
                 report.getSubmitStatus(),
                 report.canEdit(),
                 report.getOverallComment(),
@@ -30,7 +32,7 @@ public record ExpertReportResponse(
 
     public static ExpertReportResponse from(ExpertReport report) {
         return new ExpertReportResponse(
-                report.getToken(),
+                null,
                 report.getSubmitStatus(),
                 report.canEdit(),
                 report.getOverallComment(),
