@@ -121,8 +121,8 @@ class ExpertReportTest {
         // given
         ExpertReport report = ExpertReport.create(1L, 10L, "token");
         List<ExpertReportDetail> details = List.of(
-                ExpertReportDetail.create(CommentType.STRENGTH, "강점", "좋습니다"),
-                ExpertReportDetail.create(CommentType.WEAKNESS, "약점", "개선 필요")
+                ExpertReportDetail.create(CommentType.STRENGTH, "좋습니다"),
+                ExpertReportDetail.create(CommentType.WEAKNESS, "개선 필요")
         );
 
         // when
@@ -152,16 +152,14 @@ class ExpertReportTest {
     void createDetail_Success() {
         // given
         CommentType type = CommentType.STRENGTH;
-        String title = "강점 분석";
         String content = "시장 분석이 우수합니다.";
 
         // when
-        ExpertReportDetail detail = ExpertReportDetail.create(type, title, content);
+        ExpertReportDetail detail = ExpertReportDetail.create(type, content);
 
         // then
         assertThat(detail).isNotNull();
         assertThat(detail.getCommentType()).isEqualTo(type);
-        assertThat(detail.getTitle()).isEqualTo(title);
         assertThat(detail.getContent()).isEqualTo(content);
     }
 
@@ -170,7 +168,7 @@ class ExpertReportTest {
     void createDetail_EmptyContent_ThrowsException() {
         // when & then
         assertThatThrownBy(() ->
-                ExpertReportDetail.create(CommentType.STRENGTH, "title", ""))
+                ExpertReportDetail.create(CommentType.STRENGTH, ""))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("content는 필수입니다");
     }

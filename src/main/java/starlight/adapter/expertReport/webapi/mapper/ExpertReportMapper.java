@@ -11,7 +11,6 @@ public class ExpertReportMapper {
     public ExpertReportDetail toEntity(CreateExpertReportDetailRequest dto) {
         return ExpertReportDetail.create(
                 dto.commentType(),
-                dto.title(),
                 dto.content()
         );
     }

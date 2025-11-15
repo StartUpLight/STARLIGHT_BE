@@ -1,13 +1,12 @@
-package starlight.adapter.expert.dto;
+package starlight.adapter.expert.webapi.dto;
 
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expert.enumerate.TagCategory;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
-public record ExpertListResponse(
+public record ExpertDetailResponse(
 
         Long id,
 
@@ -27,13 +26,13 @@ public record ExpertListResponse(
 
         List<String> categories
 ) {
-    public static ExpertListResponse from(Expert expert) {
+    public static ExpertDetailResponse from(Expert expert) {
         List <String> categories = expert.getCategories().stream()
                 .map(TagCategory::name)
                 .distinct()
                 .toList();
 
-        return new ExpertListResponse(
+        return new ExpertDetailResponse(
                 expert.getId(),
                 expert.getName(),
                 expert.getProfileImageUrl(),
@@ -46,7 +45,7 @@ public record ExpertListResponse(
         );
     }
 
-    public static List<ExpertListResponse> fromAll(Collection<Expert> experts){
-        return experts.stream().map(ExpertListResponse::from).toList();
+    public static List<ExpertDetailResponse> fromAll(Collection<Expert> experts){
+        return experts.stream().map(ExpertDetailResponse::from).toList();
     }
 }
