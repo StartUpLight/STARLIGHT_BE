@@ -1,25 +1,31 @@
 package starlight.application.businessplan.provided;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import starlight.application.businessplan.dto.SubSectionResponse;
-import starlight.domain.businessplan.entity.BusinessPlan;
+import starlight.application.businessplan.provided.dto.BusinessPlanResponse;
+import starlight.application.businessplan.provided.dto.SubSectionResponse;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 
 import java.util.List;
 
 public interface BusinessPlanService {
 
-    BusinessPlan createBusinessPlan(Long memberId);
+    BusinessPlanResponse.Result createBusinessPlan(Long memberId);
 
-    void deleteBusinessPlan(Long planId, Long memberId);
+    BusinessPlanResponse.Result getBusinessPlanInfo(Long planId, Long memberId);
 
-    BusinessPlan updateBusinessPlanTitle(Long planId, Long memberId, String title);
+    BusinessPlanResponse.Detail getBusinessPlanDetail(Long planId, Long memberId);
 
-    SubSectionResponse.Created createOrUpdateSubSection(Long planId, JsonNode jsonNode, List<Boolean> checks, SubSectionType subSectionType, Long memberId);
+    List<BusinessPlanResponse.Preview> getBusinessPlanList(Long memberId);
 
-    SubSectionResponse.Retrieved getSubSection(Long planId, SubSectionType subSectionType, Long memberId);
+    String updateBusinessPlanTitle(Long planId, Long memberId, String title);
 
-    SubSectionResponse.Deleted deleteSubSection(Long planId, SubSectionType subSectionType, Long memberId);
+    BusinessPlanResponse.Result deleteBusinessPlan(Long planId, Long memberId);
+
+    SubSectionResponse.Result createOrUpdateSubSection(Long planId, JsonNode jsonNode, List<Boolean> checks, SubSectionType subSectionType, Long memberId);
+
+    SubSectionResponse.Detail getSubSectionDetail(Long planId, SubSectionType subSectionType, Long memberId);
 
     List<Boolean> checkAndUpdateSubSection(Long planId, JsonNode jsonNode, SubSectionType subSectionType, Long memberId);
+
+    SubSectionResponse.Result deleteSubSection(Long planId, SubSectionType subSectionType, Long memberId);
 }

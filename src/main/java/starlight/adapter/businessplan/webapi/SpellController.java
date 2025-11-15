@@ -10,7 +10,7 @@ import starlight.adapter.businessplan.webapi.dto.SpellCheckResponse;
 import starlight.adapter.businessplan.spellcheck.dto.Finding;
 import starlight.adapter.businessplan.webapi.swagger.SpellCheckApiDoc;
 import starlight.application.businessplan.required.SpellChecker;
-import starlight.adapter.businessplan.webapi.dto.SubSectionRequest;
+import starlight.adapter.businessplan.webapi.dto.SubSectionCreateRequest;
 import starlight.application.businessplan.util.PlainTextExtractUtils;
 import starlight.shared.apiPayload.response.ApiResponse;
 
@@ -26,9 +26,9 @@ public class SpellController implements SpellCheckApiDoc {
 
     @Override
     public ApiResponse<SpellCheckResponse> check(
-            @Valid @RequestBody SubSectionRequest subSectionRequest
+            @Valid @RequestBody SubSectionCreateRequest subSectionCreateRequest
     ) {
-        String text = PlainTextExtractUtils.extractPlainText(objectMapper, subSectionRequest);
+        String text = PlainTextExtractUtils.extractPlainText(objectMapper, subSectionCreateRequest);
 
         List<Finding> typos = spellChecker.check(text);
         String corrected = spellChecker.applyTopSuggestions(text, typos);
