@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <title>Toss Popup Bridge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        html,body {
+            margin:0; height:100%;
+            display:flex; align-items:center; justify-content:center;
+            background:#0b0c10; color:#e8e8e8;
+            font-family: system-ui, -apple-system, "Noto Sans KR", Roboto, Arial, sans-serif;
+        }
+        .box {
+            padding:16px 18px; border:1px solid #1f2430; border-radius:12px; background:#111318;
+            font-size:14px; color:#cbd5e1;
+        }
+    </style>
+</head>
+<body>
+<div class="box" id="msg">처리 중…</div>
+
+<script>
+    // 원래 결제 시작 페이지(팝업을 닫을 수 없는 환경일 때 폴백 리다이렉트)
+    const RETURN_PATH = "/payment.html";
+    const ORIGIN = location.origin;
+
+    function qs(n){ return new URLSearchParams(location.search).get(n); }
+    function canCloseSelf() {
+        try { return !!(window.opener && !window.opener.closed); } catch { return false; }
+    }
+    function toQuery(obj) {
+        const p = new URLSearchParams();
+        for (const k in obj) if (obj[k] != null) p.set(k, String(obj[k]));
+        return p.toString();
+    }
+    function finishWithSuccess(paid){
+        const paymentData = paid.data || paid;
+
+        try {
+            window.opener && window.opener.postMessage(
+                {
+                    type:'TOSS_SUCCESS',
+                    orderId: paymentData.orderId,
+                    amount:  paymentData.amount,
+                    method:  paymentData.method,
+                    provider: paymentData.provider,
+                    receiptUrl: paymentData.receiptUrl
+                },
+                ORIGIN
+            );
+        } catch(e) {}
+
+        if (canCloseSelf()) {
+            // 팝업 닫기 시도 후, 혹시 브라우저 정책으로 미닫힘 시 폴백 리다이렉트
+            window.close();
+            setTimeout(() => {
+                location.replace(`${RETURN_PATH}?` + toQuery({
+                    status:'success',
+                    orderId: paymentData.orderId,
+                    amount: paymentData.amount
+                }));
+            }, 300);
+        } else {
+            location.replace(`${RETURN_PATH}?` + toQuery({
+                status:'success',
+                orderId: paymentData.orderId,
+                amount: paymentData.amount
+            }));
+        }
+    }
+    function finishWithFail(orderId, code, message){
+        try {
+            window.opener && window.opener.postMessage(
+                { type:'TOSS_FAIL', orderId, code, message },
+                ORIGIN
+            );
+        } catch(e) {}
+
+        if (canCloseSelf()) {
+            window.close();
+            setTimeout(() => {
+                location.replace(`${RETURN_PATH}?` + toQuery({
+                    status:'fail', orderId, code, message
+                }));
+            }, 300);
+        } else {
+            location.replace(`${RETURN_PATH}?` + toQuery({
+                status:'fail', orderId, code, message
+            }));
+        }
+    }
+
+    (async function run(){
+        const code = qs('code');           // 실패 시 제공
+        const message = qs('message');
+        const orderId = qs('orderId');
+        const paymentKey = qs('paymentKey'); // 성공 시 제공
+        const amount = qs('amount');
+
+        try {
+            // 1) 실패 콜백으로 도착
+            if (code || message) {
+                return finishWithFail(orderId, code, message);
+            }
+
+            // 2) 성공 콜백 → 서버 승인(Confirm) 필수
+            if (!paymentKey || !orderId || !amount) {
+                return finishWithFail(orderId, 'INVALID_CALLBACK', '잘못된 콜백 파라미터');
+            }
+
+            const resp = await fetch(ORIGIN + '/api/toss/confirm', {
+                method: 'POST',
+                headers: { 'Content-Type':'application/json' },
+                body: JSON.stringify({ paymentKey, orderCode: orderId, price: amount })
+            });
+
+            if (!resp.ok) {
+                const t = await resp.text().catch(()=> '');
+                return finishWithFail(orderId, 'CONFIRM_FAILED', t || String(resp.status));
+            }
+
+            const paid = await resp.json();  // PaymentToss JSON
+            return finishWithSuccess(paid);
+
+        } catch (e) {
+            return finishWithFail(orderId, 'POPUP_ERROR', (e && e.message) || String(e));
+        }
+    })();
+</script>
+</body>
+</html>

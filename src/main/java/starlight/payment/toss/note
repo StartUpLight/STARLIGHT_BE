@@ -1,0 +1,11 @@
+클라이언트 토스 결제 요청
+https://github.com/KMU-WINK/seoul-in-culture-client/blob/7cf5a8c11593384a613330deede60125e9b0c89e/src/app/meeting/%5Bid%5D/_modal/join-meeting.modal.tsx#L28-L43
+
+클라이언트 토스 결제 성공 콜백
+https://github.com/KMU-WINK/seoul-in-culture-client/blob/develop/src/app/meeting/%5Bid%5D/join/success/page.tsx
+
+서버 결제 승인
+https://github.com/KMU-WINK/seoul-in-culture-server/blob/da47f5768310d84cf65c2d2bb76831fb0512e2d3/src/main/java/com/github/kmu_wink/seoul_in_culture/domain/meeting/service/MeetingService.java#L142-L148
+
+서버 결제 승인 모듈
+https://github.com/KMU-WINK/seoul-in-culture-server/blob/develop/src/main/java/com/github/kmu_wink/seoul_in_culture/common/toss/TossApi.java

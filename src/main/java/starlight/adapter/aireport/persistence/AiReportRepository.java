@@ -6,6 +6,7 @@ import starlight.domain.aireport.entity.AiReport;
 import java.util.Optional;
 
 public interface AiReportRepository extends JpaRepository<AiReport, Long> {
+
     Optional<AiReport> findByBusinessPlanId(Long businessPlanId);
 }
 

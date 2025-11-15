@@ -77,4 +77,24 @@ public class RestClientConfig {
                 .defaultHeader("Content-Type", "application/json")
                 .build();
     }
+
+    @Bean(name = "tossRestClient")
+    public RestClient tossRestClient(
+            @Value("${toss.secretKey}") String secretKey,
+            @Value("${toss.baseUrl}") String baseUrl
+    ) {
+        JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory();
+        factory.setReadTimeout(Duration.ofSeconds(20)); // 필요 시 조정
+
+        String basic = java.util.Base64.getEncoder()
+                .encodeToString((secretKey + ":").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+        return RestClient.builder()
+                .baseUrl(baseUrl)
+                .requestFactory(factory)
+                .defaultHeader("Authorization", "Basic " + basic)
+                .defaultHeader("Content-Type", "application/json")
+                .defaultHeader("Accept", "application/json")
+                .build();
+    }
 }

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -69,10 +70,17 @@ public class SecurityConfig {
                         .requestMatchers("/error/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/", "/index.html", "/ops.html").permitAll()
+                        .requestMatchers("/", "/index.html", "/ops.html", "/payment.html", "/api/payment/**").permitAll()
                         .requestMatchers("/v1/auth/**","/v1/user/**", "/v1/experts").permitAll()
                         .requestMatchers("/login/**", "/oauth2/**", "/login/oauth2/**", "/public/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/v1/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**").permitAll()
+                        .requestMatchers(
+                                "/toss/config", "/toss/success", "/toss/fail",
+                                "/toss/popup.html", "/payment.html",
+                                "/api/toss/request",      // 사전 저장
+                                "/api/toss/confirm", "/api/toss/cancel"       // 결제 승인 콜백/확인
+                        ).permitAll()
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
                         .loginPage("/login/oauth2/code/kakao")
