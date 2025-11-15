@@ -42,6 +42,18 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     }
 
     @Override
+    public BusinessPlanResponse.Result createBusinessPlanWithPdf(String title, String pdfUrl, Long memberId) {
+        BusinessPlan plan = BusinessPlan.createWithPdf(
+                title,
+                memberId,
+                pdfUrl,
+                PlanStatus.WRITTEN_COMPLETED
+        );
+
+        return BusinessPlanResponse.Result.from(businessPlanQuery.save(plan), "PDF Business plan created");
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public BusinessPlanResponse.Result getBusinessPlanInfo(Long planId, Long memberId) {
         BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
@@ -72,7 +84,7 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     }
 
     @Override
-    public String updateBusinessPlanTitle(Long planId, Long memberId, String title) {
+    public String updateBusinessPlanTitle(Long planId, String title, Long memberId) {
         BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
 
         plan.updateTitle(title);
@@ -108,17 +120,14 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
         String rawJsonStr = getSerializedJsonNodesWithUpdatedChecks(jsonNode, checks);
         String content = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
 
-        SubSection targetSubSection;
         String message;
 
         if (subSection == null) {
             SubSection newSubSection = SubSection.create(subSectionType, content, rawJsonStr, checks);
             section.putSubSection(newSubSection);
-            targetSubSection = newSubSection;
             message = "Subsection created";
         } else {
             subSection.update(content, rawJsonStr, checks);
-            targetSubSection = subSection;
             message = "Subsection updated";
         }
 
@@ -164,11 +173,9 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
 
         String newContent = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
 
-        // ?�전 ?�보 추출
         String previousContent = subSection.getContent();
         List<Boolean> previousChecks = subSection.getChecks();
 
-        // ?�합??check 메소???�용 (?�전 ?�보가 ?�으�?null ?�달)
         List<Boolean> checks = checklistGrader.check(subSectionType, newContent, previousContent, previousChecks);
 
         SubSectionSupportUtils.requireSize(checks, SubSection.getCHECKLIST_SIZE());
@@ -203,7 +210,6 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
 
         ObjectNode updatedJsonNode = (ObjectNode) objectMapper.valueToTree(jsonNode);
 
-        // 기존 checks 배열???�으�?가?�오�??�데?�트
         ArrayNode checkListArray;
         if (updatedJsonNode.has("checks") && updatedJsonNode.get("checks").isArray()) {
             checkListArray = (ArrayNode) updatedJsonNode.get("checks");

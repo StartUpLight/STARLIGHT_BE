@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.businessplan.webapi.dto.BusinessPlanCreateRequest;
+import starlight.adapter.businessplan.webapi.dto.BusinessPlanCreateWithPdfRequest;
 import starlight.adapter.businessplan.webapi.dto.SubSectionCreateRequest;
 import starlight.application.businessplan.provided.dto.BusinessPlanResponse;
 import starlight.application.businessplan.provided.dto.SubSectionResponse;
@@ -34,9 +35,7 @@ public class BusinessPlanController {
     public ApiResponse<List<BusinessPlanResponse.Preview>> getBusinessPlanList(
             @AuthenticationPrincipal AuthDetails authDetails
     ) {
-        return ApiResponse.success(businessPlanService
-                .getBusinessPlanList(authDetails.getMemberId()
-        ));
+        return ApiResponse.success(businessPlanService.getBusinessPlanList(authDetails.getMemberId()));
     }
 
     @GetMapping("/{planId}/subsections")
@@ -45,8 +44,8 @@ public class BusinessPlanController {
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId
     ) {
-        return ApiResponse.success(businessPlanService
-                .getBusinessPlanDetail(planId, authDetails.getMemberId()
+        return ApiResponse.success(businessPlanService.getBusinessPlanDetail(
+                planId, authDetails.getMemberId()
         ));
     }
 
@@ -67,8 +66,17 @@ public class BusinessPlanController {
     public ApiResponse<BusinessPlanResponse.Result> createBusinessPlan(
             @AuthenticationPrincipal AuthDetails authDetails
     ) {
-        return ApiResponse.success(businessPlanService
-                .createBusinessPlan(authDetails.getMemberId()
+        return ApiResponse.success(businessPlanService.createBusinessPlan(authDetails.getMemberId()));
+    }
+
+    @PostMapping("/with-pdf")
+    @Operation(summary = "PDF URL을 기반으로 사업계획서를 생성합니다.")
+    public ApiResponse<BusinessPlanResponse.Result> createBusinessPlanWithPdfAndAiReport(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @Valid @RequestBody BusinessPlanCreateWithPdfRequest request
+    ) {
+        return ApiResponse.success(businessPlanService.createBusinessPlanWithPdf(
+                request.title(), request.pdfUrl(), authDetails.getMemberId()
         ));
     }
 
@@ -79,8 +87,8 @@ public class BusinessPlanController {
             @RequestBody @Valid BusinessPlanCreateRequest request,
             @PathVariable Long planId
     ) {
-        return ApiResponse.success(businessPlanService
-                .updateBusinessPlanTitle(planId, authDetails.getMemberId(), request.title()
+        return ApiResponse.success(businessPlanService.updateBusinessPlanTitle(
+                planId, request.title(), authDetails.getMemberId()
         ));
     }
 
@@ -90,8 +98,8 @@ public class BusinessPlanController {
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId
     ) {
-        return ApiResponse.success(businessPlanService
-                .deleteBusinessPlan(planId, authDetails.getMemberId()
+        return ApiResponse.success(businessPlanService.deleteBusinessPlan(
+                planId, authDetails.getMemberId()
         ));
     }
 

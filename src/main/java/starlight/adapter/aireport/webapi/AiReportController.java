@@ -2,12 +2,14 @@ package starlight.adapter.aireport.webapi;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import starlight.adapter.auth.security.auth.AuthDetails;
-import starlight.application.aireport.dto.AiReportResponse;
+import starlight.adapter.businessplan.webapi.dto.BusinessPlanCreateWithPdfRequest;
+import starlight.application.aireport.provided.dto.AiReportResponse;
 import starlight.application.aireport.provided.AiReportService;
 import starlight.shared.apiPayload.response.ApiResponse;
 
@@ -27,6 +29,19 @@ public class AiReportController {
             @PathVariable Long planId
     ) {
         return ApiResponse.success(aiReportService.gradeBusinessPlan(planId, authDetails.getMemberId()));
+    }
+
+    @Operation(summary = "PDF URL을 기반으로 사업계획서를 생성하고, AI로 채점 및 생성합니다.")
+    @PostMapping("/grade-with-pdf")
+    public ApiResponse<AiReportResponse> createAndGradeBusinessPlan(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @Valid @RequestBody BusinessPlanCreateWithPdfRequest request
+    ) {
+        return ApiResponse.success(aiReportService.createAndGradePdfBusinessPlan(
+                request.title(),
+                request.pdfUrl(),
+                authDetails.getMemberId()
+        ));
     }
 
     @Operation(summary = "AI 리포트를 조회합니다.")
