@@ -1,8 +1,13 @@
 package starlight.application.aireport;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import starlight.adapter.ai.util.AiReportResponseParser;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
 import starlight.application.aireport.provided.dto.AiReportResponse;
@@ -43,7 +48,7 @@ public class AiReportServiceImpl implements AiReportService {
 
         BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
         checkBusinessPlanOwned(plan, memberId);
-        checkBusinessPlanWritingCompleted(plan, memberId);
+        checkBusinessPlanWritingCompleted(plan);
 
         AiReportResponse gradingResult = aiReportGrader.gradeContent(contentExtractor.extractContent(plan));
 
@@ -108,8 +113,10 @@ public class AiReportServiceImpl implements AiReportService {
             aiReport.update(rawJsonString);
         } else {
             aiReport = AiReport.create(plan.getId(), rawJsonString);
-            plan.updateStatus(PlanStatus.AI_REVIEWED);
         }
+        plan.updateStatus(PlanStatus.AI_REVIEWED);
+        businessPlanQuery.save(plan);
+
         return aiReport;
     }
 
@@ -119,7 +126,7 @@ public class AiReportServiceImpl implements AiReportService {
         }
     }
 
-    private void checkBusinessPlanWritingCompleted(BusinessPlan plan, Long memberId) {
+    private void checkBusinessPlanWritingCompleted(BusinessPlan plan) {
         if (!plan.areWritingCompleted()) {
             throw new AiReportException(AiReportErrorType.NOT_READY_FOR_AI_REPORT);
         }
