@@ -120,7 +120,7 @@ class AiReportServiceImplIntegrationTest {
                 }
 
                 @Override
-                public starlight.application.businessplan.provided.dto.SubSectionResponse.Result createOrUpdateSubSection(
+                public starlight.application.businessplan.provided.dto.SubSectionResponse.Result upsertSubSection(
                         Long planId, com.fasterxml.jackson.databind.JsonNode jsonNode, List<Boolean> checks,
                         starlight.domain.businessplan.enumerate.SubSectionType subSectionType, Long memberId) {
                     throw new UnsupportedOperationException("Not implemented in test");

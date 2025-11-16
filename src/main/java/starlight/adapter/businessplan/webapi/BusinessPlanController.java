@@ -110,7 +110,7 @@ public class BusinessPlanController {
             @PathVariable Long planId,
             @Valid @RequestBody SubSectionCreateRequest request
     ) {
-        return ApiResponse.success(businessPlanService.createOrUpdateSubSection(
+        return ApiResponse.success(businessPlanService.upsertSubSection(
                 planId, objectMapper.valueToTree(request), request.checks(), request.subSectionType(), authDetails.getMemberId()
         ));
     }

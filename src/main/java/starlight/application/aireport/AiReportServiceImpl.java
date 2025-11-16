@@ -49,7 +49,7 @@ public class AiReportServiceImpl implements AiReportService {
 
         String rawJsonString = getRawJsonAiReportResponseFromGradingResult(gradingResult);
 
-        AiReport aiReport = createOrUpdateAiReportWithRawJsonStr(rawJsonString, plan);
+        AiReport aiReport = upsertAiReportWithRawJsonStr(rawJsonString, plan);
 
         return responseParser.toResponse(aiReportQuery.save(aiReport));
     }
@@ -71,7 +71,7 @@ public class AiReportServiceImpl implements AiReportService {
 
         String rawJsonString = getRawJsonAiReportResponseFromGradingResult(gradingResult);
 
-        AiReport aiReport = createOrUpdateAiReportWithRawJsonStr(rawJsonString, plan);
+        AiReport aiReport = upsertAiReportWithRawJsonStr(rawJsonString, plan);
 
         return responseParser.toResponse(aiReportQuery.save(aiReport));
     }
@@ -99,7 +99,7 @@ public class AiReportServiceImpl implements AiReportService {
         return rawJsonString;
     }
 
-    private AiReport createOrUpdateAiReportWithRawJsonStr(String rawJsonString, BusinessPlan plan) {
+    private AiReport upsertAiReportWithRawJsonStr(String rawJsonString, BusinessPlan plan) {
         Optional<AiReport> existingReport = aiReportQuery.findByBusinessPlanId(plan.getId());
 
         AiReport aiReport;

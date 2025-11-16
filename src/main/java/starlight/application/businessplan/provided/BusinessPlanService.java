@@ -23,8 +23,8 @@ public interface BusinessPlanService {
 
     BusinessPlanResponse.Result deleteBusinessPlan(Long planId, Long memberId);
 
-    SubSectionResponse.Result createOrUpdateSubSection(Long planId, JsonNode jsonNode, List<Boolean> checks,
-            SubSectionType subSectionType, Long memberId);
+    SubSectionResponse.Result upsertSubSection(Long planId, JsonNode jsonNode, List<Boolean> checks,
+                                               SubSectionType subSectionType, Long memberId);
 
     SubSectionResponse.Detail getSubSectionDetail(Long planId, SubSectionType subSectionType, Long memberId);
 

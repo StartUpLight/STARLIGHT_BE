@@ -105,7 +105,7 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     }
 
     @Override
-    public SubSectionResponse.Result createOrUpdateSubSection(
+    public SubSectionResponse.Result upsertSubSection(
             Long planId,
             JsonNode jsonNode,
             List<Boolean> checks,
