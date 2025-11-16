@@ -20,8 +20,13 @@ import starlight.domain.businessplan.entity.BaseSection;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
 import starlight.shared.enumerate.SectionType;
+import starlight.application.member.required.MemberQuery;
+import starlight.domain.member.entity.Member;
 
 import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -40,12 +45,14 @@ class BusinessPlanServiceImplUnitTest {
     @Mock
     private ObjectMapper objectMapper;
 
+    @Mock
+    private MemberQuery memberQuery;
+
     @InjectMocks
     private BusinessPlanServiceImpl sut;
 
     private BusinessPlan buildPlanWithSections(Long memberId) {
-        BusinessPlan plan = BusinessPlan.create(memberId);
-        return plan;
+        return BusinessPlan.create("default title", memberId);
     }
 
     @BeforeEach
@@ -56,6 +63,10 @@ class BusinessPlanServiceImplUnitTest {
             when(objectMapper.writeValueAsString(any())).thenReturn("{}");
         } catch (Exception ignored) {
         }
+        // memberQuery 기본 스텁
+        Member stubMember = mock(Member.class);
+        when(stubMember.getName()).thenReturn("tester");
+        when(memberQuery.getOrThrow(anyLong())).thenReturn(stubMember);
     }
 
     @Test
@@ -291,17 +302,26 @@ class BusinessPlanServiceImplUnitTest {
     }
 
     @Test
-    @DisplayName("사업계획서 목록 조회 시 memberId 기준 정렬된 리스트를 반환한다")
-    void getBusinessPlanList_returnsOrderedList() {
+    @DisplayName("사업계획서 목록 조회(PreviewPage): 매핑 필드를 올바르게 반환한다")
+    void getBusinessPlanList_returnsPreviewPage() {
+        // given
         BusinessPlan plan = buildPlanWithSections(1L);
-        when(businessPlanQuery.findAllByMemberIdOrderByModifiedAtDesc(1L))
-                .thenReturn(List.of(plan));
+        Pageable pageable = PageRequest.of(1, 3); // 내부 0-base 가정, 여기선 1페이지(=두번째) 요청
+        when(businessPlanQuery.findPreviewPage(any(Long.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(plan), pageable, 7));
 
-        List<BusinessPlanResponse.Preview> result = sut.getBusinessPlanList(1L);
+        // when
+        BusinessPlanResponse.PreviewPage res = sut.getBusinessPlanList(1L, pageable);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).businessPlanId()).isEqualTo(plan.getId());
-        verify(businessPlanQuery).findAllByMemberIdOrderByModifiedAtDesc(1L);
+        // then
+        assertThat(res.totalElements()).isEqualTo(7);
+        assertThat(res.size()).isEqualTo(3);
+        assertThat(res.page()).isEqualTo(pageable.getPageNumber() + 1); // 1-base
+        assertThat(res.totalPages()).isEqualTo((int) Math.ceil(7 / 3.0));
+        assertThat(res.numberOfElements()).isEqualTo(1);
+        assertThat(res.content()).hasSize(1);
+        assertThat(res.content().get(0).businessPlanId()).isEqualTo(plan.getId());
+        verify(businessPlanQuery).findPreviewPage(any(Long.class), any(Pageable.class));
     }
 
     @Test

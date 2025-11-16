@@ -142,7 +142,8 @@ class AiReportServiceImplUnitTest {
         // then
         assertThat(result).isNotNull();
         verify(existingReport).update(anyString());
-        verify(plan, never()).updateStatus(any());
+        // 기존 리포트가 있어도 상태는 AI_REVIEWED로 갱신됨
+        verify(plan).updateStatus(PlanStatus.AI_REVIEWED);
     }
 
     @Test
