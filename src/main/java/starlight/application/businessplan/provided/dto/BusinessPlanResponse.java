@@ -1,6 +1,7 @@
 package starlight.application.businessplan.provided.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.data.domain.Page;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.PlanStatus;
 
@@ -64,11 +65,29 @@ public record BusinessPlanResponse() {
                     businessPlan.getPlanStatus()
             );
         }
+    }
 
-        public static List<Preview> fromAll(List<BusinessPlan> businessPlans) {
-            return businessPlans.stream()
-                    .map(Preview::from)
-                    .toList();
+    public record PreviewPage(
+            List<Preview> content,
+            int page,
+            int size,
+            int totalPages,
+            long totalElements,
+            int numberOfElements,
+            boolean first,
+            boolean last
+    ) {
+        public static PreviewPage from(List<BusinessPlanResponse.Preview> content, Page<?> page) {
+            return new BusinessPlanResponse.PreviewPage(
+                    content,
+                    page.getNumber() + 1,
+                    page.getSize(),
+                    page.getTotalPages(),
+                    page.getTotalElements(),
+                    page.getNumberOfElements(),
+                    page.isFirst(),
+                    page.isLast()
+            );
         }
     }
 }

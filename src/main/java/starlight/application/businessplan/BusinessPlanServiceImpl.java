@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.application.businessplan.provided.dto.BusinessPlanResponse;
@@ -41,7 +43,7 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     public BusinessPlanResponse.Result createBusinessPlan(Long memberId) {
         Member member = memberQuery.getOrThrow(memberId);
 
-        String planTitle = member.getName()==null ? "제목 없는 사업계획서": member.getName() + "의 사업계획서";
+        String planTitle = member.getName() == null ? "제목 없는 사업계획서" : member.getName() + "의 사업계획서";
 
         BusinessPlan plan = BusinessPlan.create(planTitle, memberId);
 
@@ -83,10 +85,13 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BusinessPlanResponse.Preview> getBusinessPlanList(Long memberId) {
-        List<BusinessPlan> planList = businessPlanQuery.findAllByMemberIdOrderByModifiedAtDesc(memberId);
+    public BusinessPlanResponse.PreviewPage getBusinessPlanList(Long memberId, Pageable pageable) {
+        Page<BusinessPlan> page = businessPlanQuery.findPreviewPage(memberId, pageable);
+        List<BusinessPlanResponse.Preview> content = page.getContent().stream()
+                .map(BusinessPlanResponse.Preview::from)
+                .toList();
 
-        return BusinessPlanResponse.Preview.fromAll(planList);
+        return BusinessPlanResponse.PreviewPage.from(content, page);
     }
 
     @Override
