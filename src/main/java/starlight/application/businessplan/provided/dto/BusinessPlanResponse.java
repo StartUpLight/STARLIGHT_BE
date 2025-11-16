@@ -47,6 +47,7 @@ public record BusinessPlanResponse() {
     public record Preview(
             Long businessPlanId,
             String title,
+            String pdfUrl,
             @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime lastSavedAt,
             PlanStatus planStatus
     ) {
@@ -58,6 +59,7 @@ public record BusinessPlanResponse() {
             return new Preview(
                     businessPlan.getId(),
                     businessPlan.getTitle(),
+                    businessPlan.isPdfBased() ? businessPlan.getPdfUrl() : null,
                     lastSavedAt,
                     businessPlan.getPlanStatus()
             );

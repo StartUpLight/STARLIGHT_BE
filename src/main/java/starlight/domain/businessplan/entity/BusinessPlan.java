@@ -74,6 +74,10 @@ public class BusinessPlan extends AbstractEntity {
         return this.memberId.equals(memberId);
     }
 
+    public boolean isPdfBased() {
+        return this.pdfUrl != null;
+    }
+
     public void updateTitle(String title) {
         this.title = title;
     }
