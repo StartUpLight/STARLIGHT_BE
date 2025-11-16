@@ -40,7 +40,7 @@ public class BusinessPlanController {
 
     @GetMapping("/{planId}/subsections")
     @Operation(summary = "사업 계획서의 제목과 모든 서브섹션 내용을 조회합니다. (미리보기 용)")
-    public ApiResponse<BusinessPlanResponse.Detail> getBusinessPlanSubSections(
+    public ApiResponse<BusinessPlanResponse.Detail> getBusinessPlanDetail(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId
     ) {
@@ -105,7 +105,7 @@ public class BusinessPlanController {
 
     @Operation(summary = "서브섹션을 생성 또는 수정합니다.")
     @PostMapping("/{planId}/subsections")
-    public ApiResponse<SubSectionResponse.Result> createOrUpdateSubSection(
+    public ApiResponse<SubSectionResponse.Result> upsertSubSection(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId,
             @Valid @RequestBody SubSectionCreateRequest request
