@@ -14,8 +14,10 @@ import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.businessplan.required.ChecklistGrader;
 import starlight.application.businessplan.util.PlainTextExtractUtils;
 import starlight.application.businessplan.util.SubSectionSupportUtils;
+import starlight.application.member.required.MemberQuery;
 import starlight.domain.businessplan.entity.*;
 import starlight.domain.businessplan.enumerate.PlanStatus;
+import starlight.domain.member.entity.Member;
 import starlight.shared.enumerate.SectionType;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
@@ -31,12 +33,17 @@ import java.util.Objects;
 public class BusinessPlanServiceImpl implements BusinessPlanService {
 
     private final BusinessPlanQuery businessPlanQuery;
+    private final MemberQuery memberQuery;
     private final ChecklistGrader checklistGrader;
     private final ObjectMapper objectMapper;
 
     @Override
     public BusinessPlanResponse.Result createBusinessPlan(Long memberId) {
-        BusinessPlan plan = BusinessPlan.create(memberId);
+        Member member = memberQuery.getOrThrow(memberId);
+
+        String planTitle = member.getName()==null ? "제목 없는 사업계획서": member.getName() + "의 사업계획서";
+
+        BusinessPlan plan = BusinessPlan.create(planTitle, memberId);
 
         return BusinessPlanResponse.Result.from(businessPlanQuery.save(plan), "Business plan created");
     }
@@ -46,8 +53,7 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
         BusinessPlan plan = BusinessPlan.createWithPdf(
                 title,
                 memberId,
-                pdfUrl,
-                PlanStatus.WRITTEN_COMPLETED
+                pdfUrl
         );
 
         return BusinessPlanResponse.Result.from(businessPlanQuery.save(plan), "PDF Business plan created");

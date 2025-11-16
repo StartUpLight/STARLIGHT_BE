@@ -15,7 +15,7 @@ public class BusinessPlan extends AbstractEntity {
     @Column(nullable = false)
     private Long memberId;
 
-    @Column
+    @Column(nullable = false)
     private String title;
 
     @Column(length = 512)
@@ -40,10 +40,12 @@ public class BusinessPlan extends AbstractEntity {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "businessPlan")
     private TeamCompetence teamCompetence;
 
-    public static BusinessPlan create(Long memberId) {
+    public static BusinessPlan create(String title, Long memberId) {
+        Assert.notNull(title, "title must not be null");
         Assert.notNull(memberId, "memberId must not be null");
 
         BusinessPlan businessPlan = new BusinessPlan();
+        businessPlan.title = title;
         businessPlan.memberId = memberId;
         businessPlan.planStatus = PlanStatus.STARTED;
 
@@ -52,14 +54,16 @@ public class BusinessPlan extends AbstractEntity {
         return businessPlan;
     }
 
-    public static BusinessPlan createWithPdf(String title, Long memberId, String pdfUrl, PlanStatus planStatus) {
+    public static BusinessPlan createWithPdf(String title, Long memberId, String pdfUrl) {
+        Assert.notNull(title, "title must not be null");
         Assert.notNull(memberId, "memberId must not be null");
+        Assert.notNull(pdfUrl, "pdfUrl must not be null");
 
         BusinessPlan businessPlan = new BusinessPlan();
         businessPlan.title = title;
         businessPlan.memberId = memberId;
         businessPlan.pdfUrl = pdfUrl;
-        businessPlan.planStatus = (planStatus != null) ? planStatus : PlanStatus.STARTED;
+        businessPlan.planStatus = PlanStatus.WRITTEN_COMPLETED;
 
         businessPlan.initializeSections();
 

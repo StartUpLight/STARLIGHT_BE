@@ -1,0 +1,22 @@
+package starlight.adapter.member.persistence;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+import starlight.application.member.required.MemberQuery;
+import starlight.domain.member.entity.Member;
+import starlight.domain.member.exception.MemberErrorType;
+import starlight.domain.member.exception.MemberException;
+
+@Repository
+@RequiredArgsConstructor
+public class MemberJpa implements MemberQuery {
+
+    private final MemberRepository memberRepository;
+
+    @Override
+    public Member getOrThrow(Long id) {
+        return memberRepository.findById(id).orElseThrow(
+                () -> new MemberException(MemberErrorType.MEMBER_NOT_FOUND)
+        );
+    }
+}
