@@ -121,7 +121,8 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
             JsonNode jsonNode,
             List<Boolean> checks,
             SubSectionType subSectionType,
-            Long memberId) {
+            Long memberId
+    ) {
         BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
 
         SectionType sectionType = subSectionType.getSectionType();
