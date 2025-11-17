@@ -1,20 +1,20 @@
 package starlight.application.aireport;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.adapter.ai.util.AiReportResponseParser;
-import starlight.application.businessplan.util.BusinessPlanContentExtractor;
-import starlight.application.aireport.provided.dto.AiReportResponse;
 import starlight.application.aireport.provided.AiReportService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import starlight.application.aireport.provided.dto.AiReportResponse;
 import starlight.application.aireport.required.AiReportGrader;
 import starlight.application.aireport.required.AiReportQuery;
 import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.application.businessplan.provided.dto.BusinessPlanResponse;
 import starlight.application.businessplan.required.BusinessPlanQuery;
+import starlight.application.businessplan.util.BusinessPlanContentExtractor;
 import starlight.application.infrastructure.provided.OcrProvider;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.aireport.exception.AiReportErrorType;
@@ -43,13 +43,13 @@ public class AiReportServiceImpl implements AiReportService {
 
         BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
         checkBusinessPlanOwned(plan, memberId);
-        checkBusinessPlanWritingCompleted(plan, memberId);
+        checkBusinessPlanWritingCompleted(plan);
 
         AiReportResponse gradingResult = aiReportGrader.gradeContent(contentExtractor.extractContent(plan));
 
         String rawJsonString = getRawJsonAiReportResponseFromGradingResult(gradingResult);
 
-        AiReport aiReport = createOrUpdateAiReportWithRawJsonStr(rawJsonString, plan);
+        AiReport aiReport = upsertAiReportWithRawJsonStr(rawJsonString, plan);
 
         return responseParser.toResponse(aiReportQuery.save(aiReport));
     }
@@ -71,7 +71,7 @@ public class AiReportServiceImpl implements AiReportService {
 
         String rawJsonString = getRawJsonAiReportResponseFromGradingResult(gradingResult);
 
-        AiReport aiReport = createOrUpdateAiReportWithRawJsonStr(rawJsonString, plan);
+        AiReport aiReport = upsertAiReportWithRawJsonStr(rawJsonString, plan);
 
         return responseParser.toResponse(aiReportQuery.save(aiReport));
     }
@@ -99,7 +99,7 @@ public class AiReportServiceImpl implements AiReportService {
         return rawJsonString;
     }
 
-    private AiReport createOrUpdateAiReportWithRawJsonStr(String rawJsonString, BusinessPlan plan) {
+    private AiReport upsertAiReportWithRawJsonStr(String rawJsonString, BusinessPlan plan) {
         Optional<AiReport> existingReport = aiReportQuery.findByBusinessPlanId(plan.getId());
 
         AiReport aiReport;
@@ -108,8 +108,10 @@ public class AiReportServiceImpl implements AiReportService {
             aiReport.update(rawJsonString);
         } else {
             aiReport = AiReport.create(plan.getId(), rawJsonString);
-            plan.updateStatus(PlanStatus.AI_REVIEWED);
         }
+        plan.updateStatus(PlanStatus.AI_REVIEWED);
+        businessPlanQuery.save(plan);
+
         return aiReport;
     }
 
@@ -119,7 +121,7 @@ public class AiReportServiceImpl implements AiReportService {
         }
     }
 
-    private void checkBusinessPlanWritingCompleted(BusinessPlan plan, Long memberId) {
+    private void checkBusinessPlanWritingCompleted(BusinessPlan plan) {
         if (!plan.areWritingCompleted()) {
             throw new AiReportException(AiReportErrorType.NOT_READY_FOR_AI_REPORT);
         }

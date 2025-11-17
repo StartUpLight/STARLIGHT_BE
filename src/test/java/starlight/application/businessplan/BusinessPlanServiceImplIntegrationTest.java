@@ -12,13 +12,17 @@ import org.springframework.context.annotation.Import;
 import starlight.adapter.businessplan.persistence.BusinessPlanJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
 import starlight.application.businessplan.required.ChecklistGrader;
+import starlight.application.member.required.MemberQuery;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.SubSection;
 import starlight.domain.businessplan.enumerate.SubSectionType;
+import starlight.domain.member.entity.Member;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
@@ -42,6 +46,18 @@ class BusinessPlanServiceImplIntegrationTest {
         @Bean
         ObjectMapper objectMapper() {
             return new ObjectMapper();
+        }
+
+        @Bean
+        MemberQuery memberQuery() {
+            return new MemberQuery() {
+                @Override
+                public Member getOrThrow(Long memberId) {
+                    Member m = mock(Member.class);
+                    when(m.getName()).thenReturn("tester");
+                    return m;
+                }
+            };
         }
     }
 

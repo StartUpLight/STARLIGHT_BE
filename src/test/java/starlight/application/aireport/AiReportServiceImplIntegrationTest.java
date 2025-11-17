@@ -81,15 +81,19 @@ class AiReportServiceImplIntegrationTest {
         BusinessPlanService businessPlanService(BusinessPlanRepository businessPlanRepository) {
             return new BusinessPlanService() {
                 @Override
+                public starlight.application.businessplan.provided.dto.BusinessPlanResponse.PreviewPage getBusinessPlanList(Long memberId, org.springframework.data.domain.Pageable pageable) {
+                    throw new UnsupportedOperationException("Not implemented in test");
+                }
+                @Override
                 public BusinessPlanResponse.Result createBusinessPlan(Long memberId) {
-                    BusinessPlan plan = BusinessPlan.create(memberId);
+                    BusinessPlan plan = BusinessPlan.create("default title", memberId);
                     BusinessPlan saved = businessPlanRepository.save(plan);
                     return BusinessPlanResponse.Result.from(saved, "Business plan created");
                 }
 
                 @Override
                 public BusinessPlanResponse.Result createBusinessPlanWithPdf(String title, String pdfUrl, Long memberId) {
-                    BusinessPlan plan = BusinessPlan.createWithPdf(title, memberId, pdfUrl, PlanStatus.WRITTEN_COMPLETED);
+                    BusinessPlan plan = BusinessPlan.createWithPdf(title, memberId, pdfUrl);
                     BusinessPlan saved = businessPlanRepository.save(plan);
                     return BusinessPlanResponse.Result.from(saved, "PDF Business plan created");
                 }
@@ -105,11 +109,6 @@ class AiReportServiceImplIntegrationTest {
                 }
 
                 @Override
-                public List<BusinessPlanResponse.Preview> getBusinessPlanList(Long memberId) {
-                    throw new UnsupportedOperationException("Not implemented in test");
-                }
-
-                @Override
                 public String updateBusinessPlanTitle(Long planId, String title, Long memberId) {
                     throw new UnsupportedOperationException("Not implemented in test");
                 }
@@ -120,7 +119,7 @@ class AiReportServiceImplIntegrationTest {
                 }
 
                 @Override
-                public starlight.application.businessplan.provided.dto.SubSectionResponse.Result createOrUpdateSubSection(
+                public starlight.application.businessplan.provided.dto.SubSectionResponse.Result upsertSubSection(
                         Long planId, com.fasterxml.jackson.databind.JsonNode jsonNode, List<Boolean> checks,
                         starlight.domain.businessplan.enumerate.SubSectionType subSectionType, Long memberId) {
                     throw new UnsupportedOperationException("Not implemented in test");
@@ -209,7 +208,7 @@ class AiReportServiceImplIntegrationTest {
     void gradeBusinessPlan_createsNewReport() {
         // given
         Long memberId = 1L;
-        BusinessPlan plan = businessPlanRepository.save(BusinessPlan.create(memberId));
+        BusinessPlan plan = businessPlanRepository.save(BusinessPlan.create("default title", memberId));
         createAllSubSections(plan);
         businessPlanRepository.save(plan);
         em.flush();
@@ -248,7 +247,7 @@ class AiReportServiceImplIntegrationTest {
     void gradeBusinessPlan_updatesExistingReport() {
         // given
         Long memberId = 1L;
-        BusinessPlan plan = businessPlanRepository.save(BusinessPlan.create(memberId));
+        BusinessPlan plan = businessPlanRepository.save(BusinessPlan.create("default title", memberId));
         createAllSubSections(plan);
         businessPlanRepository.save(plan);
         em.flush();
@@ -279,7 +278,7 @@ class AiReportServiceImplIntegrationTest {
     void getAiReport_returnsResponse() {
         // given
         Long memberId = 1L;
-        BusinessPlan plan = businessPlanRepository.save(BusinessPlan.create(memberId));
+        BusinessPlan plan = businessPlanRepository.save(BusinessPlan.create("default title", memberId));
         createAllSubSections(plan);
         businessPlanRepository.save(plan);
         em.flush();
@@ -310,7 +309,7 @@ class AiReportServiceImplIntegrationTest {
     void convertToJsonNode_and_toResponse_workCorrectly() {
         // given
         Long memberId = 1L;
-        BusinessPlan plan = businessPlanRepository.save(BusinessPlan.create(memberId));
+        BusinessPlan plan = businessPlanRepository.save(BusinessPlan.create("default title", memberId));
         createAllSubSections(plan);
         businessPlanRepository.save(plan);
         em.flush();

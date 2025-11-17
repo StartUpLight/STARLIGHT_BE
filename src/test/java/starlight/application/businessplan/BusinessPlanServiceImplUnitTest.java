@@ -20,8 +20,13 @@ import starlight.domain.businessplan.entity.BaseSection;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
 import starlight.shared.enumerate.SectionType;
+import starlight.application.member.required.MemberQuery;
+import starlight.domain.member.entity.Member;
 
 import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -40,12 +45,14 @@ class BusinessPlanServiceImplUnitTest {
     @Mock
     private ObjectMapper objectMapper;
 
+    @Mock
+    private MemberQuery memberQuery;
+
     @InjectMocks
     private BusinessPlanServiceImpl sut;
 
     private BusinessPlan buildPlanWithSections(Long memberId) {
-        BusinessPlan plan = BusinessPlan.create(memberId);
-        return plan;
+        return BusinessPlan.create("default title", memberId);
     }
 
     @BeforeEach
@@ -56,6 +63,10 @@ class BusinessPlanServiceImplUnitTest {
             when(objectMapper.writeValueAsString(any())).thenReturn("{}");
         } catch (Exception ignored) {
         }
+        // memberQuery 기본 스텁
+        Member stubMember = mock(Member.class);
+        when(stubMember.getName()).thenReturn("tester");
+        when(memberQuery.getOrThrow(anyLong())).thenReturn(stubMember);
     }
 
     @Test
@@ -134,7 +145,7 @@ class BusinessPlanServiceImplUnitTest {
 
     @Test
     @DisplayName("서브섹션 생성: 없으면 신규 생성 후 부모 섹션에 연결하여 저장")
-    void createOrUpdateSubSection_creates_whenNotExists() {
+    void upsertSubSection_creates_whenNotExists() {
         // given
         BusinessPlan plan = buildPlanWithSections(10L);
         Overview overview = plan.getOverview();
@@ -154,7 +165,7 @@ class BusinessPlanServiceImplUnitTest {
 
         // when
         List<Boolean> checks = List.of(false, false, false, false, false);
-        SubSectionResponse.Result res = sut.createOrUpdateSubSection(1L, jsonNode, checks,
+        SubSectionResponse.Result res = sut.upsertSubSection(1L, jsonNode, checks,
                 SubSectionType.OVERVIEW_BASIC, 10L);
 
         // then
@@ -169,7 +180,7 @@ class BusinessPlanServiceImplUnitTest {
 
     @Test
     @DisplayName("서브섹션 생성: 기존 존재하면 업데이트 경로")
-    void createOrUpdateSubSection_updates_whenExists() {
+    void upsertSubSection_updates_whenExists() {
         BusinessPlan plan = buildPlanWithSections(10L);
         Overview overview = plan.getOverview();
 
@@ -192,7 +203,7 @@ class BusinessPlanServiceImplUnitTest {
         }
 
         List<Boolean> checks = List.of(false, false, false, false, false);
-        SubSectionResponse.Result res = sut.createOrUpdateSubSection(1L, jsonNode, checks,
+        SubSectionResponse.Result res = sut.upsertSubSection(1L, jsonNode, checks,
                 SubSectionType.OVERVIEW_BASIC, 10L);
 
         assertThat(res.message()).isEqualTo("Subsection updated");
@@ -201,7 +212,7 @@ class BusinessPlanServiceImplUnitTest {
 
     @Test
     @DisplayName("서브섹션 생성: 소유자 아님이면 예외")
-    void createOrUpdateSubSection_unauthorized_throws() {
+    void upsertSubSection_unauthorized_throws() {
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.isOwnedBy(10L)).thenReturn(false);
         when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
@@ -212,7 +223,7 @@ class BusinessPlanServiceImplUnitTest {
         List<Boolean> checks = List.of(false, false, false, false, false);
 
         org.junit.jupiter.api.Assertions.assertThrows(BusinessPlanException.class,
-                () -> sut.createOrUpdateSubSection(1L, jsonNode, checks, SubSectionType.OVERVIEW_BASIC, 10L));
+                () -> sut.upsertSubSection(1L, jsonNode, checks, SubSectionType.OVERVIEW_BASIC, 10L));
     }
 
     @Test
@@ -291,17 +302,26 @@ class BusinessPlanServiceImplUnitTest {
     }
 
     @Test
-    @DisplayName("사업계획서 목록 조회 시 memberId 기준 정렬된 리스트를 반환한다")
-    void getBusinessPlanList_returnsOrderedList() {
+    @DisplayName("사업계획서 목록 조회(PreviewPage): 매핑 필드를 올바르게 반환한다")
+    void getBusinessPlanList_returnsPreviewPage() {
+        // given
         BusinessPlan plan = buildPlanWithSections(1L);
-        when(businessPlanQuery.findAllByMemberIdOrderByModifiedAtDesc(1L))
-                .thenReturn(List.of(plan));
+        Pageable pageable = PageRequest.of(1, 3); // 내부 0-base 가정, 여기선 1페이지(=두번째) 요청
+        when(businessPlanQuery.findPreviewPage(any(Long.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(plan), pageable, 7));
 
-        List<BusinessPlanResponse.Preview> result = sut.getBusinessPlanList(1L);
+        // when
+        BusinessPlanResponse.PreviewPage res = sut.getBusinessPlanList(1L, pageable);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).businessPlanId()).isEqualTo(plan.getId());
-        verify(businessPlanQuery).findAllByMemberIdOrderByModifiedAtDesc(1L);
+        // then
+        assertThat(res.totalElements()).isEqualTo(7);
+        assertThat(res.size()).isEqualTo(3);
+        assertThat(res.page()).isEqualTo(pageable.getPageNumber() + 1); // 1-base
+        assertThat(res.totalPages()).isEqualTo((int) Math.ceil(7 / 3.0));
+        assertThat(res.numberOfElements()).isEqualTo(1);
+        assertThat(res.content()).hasSize(1);
+        assertThat(res.content().get(0).businessPlanId()).isEqualTo(plan.getId());
+        verify(businessPlanQuery).findPreviewPage(any(Long.class), any(Pageable.class));
     }
 
     @Test
@@ -430,13 +450,13 @@ class BusinessPlanServiceImplUnitTest {
         }
 
         List<Boolean> checks = List.of(false, false, false, false, false);
-        SubSectionResponse.Result r1 = sut.createOrUpdateSubSection(1L, jsonNode, checks,
+        SubSectionResponse.Result r1 = sut.upsertSubSection(1L, jsonNode, checks,
                 SubSectionType.PROBLEM_BACKGROUND, 10L);
-        SubSectionResponse.Result r2 = sut.createOrUpdateSubSection(1L, jsonNode, checks,
+        SubSectionResponse.Result r2 = sut.upsertSubSection(1L, jsonNode, checks,
                 SubSectionType.FEASIBILITY_STRATEGY, 10L);
-        SubSectionResponse.Result r3 = sut.createOrUpdateSubSection(1L, jsonNode, checks, SubSectionType.GROWTH_MODEL,
+        SubSectionResponse.Result r3 = sut.upsertSubSection(1L, jsonNode, checks, SubSectionType.GROWTH_MODEL,
                 10L);
-        SubSectionResponse.Result r4 = sut.createOrUpdateSubSection(1L, jsonNode, checks, SubSectionType.TEAM_FOUNDER,
+        SubSectionResponse.Result r4 = sut.upsertSubSection(1L, jsonNode, checks, SubSectionType.TEAM_FOUNDER,
                 10L);
 
         assertThat(r1.message()).isEqualTo("Subsection created");
@@ -447,7 +467,7 @@ class BusinessPlanServiceImplUnitTest {
 
     @Test
     @DisplayName("서브섹션 생성: 모든 서브섹션이 생성되면 상태가 DRAFTED로 변경된다")
-    void createOrUpdateSubSection_allSubSectionsCreated_updatesStatusToDrafted() {
+    void upsertSubSection_allSubSectionsCreated_updatesStatusToDrafted() {
         // given
         BusinessPlan plan = spy(buildPlanWithSections(10L));
         doReturn(true).when(plan).isOwnedBy(10L);
@@ -480,7 +500,7 @@ class BusinessPlanServiceImplUnitTest {
 
         // when - 마지막 서브섹션 생성
         List<Boolean> checks = List.of(false, false, false, false, false);
-        sut.createOrUpdateSubSection(1L, jsonNode, checks, SubSectionType.TEAM_MEMBERS, 10L);
+        sut.upsertSubSection(1L, jsonNode, checks, SubSectionType.TEAM_MEMBERS, 10L);
 
         // then - 상태가 WRITTEN_COMPLETED로 변경되어야 함
         verify(plan).updateStatus(starlight.domain.businessplan.enumerate.PlanStatus.WRITTEN_COMPLETED);
@@ -488,7 +508,7 @@ class BusinessPlanServiceImplUnitTest {
 
     @Test
     @DisplayName("서브섹션 생성: 일부만 생성되면 상태가 변경되지 않는다")
-    void createOrUpdateSubSection_partialSubSections_noStatusChange() {
+    void upsertSubSection_partialSubSections_noStatusChange() {
         // given
         BusinessPlan plan = spy(buildPlanWithSections(10L));
         doReturn(true).when(plan).isOwnedBy(10L);
@@ -508,7 +528,7 @@ class BusinessPlanServiceImplUnitTest {
 
         // when - 첫 번째 서브섹션만 생성
         List<Boolean> checks = List.of(false, false, false, false, false);
-        sut.createOrUpdateSubSection(1L, jsonNode, checks, SubSectionType.OVERVIEW_BASIC, 10L);
+        sut.upsertSubSection(1L, jsonNode, checks, SubSectionType.OVERVIEW_BASIC, 10L);
 
         // then - 상태가 변경되지 않아야 함 (모든 서브섹션이 생성되지 않았으므로)
         verify(plan, never()).updateStatus(any());

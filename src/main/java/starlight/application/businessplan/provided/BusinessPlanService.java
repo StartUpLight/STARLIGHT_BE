@@ -1,6 +1,7 @@
 package starlight.application.businessplan.provided;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.data.domain.Pageable;
 import starlight.application.businessplan.provided.dto.BusinessPlanResponse;
 import starlight.application.businessplan.provided.dto.SubSectionResponse;
 import starlight.domain.businessplan.enumerate.SubSectionType;
@@ -17,14 +18,14 @@ public interface BusinessPlanService {
 
     BusinessPlanResponse.Detail getBusinessPlanDetail(Long planId, Long memberId);
 
-    List<BusinessPlanResponse.Preview> getBusinessPlanList(Long memberId);
+    BusinessPlanResponse.PreviewPage getBusinessPlanList(Long memberId, Pageable pageable);
 
     String updateBusinessPlanTitle(Long planId, String title, Long memberId);
 
     BusinessPlanResponse.Result deleteBusinessPlan(Long planId, Long memberId);
 
-    SubSectionResponse.Result createOrUpdateSubSection(Long planId, JsonNode jsonNode, List<Boolean> checks,
-            SubSectionType subSectionType, Long memberId);
+    SubSectionResponse.Result upsertSubSection(Long planId, JsonNode jsonNode, List<Boolean> checks,
+                                               SubSectionType subSectionType, Long memberId);
 
     SubSectionResponse.Detail getSubSectionDetail(Long planId, SubSectionType subSectionType, Long memberId);
 

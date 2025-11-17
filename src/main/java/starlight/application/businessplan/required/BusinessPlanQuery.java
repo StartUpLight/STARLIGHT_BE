@@ -1,8 +1,8 @@
 package starlight.application.businessplan.required;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import starlight.domain.businessplan.entity.BusinessPlan;
-
-import java.util.List;
 
 public interface BusinessPlanQuery {
 
@@ -12,5 +12,5 @@ public interface BusinessPlanQuery {
 
     void delete(BusinessPlan businessPlan);
 
-    List<BusinessPlan> findAllByMemberIdOrderByModifiedAtDesc(Long memberId);
+    Page<BusinessPlan> findPreviewPage(Long memberId, Pageable pageable);
 }
