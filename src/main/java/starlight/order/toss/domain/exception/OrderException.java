@@ -1,4 +1,4 @@
-package starlight.payment.toss.domain.exception;
+package starlight.order.toss.domain.exception;
 
 import starlight.shared.apiPayload.exception.ErrorType;
 import starlight.shared.apiPayload.exception.GlobalException;

@@ -15,10 +15,13 @@
         .row { display:flex; gap:10px; margin-bottom:12px; }
         .btn { padding:12px 14px; border-radius:10px; border:1px solid #293140; background:#171c25; color:#e8e8e8; cursor:pointer; font-weight:600; text-align:center; }
         .btn:hover { background:#1b222d; }
+        .btn:disabled { opacity:0.5; cursor:not-allowed; }
         .field { width:100%; padding:14px; border-radius:10px; border:1px solid #293140; background:#0f141c; color:#e8e8e8; font-size:16px; }
         .result { margin-top:14px; padding:12px; border-radius:10px; background:#0f141c; border:1px solid #1f2430; display:none; white-space:pre-wrap; }
         .ok { border-color:#1f6c2a; }
         .err{ border-color:#7a1d1d; }
+        .loading { display:inline-block; width:16px; height:16px; border:2px solid #e8e8e8; border-top-color:transparent; border-radius:50%; animation:spin 0.6s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -60,13 +63,21 @@
     function showOk(t){ const el=out(); el.classList.remove('err'); el.classList.add('ok'); el.textContent=stamp()+t; }
     function showErr(t){ const el=out(); el.classList.remove('ok'); el.classList.add('err'); el.textContent=stamp()+t; }
 
+    // 버튼 비활성화/활성화
+    function disableButtons() {
+        document.querySelectorAll('.btn').forEach(b => b.disabled = true);
+    }
+    function enableButtons() {
+        document.querySelectorAll('.btn').forEach(b => b.disabled = false);
+    }
+
     document.querySelectorAll('.btn.amt').forEach(b=>{
         b.addEventListener('click', ()=> document.getElementById('amount').value = b.dataset.amt);
     });
 
     (async () => {
         try {
-            // v2 Standard 초기화 (비회원 결제; 회원 결제는 customerKey를 임의 문자열로 교체)
+            // v2 Standard 초기화 (비회원 결제)
             const toss = TossPayments("test_ck_0RnYX2w532eMEymGdQeK8NeyqApQ");
             const payment = toss.payment({ customerKey: TossPayments.ANONYMOUS });
 
@@ -74,17 +85,26 @@
             window.addEventListener('message', (e) => {
                 if (e.origin !== location.origin) return; // 보안
                 const d = e.data || {};
+
                 if (d.type === 'TOSS_SUCCESS') {
                     showOk(
-                        `결제 성공!\n` +
-                        `orderId=${d.orderId}\n` +
-                        (d.amount?`amount=${d.amount}\n`:'') +
-                        (d.method?`method=${d.method}\n`:'') +
-                        (d.provider?`provider=${d.provider}\n`:'') +
-                        (d.receiptUrl?`receipt=${d.receiptUrl}`:'')
+                        `✅ 결제 성공!\n\n` +
+                        `주문번호: ${d.orderId}\n` +
+                        `금액: ${d.amount?.toLocaleString()}원\n` +
+                        `결제수단: ${d.method || '-'}\n` +
+                        `간편결제: ${d.provider || '-'}\n` +
+                        `영수증: ${d.receiptUrl || '-'}\n` +
+                        `승인시각: ${d.approvedAt ? new Date(d.approvedAt).toLocaleString() : '-'}`
                     );
+                    enableButtons();
                 } else if (d.type === 'TOSS_FAIL') {
-                    showErr(`결제 실패\norderId=${d.orderId}\n${d.code} / ${d.message}`);
+                    showErr(
+                        `❌ 결제 실패\n\n` +
+                        `주문번호: ${d.orderId}\n` +
+                        `에러코드: ${d.code}\n` +
+                        `메시지: ${d.message}`
+                    );
+                    enableButtons();
                 }
             });
 
@@ -95,56 +115,103 @@
             async function start({ method }) {
                 try {
                     const value = getAmount();
-                    if (!Number.isFinite(value) || value <= 0) { showErr('금액을 올바르게 입력하세요.'); return; }
-                    if (method === 'EASY_PAY' && value < 1000) { showErr('간편결제는 1,000원 이상에서 테스트하세요.'); return; }
+                    if (!Number.isFinite(value) || value <= 0) {
+                        showErr('❌ 금액을 올바르게 입력하세요.');
+                        return;
+                    }
+                    if (method === 'EASY_PAY' && value < 1000) {
+                        showErr('❌ 간편결제는 1,000원 이상에서 테스트하세요.');
+                        return;
+                    }
 
-                    const orderCode   = genOrderCode();
+                    disableButtons();
+                    showOk('⏳ 주문 생성 중...');
+
+                    const orderCode = genOrderCode();
                     const orderName = `starlight 크레딧 ${value.toLocaleString()}원`;
 
-                    // 사전 저장(READY)
-                    const saved = await fetch(`${location.origin}/api/toss/request`, {
-                        method:'POST', headers:{'Content-Type':'application/json'},
-                        body: JSON.stringify({ orderCode, price: value, buyerId: 1, businessPlanId: 1  })
+                    // 1. 백엔드 주문 생성 (POST /api/toss/request)
+                    const prepareResponse = await fetch(`${location.origin}/api/toss/request`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            orderCode: orderCode,
+                            price: value,
+                            buyerId: 1,
+                            businessPlanId: 2
+                        })
                     });
-                    if (!saved.ok) throw new Error('사전 저장 실패');
 
-                    const base = {
+                    if (!prepareResponse.ok) {
+                        const errorData = await prepareResponse.json();
+                        throw new Error(errorData.message || '주문 생성 실패');
+                    }
+
+                    const prepareData = await prepareResponse.json();
+                    console.log('✅ 주문 생성 완료:', prepareData);
+
+                    showOk('🚀 결제창 호출 중...');
+
+                    // 2. 토스 결제창 호출
+                    const paymentRequest = {
                         method: method,
                         amount: { currency: 'KRW', value },
                         orderId: orderCode,
                         orderName,
-                        successUrl: toAbsolute("/toss/popup.html"),   // /toss/popup.html → 절대 URL로 변환
-                        failUrl:    toAbsolute("/toss/popup.html"),
+                        successUrl: toAbsolute("/toss/popup.html"),
+                        failUrl: toAbsolute("/toss/popup.html"),
                         customerEmail: document.getElementById('buyerEmail').value || undefined,
-                        customerName:  document.getElementById('buyerName').value  || undefined,
+                        customerName: document.getElementById('buyerName').value || undefined,
                     };
 
-                    await payment.requestPayment(base);
+                    await payment.requestPayment(paymentRequest);
+
                 } catch (e) {
-                    console.error(e);
-                    const code = e && e.code ? ` [${e.code}]` : '';
-                    showErr(`에러: 처리 중 오류가 발생했습니다.${code}\n${e.message || e}`);
+                    console.error('결제 처리 에러:', e);
+                    const code = e?.code ? ` [${e.code}]` : '';
+                    showErr(
+                        `❌ 결제 처리 실패\n\n` +
+                        `에러: ${e.message || e}${code}`
+                    );
+                    enableButtons();
                 }
             }
 
+            // 결제 버튼 이벤트 리스너
             document.getElementById('payCard')
                 .addEventListener('click', ()=> start({ method:'CARD' }));
 
-            // (리다이렉트 폴백) 만약 팝업 차단 등으로 현재 탭으로 돌아온 경우 쿼리 표시
+            document.getElementById('payTossEasy')
+                .addEventListener('click', ()=> start({ method:'EASY_PAY' }));
+
+            document.getElementById('payKakaoEasy')
+                .addEventListener('click', ()=> start({ method:'EASY_PAY' }));
+
+            // (리다이렉트 폴백) 팝업 차단 시 현재 탭으로 돌아온 경우
             (function fallbackFromQuery(){
                 const p = new URLSearchParams(location.search);
                 if (!p.has('status')) return;
+
                 if (p.get('status') === 'success') {
-                    showOk(`결제 성공(폴백)\norderId=${p.get('orderId')}\namount=${p.get('amount')}`);
+                    showOk(
+                        `✅ 결제 성공 (폴백)\n\n` +
+                        `주문번호: ${p.get('orderId')}\n` +
+                        `금액: ${p.get('amount')}`
+                    );
                 } else {
-                    showErr(`결제 실패(폴백)\norderId=${p.get('orderId')}\n${p.get('code')} / ${p.get('message')}`);
+                    showErr(
+                        `❌ 결제 실패 (폴백)\n\n` +
+                        `주문번호: ${p.get('orderId')}\n` +
+                        `코드: ${p.get('code')}\n` +
+                        `메시지: ${p.get('message')}`
+                    );
                 }
                 history.replaceState(null, '', location.pathname);
             })();
 
         } catch (e) {
-            console.error(e);
-            showErr('구성값을 불러오지 못했습니다. 보안/라우팅 설정을 확인하세요.');
+            console.error('SDK 초기화 에러:', e);
+            showErr('❌ 토스페이먼츠 SDK를 불러오지 못했습니다. 네트워크 연결을 확인하세요.');
         }
     })();
 </script>

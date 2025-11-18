@@ -2,131 +2,171 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
-    <title>Toss Popup Bridge</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>결제 처리 중...</title>
     <style>
-        html,body {
-            margin:0; height:100%;
-            display:flex; align-items:center; justify-content:center;
+        :root { font-family: system-ui, -apple-system, "Noto Sans KR", Roboto, Arial, sans-serif; }
+        body {
+            margin:0; padding:0;
             background:#0b0c10; color:#e8e8e8;
-            font-family: system-ui, -apple-system, "Noto Sans KR", Roboto, Arial, sans-serif;
+            display:flex; align-items:center; justify-content:center;
+            min-height:100vh;
         }
-        .box {
-            padding:16px 18px; border:1px solid #1f2430; border-radius:12px; background:#111318;
-            font-size:14px; color:#cbd5e1;
+        .container {
+            text-align:center;
+            max-width:480px;
+            padding:32px;
+            background:#111318;
+            border:1px solid #1f2430;
+            border-radius:16px;
         }
+        h1 { margin:0 0 16px; font-size:24px; }
+        .loading {
+            display:inline-block;
+            width:40px; height:40px;
+            border:4px solid #293140;
+            border-top-color:#7c3aed;
+            border-radius:50%;
+            animation:spin 0.8s linear infinite;
+            margin:20px 0;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .status {
+            margin-top:16px;
+            padding:12px;
+            border-radius:8px;
+            background:#1f2430;
+            font-size:14px;
+            color:#b8c0cc;
+        }
+        .error { background:#3a1a1a; color:#ff6b6b; }
+        .success { background:#1a3a1f; color:#51cf66; }
     </style>
 </head>
 <body>
-<div class="box" id="msg">처리 중…</div>
+<div class="container">
+    <h1 id="title">결제 확인 중...</h1>
+    <div class="loading" id="spinner"></div>
+    <div class="status" id="status">잠시만 기다려주세요.</div>
+</div>
 
 <script>
-    // 원래 결제 시작 페이지(팝업을 닫을 수 없는 환경일 때 폴백 리다이렉트)
-    const RETURN_PATH = "/payment.html";
-    const ORIGIN = location.origin;
+    const params = new URLSearchParams(location.search);
+    const orderId = params.get('orderId');
+    const paymentKey = params.get('paymentKey');
+    const amount = params.get('amount');
+    const code = params.get('code');
+    const message = params.get('message');
 
-    function qs(n){ return new URLSearchParams(location.search).get(n); }
-    function canCloseSelf() {
-        try { return !!(window.opener && !window.opener.closed); } catch { return false; }
-    }
-    function toQuery(obj) {
-        const p = new URLSearchParams();
-        for (const k in obj) if (obj[k] != null) p.set(k, String(obj[k]));
-        return p.toString();
-    }
-    function finishWithSuccess(paid){
-        const paymentData = paid.data || paid;
+    const $title = document.getElementById('title');
+    const $status = document.getElementById('status');
+    const $spinner = document.getElementById('spinner');
 
-        try {
-            window.opener && window.opener.postMessage(
-                {
-                    type:'TOSS_SUCCESS',
-                    orderId: paymentData.orderId,
-                    amount:  paymentData.amount,
-                    method:  paymentData.method,
-                    provider: paymentData.provider,
-                    receiptUrl: paymentData.receiptUrl
-                },
-                ORIGIN
-            );
-        } catch(e) {}
-
-        if (canCloseSelf()) {
-            // 팝업 닫기 시도 후, 혹시 브라우저 정책으로 미닫힘 시 폴백 리다이렉트
-            window.close();
-            setTimeout(() => {
-                location.replace(`${RETURN_PATH}?` + toQuery({
-                    status:'success',
-                    orderId: paymentData.orderId,
-                    amount: paymentData.amount
-                }));
-            }, 300);
+    function updateUI(title, status, isError = false) {
+        $title.textContent = title;
+        $status.textContent = status;
+        $spinner.style.display = 'none';
+        if (isError) {
+            $status.classList.add('error');
         } else {
-            location.replace(`${RETURN_PATH}?` + toQuery({
-                status:'success',
-                orderId: paymentData.orderId,
-                amount: paymentData.amount
-            }));
+            $status.classList.add('success');
         }
     }
-    function finishWithFail(orderId, code, message){
-        try {
-            window.opener && window.opener.postMessage(
-                { type:'TOSS_FAIL', orderId, code, message },
-                ORIGIN
-            );
-        } catch(e) {}
 
-        if (canCloseSelf()) {
-            window.close();
-            setTimeout(() => {
-                location.replace(`${RETURN_PATH}?` + toQuery({
-                    status:'fail', orderId, code, message
-                }));
-            }, 300);
+    // 성공 케이스: paymentKey 있음
+    if (paymentKey && orderId && amount) {
+        (async () => {
+            try {
+                $status.textContent = '결제 승인 요청 중...';
+
+                // 백엔드 승인 API 호출
+                const response = await fetch(`${location.origin}/api/toss/confirm`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderCode: orderId,
+                        paymentKey: paymentKey,
+                        price: Number(amount)
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '승인 실패');
+                }
+
+                const data = await response.json();
+                console.log('✅ 결제 승인 완료:', data);
+
+                updateUI('✅ 결제 완료!', '결제가 성공적으로 완료되었습니다.');
+
+                // 부모 창에 성공 메시지 전송
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'TOSS_SUCCESS',
+                        orderId: data.result.orderId,
+                        amount: data.result.amount,
+                        method: data.result.method,
+                        provider: data.result.provider,
+                        receiptUrl: data.result.receiptUrl,
+                        approvedAt: data.result.approvedAt
+                    }, location.origin);
+
+                    setTimeout(() => window.close(), 1500);
+                } else {
+                    $status.textContent = '결제 완료! (3초 후 메인 페이지로 이동)';
+                    setTimeout(() => {
+                        location.href = '/payment.html?status=success&orderId=' + orderId + '&amount=' + amount;
+                    }, 3000);
+                }
+
+            } catch (error) {
+                console.error('승인 에러:', error);
+                updateUI('❌ 결제 승인 실패', error.message || '알 수 없는 오류', true);
+
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'TOSS_FAIL',
+                        orderId: orderId,
+                        code: 'CONFIRM_ERROR',
+                        message: error.message
+                    }, location.origin);
+
+                    setTimeout(() => window.close(), 3000);
+                }
+            }
+        })();
+    }
+    // 실패 케이스: code, message 있음
+    else if (code && message) {
+        updateUI('❌ 결제 실패', `${code}: ${decodeURIComponent(message)}`, true);
+
+        if (window.opener) {
+            window.opener.postMessage({
+                type: 'TOSS_FAIL',
+                orderId: orderId || 'UNKNOWN',
+                code: code,
+                message: decodeURIComponent(message)
+            }, location.origin);
+
+            setTimeout(() => window.close(), 3000);
         } else {
-            location.replace(`${RETURN_PATH}?` + toQuery({
-                status:'fail', orderId, code, message
-            }));
+            setTimeout(() => {
+                location.href = '/payment.html?status=fail&orderId=' + (orderId || '') + '&code=' + code + '&message=' + message;
+            }, 3000);
         }
     }
-
-    (async function run(){
-        const code = qs('code');           // 실패 시 제공
-        const message = qs('message');
-        const orderId = qs('orderId');
-        const paymentKey = qs('paymentKey'); // 성공 시 제공
-        const amount = qs('amount');
-
-        try {
-            // 1) 실패 콜백으로 도착
-            if (code || message) {
-                return finishWithFail(orderId, code, message);
+    // 잘못된 접근
+    else {
+        updateUI('⚠️ 잘못된 접근', '올바르지 않은 요청입니다.', true);
+        setTimeout(() => {
+            if (window.opener) {
+                window.close();
+            } else {
+                location.href = '/payment.html';
             }
-
-            // 2) 성공 콜백 → 서버 승인(Confirm) 필수
-            if (!paymentKey || !orderId || !amount) {
-                return finishWithFail(orderId, 'INVALID_CALLBACK', '잘못된 콜백 파라미터');
-            }
-
-            const resp = await fetch(ORIGIN + '/api/toss/confirm', {
-                method: 'POST',
-                headers: { 'Content-Type':'application/json' },
-                body: JSON.stringify({ paymentKey, orderCode: orderId, price: amount })
-            });
-
-            if (!resp.ok) {
-                const t = await resp.text().catch(()=> '');
-                return finishWithFail(orderId, 'CONFIRM_FAILED', t || String(resp.status));
-            }
-
-            const paid = await resp.json();  // PaymentToss JSON
-            return finishWithSuccess(paid);
-
-        } catch (e) {
-            return finishWithFail(orderId, 'POPUP_ERROR', (e && e.message) || String(e));
-        }
-    })();
+        }, 2000);
+    }
 </script>
 </body>
 </html>
