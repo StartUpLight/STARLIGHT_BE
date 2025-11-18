@@ -47,7 +47,7 @@ public class ExpertApplicationServiceImpl implements ExpertApplicationService {
             validateFile(file);
 
             BusinessPlan plan = planQuery.getOrThrow(planId);
-            Expert expert = expertQuery.getOrThrow(expertId);
+            Expert expert = expertQuery.findById(expertId);
 
             registerApplicationRecord(expertId, planId);
 
