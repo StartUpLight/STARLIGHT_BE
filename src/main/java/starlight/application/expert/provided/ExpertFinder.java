@@ -11,6 +11,8 @@ import java.util.Set;
 public interface ExpertFinder {
     Expert findById(Long id);
 
+    Expert findByIdWithDetails(Long id);
+
     List<Expert> loadAll();
 
     List<Expert> findByAllCategories(Collection<TagCategory> categories);
