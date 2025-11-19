@@ -25,20 +25,26 @@ public class OpenAiGenerator implements LlmGenerator {
 
     @Override
     public List<Boolean> generateChecklistArray(
-            String newContent,
+            SubSectionType subSectionType,
+            String content,
             List<String> criteria,
-            String previousContent,
-            List<Boolean> previousChecks
+            List<String> detailedCriteria
     ) {
         Prompt prompt = promptProvider.createChecklistGradingPrompt(
-                newContent, criteria, previousContent, previousChecks
+                subSectionType, content, criteria, detailedCriteria
         );
-
 
         ChatClient chatClient = chatClientBuilder.build();
 
+        SimpleLoggerAdvisor slAdvisor = advisorProvider.getSimpleLoggerAdvisor();
+
         String output = chatClient
                 .prompt(prompt)
+                .options(ChatOptions.builder()
+                        .temperature(0.1)
+                        .topP(0.1)
+                        .build())
+                .advisors(slAdvisor)
                 .call()
                 .content();
 
