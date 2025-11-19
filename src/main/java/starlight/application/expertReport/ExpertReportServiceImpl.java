@@ -64,15 +64,19 @@ public class ExpertReportServiceImpl implements ExpertReportService {
     ) {
         ExpertReport report = expertReportQuery.findByTokenWithDetails(token);
 
-        BusinessPlan plan = businessPlanQuery.getOrThrow(report.getBusinessPlanId());
-        plan.updateStatus(PlanStatus.FINALIZED);
-
         report.updateOverallComment(overallComment);
         report.updateDetails(details);
 
         switch (saveType) {
-            case TEMPORARY -> report.temporarySave();
-            case FINAL -> report.submit();
+            case TEMPORARY -> {
+                report.temporarySave();
+            }
+            case FINAL -> {
+                report.submit();
+                BusinessPlan plan = businessPlanQuery.getOrThrow(report.getBusinessPlanId());
+                plan.updateStatus(PlanStatus.FINALIZED);
+            }
+
         }
 
         return expertReportQuery.save(report);
