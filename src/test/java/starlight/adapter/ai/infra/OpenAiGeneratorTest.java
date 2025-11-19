@@ -4,12 +4,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 
 class OpenAiGeneratorTest {
 
@@ -20,20 +22,30 @@ class OpenAiGeneratorTest {
         ChatClient.Builder builder = mock(ChatClient.Builder.class);
         when(builder.build()).thenReturn(chatClient);
 
-        // RETURNS_DEEP_STUBS를 사용하여 체인이 자동으로 처리되도록 하고,
-        // 실제 content() 호출 시 값을 반환하도록 설정
-        lenient().when(chatClient.prompt(any(Prompt.class)).call().content())
-                .thenReturn("[true,false,true,false,true]");
+        // RETURNS_DEEP_STUBS를 사용하면 체인 전체가 자동으로 mock됨
+        // 마지막 content()만 반환값 설정
+        when(chatClient.prompt(any(Prompt.class))
+                .options(any())
+                .advisors(any(org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.class))
+                .call()
+                .content()).thenReturn("[true,false,true,false,true]");
 
         PromptProvider promptProvider = mock(PromptProvider.class);
-        when(promptProvider.createChecklistGradingPrompt(anyString(), anyList(), isNull(), isNull()))
+        when(promptProvider.createChecklistGradingPrompt(any(SubSectionType.class), anyString(), anyList(), anyList()))
                 .thenReturn(mock(Prompt.class));
 
         AdvisorProvider advisorProvider = mock(AdvisorProvider.class);
+        when(advisorProvider.getSimpleLoggerAdvisor())
+                .thenReturn(mock(org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.class));
 
         OpenAiGenerator sut = new OpenAiGenerator(builder, promptProvider, advisorProvider);
 
-        List<Boolean> result = sut.generateChecklistArray("test content", List.of("c1", "c2", "c3", "c4", "c5"), null, null);
+        List<Boolean> result = sut.generateChecklistArray(
+                SubSectionType.OVERVIEW_BASIC,
+                "test content",
+                List.of("c1", "c2", "c3", "c4", "c5"),
+                List.of("d1", "d2", "d3", "d4", "d5")
+        );
         assertThat(result).containsExactly(true, false, true, false, true);
     }
 
@@ -44,18 +56,74 @@ class OpenAiGeneratorTest {
         ChatClient.Builder builder = mock(ChatClient.Builder.class);
         when(builder.build()).thenReturn(chatClient);
 
-        lenient().when(chatClient.prompt(any(Prompt.class)).call().content())
-                .thenReturn("not-json");
+        // RETURNS_DEEP_STUBS를 사용하면 체인 전체가 자동으로 mock됨
+        // 마지막 content()만 반환값 설정
+        when(chatClient.prompt(any(Prompt.class))
+                .options(any())
+                .advisors(any(org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.class))
+                .call()
+                .content()).thenReturn("not-json");
 
         PromptProvider promptProvider = mock(PromptProvider.class);
-        when(promptProvider.createChecklistGradingPrompt(anyString(), anyList(), isNull(), isNull()))
+        when(promptProvider.createChecklistGradingPrompt(any(SubSectionType.class), anyString(), anyList(), anyList()))
                 .thenReturn(mock(Prompt.class));
 
         AdvisorProvider advisorProvider = mock(AdvisorProvider.class);
+        when(advisorProvider.getSimpleLoggerAdvisor())
+                .thenReturn(mock(org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.class));
 
         OpenAiGenerator sut = new OpenAiGenerator(builder, promptProvider, advisorProvider);
 
-        List<Boolean> result = sut.generateChecklistArray("test content", List.of("c1", "c2", "c3", "c4", "c5"), null, null);
+        List<Boolean> result = sut.generateChecklistArray(
+                SubSectionType.OVERVIEW_BASIC,
+                "test content",
+                List.of("c1", "c2", "c3", "c4", "c5"),
+                List.of("d1", "d2", "d3", "d4", "d5")
+        );
         assertThat(result).containsExactly(false, false, false, false, false);
+    }
+
+    @Test
+    @DisplayName("generateReport는 OpenAI 응답 문자열을 반환한다")
+    void generateReport_returnsString() {
+        ChatClient chatClient = mock(ChatClient.class, RETURNS_DEEP_STUBS);
+        ChatClient.Builder builder = mock(ChatClient.Builder.class);
+        when(builder.build()).thenReturn(chatClient);
+
+        String expectedResponse = """
+                {
+                    "problemRecognitionScore": 20,
+                    "feasibilityScore": 25,
+                    "growthStrategyScore": 30,
+                    "teamCompetenceScore": 20,
+                    "sectionScores": [],
+                    "strengths": [],
+                    "weaknesses": []
+                }
+                """.trim();
+
+        // RETURNS_DEEP_STUBS를 사용하면 체인 전체가 자동으로 mock됨
+        // 마지막 content()만 반환값 설정
+        when(chatClient.prompt(any(Prompt.class))
+                .options(any())
+                .advisors(any(), any())
+                .call()
+                .content()).thenReturn(expectedResponse);
+
+        PromptProvider promptProvider = mock(PromptProvider.class);
+        when(promptProvider.createReportGradingPrompt(anyString()))
+                .thenReturn(mock(Prompt.class));
+
+        AdvisorProvider advisorProvider = mock(AdvisorProvider.class);
+        when(advisorProvider.getQuestionAnswerAdvisor(anyDouble(), anyInt(), any()))
+                .thenReturn(mock(org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor.class));
+        when(advisorProvider.getSimpleLoggerAdvisor())
+                .thenReturn(mock(org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.class));
+
+        OpenAiGenerator sut = new OpenAiGenerator(builder, promptProvider, advisorProvider);
+
+        String result = sut.generateReport("test content");
+
+        assertThat(result).isEqualTo(expectedResponse);
     }
 }

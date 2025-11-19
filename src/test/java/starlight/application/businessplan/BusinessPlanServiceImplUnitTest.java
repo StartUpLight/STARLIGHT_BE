@@ -378,9 +378,7 @@ class BusinessPlanServiceImplUnitTest {
         List<Boolean> updatedChecks = List.of(true, true, true, true, true);
         when(checklistGrader.check(
                 eq(SubSectionType.OVERVIEW_BASIC),
-                eq("updated content"),
-                eq("previous-content"),
-                anyList())).thenReturn(updatedChecks);
+                eq("updated content"))).thenReturn(updatedChecks);
 
         com.fasterxml.jackson.databind.ObjectMapper realObjectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
         com.fasterxml.jackson.databind.node.ObjectNode jsonNode = realObjectMapper.createObjectNode();
