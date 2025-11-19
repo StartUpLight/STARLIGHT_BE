@@ -60,7 +60,7 @@ public class ExpertJpa implements ExpertQuery {
     @Override
     public Map<Long, Expert> findExpertMapByIds(Set<Long> expertIds) {
 
-        List<Expert> experts = repository.findAllById(expertIds);
+        List<Expert> experts = repository.findAllWithDetailsByIds(expertIds);
 
         return experts.stream()
                 .collect(Collectors.toMap(Expert::getId, Function.identity()));
