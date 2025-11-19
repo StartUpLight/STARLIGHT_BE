@@ -33,4 +33,6 @@ public interface BusinessPlanService {
             Long memberId);
 
     SubSectionResponse.Result deleteSubSection(Long planId, SubSectionType subSectionType, Long memberId);
+
+
 }
