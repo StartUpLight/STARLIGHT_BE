@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import starlight.order.toss.adapter.webapi.dto.TossClientResponse;
 import starlight.order.toss.adapter.webapi.dto.request.OrderCancelRequest;
 import starlight.order.toss.adapter.webapi.dto.request.OrderConfirmRequest;
 import starlight.order.toss.adapter.webapi.dto.request.OrderPrepareRequest;
@@ -13,7 +14,6 @@ import starlight.order.toss.adapter.webapi.dto.response.OrderConfirmResponse;
 import starlight.order.toss.adapter.webapi.dto.response.OrderPrepareResponse;
 import starlight.order.toss.application.OrderPaymentService;
 import starlight.order.toss.domain.Orders;
-import starlight.order.toss.domain.PaymentRecords;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 @RestController
@@ -69,7 +69,7 @@ public class TossControllers {
     public ApiResponse<OrderCancelResponse> cancelPayment(
             @Valid @RequestBody OrderCancelRequest request
     ) {
-        var tossResponse = orderPaymentService.cancel(request);
+        TossClientResponse.Cancel tossResponse = orderPaymentService.cancel(request);
 
         OrderCancelResponse response = OrderCancelResponse.from(tossResponse);
 

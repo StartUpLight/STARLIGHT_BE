@@ -14,6 +14,7 @@ import starlight.order.toss.domain.Orders;
 import starlight.order.toss.domain.PaymentRecords;
 import starlight.order.toss.domain.exception.OrderErrorType;
 import starlight.order.toss.domain.exception.OrderException;
+
 import java.time.Instant;
 
 @Slf4j
@@ -82,9 +83,9 @@ public class OrderPaymentService {
                 orderCodeStr, paymentKey, amount
         );
 
-        String provider = extractProvider(response);
-        String receiptUrl = extractReceiptUrl(response);
-        Instant approvedAt = extractApprovedAt(response);
+        String provider = response.providerOrNull();
+        String receiptUrl = response.receiptUrlOrNull();
+        Instant approvedAt = response.approvedAtOrNow();
 
         payment.markDone(
                 response.paymentKey(), response.method(), provider, receiptUrl, approvedAt
@@ -119,23 +120,5 @@ public class OrderPaymentService {
         ordersQuery.save(order);
 
         return response;
-    }
-
-    private String extractProvider(TossClientResponse.Confirm response) {
-        return (response.easyPay() != null)
-                ? response.easyPay().provider()
-                : null;
-    }
-
-    private String extractReceiptUrl(TossClientResponse.Confirm response) {
-        return (response.receipt() != null)
-                ? response.receipt().url()
-                : null;
-    }
-
-    private Instant extractApprovedAt(TossClientResponse.Confirm response) {
-        return (response.approvedAt() != null)
-                ? response.approvedAt().toInstant()
-                : Instant.now();
     }
 }

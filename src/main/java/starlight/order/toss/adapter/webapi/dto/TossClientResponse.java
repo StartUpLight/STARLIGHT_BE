@@ -2,6 +2,7 @@ package starlight.order.toss.adapter.webapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -75,5 +76,17 @@ public record TossClientResponse (
     ) {
         public record EasyPay(String provider) {}
         public record Receipt(String url) {}
+
+        public String providerOrNull() {
+            return (easyPay != null) ? easyPay.provider() : null;
+        }
+
+        public String receiptUrlOrNull() {
+            return (receipt != null) ? receipt.url() : null;
+        }
+
+        public Instant approvedAtOrNow() {
+            return (approvedAt != null) ? approvedAt.toInstant() : Instant.now();
+        }
     }
 }
