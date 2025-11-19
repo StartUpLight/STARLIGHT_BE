@@ -10,12 +10,17 @@ import starlight.domain.expert.enumerate.TagCategory;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface ExpertRepository extends JpaRepository<Expert, Long> {
 
     @Query("select distinct e from Expert e")
     @EntityGraph(attributePaths = {"categories", "careers", "tags"})
     List<Expert> findAllWithDetails();
+
+    @Query("select distinct e from Expert e where e.id in :expertIds")
+    @EntityGraph(attributePaths = {"categories", "careers", "tags"})
+    List<Expert> findAllWithDetailsByIds(Set<Long> expertIds);
 
     @Query("""
     select distinct e from Expert e where e.id in (
