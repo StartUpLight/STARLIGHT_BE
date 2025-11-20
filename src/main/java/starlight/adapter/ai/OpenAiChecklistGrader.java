@@ -22,17 +22,14 @@ public class OpenAiChecklistGrader implements ChecklistGrader {
     @Override
     public List<Boolean> check(
             SubSectionType subSectionType,
-            String newContent,
-            String previousContent,
-            List<Boolean> previousChecks
+            String content
     ) {
-        String tag = subSectionType.getTag();
-
         // 1) 서브섹션별 체크리스트 기준 5개 확보
-        List<String> criteria = checklistCatalog.getCriteriaByTag(tag);
+        List<String> criteria = checklistCatalog.getCriteriaBySubSectionType(subSectionType);
+        List<String> detailedCriteria = checklistCatalog.getDetailedCriteriaBySubSectionType(subSectionType);
 
         // 2) LLM 호출 → Boolean 배열 파싱
-        List<Boolean> result = generator.generateChecklistArray(newContent, criteria, previousContent, previousChecks);
+        List<Boolean> result = generator.generateChecklistArray(subSectionType, content, criteria, detailedCriteria);
 
         // 3) 보정: 항상 길이 5 보장
         return normalizeToFive(result);

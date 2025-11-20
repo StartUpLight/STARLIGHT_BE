@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,8 +38,8 @@ public class BusinessPlanController {
     @Operation(summary = "사업 계획서 목록을 조회합니다. (마이페이지 용)")
     public ApiResponse<BusinessPlanResponse.PreviewPage> getBusinessPlanList(
             @AuthenticationPrincipal AuthDetails authDetails,
-            @Parameter(description = "페이지 번호 (1 이상 정수)") @RequestParam(defaultValue = "1") int page,
-            @Parameter(description = "페이지 크기 (기본 3)") @RequestParam(defaultValue = "3") int size
+            @Parameter(description = "페이지 번호 (1 이상 정수 / 기본 1)") @RequestParam(defaultValue = "1") @Min(1)int page,
+            @Parameter(description = "페이지 크기 (1 이상 정수 / 기본 3)") @RequestParam(defaultValue = "3") @Min(1) int size
     ) {
         int zeroBasedPage = Math.max(0, page - 1);
         Pageable pageable = PageRequest.of(zeroBasedPage, size);

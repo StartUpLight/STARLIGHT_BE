@@ -26,7 +26,8 @@ import static org.mockito.Mockito.when;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Import({ BusinessPlanServiceImpl.class, BusinessPlanJpa.class, BusinessPlanServiceImplIntegrationTest.TestBeans.class })
+@Import({ BusinessPlanServiceImpl.class, BusinessPlanJpa.class,
+        BusinessPlanServiceImplIntegrationTest.TestBeans.class })
 class BusinessPlanServiceImplIntegrationTest {
 
     @Autowired
@@ -40,7 +41,7 @@ class BusinessPlanServiceImplIntegrationTest {
     static class TestBeans {
         @Bean
         ChecklistGrader checklistGrader() {
-            return (subSectionType, newContent, previousContent, previousChecks) -> List.of(false, false, false, false, false);
+            return (subSectionType, content) -> List.of(false, false, false, false, false);
         }
 
         @Bean
@@ -69,7 +70,8 @@ class BusinessPlanServiceImplIntegrationTest {
         assertThat(planId).isNotNull();
 
         // attach a subsection to overview
-        SubSection s1 = SubSection.create(SubSectionType.OVERVIEW_BASIC, "c", "{}", List.of(false, false, false, false, false));
+        SubSection s1 = SubSection.create(SubSectionType.OVERVIEW_BASIC, "c", "{}",
+                List.of(false, false, false, false, false));
         BusinessPlan createdEntity = businessPlanRepository.findById(planId).orElseThrow();
         createdEntity.getOverview().putSubSection(s1);
         businessPlanRepository.save(createdEntity);
@@ -111,6 +113,7 @@ class BusinessPlanServiceImplIntegrationTest {
         assertThat(createdPlan.getTitle()).isEqualTo(title);
         assertThat(createdPlan.getPdfUrl()).isEqualTo(pdfUrl);
         assertThat(createdPlan.getMemberId()).isEqualTo(memberId);
-        assertThat(createdPlan.getPlanStatus()).isEqualTo(starlight.domain.businessplan.enumerate.PlanStatus.WRITTEN_COMPLETED);
+        assertThat(createdPlan.getPlanStatus())
+                .isEqualTo(starlight.domain.businessplan.enumerate.PlanStatus.WRITTEN_COMPLETED);
     }
 }
