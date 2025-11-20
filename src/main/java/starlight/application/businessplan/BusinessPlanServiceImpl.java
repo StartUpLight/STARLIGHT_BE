@@ -5,22 +5,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.application.businessplan.dto.SubSectionResponse;
+import starlight.application.businessplan.provided.dto.BusinessPlanResponse;
+import starlight.application.businessplan.provided.dto.SubSectionResponse;
 import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.businessplan.required.ChecklistGrader;
 import starlight.application.businessplan.util.PlainTextExtractUtils;
 import starlight.application.businessplan.util.SubSectionSupportUtils;
+import starlight.application.member.required.MemberQuery;
 import starlight.domain.businessplan.entity.*;
 import starlight.domain.businessplan.enumerate.PlanStatus;
+import starlight.domain.member.entity.Member;
 import starlight.shared.enumerate.SectionType;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -28,34 +35,88 @@ import java.util.List;
 public class BusinessPlanServiceImpl implements BusinessPlanService {
 
     private final BusinessPlanQuery businessPlanQuery;
+    private final MemberQuery memberQuery;
     private final ChecklistGrader checklistGrader;
     private final ObjectMapper objectMapper;
 
     @Override
-    public BusinessPlan createBusinessPlan(Long memberId) {
-        BusinessPlan plan = BusinessPlan.create(memberId);
+    public BusinessPlanResponse.Result createBusinessPlan(Long memberId) {
+        Member member = memberQuery.getOrThrow(memberId);
 
-        return businessPlanQuery.save(plan);
+        String planTitle = member.getName() == null ? "제목 없는 사업계획서" : member.getName() + "의 사업계획서";
+
+        BusinessPlan plan = BusinessPlan.create(planTitle, memberId);
+
+        return BusinessPlanResponse.Result.from(businessPlanQuery.save(plan), "Business plan created");
     }
 
     @Override
-    public void deleteBusinessPlan(Long planId, Long memberId) {
+    public BusinessPlanResponse.Result createBusinessPlanWithPdf(String title, String pdfUrl, Long memberId) {
+        BusinessPlan plan = BusinessPlan.createWithPdf(
+                title,
+                memberId,
+                pdfUrl
+        );
+
+        return BusinessPlanResponse.Result.from(businessPlanQuery.save(plan), "PDF Business plan created");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BusinessPlanResponse.Result getBusinessPlanInfo(Long planId, Long memberId) {
         BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
 
-        businessPlanQuery.delete(plan);
+        return BusinessPlanResponse.Result.from(plan, "Business plan retrieved");
     }
 
     @Override
-    public BusinessPlan updateBusinessPlanTitle(Long planId, Long memberId, String title) {
+    @Transactional(readOnly = true)
+    public BusinessPlanResponse.Detail getBusinessPlanDetail(Long planId, Long memberId) {
+        BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
+
+        List<SubSectionResponse.Detail> subSectionDetailList = Arrays.stream(SubSectionType.values())
+                .map(type -> getSectionByPlanAndType(plan, type.getSectionType()).getSubSectionByType(type))
+                .filter(Objects::nonNull)
+                .map(SubSectionResponse.Detail::from)
+                .toList();
+
+        return BusinessPlanResponse.Detail.from(plan, subSectionDetailList);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BusinessPlanResponse.PreviewPage getBusinessPlanList(Long memberId, Pageable pageable) {
+        Page<BusinessPlan> page = businessPlanQuery.findPreviewPage(memberId, pageable);
+        List<BusinessPlanResponse.Preview> content = page.getContent().stream()
+                .map(BusinessPlanResponse.Preview::from)
+                .toList();
+
+        return BusinessPlanResponse.PreviewPage.from(content, page);
+    }
+
+    @Override
+    public String updateBusinessPlanTitle(Long planId, String title, Long memberId) {
         BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
 
         plan.updateTitle(title);
 
-        return businessPlanQuery.save(plan);
+        businessPlanQuery.save(plan);
+
+        return plan.getTitle();
     }
 
     @Override
-    public SubSectionResponse.Created createOrUpdateSubSection(
+    public BusinessPlanResponse.Result deleteBusinessPlan(Long planId, Long memberId) {
+        BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
+
+        BusinessPlanResponse.Result result = BusinessPlanResponse.Result.from(plan, "Business plan deleted");
+        businessPlanQuery.delete(plan);
+
+        return result;
+    }
+
+    @Override
+    public SubSectionResponse.Result upsertSubSection(
             Long planId,
             JsonNode jsonNode,
             List<Boolean> checks,
@@ -71,33 +132,32 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
         String rawJsonStr = getSerializedJsonNodesWithUpdatedChecks(jsonNode, checks);
         String content = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
 
-        SubSection targetSubSection;
         String message;
 
         if (subSection == null) {
             SubSection newSubSection = SubSection.create(subSectionType, content, rawJsonStr, checks);
             section.putSubSection(newSubSection);
-            targetSubSection = newSubSection;
-            message = "created";
+            message = "Subsection created";
         } else {
             subSection.update(content, rawJsonStr, checks);
-            targetSubSection = subSection;
-            message = "updated";
+            message = "Subsection updated";
         }
 
         if (plan.areWritingCompleted()) {
             plan.updateStatus(PlanStatus.WRITTEN_COMPLETED);
-            message = "writing completed";
+            message = "Subsection writing completed";
         }
 
-        businessPlanQuery.save(plan);
+        BusinessPlan savedPlan = businessPlanQuery.save(plan);
+        SubSection persistedSubSection = getSectionByPlanAndType(savedPlan, sectionType)
+                .getSubSectionByType(subSectionType);
 
-        return SubSectionResponse.Created.create(subSectionType, targetSubSection.getId(), message);
+        return SubSectionResponse.Result.from(persistedSubSection, message);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public SubSectionResponse.Retrieved getSubSection(Long planId, SubSectionType subSectionType, Long memberId) {
+    public SubSectionResponse.Detail getSubSectionDetail(Long planId, SubSectionType subSectionType, Long memberId) {
         BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
 
         SectionType sectionType = subSectionType.getSectionType();
@@ -106,31 +166,15 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
             throw new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND);
         }
 
-        return SubSectionResponse.Retrieved.create(
-                "retrieved",
-                subSection.getRawJson().asTree()
-        );
+        return SubSectionResponse.Detail.from(subSection);
     }
 
     @Override
-    public SubSectionResponse.Deleted deleteSubSection(Long planId, SubSectionType subSectionType, Long memberId) {
-        BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
-
-        SectionType sectionType = subSectionType.getSectionType();
-        BaseSection section = getSectionByPlanAndType(plan, sectionType);
-        SubSection target = section.getSubSectionByType(subSectionType);
-        if (target == null) {
-            throw new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND);
-        }
-        section.removeSubSection(subSectionType);
-
-        businessPlanQuery.save(plan);
-
-        return SubSectionResponse.Deleted.create(subSectionType, null, "deleted");
-    }
-
-    @Override
-    public List<Boolean> checkAndUpdateSubSection(Long planId, JsonNode jsonNode, SubSectionType subSectionType, Long memberId) {
+    public List<Boolean> checkAndUpdateSubSection(
+            Long planId,
+            JsonNode jsonNode,
+            SubSectionType subSectionType,
+            Long memberId) {
         BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
 
         SectionType sectionType = subSectionType.getSectionType();
@@ -141,11 +185,9 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
 
         String newContent = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
 
-        // 이전 정보 추출
         String previousContent = subSection.getContent();
         List<Boolean> previousChecks = subSection.getChecks();
 
-        // 통합된 check 메소드 사용 (이전 정보가 없으면 null 전달)
         List<Boolean> checks = checklistGrader.check(subSectionType, newContent, previousContent, previousChecks);
 
         SubSectionSupportUtils.requireSize(checks, SubSection.getCHECKLIST_SIZE());
@@ -158,11 +200,28 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
         return checks;
     }
 
+    @Override
+    public SubSectionResponse.Result deleteSubSection(Long planId, SubSectionType subSectionType, Long memberId) {
+        BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
+
+        SectionType sectionType = subSectionType.getSectionType();
+        BaseSection section = getSectionByPlanAndType(plan, sectionType);
+        SubSection target = section.getSubSectionByType(subSectionType);
+        if (target == null) {
+            throw new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND);
+        }
+        SubSectionResponse.Result result = SubSectionResponse.Result.from(target, "Subsection deleted");
+        section.removeSubSection(subSectionType);
+
+        businessPlanQuery.save(plan);
+
+        return result;
+    }
+
     private String getSerializedJsonNodesWithUpdatedChecks(JsonNode jsonNode, List<Boolean> checks) {
 
         ObjectNode updatedJsonNode = (ObjectNode) objectMapper.valueToTree(jsonNode);
 
-        // 기존 checks 배열이 있으면 가져오고 업데이트
         ArrayNode checkListArray;
         if (updatedJsonNode.has("checks") && updatedJsonNode.get("checks").isArray()) {
             checkListArray = (ArrayNode) updatedJsonNode.get("checks");
@@ -184,7 +243,7 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
         return businessPlan;
     }
 
-    private BaseSection getSectionByPlanAndType(BusinessPlan plan, SectionType type){
+    private BaseSection getSectionByPlanAndType(BusinessPlan plan, SectionType type) {
         return switch (type) {
             case OVERVIEW -> plan.getOverview();
             case PROBLEM_RECOGNITION -> plan.getProblemRecognition();

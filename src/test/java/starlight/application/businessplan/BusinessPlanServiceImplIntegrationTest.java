@@ -12,13 +12,17 @@ import org.springframework.context.annotation.Import;
 import starlight.adapter.businessplan.persistence.BusinessPlanJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
 import starlight.application.businessplan.required.ChecklistGrader;
+import starlight.application.member.required.MemberQuery;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.SubSection;
 import starlight.domain.businessplan.enumerate.SubSectionType;
+import starlight.domain.member.entity.Member;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
@@ -43,19 +47,32 @@ class BusinessPlanServiceImplIntegrationTest {
         ObjectMapper objectMapper() {
             return new ObjectMapper();
         }
+
+        @Bean
+        MemberQuery memberQuery() {
+            return new MemberQuery() {
+                @Override
+                public Member getOrThrow(Long memberId) {
+                    Member m = mock(Member.class);
+                    when(m.getName()).thenReturn("tester");
+                    return m;
+                }
+            };
+        }
     }
 
     @Test
     void create_and_update_title_and_delete_with_subsections_cleanup() {
         // create
-        BusinessPlan created = sut.createBusinessPlan(1L);
-        Long planId = created.getId();
+        var createdPreview = sut.createBusinessPlan(1L);
+        Long planId = createdPreview.businessPlanId();
         assertThat(planId).isNotNull();
 
         // attach a subsection to overview
         SubSection s1 = SubSection.create(SubSectionType.OVERVIEW_BASIC, "c", "{}", List.of(false, false, false, false, false));
-        created.getOverview().putSubSection(s1);
-        businessPlanRepository.save(created);
+        BusinessPlan createdEntity = businessPlanRepository.findById(planId).orElseThrow();
+        createdEntity.getOverview().putSubSection(s1);
+        businessPlanRepository.save(createdEntity);
         em.flush();
         em.clear();
 
@@ -64,14 +81,36 @@ class BusinessPlanServiceImplIntegrationTest {
         assertThat(reloaded.getOverview().getSubSectionByType(SubSectionType.OVERVIEW_BASIC)).isNotNull();
 
         // update title
-        BusinessPlan updated = sut.updateBusinessPlanTitle(planId, created.getMemberId(), "new-title");
-        assertThat(updated.getTitle()).isEqualTo("new-title");
+        String updatedTitle = sut.updateBusinessPlanTitle(planId, "new-title", createdEntity.getMemberId());
+        assertThat(updatedTitle).isEqualTo("new-title");
 
         // delete plan -> cascade로 subsections도 함께 삭제
-        sut.deleteBusinessPlan(planId, created.getMemberId());
+        sut.deleteBusinessPlan(planId, createdEntity.getMemberId());
 
         // SubSection이 cascade로 삭제되었는지 확인
         BusinessPlan afterDelete = businessPlanRepository.findById(planId).orElse(null);
         assertThat(afterDelete).isNull();
+    }
+
+    @Test
+    void createBusinessPlanWithPdf_createsPlanWithPdfInfo() {
+        // given
+        String title = "PDF 사업계획서";
+        String pdfUrl = "https://example.com/test.pdf";
+        Long memberId = 1L;
+
+        // when
+        var createdResult = sut.createBusinessPlanWithPdf(title, pdfUrl, memberId);
+        Long planId = createdResult.businessPlanId();
+
+        // then
+        assertThat(planId).isNotNull();
+        assertThat(createdResult.title()).isEqualTo(title);
+
+        BusinessPlan createdPlan = businessPlanRepository.findById(planId).orElseThrow();
+        assertThat(createdPlan.getTitle()).isEqualTo(title);
+        assertThat(createdPlan.getPdfUrl()).isEqualTo(pdfUrl);
+        assertThat(createdPlan.getMemberId()).isEqualTo(memberId);
+        assertThat(createdPlan.getPlanStatus()).isEqualTo(starlight.domain.businessplan.enumerate.PlanStatus.WRITTEN_COMPLETED);
     }
 }

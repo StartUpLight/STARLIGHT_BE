@@ -5,10 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import starlight.adapter.ai.infra.OpenAiGenerator;
 import starlight.adapter.ai.util.AiReportResponseParser;
-import starlight.adapter.ai.util.BusinessPlanContentExtractor;
-import starlight.application.aireport.dto.AiReportResponse;
+import starlight.application.aireport.provided.dto.AiReportResponse;
 import starlight.application.aireport.required.AiReportGrader;
-import starlight.domain.businessplan.entity.BusinessPlan;
 
 /**
  * AI 리포트 채점을 오케스트레이션하는 컴포넌트
@@ -20,18 +18,12 @@ import starlight.domain.businessplan.entity.BusinessPlan;
 public class OpenAiReportGrader implements AiReportGrader {
 
     private final OpenAiGenerator chatClientGenerator;
-    private final BusinessPlanContentExtractor contentExtractor;
     private final AiReportResponseParser responseParser;
 
     @Override
-    public AiReportResponse grade(BusinessPlan businessPlan) {
-        // 1. BusinessPlan에서 컨텐츠 추출
-        String businessPlanContent = contentExtractor.extractContent(businessPlan);
+    public AiReportResponse gradeContent(String content){
+        String llmResponse = chatClientGenerator.generateReport(content);
 
-        // 2. LLM 호출
-        String llmResponse = chatClientGenerator.generateReport(businessPlanContent);
-
-        // 3. 응답 파싱
         return responseParser.parse(llmResponse);
     }
 }

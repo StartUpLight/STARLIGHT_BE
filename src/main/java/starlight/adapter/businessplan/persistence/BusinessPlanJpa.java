@@ -1,6 +1,8 @@
 package starlight.adapter.businessplan.persistence;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
 import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.domain.businessplan.entity.BusinessPlan;
@@ -28,5 +30,10 @@ public class BusinessPlanJpa implements BusinessPlanQuery {
     @Override
     public void delete(BusinessPlan businessPlan) {
         businessPlanRepository.delete(businessPlan);
+    }
+
+    @Override
+    public Page<BusinessPlan> findPreviewPage(Long memberId, Pageable pageable) {
+        return businessPlanRepository.findAllByMemberIdOrderedByLastSavedAt(memberId, pageable);
     }
 }

@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import starlight.adapter.expert.dto.ExpertListResponse;
+import starlight.adapter.expert.webapi.dto.ExpertDetailResponse;
 import starlight.domain.expert.enumerate.TagCategory;
 import starlight.shared.apiPayload.response.ApiResponse;
 
@@ -36,7 +36,7 @@ public interface ExpertQueryApiDoc {
                     description = "성공",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = ExpertListResponse.class)),
+                            array = @ArraySchema(schema = @Schema(implementation = ExpertDetailResponse.class)),
                             examples = @ExampleObject(
                                     name = "성공 예시",
                                     value = """
@@ -70,7 +70,7 @@ public interface ExpertQueryApiDoc {
             ),
     })
     @GetMapping
-    ApiResponse<List<ExpertListResponse>> search(
+    ApiResponse<List<ExpertDetailResponse>> search(
             @RequestParam(name = "categories", required = false)
             Set<TagCategory> categories
     );

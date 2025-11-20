@@ -24,8 +24,15 @@ public class ExpertJpa implements ExpertQuery {
     private final ExpertRepository repository;
 
     @Override
-    public Expert getOrThrow(Long id) {
+    public Expert findById(Long id) {
         return repository.findById(id).orElseThrow(
+                () -> new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND)
+        );
+    }
+
+    @Override
+    public Expert findByIdWithDetails(Long id) {
+        return repository.findByIdWithDetails(id).orElseThrow(
                 () -> new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND)
         );
     }
@@ -53,7 +60,7 @@ public class ExpertJpa implements ExpertQuery {
     @Override
     public Map<Long, Expert> findExpertMapByIds(Set<Long> expertIds) {
 
-        List<Expert> experts = repository.findAllById(expertIds);
+        List<Expert> experts = repository.findAllWithDetailsByIds(expertIds);
 
         return experts.stream()
                 .collect(Collectors.toMap(Expert::getId, Function.identity()));

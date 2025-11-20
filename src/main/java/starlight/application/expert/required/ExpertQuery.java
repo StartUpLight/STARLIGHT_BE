@@ -10,11 +10,13 @@ import java.util.Set;
 
 public interface ExpertQuery {
 
+    Expert findById(Long id);
+
+    Expert findByIdWithDetails(Long id);
+
     Map<Long, Expert> findExpertMapByIds(Set<Long> expertIds);
 
     List<Expert> findAllWithDetails();
 
     List<Expert> findByAllCategories(Collection<TagCategory> categories);
-
-    Expert getOrThrow(Long id);
 }

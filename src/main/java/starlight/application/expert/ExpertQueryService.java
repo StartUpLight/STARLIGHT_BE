@@ -22,7 +22,12 @@ public class ExpertQueryService implements ExpertFinder {
 
     @Override
     public Expert findById(Long id) {
-        return expertQuery.getOrThrow(id);
+        return expertQuery.findById(id);
+    }
+
+    @Override
+    public Expert findByIdWithDetails(Long id) {
+        return expertQuery.findByIdWithDetails(id);
     }
 
     @Override

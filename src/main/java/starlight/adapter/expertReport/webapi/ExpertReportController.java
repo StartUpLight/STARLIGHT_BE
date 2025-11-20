@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import starlight.adapter.expertReport.webapi.dto.ExpertReportResponse;
-import starlight.adapter.expertReport.webapi.dto.SaveExpertReportRequest;
+import starlight.adapter.expertReport.webapi.dto.UpsertExpertReportRequest;
 import starlight.adapter.expertReport.webapi.mapper.ExpertReportMapper;
 import starlight.application.expertReport.provided.ExpertReportService;
 import starlight.application.expertReport.provided.dto.ExpertReportWithExpertDto;
@@ -25,7 +25,7 @@ public class ExpertReportController {
     private final ExpertReportMapper mapper;
     private final ExpertReportService expertReportService;
 
-    @Operation(summary = "전문가 리포트 목록을 조회합니다.")
+    @Operation(summary = "전문가 리포트 목록을 조회합니다. (사용자 사용)")
     @GetMapping
     public ApiResponse<List<ExpertReportResponse>> getExpertReports(
             @RequestParam Long businessPlanId
@@ -34,35 +34,35 @@ public class ExpertReportController {
                 .getExpertReportsWithExpertByBusinessPlanId(businessPlanId);
 
         List<ExpertReportResponse> responses = dtos.stream()
-                .map(dto -> ExpertReportResponse.of(
+                .map(dto -> ExpertReportResponse.fromEntities(
                         dto.report(),
-                        dto.expert().getName()
+                        dto.expert()
                 ))
                 .toList();
 
         return ApiResponse.success(responses);
     }
 
-    @Operation(summary = "전문가 리포트를 조회합니다.")
+    @Operation(summary = "전문가 리포트를 조회합니다. (전문가 사용)")
     @GetMapping("/{token}")
     public ApiResponse<ExpertReportResponse> getExpertReport(
             @PathVariable String token
     ) {
         ExpertReportWithExpertDto dto = expertReportService.getExpertReportWithExpert(token);
 
-        ExpertReportResponse response = ExpertReportResponse.of(
+        ExpertReportResponse response = ExpertReportResponse.fromEntities(
                 dto.report(),
-                dto.expert().getName()
+                dto.expert()
         );
 
         return ApiResponse.success(response);
     }
 
-    @Operation(summary = "전문가 리포트를 저장합니다.")
+    @Operation(summary = "전문가 리포트를 저장합니다 (전문가 사용)")
     @PostMapping("/{token}")
     public ApiResponse<?> save(
             @PathVariable String token,
-            @Valid @RequestBody SaveExpertReportRequest request
+            @Valid @RequestBody UpsertExpertReportRequest request
     ) {
         List<ExpertReportDetail> details = mapper.toEntityList(request.details());
 

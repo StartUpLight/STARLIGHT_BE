@@ -1,8 +1,7 @@
 package starlight.application.aireport.required;
 
-import starlight.application.aireport.dto.AiReportResponse;
-import starlight.domain.businessplan.entity.BusinessPlan;
+import starlight.application.aireport.provided.dto.AiReportResponse;
 
 public interface AiReportGrader {
-    AiReportResponse grade(BusinessPlan businessPlan);
+    AiReportResponse gradeContent(String content);
 }

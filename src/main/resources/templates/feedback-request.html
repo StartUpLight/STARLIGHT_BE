@@ -1,40 +1,159 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>사업계획서 피드백 요청</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Apple SD Gothic Neo', sans-serif; background: #fafafa; padding: 30px; color: #333; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; }
-        h2 { color: #0056b3; }
-        a.button {
-            display: inline-block;
-            background: #0078ff;
-            color: white;
-            text-decoration: none;
-            padding: 10px 18px;
-            border-radius: 6px;
-            margin-top: 15px;
+        /* CSS Reset and Basics for Email Clients */
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; border: 0; }
+        a { text-decoration: none; }
+
+        /* 폰트 및 기본 스타일 설정 */
+        body {
+            font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif;
+            background-color: #F4F6F9; /* 밝은 회색 배경 */
+            padding: 0; /* body padding 제거 */
+            margin: 0;
+            color: #1a1a1a;
+            line-height: 1.5;
         }
-        .footer { font-size: 12px; color: #999; margin-top: 30px; }
+        /* Mobile responsive adjustments */
+        @media only screen and (max-width: 620px) {
+            .container-table { width: 100% !important; min-width: 100% !important; }
+            .content-padding { padding: 20px !important; }
+            .header img { height: 24px !important; }
+            .logo-text { font-size: 20px !important; }
+            h2 { font-size: 20px !important; }
+        }
+
+        /* 컨테이너 스타일 */
+        .container-table {
+            width: 600px;
+            background: #ffffff;
+            border-radius: 12px;
+            /* box-shadow는 Outlook 등에서 지원 안될 수 있으므로, 웹메일용으로만 남김 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        /* 헤더 스타일 */
+        .header {
+            padding: 25px 30px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+        .logo-text {
+            color: #070B24;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        /* 본문 내용 */
+        .content {
+            padding: 30px;
+        }
+        .content p {
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+        h2 {
+            color: #6F5FFF;
+            margin-top: 0;
+            font-weight: 700;
+            font-size: 24px;
+            margin-bottom: 15px; /* h2 아래 간격 추가 */
+        }
+
+        /* 강조 텍스트 */
+        .highlight {
+            color: #6F5FFF;
+            font-weight: 700;
+        }
+
+        /* 푸터 */
+        .footer {
+            font-size: 12px;
+            color: #999;
+            padding: 20px 30px;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
     </style>
 </head>
-<body>
-<div class="container">
-    <h2>멘토님, 안녕하세요!</h2>
-    <p><b th:text="${studentName}"></b> 님의 <b th:text="${planTitle}"></b> 사업계획서가 도착했습니다.</p>
+<body style="font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif; background-color: #F4F6F9; margin: 0; padding: 0;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #F4F6F9; color: #1a1a1a;">
+    <tr>
+        <td align="center" valign="top" style="padding: 20px 0;">
+            <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" class="container-table" style="max-width: 600px; background: #ffffff; border-radius: 12px;">
 
-    <p>첨부된 파일을 확인하시고, <b th:text="${feedbackDeadline}"></b> 까지 피드백을 완료해 주세요.</p>
+                <tr>
+                    <td class="header" style="padding: 25px 30px; border-bottom: 1px solid #eee; text-align: left;">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                                <td style="padding-right: 10px;">
+                                    <img
+                                            src="https://kr.object.ncloudstorage.com/starlight-s3/starlight-static/starlight-logo.png"
+                                            alt="Starlight Logo"
+                                            width="28"
+                                            height="28"
+                                            style="display: block; width: 28px; height: 28px; vertical-align: middle;"
+                                    />
+                                </td>
+                                <td>
+                                    <span class="logo-text" style="color: #070B24; font-size: 24px; font-weight: 700; line-height: 1;">Starlight</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
 
-    <p>
-        아래 버튼을 클릭하시면 평가 페이지로 이동합니다:
-    </p>
+                <tr>
+                    <td class="content content-padding" style="padding: 30px;">
+                        <h2 style="color: #6F5FFF; margin-top: 0; font-weight: 700; font-size: 24px; margin-bottom: 15px;">멘토님, 안녕하세요!</h2>
 
-    <a th:href="${feedbackUrl}" class="button">피드백 페이지로 이동</a>
+                        <p style="margin-top: 8px; margin-bottom: 8px; line-height: 1.5;">
+                            <b th:text="${studentName}" class="highlight" style="color: #6F5FFF; font-weight: 700;"></b> 님의 <b th:text="${planTitle}" class="highlight" style="color: #6F5FFF; font-weight: 700;"></b> 사업계획서가 도착했습니다.
+                        </p>
 
-    <p class="footer">
-        이 메일은 시스템에서 자동 발송되었습니다. 문의사항은 관리자에게 연락해주세요.
-    </p>
-</div>
+                        <p style="margin-top: 8px; margin-bottom: 8px; line-height: 1.5;">
+                            첨부된 파일을 확인하시고, **<span th:text="${feedbackDeadline}" class="highlight" style="color: #6F5FFF; font-weight: 700;"></span>** 까지 피드백을 완료해 주세요.
+                        </p>
+
+                        <p style="margin-top: 8px; margin-bottom: 8px; line-height: 1.5;">
+                            아래 버튼을 클릭하시면 평가 페이지로 즉시 이동합니다
+                        </p>
+
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top: 15px;">
+                            <tr>
+                                <td align="center" bgcolor="#5475FF" style="border-radius: 8px;">
+                                    <a th:href="${feedbackUrl}" target="_blank" style="padding: 10px 20px; border: 1px solid #5475FF; display: inline-block; background: #5475FF; color: #ffffff; font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif; font-size: 14px; font-weight: 500; text-decoration: none; border-radius: 8px;">
+                                        피드백 페이지로 이동
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="footer" style="font-size: 12px; color: #999; padding: 20px 30px; border-top: 1px solid #eee; background-color: #f9f9f9;">
+                        <p style="margin-top: 0; margin-bottom: 5px;">
+                            이 메일은 시스템에서 자동 발송되었습니다.
+                        </p>
+                        <p style="margin-top: 5px; margin-bottom: 0;">
+                            문의사항은 관리자 이메일(starlight.kusitms@gmail.com)로 연락해주세요.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
 </body>
 </html>
