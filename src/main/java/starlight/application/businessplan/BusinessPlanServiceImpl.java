@@ -183,17 +183,14 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
             throw new BusinessPlanException(BusinessPlanErrorType.SUBSECTION_NOT_FOUND);
         }
 
-        String newContent = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
+        String content = PlainTextExtractUtils.extractPlainText(objectMapper, jsonNode);
 
-        String previousContent = subSection.getContent();
-        List<Boolean> previousChecks = subSection.getChecks();
-
-        List<Boolean> checks = checklistGrader.check(subSectionType, newContent, previousContent, previousChecks);
+        List<Boolean> checks = checklistGrader.check(subSectionType, content);
 
         SubSectionSupportUtils.requireSize(checks, SubSection.getCHECKLIST_SIZE());
         String rawJsonStr = getSerializedJsonNodesWithUpdatedChecks(jsonNode, checks);
 
-        subSection.update(newContent, rawJsonStr, checks);
+        subSection.update(content, rawJsonStr, checks);
 
         businessPlanQuery.save(plan);
 

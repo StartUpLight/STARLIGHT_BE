@@ -14,6 +14,7 @@ import starlight.application.expertApplication.provided.ExpertApplicationService
 import starlight.application.expertApplication.required.ExpertApplicationQuery;
 import starlight.application.expertReport.provided.ExpertReportService;
 import starlight.domain.businessplan.entity.BusinessPlan;
+import starlight.domain.businessplan.enumerate.PlanStatus;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expertApplication.entity.ExpertApplication;
 import starlight.domain.expertApplication.exception.ExpertApplicationErrorType;
@@ -48,6 +49,8 @@ public class ExpertApplicationServiceImpl implements ExpertApplicationService {
 
             BusinessPlan plan = planQuery.getOrThrow(planId);
             Expert expert = expertQuery.findById(expertId);
+
+            plan.updateStatus(PlanStatus.EXPERT_MATCHED);
 
             registerApplicationRecord(expertId, planId);
 

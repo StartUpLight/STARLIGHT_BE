@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Component;
 import starlight.application.infrastructure.provided.LlmGenerator;
+import starlight.domain.businessplan.enumerate.SubSectionType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -25,20 +27,26 @@ public class OpenAiGenerator implements LlmGenerator {
 
     @Override
     public List<Boolean> generateChecklistArray(
-            String newContent,
+            SubSectionType subSectionType,
+            String content,
             List<String> criteria,
-            String previousContent,
-            List<Boolean> previousChecks
+            List<String> detailedCriteria
     ) {
         Prompt prompt = promptProvider.createChecklistGradingPrompt(
-                newContent, criteria, previousContent, previousChecks
+                subSectionType, content, criteria, detailedCriteria
         );
-
 
         ChatClient chatClient = chatClientBuilder.build();
 
+        SimpleLoggerAdvisor slAdvisor = advisorProvider.getSimpleLoggerAdvisor();
+
         String output = chatClient
                 .prompt(prompt)
+                .options(ChatOptions.builder()
+                        .temperature(0.1)
+                        .topP(0.1)
+                        .build())
+                .advisors(slAdvisor)
                 .call()
                 .content();
 
@@ -61,6 +69,10 @@ public class OpenAiGenerator implements LlmGenerator {
 
         return chatClient
                 .prompt(prompt)
+                .options(ChatOptions.builder()
+                        .temperature(0.1)
+                        .topP(0.1)
+                        .build())
                 .advisors(qaAdvisor, slAdvisor)
                 .call()
                 .content();

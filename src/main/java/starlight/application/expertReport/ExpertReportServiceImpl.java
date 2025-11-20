@@ -5,10 +5,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.expert.provided.ExpertFinder;
 import starlight.application.expertReport.provided.ExpertReportService;
 import starlight.application.expertReport.provided.dto.ExpertReportWithExpertDto;
 import starlight.application.expertReport.required.ExpertReportQuery;
+import starlight.domain.businessplan.entity.BusinessPlan;
+import starlight.domain.businessplan.enumerate.PlanStatus;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expertReport.entity.ExpertReport;
 import starlight.domain.expertReport.entity.ExpertReportDetail;
@@ -36,6 +39,7 @@ public class ExpertReportServiceImpl implements ExpertReportService {
 
     private final ExpertReportQuery expertReportQuery;
     private final ExpertFinder expertFinder;
+    private final BusinessPlanQuery businessPlanQuery;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Override
@@ -64,8 +68,15 @@ public class ExpertReportServiceImpl implements ExpertReportService {
         report.updateDetails(details);
 
         switch (saveType) {
-            case TEMPORARY -> report.temporarySave();
-            case FINAL -> report.submit();
+            case TEMPORARY -> {
+                report.temporarySave();
+            }
+            case FINAL -> {
+                report.submit();
+                BusinessPlan plan = businessPlanQuery.getOrThrow(report.getBusinessPlanId());
+                plan.updateStatus(PlanStatus.FINALIZED);
+            }
+
         }
 
         return expertReportQuery.save(report);
