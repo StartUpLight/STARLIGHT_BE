@@ -9,6 +9,7 @@ import starlight.domain.expert.enumerate.TagCategory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface ExpertRepository extends JpaRepository<Expert, Long> {
 
@@ -28,4 +29,13 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
     @EntityGraph(attributePaths = {"categories", "careers", "tags"})
     List<Expert> findByAllCategories(@Param("cats") Collection<TagCategory> cats,
                                      @Param("size") long size);
+
+    @Query("""
+        select e from Expert e
+        left join fetch e.categories
+        left join fetch e.careers
+        left join fetch e.tags
+        where e.id = :id
+    """)
+    Optional<Expert> findByIdWithDetails(@Param("id") Long id);
 }

@@ -24,8 +24,15 @@ public class ExpertJpa implements ExpertQuery {
     private final ExpertRepository repository;
 
     @Override
-    public Expert getOrThrow(Long id) {
+    public Expert findById(Long id) {
         return repository.findById(id).orElseThrow(
+                () -> new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND)
+        );
+    }
+
+    @Override
+    public Expert findByIdWithDetails(Long id) {
+        return repository.findByIdWithDetails(id).orElseThrow(
                 () -> new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND)
         );
     }

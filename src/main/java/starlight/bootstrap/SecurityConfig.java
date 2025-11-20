@@ -74,6 +74,11 @@ public class SecurityConfig {
                         .requestMatchers("/v1/auth/**","/v1/user/**", "/v1/experts").permitAll()
                         .requestMatchers("/login/**", "/oauth2/**", "/login/oauth2/**", "/public/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/v1/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**").permitAll()
+
+                        // Expert Application
+                        .requestMatchers(HttpMethod.GET,  "/v1/expert-reports/*").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/expert-reports/*").permitAll()
+
                         .requestMatchers(
                                 "/toss/config", "/toss/success", "/toss/fail",
                                 "/toss/popup.html", "/payment.html",

@@ -1,6 +1,7 @@
 package starlight.adapter.businessplan.webapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.Valid;
@@ -47,7 +48,13 @@ public record SubSectionCreateRequest(
         public record ImageItem(
                         @NotBlank String type,
                         @NotBlank @Size(max = 1024) String src,
+                        @JsonProperty(defaultValue = "400") Integer width,
+                        @JsonProperty(defaultValue = "400") Integer height,
                         @Size(max = 255) String caption) implements SubSectionCreateRequest.Content {
+                public ImageItem {
+                        width = width != null ? width : 400;
+                        height = height != null ? height : 400;
+                }
         }
 
         public record TableItem(

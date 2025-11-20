@@ -15,7 +15,7 @@ import starlight.shared.AbstractEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends AbstractEntity {
 
-    @Column(columnDefinition = "varchar(320)")
+    @Column(nullable = false, columnDefinition = "varchar(320)")
     private String name;
 
     @Column(nullable = false, columnDefinition = "varchar(320)")
