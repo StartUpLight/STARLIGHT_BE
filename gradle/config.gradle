@@ -1,0 +1,13 @@
+sourceSets {
+    main {
+        resources {
+            srcDir 'config/resources/main'
+        }
+    }
+
+    test {
+        resources {
+            srcDir 'config/resources/test'
+        }
+    }
+}
