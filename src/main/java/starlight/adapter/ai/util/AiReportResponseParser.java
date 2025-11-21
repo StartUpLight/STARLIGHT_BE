@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import starlight.application.aireport.provided.dto.AiReportResponse;
 import starlight.domain.aireport.entity.AiReport;
+import starlight.domain.aireport.exception.AiReportException;
+import starlight.domain.aireport.exception.AiReportErrorType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,15 +110,121 @@ public class AiReportResponseParser {
     }
 
     /**
+     * 응답이 기본값(파싱 실패 시 반환되는 값)인지 확인
+     */
+    private boolean isDefaultResponse(AiReportResponse response) {
+        return (response.problemRecognitionScore() == null || response.problemRecognitionScore() == 0) &&
+               (response.feasibilityScore() == null || response.feasibilityScore() == 0) &&
+               (response.growthStrategyScore() == null || response.growthStrategyScore() == 0) &&
+               (response.teamCompetenceScore() == null || response.teamCompetenceScore() == 0) &&
+               (response.strengths() == null || response.strengths().isEmpty()) &&
+               (response.weaknesses() == null || response.weaknesses().isEmpty()) &&
+               (response.sectionScores() == null || response.sectionScores().isEmpty());
+    }
+
+    /**
      * LLM 응답 문자열을 AiReportResponse로 파싱
+     * 파싱 실패 시 예외를 던집니다.
      */
     public AiReportResponse parse(String llmResponse) {
-        try {
-            JsonNode jsonNode = objectMapper.readTree(llmResponse);
-            return parseFromJsonNode(jsonNode);
-        } catch (Exception e) {
-            return createDefaultAiReportResponse();
+        log.debug("Raw LLM response: {}", llmResponse);
+        
+        // 1. 기본 검증
+        if (llmResponse == null || llmResponse.trim().isEmpty()) {
+            log.error("LLM response is null or empty");
+            throw new AiReportException(AiReportErrorType.AI_RESPONSE_PARSING_FAILED);
         }
+        
+        try {
+            // 2. JSON 문자열 정리
+            String cleanedJson = cleanJsonResponse(llmResponse);
+            log.debug("Cleaned JSON: {}", cleanedJson);
+            
+            // 3. JSON 파싱 시도
+            JsonNode jsonNode = objectMapper.readTree(cleanedJson);
+            
+            // 4. 필수 필드 존재 여부 확인
+            if (!jsonNode.has("problemRecognitionScore") ||
+                !jsonNode.has("feasibilityScore") ||
+                !jsonNode.has("growthStrategyScore") ||
+                !jsonNode.has("teamCompetenceScore")) {
+                throw new AiReportException(AiReportErrorType.AI_RESPONSE_PARSING_FAILED);
+            }
+            
+            // 5. 파싱 시도
+            AiReportResponse response = parseFromJsonNode(jsonNode);
+            
+            // 6. 파싱된 값이 기본값인지 확인
+            if (isDefaultResponse(response)) {
+                log.error("Parsed response is default (all zeros), likely parsing failure");
+                throw new AiReportException(AiReportErrorType.AI_RESPONSE_PARSING_FAILED);
+            }
+            
+            return response;
+        } catch (Exception e) {
+            log.error("Failed to parse LLM response. Response: {}", llmResponse, e);
+            throw new AiReportException(AiReportErrorType.AI_RESPONSE_PARSING_FAILED);
+        }
+    }
+
+    /**
+     * JSON 응답 문자열 정리 및 복구
+     */
+    private String cleanJsonResponse(String json) {
+        if (json == null || json.trim().isEmpty()) {
+            return "{}";
+        }
+        
+        String cleaned = json.trim();
+        
+        // 1. JSON 코드 블록 마커 제거 (```json ... ``` 또는 ``` ... ```)
+        if (cleaned.startsWith("```json")) {
+            cleaned = cleaned.substring(7);
+        } else if (cleaned.startsWith("```")) {
+            cleaned = cleaned.substring(3);
+        }
+        if (cleaned.endsWith("```")) {
+            cleaned = cleaned.substring(0, cleaned.length() - 3);
+        }
+        cleaned = cleaned.trim();
+        
+        // 2. "text" 필드에서 JSON 추출 (더 강력한 추출)
+        // 정규식으로 "text" 필드 추출 시도
+        if (cleaned.contains("\"text\"") || cleaned.contains("'text'")) {
+            try {
+                // 먼저 JSON 파싱 시도
+                JsonNode root = objectMapper.readTree(cleaned);
+                if (root.has("text") && root.get("text").isTextual()) {
+                    cleaned = root.get("text").asText();
+                }
+            } catch (Exception e) {
+                // JSON 파싱 실패 시 정규식으로 추출 시도
+                try {
+                    // "text" : "..." 패턴 찾기
+                    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(
+                        "\"text\"\\s*:\\s*\"(.*)\"", 
+                        java.util.regex.Pattern.DOTALL
+                    );
+                    java.util.regex.Matcher matcher = pattern.matcher(cleaned);
+                    if (matcher.find()) {
+                        String extracted = matcher.group(1);
+                        // 이스케이프된 문자 처리
+                        extracted = extracted.replace("\\n", "\n")
+                                            .replace("\\\"", "\"")
+                                            .replace("\\\\", "\\");
+                        cleaned = extracted;
+                        log.debug("Extracted text field using regex");
+                    }
+                } catch (Exception e2) {
+                    log.warn("Failed to extract text field using regex: {}", e2.getMessage());
+                }
+            }
+        }
+
+        // 3. 잘못된 따옴표 패턴 수정 (공백이 포함된 필드명)
+        cleaned = cleaned.replaceAll("\"\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s+\"", "\"$1\"");
+
+        return cleaned;
     }
 
     /**
@@ -165,27 +273,42 @@ public class AiReportResponseParser {
 
     /**
      * 섹션 점수 리스트 파싱
+     * 불완전한 항목은 건너뛰거나 기본값으로 대체
      */
     private List<AiReportResponse.SectionScoreDetailResponse> parseSectionScores(JsonNode node) {
         List<AiReportResponse.SectionScoreDetailResponse> list = new ArrayList<>();
         if (node.isArray()) {
             for (JsonNode sectionScoreNode : node) {
-                list.add(new AiReportResponse.SectionScoreDetailResponse(
-                        sectionScoreNode.path("sectionType").asText(""),
-                        sectionScoreNode.path("gradingListScores").asText("[]")));
+                try {
+                    String sectionType = sectionScoreNode.path("sectionType").asText("");
+                    String gradingListScores = sectionScoreNode.path("gradingListScores").asText("[]");
+                    
+                    // gradingListScores가 유효한 JSON 문자열인지 검증
+                    if (!gradingListScores.equals("[]")) {
+                        try {
+                            // JSON 배열 형식인지 확인
+                            if (!gradingListScores.trim().startsWith("[")) {
+                                log.warn("Invalid gradingListScores format for sectionType: {}, using default", sectionType);
+                                gradingListScores = "[]";
+                            } else {
+                                // JSON 파싱 가능 여부 확인
+                                objectMapper.readTree(gradingListScores);
+                            }
+                        } catch (Exception e) {
+                            log.warn("Failed to parse gradingListScores for sectionType: {}, using default. Value: {}", 
+                                    sectionType, gradingListScores);
+                            gradingListScores = "[]";
+                        }
+                    }
+                    
+                    list.add(new AiReportResponse.SectionScoreDetailResponse(sectionType, gradingListScores));
+                } catch (Exception e) {
+                    log.warn("Failed to parse sectionScore item, skipping: {}", e.getMessage());
+                    // 불완전한 항목은 건너뛰기
+                }
             }
         }
         return list;
     }
 
-    /**
-     * 기본값 AiReportResponse 생성 (파싱 실패 시 사용)
-     */
-    private AiReportResponse createDefaultAiReportResponse() {
-        return AiReportResponse.fromGradingResult(
-                0, 0, 0, 0,
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>());
-    }
 }

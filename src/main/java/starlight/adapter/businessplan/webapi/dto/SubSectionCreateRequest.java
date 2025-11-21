@@ -13,7 +13,7 @@ import java.util.List;
 public record SubSectionCreateRequest(
                 @NotNull SubSectionType subSectionType,
                 @NotNull List<Boolean> checks,
-                @Valid @NotNull SubSectionCreateRequest.Meta meta,
+                @Valid @NotNull Meta meta,
                 @Valid @NotNull List<@Valid Block> blocks) {
         public record Meta(
                         @NotBlank String author,
@@ -21,7 +21,7 @@ public record SubSectionCreateRequest(
         }
 
         public record Block(
-                        @Valid @NotNull SubSectionCreateRequest.BlockMeta meta,
+                        @Valid @NotNull BlockMeta meta,
                         @Valid List<@Valid Content> content) {
         }
 
@@ -31,18 +31,18 @@ public record SubSectionCreateRequest(
 
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
         @JsonSubTypes({
-                        @JsonSubTypes.Type(value = SubSectionCreateRequest.TextItem.class, name = "text"),
-                        @JsonSubTypes.Type(value = SubSectionCreateRequest.ImageItem.class, name = "image"),
-                        @JsonSubTypes.Type(value = SubSectionCreateRequest.TableItem.class, name = "table")
+                        @JsonSubTypes.Type(value = TextItem.class, name = "text"),
+                        @JsonSubTypes.Type(value = ImageItem.class, name = "image"),
+                        @JsonSubTypes.Type(value = TableItem.class, name = "table")
         })
         public sealed interface Content
-                        permits SubSectionCreateRequest.TextItem, SubSectionCreateRequest.ImageItem, SubSectionCreateRequest.TableItem {
+                        permits TextItem, ImageItem, TableItem {
                 String type();
         }
 
         public record TextItem(
                         @NotBlank String type,
-                        @NotBlank String value) implements SubSectionCreateRequest.Content {
+                        @NotBlank String value) implements Content {
         }
 
         public record ImageItem(
@@ -50,7 +50,7 @@ public record SubSectionCreateRequest(
                         @NotBlank @Size(max = 1024) String src,
                         @JsonProperty(defaultValue = "400") Integer width,
                         @JsonProperty(defaultValue = "400") Integer height,
-                        @Size(max = 255) String caption) implements SubSectionCreateRequest.Content {
+                        @Size(max = 255) String caption) implements Content {
                 public ImageItem {
                         width = width != null ? width : 400;
                         height = height != null ? height : 400;
@@ -60,7 +60,7 @@ public record SubSectionCreateRequest(
         public record TableItem(
                         @NotBlank String type,
                         @NotEmpty List<@NotBlank String> columns,
-                        @NotEmpty List<@NotEmpty List<Object>> rows) implements SubSectionCreateRequest.Content {
+                        @NotEmpty List<@NotEmpty List<Object>> rows) implements Content {
 
                 @AssertTrue(message = "table rows must match columns length")
                 @JsonIgnore
