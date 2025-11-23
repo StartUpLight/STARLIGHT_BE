@@ -28,13 +28,6 @@ public class OrderRepositoryJpa implements OrdersQuery {
     }
 
     @Override
-    public boolean existsPaidByBuyerIdAndBusinessPlanId(Long buyerId, Long businessPlanId) {
-        return repository.existsByBuyerIdAndBusinessPlanIdAndStatus(
-                buyerId, businessPlanId, OrderStatus.PAID
-        );
-    }
-
-    @Override
     public Orders save(Orders order) {
         return repository.save(order);
     }

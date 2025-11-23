@@ -32,36 +32,28 @@ public class OrderPaymentService {
 
     /**
      * 결제 전 주문 준비
-     * - 이미 해당 사업계획서에 PAID 주문이 있으면 예외
      * - orderCode로 주문이 있으면 재사용(검증 후 결제 시도 추가)
      * - 없으면 새 주문 생성 후 첫 결제 시도 추가
      *
      * @param orderCodeStr 프론트에서 생성한 주문번호
      * @param buyerId 구매자 ID
-     * @param businessPlanId 사업계획서 ID
      * @param productCode 결제 금액
      * @return Orders 준비된 주문
      */
-    public Orders prepare(String orderCodeStr, Long buyerId, Long businessPlanId, String productCode) {
-        if (ordersQuery.existsPaidByBuyerIdAndBusinessPlanId(buyerId, businessPlanId)) {
-            throw new OrderException(OrderErrorType.ALREADY_PAID_FOR_BUSINESS_PLAN);
-        }
-
+    public Orders prepare(String orderCodeStr, Long buyerId, String productCode) {
         UsageProductType product = UsageProductType.fromCode(productCode);
         Money money = Money.krw(product.getPrice());
         OrderCode orderCode = OrderCode.of(orderCodeStr);
 
-
         return ordersQuery.findByOrderCode(orderCodeStr)
                 .map(existing -> {
-                    // 기존 주문 재사용 시, 같은 비즈니스 + 같은 상품인지 확인
-                    existing.validateSameBusinessOrder(buyerId, businessPlanId);
+                    existing.validateSameBuyer(buyerId);
                     existing.validateSameProduct(product);
                     existing.addPaymentAttempt(money);
                     return existing;
                 })
                 .orElseGet(() -> {
-                    Orders newOrder = Orders.newOrder(orderCode, buyerId, businessPlanId, money, product);
+                    Orders newOrder = Orders.newUsageOrder(orderCode, buyerId, money, product);
                     newOrder.addPaymentAttempt(money);
                     return ordersQuery.save(newOrder);
                 });
@@ -73,7 +65,6 @@ public class OrderPaymentService {
      *
      * @param orderCodeStr 주문번호
      * @param paymentKey 토스 결제키
-     * @param amount 결제 금액
      * @return Orders 승인된 주문
      */
     public Orders confirm(String orderCodeStr, String paymentKey) {
@@ -136,18 +127,5 @@ public class OrderPaymentService {
         ordersQuery.save(order);
 
         return response;
-    }
-
-    /**
-     * 사용권 횟수에 따른 가격 결정
-     * @param usageCount
-     * @return
-     */
-    private Money determinePriceByUsageCount(int usageCount) {
-        return switch (usageCount) {
-            case 1 -> Money.krw(69_000L);
-            case 2 -> Money.krw(99_000L);
-            default -> throw new OrderException(OrderErrorType.INVALID_USAGE_PRODUCT);
-        };
     }
 }

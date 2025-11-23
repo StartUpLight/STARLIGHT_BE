@@ -7,12 +7,6 @@ public record OrderPrepareRequest(
         @NotBlank
         String orderCode,
 
-        @NotNull
-        Long buyerId,
-
-        @NotNull
-        Long businessPlanId,
-
         @NotBlank
         String productCode
 ) { }

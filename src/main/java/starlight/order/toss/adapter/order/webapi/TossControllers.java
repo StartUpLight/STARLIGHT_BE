@@ -1,10 +1,13 @@
 package starlight.order.toss.adapter.order.webapi;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.order.toss.adapter.order.webapi.dto.TossClientResponse;
 import starlight.order.toss.adapter.order.webapi.dto.request.OrderCancelRequest;
 import starlight.order.toss.adapter.order.webapi.dto.request.OrderConfirmRequest;
@@ -18,6 +21,7 @@ import starlight.shared.apiPayload.response.ApiResponse;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "결제", description = "결제 관련 API")
 public class TossControllers {
 
     private final OrderPaymentService orderPaymentService;
@@ -28,12 +32,12 @@ public class TossControllers {
      */
     @PostMapping("/api/toss/request")
     public ApiResponse<OrderPrepareResponse> prepareOrder(
-            @Valid @RequestBody OrderPrepareRequest request
+            @Valid @RequestBody OrderPrepareRequest request,
+            @AuthenticationPrincipal AuthDetails authDetails
     ) {
         Orders order = orderPaymentService.prepare(
                 request.orderCode(),
-                request.buyerId(),
-                request.businessPlanId(),
+                authDetails.getMemberId(),
                 request.productCode()
         );
 

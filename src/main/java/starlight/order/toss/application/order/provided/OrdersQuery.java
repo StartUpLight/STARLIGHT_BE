@@ -10,7 +10,5 @@ public interface OrdersQuery {
 
     Orders getByOrderCodeOrThrow(String orderCode);
 
-    boolean existsPaidByBuyerIdAndBusinessPlanId(Long buyerId, Long businessPlanId);
-
     Orders save(Orders order);
 }

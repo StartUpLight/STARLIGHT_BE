@@ -9,6 +9,4 @@ import java.util.Optional;
 public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
     Optional<Orders> findByOrderCode(String orderCode);
-
-    boolean existsByBuyerIdAndBusinessPlanIdAndStatus(Long buyerId, Long businessPlanId, OrderStatus status);
 }

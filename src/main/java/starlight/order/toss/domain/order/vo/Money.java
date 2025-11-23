@@ -38,13 +38,6 @@ public class Money {
         return Objects.equals(this.amount, other.amount);
     }
 
-    public boolean isGreaterThan(Money other) {
-        if (!this.currency.equals(other.currency)) {
-            throw new IllegalArgumentException("다른 통화는 비교할 수 없습니다.");
-        }
-        return this.amount > other.amount;
-    }
-
     public Long getAmount() {
         return amount;
     }
@@ -60,11 +53,6 @@ public class Money {
         Money money = (Money) o;
         return Objects.equals(amount, money.amount) &&
                 Objects.equals(currency, money.currency);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(amount, currency);
     }
 
     @Override

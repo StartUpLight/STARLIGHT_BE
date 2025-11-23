@@ -48,11 +48,6 @@ public class OrderCode {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(value);
-    }
-
-    @Override
     public String toString() {
         return value;
     }

@@ -5,11 +5,7 @@ import starlight.order.toss.domain.order.PaymentRecords;
 
 import java.time.Instant;
 
-/**
- * 결제 승인 응답
- */
 public record OrderConfirmResponse(
-        Long businessPlanId,
         Long buyerId,
         String paymentKey,
         String orderId,
@@ -24,7 +20,6 @@ public record OrderConfirmResponse(
         PaymentRecords payment = order.getLatestPaymentOrThrow();
 
         return new OrderConfirmResponse(
-                order.getBusinessPlanId(),
                 order.getBuyerId(),
                 payment.getPaymentKey(),
                 order.getOrderCode(),

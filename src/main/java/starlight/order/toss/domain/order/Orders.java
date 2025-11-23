@@ -17,7 +17,6 @@ import java.util.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "orders")
 public class Orders {
 
     @Id
@@ -29,9 +28,6 @@ public class Orders {
 
     @Column(name = "buyer_user_id", nullable = false)
     private Long buyerId;
-
-    @Column(name = "business_plan_id")
-    private Long businessPlanId;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
@@ -80,15 +76,15 @@ public class Orders {
 
     /* ---------- 팩토리 메서드 ---------- */
 
-    public static Orders newOrder(OrderCode orderCode, Long buyerId, Long businessPlanId, Money money, UsageProductType product) {
+    public static Orders newUsageOrder(OrderCode orderCode, Long buyerId, Money money, UsageProductType product) {
         Objects.requireNonNull(orderCode, "orderCode는 필수입니다.");
         Objects.requireNonNull(buyerId, "buyerId는 필수입니다.");
         Objects.requireNonNull(money, "money는 필수입니다.");
+        Objects.requireNonNull(product, "product는 필수입니다.");
 
         Orders orders = new Orders();
         orders.orderCode = orderCode.getValue();
         orders.buyerId = buyerId;
-        orders.businessPlanId = businessPlanId;
         orders.price = money.getAmount();
         orders.currency = money.getCurrency();
         orders.usageProductCode = product.getCode();
@@ -99,16 +95,9 @@ public class Orders {
 
     /* ---------- 도메인 로직 (불변식 보호) ---------- */
 
-    /**
-     * 같은 비즈니스 주문인지 검증
-     * orderCode 재사용 시 호출
-     */
-    public void validateSameBusinessOrder(Long buyerId, Long businessPlanId) {
+    public void validateSameBuyer(Long buyerId) {
         if (!Objects.equals(this.buyerId, buyerId)) {
             throw new OrderException(OrderErrorType.ORDER_CODE_BUYER_MISMATCH);
-        }
-        if (!Objects.equals(this.businessPlanId, businessPlanId)) {
-            throw new OrderException(OrderErrorType.ORDER_CODE_BUSINESS_PLAN_MISMATCH);
         }
     }
 
@@ -170,14 +159,6 @@ public class Orders {
     /* ---------- 조회 메서드 ---------- */
 
     /**
-     * 가장 최근 결제 시도 조회 (Optional)
-     */
-    public Optional<PaymentRecords> latestPayment() {
-        return payments.stream()
-                .max(Comparator.comparing(PaymentRecords::getCreatedAt));
-    }
-
-    /**
      * 가장 최근 REQUESTED 상태 결제 시도 조회
      */
     public PaymentRecords getLatestRequestedOrThrow() {
@@ -208,16 +189,6 @@ public class Orders {
                         p.getApprovedAt() != null ? p.getApprovedAt() : p.getCreatedAt()
                 ))
                 .orElseThrow(() -> new OrderException(OrderErrorType.NO_DONE_PAYMENT));
-    }
-
-    /* ---------- 편의 메서드 ---------- */
-
-    public Money getMoney() {
-        return Money.of(this.price, this.currency);
-    }
-
-    public OrderCode getOrderCodeVO() {
-        return OrderCode.of(this.orderCode);
     }
 }
 

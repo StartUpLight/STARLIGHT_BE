@@ -16,6 +16,10 @@
         .btn { padding:12px 14px; border-radius:10px; border:1px solid #293140; background:#171c25; color:#e8e8e8; cursor:pointer; font-weight:600; text-align:center; }
         .btn:hover { background:#1b222d; }
         .btn:disabled { opacity:0.5; cursor:not-allowed; }
+        .btn.product.active {
+            border-color:#4f46e5;
+            background:#1f2937;
+        }
         .field { width:100%; padding:14px; border-radius:10px; border:1px solid #293140; background:#0f141c; color:#e8e8e8; font-size:16px; }
         .result { margin-top:14px; padding:12px; border-radius:10px; background:#0f141c; border:1px solid #1f2430; display:none; white-space:pre-wrap; }
         .ok { border-color:#1f6c2a; }
@@ -27,13 +31,24 @@
 <body>
 <div class="container">
     <h1>starlight 크레딧 결제하기</h1>
-    <p>팝업에서 결제 후, 성공/실패를 <b>postMessage</b>로 받아 표시합니다.</p>
+    <p>상품(이용권)을 선택하고, 팝업에서 결제 후 <b>postMessage</b>로 결과를 받습니다.</p>
 
+    <!-- 상품 선택: AI_REPORT_1, AI_REPORT_2 -->
     <div class="row">
-        <button class="btn amt" data-amt="1000">1,000원</button>
-        <button class="btn amt" data-amt="5000">5,000원</button>
-        <button class="btn amt" data-amt="10000">10,000원</button>
-        <input id="amount" class="field" type="number" min="100" step="100" placeholder="직접 입력 (예: 3000) — 원" />
+        <button
+                class="btn product"
+                data-product-code="AI_REPORT_1"
+                data-product-name="AI 리포트 1회권"
+        >
+            AI 리포트 1회권 (69,000원)
+        </button>
+        <button
+                class="btn product"
+                data-product-code="AI_REPORT_2"
+                data-product-name="AI 리포트 2회권"
+        >
+            AI 리포트 2회권 (99,000원)
+        </button>
     </div>
 
     <div class="row"><input id="buyerName"  class="field" placeholder="이름 (선택)" /></div>
@@ -57,25 +72,30 @@
             + String(d.getDate()).padStart(2,'0')
             + '-' + Math.random().toString(36).slice(2,10).toUpperCase();
     }
-    function getAmount() { return Number(document.getElementById('amount').value || 0); }
     function out() { const el=document.getElementById('result'); el.style.display='block'; return el; }
     function stamp(){ return `[${new Date().toLocaleString()}]\n`; }
     function showOk(t){ const el=out(); el.classList.remove('err'); el.classList.add('ok'); el.textContent=stamp()+t; }
     function showErr(t){ const el=out(); el.classList.remove('ok'); el.classList.add('err'); el.textContent=stamp()+t; }
 
-    // 버튼 비활성화/활성화
-    function disableButtons() {
-        document.querySelectorAll('.btn').forEach(b => b.disabled = true);
-    }
-    function enableButtons() {
-        document.querySelectorAll('.btn').forEach(b => b.disabled = false);
-    }
-
-    document.querySelectorAll('.btn.amt').forEach(b=>{
-        b.addEventListener('click', ()=> document.getElementById('amount').value = b.dataset.amt);
-    });
+    function disableButtons() { document.querySelectorAll('.btn').forEach(b => b.disabled = true); }
+    function enableButtons() { document.querySelectorAll('.btn').forEach(b => b.disabled = false); }
 
     (async () => {
+        let selectedProduct = null; // { code, name }
+
+        // 상품 버튼 클릭 처리
+        document.querySelectorAll('.btn.product').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.btn.product').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                selectedProduct = {
+                    code: btn.dataset.productCode,
+                    name: btn.dataset.productName
+                };
+            });
+        });
+
         try {
             // v2 Standard 초기화 (비회원 결제)
             const toss = TossPayments("test_ck_0RnYX2w532eMEymGdQeK8NeyqApQ");
@@ -114,13 +134,8 @@
 
             async function start({ method }) {
                 try {
-                    const value = getAmount();
-                    if (!Number.isFinite(value) || value <= 0) {
-                        showErr('❌ 금액을 올바르게 입력하세요.');
-                        return;
-                    }
-                    if (method === 'EASY_PAY' && value < 1000) {
-                        showErr('❌ 간편결제는 1,000원 이상에서 테스트하세요.');
+                    if (!selectedProduct) {
+                        showErr('❌ 먼저 상품(이용권)을 선택해 주세요.');
                         return;
                     }
 
@@ -128,36 +143,54 @@
                     showOk('⏳ 주문 생성 중...');
 
                     const orderCode = genOrderCode();
-                    const orderName = `starlight 크레딧 ${value.toLocaleString()}원`;
 
                     // 1. 백엔드 주문 생성 (POST /api/toss/request)
+                    //    요청: productCode 기반
                     const prepareResponse = await fetch(`${location.origin}/api/toss/request`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             orderCode: orderCode,
-                            price: value,
-                            buyerId: 1,
-                            businessPlanId: 2
+                            buyerId: 1,          // TODO: 실제 로그인 유저 ID로 교체
+                            productCode: selectedProduct.code // "AI_REPORT_1" / "AI_REPORT_2"
                         })
                     });
 
                     if (!prepareResponse.ok) {
-                        const errorData = await prepareResponse.json();
-                        throw new Error(errorData.message || '주문 생성 실패');
+                        let msg = '주문 생성 실패';
+                        try {
+                            const errorData = await prepareResponse.json();
+                            msg = errorData.message || msg;
+                        } catch (_) {}
+                        throw new Error(msg);
                     }
 
-                    const prepareData = await prepareResponse.json();
-                    console.log('✅ 주문 생성 완료:', prepareData);
+                    const prepareJson = await prepareResponse.json();
+                    console.log('✅ 주문 생성 완료:', prepareJson);
+
+                    // ApiResponse 형태: { result: 'SUCCESS', data: { ... }, error: ... }
+                    const data = prepareJson.data ?? prepareJson;
+
+                    // 백엔드가 돌려주는 필드명 맞추기
+                    // 지금은 data.amount 로 오고 있음
+                    const amount = (typeof data.amount === 'number' ? data.amount : data.price);
+                    const currency = data.currency || 'KRW';   // 서버에서 안 주면 일단 KRW로 고정
+                    const orderId = data.orderCode || data.orderId || orderCode;
+                    const orderName = data.orderName || selectedProduct.name;
+
+                    if (!Number.isFinite(amount) || amount <= 0) {
+                        throw new Error('서버에서 금액 정보를 올바르게 받지 못했습니다.');
+                    }
+
 
                     showOk('🚀 결제창 호출 중...');
 
                     // 2. 토스 결제창 호출
                     const paymentRequest = {
                         method: method,
-                        amount: { currency: 'KRW', value },
-                        orderId: orderCode,
-                        orderName,
+                        amount: { currency, value: amount },
+                        orderId: orderId,
+                        orderName: orderName,
                         successUrl: toAbsolute("/toss/popup.html"),
                         failUrl: toAbsolute("/toss/popup.html"),
                         customerEmail: document.getElementById('buyerEmail').value || undefined,
@@ -180,10 +213,8 @@
             // 결제 버튼 이벤트 리스너
             document.getElementById('payCard')
                 .addEventListener('click', ()=> start({ method:'CARD' }));
-
             document.getElementById('payTossEasy')
                 .addEventListener('click', ()=> start({ method:'EASY_PAY' }));
-
             document.getElementById('payKakaoEasy')
                 .addEventListener('click', ()=> start({ method:'EASY_PAY' }));
 
