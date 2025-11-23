@@ -49,16 +49,12 @@ public class PaymentRecords {
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
-    /* ---------- 라이프사이클 ---------- */
-
     @PrePersist
     void prePersist() {
         createdAt = Instant.now();
         if (status == null) status = "REQUESTED";
         if (pg == null) pg = "TOSS";
     }
-
-    /* ---------- 팩토리 메서드 ---------- */
 
     /**
      * 결제 요청 생성
@@ -78,8 +74,6 @@ public class PaymentRecords {
 
         return payment;
     }
-
-    /* ---------- 도메인 로직 ---------- */
 
     /**
      * 결제 승인 완료 처리
@@ -117,8 +111,6 @@ public class PaymentRecords {
             throw new OrderException(OrderErrorType.NO_PAYMENT_KEY);
         }
     }
-
-    /* ---------- 검증 메서드 ---------- */
 
     private void validateForCompletion(String paymentKey) {
         if (!"REQUESTED".equals(this.status)) {

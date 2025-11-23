@@ -22,7 +22,6 @@ public class OrderCode {
         if (value.length() > 64) {
             throw new IllegalArgumentException("주문번호는 64자를 초과할 수 없습니다.");
         }
-        // 필요시 추가 검증 (예: 특수문자 제한, 패턴 등)
         if (!value.matches("^[a-zA-Z0-9_-]+$")) {
             throw new IllegalArgumentException("주문번호는 영문, 숫자, -, _ 만 허용됩니다.");
         }

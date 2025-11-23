@@ -1,6 +1,8 @@
 package starlight.order.toss.domain.wallet;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,7 +10,7 @@ import starlight.order.toss.domain.exception.OrderErrorType;
 import starlight.order.toss.domain.exception.OrderException;
 import starlight.shared.AbstractEntity;
 
-import java.util.*;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -27,6 +29,9 @@ public class UsageWallet extends AbstractEntity {
     @Version
     private Long version;
 
+    /**
+     * 지갑 초기화
+     */
     public static UsageWallet init(Long userId) {
         UsageWallet wallet = new UsageWallet();
         wallet.userId = Objects.requireNonNull(userId, "userId는 필수입니다.");
@@ -34,23 +39,6 @@ public class UsageWallet extends AbstractEntity {
         wallet.aiReportUsedCount = 0;
         return wallet;
     }
-
-    /**
-     * 지갑 초기화 + 초기 충전까지 한 번에 하고 싶을 때
-     */
-    public static UsageWallet initWithCharge(Long userId, int initialChargeCount) {
-        if (initialChargeCount < 0) {
-            throw new OrderException(OrderErrorType.INVALID_INITIAL_CHARGE_COUNT);
-        }
-
-        UsageWallet wallet = new UsageWallet();
-        wallet.userId = Objects.requireNonNull(userId, "userId는 필수입니다.");
-        wallet.aiReportChargedCount = initialChargeCount;
-        wallet.aiReportUsedCount = 0;
-        return wallet;
-    }
-
-    /* ---------- 도메인 로직 ---------- */
 
     /**
      * AI 리포트 횟수 충전
