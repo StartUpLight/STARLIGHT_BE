@@ -1,4 +1,4 @@
-package starlight.order.toss.domain;
+package starlight.order.toss.domain.order;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -35,8 +35,8 @@ public class PaymentRecords {
     @Column(length = 40)
     private String provider;
 
-    @Column(name = "amount", nullable = false)
-    private Long amount;
+    @Column(nullable = false)
+    private Long price;
 
     @Column(length = 20, nullable = false)
     private String status;
@@ -74,7 +74,7 @@ public class PaymentRecords {
         payment.order = order;
         payment.pg = "TOSS";
         payment.status = "REQUESTED";
-        payment.amount = amount;
+        payment.price = amount;
 
         return payment;
     }
@@ -129,19 +129,5 @@ public class PaymentRecords {
         if (paymentKey == null || paymentKey.trim().isEmpty()) {
             throw new IllegalArgumentException("paymentKey는 필수입니다.");
         }
-    }
-
-    /* ---------- 조회 메서드 ---------- */
-
-    public boolean isRequested() {
-        return "REQUESTED".equals(this.status);
-    }
-
-    public boolean isDone() {
-        return "DONE".equals(this.status);
-    }
-
-    public boolean isCanceled() {
-        return "CANCELED".equals(this.status);
     }
 }

@@ -1,4 +1,4 @@
-package starlight.order.toss.adapter.webapi.dto;
+package starlight.order.toss.adapter.order.webapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

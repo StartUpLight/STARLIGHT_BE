@@ -1,9 +1,9 @@
-package starlight.order.toss.adapter.persistence;
+package starlight.order.toss.adapter.order.persistence;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import starlight.order.toss.application.provided.OrdersQuery;
-import starlight.order.toss.domain.Orders;
+import starlight.order.toss.application.order.provided.OrdersQuery;
+import starlight.order.toss.domain.order.Orders;
 import starlight.order.toss.domain.enumerate.OrderStatus;
 import starlight.order.toss.domain.exception.OrderErrorType;
 import starlight.order.toss.domain.exception.OrderException;

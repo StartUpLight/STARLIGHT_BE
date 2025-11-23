@@ -1,6 +1,6 @@
-package starlight.order.toss.adapter.webapi.dto.response;
+package starlight.order.toss.adapter.order.webapi.dto.response;
 
-import starlight.order.toss.adapter.webapi.dto.TossClientResponse;
+import starlight.order.toss.adapter.order.webapi.dto.TossClientResponse;
 
 public record OrderCancelResponse(
         String orderId,

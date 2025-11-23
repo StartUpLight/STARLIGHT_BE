@@ -1,4 +1,4 @@
-package starlight.order.toss.domain;
+package starlight.order.toss.domain.order.vo;
 
 import java.util.Objects;
 

@@ -1,19 +1,19 @@
-package starlight.order.toss.adapter.webapi;
+package starlight.order.toss.adapter.order.webapi;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import starlight.order.toss.adapter.webapi.dto.TossClientResponse;
-import starlight.order.toss.adapter.webapi.dto.request.OrderCancelRequest;
-import starlight.order.toss.adapter.webapi.dto.request.OrderConfirmRequest;
-import starlight.order.toss.adapter.webapi.dto.request.OrderPrepareRequest;
-import starlight.order.toss.adapter.webapi.dto.response.OrderCancelResponse;
-import starlight.order.toss.adapter.webapi.dto.response.OrderConfirmResponse;
-import starlight.order.toss.adapter.webapi.dto.response.OrderPrepareResponse;
-import starlight.order.toss.application.OrderPaymentService;
-import starlight.order.toss.domain.Orders;
+import starlight.order.toss.adapter.order.webapi.dto.TossClientResponse;
+import starlight.order.toss.adapter.order.webapi.dto.request.OrderCancelRequest;
+import starlight.order.toss.adapter.order.webapi.dto.request.OrderConfirmRequest;
+import starlight.order.toss.adapter.order.webapi.dto.request.OrderPrepareRequest;
+import starlight.order.toss.adapter.order.webapi.dto.response.OrderCancelResponse;
+import starlight.order.toss.adapter.order.webapi.dto.response.OrderConfirmResponse;
+import starlight.order.toss.adapter.order.webapi.dto.response.OrderPrepareResponse;
+import starlight.order.toss.application.order.OrderPaymentService;
+import starlight.order.toss.domain.order.Orders;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 @RestController
@@ -34,7 +34,7 @@ public class TossControllers {
                 request.orderCode(),
                 request.buyerId(),
                 request.businessPlanId(),
-                request.price()
+                request.productCode()
         );
 
         OrderPrepareResponse response = OrderPrepareResponse.from(order);
@@ -52,8 +52,7 @@ public class TossControllers {
     ) {
         Orders order = orderPaymentService.confirm(
                 request.orderCode(),
-                request.paymentKey(),
-                request.price()
+                request.paymentKey()
         );
 
         OrderConfirmResponse response = OrderConfirmResponse.from(order);

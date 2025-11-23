@@ -1,4 +1,4 @@
-package starlight.order.toss.adapter.webapi.dto.request;
+package starlight.order.toss.adapter.order.webapi.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -8,11 +8,11 @@ public record OrderPrepareRequest(
         String orderCode,
 
         @NotNull
-        Long price,
-
-        @NotNull
         Long buyerId,
 
         @NotNull
-        Long businessPlanId
+        Long businessPlanId,
+
+        @NotBlank
+        String productCode
 ) { }

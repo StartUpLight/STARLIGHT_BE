@@ -1,0 +1,99 @@
+package starlight.order.toss.domain.wallet;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import starlight.order.toss.domain.exception.OrderErrorType;
+import starlight.order.toss.domain.exception.OrderException;
+
+import java.time.Instant;
+import java.util.Objects;
+
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class UsageHistory {
+
+    private static final String TYPE_CHARGE = "CHARGE";
+    private static final String TYPE_USE = "USE";
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    // 누가
+    @Column(nullable = false)
+    private Long userId;
+
+    // 어떤 사업계획서에서 (사용 시에만 채움, 충전은 null 가능)
+    @Column
+    private Long businessPlanId;
+
+    // CHARGE / USE / ADJUST / REFUND 등
+    @Column(nullable = false)
+    private String type;
+
+    // 이번에 증감된 횟수 (충전: +10, 사용: -1 이런 느낌)
+    @Column(nullable = false)
+    private Integer amount;
+
+    // 이 이벤트 이후 지갑 잔여 횟수
+    @Column(nullable = false)
+    private Integer balanceAfter;
+
+    // 선택: 이 충전이 어느 주문에서 온 건지 대략 연결하고 싶으면
+    @Column
+    private Long orderId;
+
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @PrePersist
+    void prePersist() {
+        if (createdAt == null) createdAt = Instant.now();
+    }
+
+    /* ---------- 팩토리 메서드 ---------- */
+
+    /**
+     * 충전 이력 기록
+     */
+    public static UsageHistory charged(Long userId, int amount, int balanceAfter, Long orderId) {
+        Objects.requireNonNull(userId, "userId는 필수입니다.");
+
+        if (amount <= 0) {
+            throw new OrderException(OrderErrorType.INVALID_USAGE_COUNT);
+        }
+
+        UsageHistory h = new UsageHistory();
+        h.userId = userId;
+        h.type = TYPE_CHARGE;
+        h.amount = amount;          // 충전은 양수 그대로
+        h.balanceAfter = balanceAfter;
+        h.orderId = orderId;        // 없으면 null
+
+        return h;
+    }
+
+    /**
+     * 사용 이력 기록
+     */
+    public static UsageHistory used(Long userId, Long businessPlanId, int amount, int balanceAfter) {
+        Objects.requireNonNull(userId, "userId는 필수입니다.");
+        Objects.requireNonNull(businessPlanId, "businessPlanId는 필수입니다.");
+
+        if (amount <= 0) {
+            throw new OrderException(OrderErrorType.INVALID_USAGE_COUNT);
+        }
+
+        UsageHistory h = new UsageHistory();
+        h.userId = userId;
+        h.businessPlanId = businessPlanId;
+        h.type = TYPE_USE;
+        h.amount = -Math.abs(amount);  // 사용은 항상 음수로 저장
+        h.balanceAfter = balanceAfter;
+
+        return h;
+    }
+}

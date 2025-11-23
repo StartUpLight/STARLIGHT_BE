@@ -22,6 +22,7 @@ public enum OrderErrorType implements ErrorType {
     PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "주문 금액과 결제 금액이 일치하지 않습니다."),
     ORDER_CODE_BUYER_MISMATCH(HttpStatus.BAD_REQUEST, "이미 존재하는 주문번호입니다. (구매자 상이)"),
     ORDER_CODE_BUSINESS_PLAN_MISMATCH(HttpStatus.BAD_REQUEST, "이미 존재하는 주문번호입니다. (사업계획서 상이)"),
+    ORDER_PRODUCT_MISMATCH(HttpStatus.BAD_REQUEST, "이미 존재하는 주문번호입니다. (이용권 금액 상이)"),
 
     // 결제 이력 없음
     NO_REQUESTED_PAYMENT(HttpStatus.BAD_REQUEST, "승인 가능한 결제 시도가 존재하지 않습니다."),
@@ -30,7 +31,16 @@ public enum OrderErrorType implements ErrorType {
 
     // 조회 실패
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),
-    ALREADY_PAID_FOR_BUSINESS_PLAN(HttpStatus.BAD_REQUEST, "이미 결제가 완료된 사업계획서입니다.")
+    ALREADY_PAID_FOR_BUSINESS_PLAN(HttpStatus.BAD_REQUEST, "이미 결제가 완료된 사업계획서입니다."),
+
+    // 사용 횟수 지갑 관련
+    INVALID_INITIAL_CHARGE_COUNT(HttpStatus.BAD_REQUEST, "초기 충전 횟수는 0 이상이어야 합니다."),
+    INVALID_USAGE_COUNT(HttpStatus.BAD_REQUEST, "사용/충전 횟수는 1 이상이어야 합니다."),
+    INSUFFICIENT_AI_REPORT_BALANCE(HttpStatus.BAD_REQUEST, "남은 AI 리포트 사용 가능 횟수가 부족합니다."),
+
+    // 기타
+    UNSUPPORTED_CURRENCY(HttpStatus.BAD_REQUEST, "지원하지 않는 통화입니다."),
+    INVALID_USAGE_PRODUCT(HttpStatus.BAD_REQUEST, "유효하지 않은 이용권 금액입니다."),
     ;
 
     private final HttpStatus status;

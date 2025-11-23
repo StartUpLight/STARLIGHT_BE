@@ -1,7 +1,7 @@
-package starlight.order.toss.adapter.webapi.dto.response;
+package starlight.order.toss.adapter.order.webapi.dto.response;
 
-import starlight.order.toss.domain.Orders;
-import starlight.order.toss.domain.PaymentRecords;
+import starlight.order.toss.domain.order.Orders;
+import starlight.order.toss.domain.order.PaymentRecords;
 
 import java.time.Instant;
 

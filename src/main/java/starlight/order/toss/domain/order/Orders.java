@@ -1,9 +1,12 @@
-package starlight.order.toss.domain;
+package starlight.order.toss.domain.order;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import starlight.order.toss.domain.enumerate.UsageProductType;
+import starlight.order.toss.domain.order.vo.Money;
+import starlight.order.toss.domain.order.vo.OrderCode;
 import starlight.order.toss.domain.enumerate.OrderStatus;
 import starlight.order.toss.domain.exception.OrderErrorType;
 import starlight.order.toss.domain.exception.OrderException;
@@ -46,6 +49,14 @@ public class Orders {
     @Version
     private Long version;
 
+    // 어떤 상품코드로 샀는지
+    @Column(length = 50, nullable = false)
+    private String usageProductCode;
+
+    // 몇 회권인지 (1 / 2)
+    @Column(nullable = false)
+    private Integer usageCount;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -69,19 +80,21 @@ public class Orders {
 
     /* ---------- 팩토리 메서드 ---------- */
 
-    public static Orders newOrder(OrderCode orderCode, Long buyerId, Long businessPlanId, Money money) {
+    public static Orders newOrder(OrderCode orderCode, Long buyerId, Long businessPlanId, Money money, UsageProductType product) {
         Objects.requireNonNull(orderCode, "orderCode는 필수입니다.");
         Objects.requireNonNull(buyerId, "buyerId는 필수입니다.");
         Objects.requireNonNull(money, "money는 필수입니다.");
 
-        Orders o = new Orders();
-        o.orderCode = orderCode.getValue();
-        o.buyerId = buyerId;
-        o.businessPlanId = businessPlanId;
-        o.price = money.getAmount();
-        o.currency = money.getCurrency();
-        o.status = OrderStatus.NEW;
-        return o;
+        Orders orders = new Orders();
+        orders.orderCode = orderCode.getValue();
+        orders.buyerId = buyerId;
+        orders.businessPlanId = businessPlanId;
+        orders.price = money.getAmount();
+        orders.currency = money.getCurrency();
+        orders.usageProductCode = product.getCode();
+        orders.usageCount = product.getUsageCount();
+        orders.status = OrderStatus.NEW;
+        return orders;
     }
 
     /* ---------- 도메인 로직 (불변식 보호) ---------- */
@@ -96,6 +109,12 @@ public class Orders {
         }
         if (!Objects.equals(this.businessPlanId, businessPlanId)) {
             throw new OrderException(OrderErrorType.ORDER_CODE_BUSINESS_PLAN_MISMATCH);
+        }
+    }
+
+    public void validateSameProduct(UsageProductType product) {
+        if (!Objects.equals(this.usageProductCode, product.getCode())) {
+            throw new OrderException(OrderErrorType.ORDER_PRODUCT_MISMATCH);
         }
     }
 

@@ -1,21 +1,24 @@
-package starlight.order.toss.application;
+package starlight.order.toss.application.order;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import starlight.order.toss.adapter.toss.TossClient;
-import starlight.order.toss.adapter.webapi.dto.TossClientResponse;
-import starlight.order.toss.adapter.webapi.dto.request.OrderCancelRequest;
-import starlight.order.toss.application.provided.OrdersQuery;
-import starlight.order.toss.domain.Money;
-import starlight.order.toss.domain.OrderCode;
-import starlight.order.toss.domain.Orders;
-import starlight.order.toss.domain.PaymentRecords;
+import starlight.order.toss.adapter.order.toss.TossClient;
+import starlight.order.toss.adapter.order.webapi.dto.TossClientResponse;
+import starlight.order.toss.adapter.order.webapi.dto.request.OrderCancelRequest;
+import starlight.order.toss.application.order.provided.OrdersQuery;
+import starlight.order.toss.application.usage.provided.UsageCreditPort;
+import starlight.order.toss.domain.enumerate.UsageProductType;
+import starlight.order.toss.domain.order.vo.Money;
+import starlight.order.toss.domain.order.vo.OrderCode;
+import starlight.order.toss.domain.order.Orders;
+import starlight.order.toss.domain.order.PaymentRecords;
 import starlight.order.toss.domain.exception.OrderErrorType;
 import starlight.order.toss.domain.exception.OrderException;
 
 import java.time.Instant;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -25,6 +28,7 @@ public class OrderPaymentService {
 
     private final TossClient tossClient;
     private final OrdersQuery ordersQuery;
+    private final UsageCreditPort usageCreditPort;
 
     /**
      * 결제 전 주문 준비
@@ -35,31 +39,30 @@ public class OrderPaymentService {
      * @param orderCodeStr 프론트에서 생성한 주문번호
      * @param buyerId 구매자 ID
      * @param businessPlanId 사업계획서 ID
-     * @param amount 결제 금액
+     * @param productCode 결제 금액
      * @return Orders 준비된 주문
      */
-    public Orders prepare(String orderCodeStr, Long buyerId, Long businessPlanId, Long amount) {
+    public Orders prepare(String orderCodeStr, Long buyerId, Long businessPlanId, String productCode) {
         if (ordersQuery.existsPaidByBuyerIdAndBusinessPlanId(buyerId, businessPlanId)) {
             throw new OrderException(OrderErrorType.ALREADY_PAID_FOR_BUSINESS_PLAN);
         }
 
+        UsageProductType product = UsageProductType.fromCode(productCode);
+        Money money = Money.krw(product.getPrice());
         OrderCode orderCode = OrderCode.of(orderCodeStr);
-        Money money = Money.krw(amount);
+
 
         return ordersQuery.findByOrderCode(orderCodeStr)
                 .map(existing -> {
-                    // 기존 주문 재사용: 같은 비즈니스 주문인지 검증
+                    // 기존 주문 재사용 시, 같은 비즈니스 + 같은 상품인지 확인
                     existing.validateSameBusinessOrder(buyerId, businessPlanId);
-
+                    existing.validateSameProduct(product);
                     existing.addPaymentAttempt(money);
-
                     return existing;
                 })
                 .orElseGet(() -> {
-                    // 신규 주문 생성
-                    Orders newOrder = Orders.newOrder(orderCode, buyerId, businessPlanId, money);
+                    Orders newOrder = Orders.newOrder(orderCode, buyerId, businessPlanId, money, product);
                     newOrder.addPaymentAttempt(money);
-
                     return ordersQuery.save(newOrder);
                 });
     }
@@ -73,14 +76,21 @@ public class OrderPaymentService {
      * @param amount 결제 금액
      * @return Orders 승인된 주문
      */
-    public Orders confirm(String orderCodeStr, String paymentKey, Long amount) {
+    public Orders confirm(String orderCodeStr, String paymentKey) {
 
         Orders order = ordersQuery.getByOrderCodeOrThrow(orderCodeStr);
+
+        UsageProductType product = UsageProductType.fromCode(order.getUsageProductCode());
+        long expectedAmount = product.getPrice();
+
+        if (!Objects.equals(order.getPrice(), expectedAmount)) {
+            throw new OrderException(OrderErrorType.PAYMENT_AMOUNT_MISMATCH);
+        }
 
         PaymentRecords payment = order.getLatestRequestedOrThrow();
 
         TossClientResponse.Confirm response = tossClient.confirm(
-                orderCodeStr, paymentKey, amount
+                orderCodeStr, paymentKey, expectedAmount
         );
 
         String provider = response.providerOrNull();
@@ -90,10 +100,17 @@ public class OrderPaymentService {
         payment.markDone(
                 response.paymentKey(), response.method(), provider, receiptUrl, approvedAt
         );
-
         order.markPaid();
 
-        return ordersQuery.save(order);
+        Orders saved = ordersQuery.save(order);
+
+        usageCreditPort.chargeForOrder(
+                saved.getBuyerId(),
+                saved.getId(),
+                product.getUsageCount()
+        );
+
+        return saved;
     }
 
     /**
@@ -107,7 +124,6 @@ public class OrderPaymentService {
         Orders order = ordersQuery.getByOrderCodeOrThrow(request.orderCode());
 
         PaymentRecords payment = order.getLatestDoneOrThrow();
-
         payment.ensureHasPaymentKey();
 
         TossClientResponse.Cancel response = tossClient.cancel(
@@ -120,5 +136,18 @@ public class OrderPaymentService {
         ordersQuery.save(order);
 
         return response;
+    }
+
+    /**
+     * 사용권 횟수에 따른 가격 결정
+     * @param usageCount
+     * @return
+     */
+    private Money determinePriceByUsageCount(int usageCount) {
+        return switch (usageCount) {
+            case 1 -> Money.krw(69_000L);
+            case 2 -> Money.krw(99_000L);
+            default -> throw new OrderException(OrderErrorType.INVALID_USAGE_PRODUCT);
+        };
     }
 }

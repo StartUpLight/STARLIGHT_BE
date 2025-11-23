@@ -1,11 +1,11 @@
-package starlight.order.toss.adapter.toss;
+package starlight.order.toss.adapter.order.toss;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import starlight.order.toss.adapter.webapi.dto.TossClientResponse;
+import starlight.order.toss.adapter.order.webapi.dto.TossClientResponse;
 import starlight.order.toss.domain.exception.OrderErrorType;
 import starlight.order.toss.domain.exception.OrderException;
 

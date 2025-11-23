@@ -1,4 +1,4 @@
-package starlight.order.toss.adapter.webapi.dto.request;
+package starlight.order.toss.adapter.order.webapi.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
