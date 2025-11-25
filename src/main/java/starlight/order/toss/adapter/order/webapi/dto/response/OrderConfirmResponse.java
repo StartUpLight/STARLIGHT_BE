@@ -17,18 +17,18 @@ public record OrderConfirmResponse(
         String provider
 ) {
     public static OrderConfirmResponse from(Orders order) {
-        PaymentRecords payment = order.getLatestPaymentOrThrow();
+        PaymentRecords done = order.getLatestPaymentOrThrow();
 
         return new OrderConfirmResponse(
                 order.getBuyerId(),
-                payment.getPaymentKey(),
+                done.getPaymentKey(),
                 order.getOrderCode(),
                 order.getPrice(),
                 order.getStatus().name(),
-                payment.getApprovedAt(),
-                payment.getReceiptUrl(),
-                payment.getMethod(),
-                payment.getProvider()
+                done.getApprovedAt(),
+                done.getReceiptUrl(),
+                done.getMethod(),
+                done.getProvider()
         );
     }
 }
