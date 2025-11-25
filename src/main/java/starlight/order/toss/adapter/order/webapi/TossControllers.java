@@ -30,7 +30,7 @@ public class TossControllers {
      * 결제 준비 (주문 생성)
      * POST /api/toss/request
      */
-    @PostMapping("/api/toss/request")
+    @PostMapping("/v1/toss/request")
     public ApiResponse<OrderPrepareResponse> prepareOrder(
             @Valid @RequestBody OrderPrepareRequest request,
             @AuthenticationPrincipal AuthDetails authDetails
@@ -50,7 +50,7 @@ public class TossControllers {
      * 결제 승인
      * POST /api/toss/confirm
      */
-    @PostMapping("/api/toss/confirm")
+    @PostMapping("/v1/toss/confirm")
     public ApiResponse<OrderConfirmResponse> confirmPayment(
             @Valid @RequestBody OrderConfirmRequest request
     ) {
@@ -68,7 +68,7 @@ public class TossControllers {
      * 결제 취소
      * POST /api/toss/cancel
      */
-    @PostMapping("/api/toss/cancel")
+    @PostMapping("/v1/toss/cancel")
     public ApiResponse<OrderCancelResponse> cancelPayment(
             @Valid @RequestBody OrderCancelRequest request
     ) {
