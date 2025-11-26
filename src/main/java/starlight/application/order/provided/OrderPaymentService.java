@@ -11,7 +11,7 @@ public interface OrderPaymentService{
 
     Orders prepare(String orderCodeStr, Long buyerId, String productCode);
 
-    Orders confirm(String orderCodeStr, String paymentKey);
+    Orders confirm(String orderCodeStr, String paymentKey, Long buyerId);
 
     TossClientResponse.Cancel cancel(OrderCancelRequest request);
 

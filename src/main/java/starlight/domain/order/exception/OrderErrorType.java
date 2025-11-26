@@ -27,6 +27,7 @@ public enum OrderErrorType implements ErrorType {
     // 결제 이력 없음
     NO_REQUESTED_PAYMENT(HttpStatus.BAD_REQUEST, "승인 가능한 결제 시도가 존재하지 않습니다."),
     NO_DONE_PAYMENT(HttpStatus.BAD_REQUEST, "취소 가능한 결제 이력이 존재하지 않습니다."),
+    NO_PAYMENT_RECORDS(HttpStatus.BAD_REQUEST, "주문에 결제 이력이 존재하지 않습니다."),
     NO_PAYMENT_KEY(HttpStatus.BAD_REQUEST, "paymentKey가 없어 PG 취소를 수행할 수 없습니다."),
 
     // 조회 실패

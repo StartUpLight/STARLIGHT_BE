@@ -73,7 +73,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService {
      * @return Orders 승인된 주문
      */
     @Override
-    public Orders confirm(String orderCodeStr, String paymentKey) {
+    public Orders confirm(String orderCodeStr, String paymentKey, Long buyerId) {
 
         Orders order = ordersQuery.getByOrderCodeOrThrow(orderCodeStr);
 
@@ -99,15 +99,13 @@ public class OrderPaymentServiceImpl implements OrderPaymentService {
         );
         order.markPaid();
 
-        Orders saved = ordersQuery.save(order);
-
         usageCreditPort.chargeForOrder(
-                saved.getBuyerId(),
-                saved.getId(),
+                order.getBuyerId(),
+                order.getId(),
                 product.getUsageCount()
         );
 
-        return saved;
+        return ordersQuery.save(order);
     }
 
     /**

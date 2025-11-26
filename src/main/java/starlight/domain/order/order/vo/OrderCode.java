@@ -50,4 +50,9 @@ public class OrderCode {
     public String toString() {
         return value;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
 }

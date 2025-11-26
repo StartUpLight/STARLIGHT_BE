@@ -145,7 +145,7 @@ public class Orders extends AbstractEntity {
                 .max(Comparator.comparing(p ->
                         p.getApprovedAt() != null ? p.getApprovedAt() : p.getCreatedAt()
                 ))
-                .orElseThrow(() -> new OrderException(OrderErrorType.NO_DONE_PAYMENT));
+                .orElseThrow(() -> new OrderException(OrderErrorType.NO_PAYMENT_RECORDS));
     }
 
     /**

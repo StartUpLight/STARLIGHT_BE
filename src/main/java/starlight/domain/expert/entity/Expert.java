@@ -1,6 +1,7 @@
 package starlight.domain.expert.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,7 @@ public class Expert extends AbstractEntity {
     @Column(nullable = false, length = 320)
     private String email;
 
+    @Min(0)
     @Column
     private Integer mentoringPriceWon;
 

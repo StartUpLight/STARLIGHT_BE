@@ -43,8 +43,7 @@ public class TossClient {
             return response;
 
         } catch (Exception e) {
-            log.error("토스 환불 요청 중 에러발생: {}", e.getMessage(), e);
-            log.error("토스 결제 확인 요청 중 에러 발생. orderId: {}, paymentKey: {}, message: {}", orderCode, paymentKey, e.getMessage(), e);
+            log.error("토스 결제 승인 요청 중 에러 발생. orderId: {}, paymentKey: {}, message: {}", orderCode, paymentKey, e.getMessage(), e);
             throw new OrderException(OrderErrorType.TOSS_CLIENT_CONFIRM_ERROR);
         }
     }

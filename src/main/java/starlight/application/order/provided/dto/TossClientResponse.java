@@ -1,11 +1,13 @@
 package starlight.application.order.provided.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+@Slf4j
 public record TossClientResponse (
 ) {
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -86,7 +88,11 @@ public record TossClientResponse (
         }
 
         public Instant approvedAtOrNow() {
-            return (approvedAt != null) ? approvedAt.toInstant() : Instant.now();
+            if (approvedAt == null) {
+                log.warn("승인 시각이 누락되었습니다, orderId: {}", orderId);
+                return Instant.now();
+            }
+            return approvedAt.toInstant();
         }
     }
 }

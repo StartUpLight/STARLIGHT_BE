@@ -30,9 +30,12 @@ public class Money {
         return new Money(amount, "KRW");
     }
 
-    public boolean equals(Money other) {
-        if (other == null) return false;
-        if (!this.currency.equals(other.currency)) {
+    public boolean isSameCurrency(Money other) {
+        return other != null && this.currency.equals(other.currency);
+    }
+
+    public boolean equalsInSameCurrency(Money other) {
+        if (!isSameCurrency(other)) {
             throw new IllegalArgumentException("다른 통화는 비교할 수 없습니다.");
         }
         return Objects.equals(this.amount, other.amount);
@@ -58,5 +61,10 @@ public class Money {
     @Override
     public String toString() {
         return currency + " " + amount;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(amount, currency);
     }
 }

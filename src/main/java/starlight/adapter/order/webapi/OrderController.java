@@ -57,11 +57,13 @@ public class OrderController {
      */
     @PostMapping("/confirm")
     public ApiResponse<OrderConfirmResponse> confirmPayment(
-            @Valid @RequestBody OrderConfirmRequest request
+            @Valid @RequestBody OrderConfirmRequest request,
+            @AuthenticationPrincipal AuthDetails authDetails
     ) {
         Orders order = orderPaymentService.confirm(
                 request.orderCode(),
-                request.paymentKey()
+                request.paymentKey(),
+                authDetails.getMemberId()
         );
 
         OrderConfirmResponse response = OrderConfirmResponse.from(order);
