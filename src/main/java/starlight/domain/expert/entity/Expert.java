@@ -29,6 +29,7 @@ public class Expert extends AbstractEntity {
     @Column(nullable = false, length = 320)
     private String email;
 
+    @Column
     private Integer mentoringPriceWon;
 
     @ElementCollection

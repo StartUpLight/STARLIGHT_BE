@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>결제 처리 중...</title>
+    <style>
+        :root { font-family: system-ui, -apple-system, "Noto Sans KR", Roboto, Arial, sans-serif; }
+        body {
+            margin:0; padding:0;
+            background:#0b0c10; color:#e8e8e8;
+            display:flex; align-items:center; justify-content:center;
+            min-height:100vh;
+        }
+        .container {
+            text-align:center;
+            padding:24px;
+            background:#111318;
+            border-radius:16px;
+            border:1px solid #1f2430;
+            max-width:360px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.5);
+        }
+        h1 {
+            margin:0 0 8px;
+            font-size:20px;
+        }
+        p {
+            margin:0;
+            font-size:14px;
+            color:#b8c0cc;
+            white-space:pre-line;
+        }
+        .spinner {
+            margin:16px auto;
+            width:32px; height:32px;
+            border-radius:50%;
+            border:3px solid #e8e8e8;
+            border-top-color:transparent;
+            animation:spin 0.6s linear infinite;
+        }
+        .hidden { display:none; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .error { color:#fca5a5; }
+        .ok { color:#bbf7d0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 id="title">결제 처리 중...</h1>
+    <div id="spinner" class="spinner"></div>
+    <p id="status">잠시만 기다려 주세요.</p>
+</div>
+
+<script>
+    const params     = new URLSearchParams(location.search);
+    const orderId    = params.get('orderId');    // 우리가 넘긴 orderCode
+    const paymentKey = params.get('paymentKey'); // 토스 paymentKey
+    const code       = params.get('code');       // 실패 시 에러 코드
+    const message    = params.get('message');    // 실패 시 에러 메시지
+    const amount     = params.get('amount');     // 성공 시 금액 (선택)
+
+    const $title   = document.getElementById('title');
+    const $status  = document.getElementById('status');
+    const $spinner = document.getElementById('spinner');
+
+    function updateUI(title, text, opts = {}) {
+        const { ok = false, error = false } = opts;
+        $title.textContent = title;
+        $status.textContent = text;
+        $spinner.classList.add('hidden');
+        $status.classList.toggle('ok', ok);
+        $status.classList.toggle('error', error);
+    }
+
+    function postToOpenerSuccess(data) {
+        if (!window.opener) return;
+
+        const payload = {
+            type: 'TOSS_SUCCESS',
+            orderId: data.orderId,
+            amount: data.amount,
+            method: data.method,
+            provider: data.provider,
+            receiptUrl: data.receiptUrl,
+            approvedAt: data.approvedAt
+        };
+        window.opener.postMessage(payload, window.location.origin);
+    }
+
+    function postToOpenerFail(orderId, code, message) {
+        if (!window.opener) return;
+
+        const payload = {
+            type: 'TOSS_FAIL',
+            orderId: orderId || null,
+            code: code || null,
+            message: message || '결제에 실패했습니다.'
+        };
+        window.opener.postMessage(payload, window.location.origin);
+    }
+
+    async function callConfirm(orderId, paymentKey) {
+        try {
+            updateUI('결제 승인 중...', '서버에서 결제 승인 내역을 확인하고 있습니다.');
+
+            const response = await fetch(`${window.location.origin}/api/toss/confirm`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderCode: orderId,
+                    paymentKey: paymentKey
+                })
+            });
+
+            const json = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                const msg = json.message || '결제 승인 처리 중 오류가 발생했습니다.';
+                throw new Error(msg);
+            }
+
+            // ApiResponse<T> 형태: { result: 'SUCCESS', data: { ... }, error: ... }라고 가정
+            const data = json.data ?? json.result ?? json;
+
+            // OrderConfirmResponse 기준 (필요한 필드만 사용)
+            updateUI(
+                '결제 승인 완료',
+                `결제가 정상적으로 처리되었습니다.\n\n주문번호: ${data.orderId}\n금액: ${(data.amount ?? 0).toLocaleString()}원`,
+                { ok: true }
+            );
+
+            postToOpenerSuccess(data);
+
+            setTimeout(() => window.close(), 2000);
+
+        } catch (e) {
+            console.error('confirm error:', e);
+            updateUI(
+                '결제 승인 실패',
+                e.message || '결제 승인 처리에 실패했습니다.',
+                { error: true }
+            );
+
+            postToOpenerFail(orderId, 'CONFIRM_ERROR', e.message);
+
+            setTimeout(() => {
+                if (window.opener) {
+                    window.close();
+                }
+            }, 2500);
+        }
+    }
+
+    (function main() {
+        // ✅ 1) 성공 케이스: paymentKey + orderId 둘 다 있으면 → 서버 confirm
+        if (paymentKey && orderId) {
+            updateUI('결제 승인 중...', '잠시만 기다려 주세요.');
+            callConfirm(orderId, paymentKey);
+            return;
+        }
+
+        // ✅ 2) 실패 케이스: code만 있고 paymentKey는 없음 → PG 단계 실패
+        if (code) {
+            const decodedMsg = message ? decodeURIComponent(message) : '결제에 실패했습니다.';
+            updateUI('결제 실패', decodedMsg, { error: true });
+
+            postToOpenerFail(orderId, code, decodedMsg);
+
+            setTimeout(() => {
+                if (window.opener) {
+                    window.close();
+                } else {
+                    // 단독창으로 열린 경우에 대비한 폴백
+                    location.href = '/payment.html?status=fail'
+                        + '&orderId=' + encodeURIComponent(orderId || '')
+                        + '&code=' + encodeURIComponent(code || '')
+                        + '&message=' + encodeURIComponent(decodedMsg);
+                }
+            }, 2500);
+            return;
+        }
+
+        // ❗ 3) 둘 다 없으면 진짜 이상한 접근
+        updateUI('⚠️ 잘못된 접근', '올바르지 않은 결제 요청이 아닙니다.', { error: true });
+        setTimeout(() => {
+            if (window.opener) {
+                window.close();
+            } else {
+                location.href = '/payment.html';
+            }
+        }, 2000);
+    })();
+</script>
+</body>
+</html>
