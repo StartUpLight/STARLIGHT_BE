@@ -18,7 +18,14 @@ class PlainTextExtractUtilsTest {
                 "\"content\":[" +
                 "{\"type\":\"text\",\"value\":\"Hello\"}," +
                 "{\"type\":\"image\",\"caption\":\"cap\"}," +
-                "{\"type\":\"table\",\"columns\":[\"A\",\"B\"],\"rows\":[[\"1\",\"2\"],[\"3\",\"4\"]]}" +
+                "{\"type\":\"table\",\"columns\":[{\"width\":100},{\"width\":200}]," +
+                "\"rows\":[" +
+                "[{\"content\":[{\"type\":\"text\",\"value\":\"1\"}],\"rowSpan\":1,\"colSpan\":1}," +
+                "{\"content\":[{\"type\":\"text\",\"value\":\"2\"}],\"rowSpan\":1,\"colSpan\":1}]," +
+                "[{\"content\":[{\"type\":\"text\",\"value\":\"3\"}],\"rowSpan\":1,\"colSpan\":1}," +
+                "{\"content\":[{\"type\":\"text\",\"value\":\"4\"}],\"rowSpan\":1,\"colSpan\":1}]" +
+                "]" +
+                "}" +
                 "]}";
 
         String result = PlainTextExtractUtils.extractPlainText(mapper, json);
@@ -26,7 +33,7 @@ class PlainTextExtractUtilsTest {
         assertThat(result).isEqualTo(String.join("\n",
                 "Hello",
                 "[사진] cap",
-                "[\"A\", \"B\"]",
+                "[2 columns]",
                 "[\"1\", \"2\"]",
                 "[\"3\", \"4\"]"));
     }
