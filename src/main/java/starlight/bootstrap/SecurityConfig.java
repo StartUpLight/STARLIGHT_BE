@@ -79,12 +79,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,  "/v1/expert-reports/*").permitAll()
                         .requestMatchers(HttpMethod.POST, "/v1/expert-reports/*").permitAll()
 
-                        .requestMatchers(
-                                "/toss/config", "/toss/success", "/toss/fail",
-                                "/toss/popup.html", "/payment.html",
-                                "/api/toss/request",      // 사전 저장
-                                "/api/toss/confirm", "/api/toss/cancel"       // 결제 승인 콜백/확인
-                        ).permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
