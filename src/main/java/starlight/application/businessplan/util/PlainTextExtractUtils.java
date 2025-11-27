@@ -161,8 +161,8 @@ public final class PlainTextExtractUtils {
                 String cellText = extractCellContent(cellNode);
 
                 // rowspan과 colspan 값 가져오기 (기본값 1)
-                int rowspan = cellNode.has("rowspan") ? cellNode.path("rowspan").asInt(1) : 1;
-                int colspan = cellNode.has("colspan") ? cellNode.path("colspan").asInt(1) : 1;
+                int rowspan = resolveSpanValue(cellNode, "rowspan", "rowSpan");
+                int colspan = resolveSpanValue(cellNode, "colspan", "colSpan");
 
                 // colspan 범위 확인
                 if (colIndex + colspan > columnCount) {
@@ -285,5 +285,15 @@ public final class PlainTextExtractUtils {
             }
         }
         return result;
+    }
+
+    private static int resolveSpanValue(JsonNode cellNode, String lowerKey, String camelKey) {
+        if (cellNode.has(lowerKey)) {
+            return Math.max(1, cellNode.path(lowerKey).asInt(1));
+        }
+        if (cellNode.has(camelKey)) {
+            return Math.max(1, cellNode.path(camelKey).asInt(1));
+        }
+        return 1;
     }
 }

@@ -99,7 +99,7 @@ class PlainTextExtractUtilsTest {
                 "\"rows\":[" +
                 "[{\"content\":[{\"type\":\"text\",\"value\":\"X\"}],\"rowSpan\":2,\"colSpan\":1}," +
                 "{\"content\":[{\"type\":\"text\",\"value\":\"Y\"}],\"rowSpan\":1,\"colSpan\":1}]," +
-                "[]" +
+                "[{\"content\":[{\"type\":\"text\",\"value\":\"C\"}],\"rowSpan\":1,\"colSpan\":1}]" +
                 "]" +
                 "}" +
                 "]}";
@@ -109,6 +109,6 @@ class PlainTextExtractUtilsTest {
         assertThat(result).isEqualTo(String.join("\n",
                 "[2 columns]",
                 "[\"X\", \"Y\"]",
-                "[\"\", \"\"]"));
+                "[\"\", \"C\"]"));
     }
 }
