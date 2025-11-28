@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -69,7 +70,7 @@ public class SecurityConfig {
                         .requestMatchers("/error/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/", "/index.html", "/ops.html").permitAll()
+                        .requestMatchers("/", "/index.html", "/ops.html", "/payment.html", "/api/payment/**").permitAll()
                         .requestMatchers("/v1/auth/**","/v1/user/**", "/v1/experts").permitAll()
                         .requestMatchers("/login/**", "/oauth2/**", "/login/oauth2/**", "/public/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/v1/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**").permitAll()
@@ -78,6 +79,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,  "/v1/expert-reports/*").permitAll()
                         .requestMatchers(HttpMethod.POST, "/v1/expert-reports/*").permitAll()
 
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
                         .loginPage("/login/oauth2/code/kakao")
@@ -88,6 +90,7 @@ public class SecurityConfig {
                             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                         })
                 );
+
         return http.build();
     }
 

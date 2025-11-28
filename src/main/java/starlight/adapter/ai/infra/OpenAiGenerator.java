@@ -70,7 +70,7 @@ public class OpenAiGenerator implements LlmGenerator {
         return chatClient
                 .prompt(prompt)
                 .options(ChatOptions.builder()
-                        .temperature(0.1)
+                        .temperature(0.0)
                         .topP(0.1)
                         .build())
                 .advisors(qaAdvisor, slAdvisor)

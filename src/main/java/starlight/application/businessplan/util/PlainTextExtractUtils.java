@@ -11,17 +11,18 @@ import java.util.Optional;
 
 /**
  * Content(JSON) → 줄글 변환 (고정 포맷)
- *  - text  : value
- *  - image : "[사진] {caption}" (캡션 없으면 "[사진]")
- *  - table : "col1: v1, col2: v2, ..." (행마다 한 줄)
+ * - text : value
+ * - image : "[사진] {caption}" (캡션 없으면 "[사진]")
+ * - table : "col1: v1, col2: v2, ..." (행마다 한 줄)
  *
  * 지원 입력:
- *  (1) {"content":[ ... ]}
- *  (2) {"blocks":[ {"content":[ ... ]}, ... ]}
+ * (1) {"content":[ ... ]}
+ * (2) {"blocks":[ {"content":[ ... ]}, ... ]}
  */
 public final class PlainTextExtractUtils {
 
-    private PlainTextExtractUtils() {}
+    private PlainTextExtractUtils() {
+    }
 
     // 고정 포맷 상수
     private static final String IMAGE_TOKEN = "[사진]";
@@ -123,25 +124,110 @@ public final class PlainTextExtractUtils {
             return tableLines;
         }
 
-        // 헤더 추가
-        List<String> headers = new ArrayList<>();
-        for (JsonNode col : columnArrayNode) {
-            headers.add("\"" + col.asText() + "\"");
-        }
-        tableLines.add("[" + String.join(", ", headers) + "]");
+        int columnCount = columnArrayNode.size();
+        int rowCount = rowArrayNode.size();
 
-        // 각 행 추가
-        for (JsonNode rowNode : rowArrayNode) {
-            if (rowNode.isArray()) {
-                List<String> rowValues = new ArrayList<>();
-                for (JsonNode cell : rowNode) {
-                    rowValues.add("\"" + cell.asText() + "\"");
+        if (rowCount == 0) {
+            return tableLines;
+        }
+
+        // 컬럼 개수 표시
+        tableLines.add("[" + columnCount + " columns]");
+
+        // rowspan과 colspan을 고려하여 실제 테이블 그리드 구성
+        // grid[row][col] = 해당 위치의 셀 텍스트 (null이면 rowspan으로 차지된 위치)
+        String[][] grid = new String[rowCount][columnCount];
+        boolean[][] isOccupied = new boolean[rowCount][columnCount];
+
+        // 각 행을 순회하며 셀 배치
+        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+            JsonNode rowNode = rowArrayNode.get(rowIndex);
+            if (!rowNode.isArray()) {
+                continue;
+            }
+
+            int colIndex = 0;
+            for (JsonNode cellNode : rowNode) {
+                // rowspan으로 차지된 위치는 건너뛰기
+                while (colIndex < columnCount && isOccupied[rowIndex][colIndex]) {
+                    colIndex++;
                 }
-                tableLines.add("[" + String.join(", ", rowValues) + "]");
+
+                if (colIndex >= columnCount) {
+                    break;
+                }
+
+                // 셀 내용 추출
+                String cellText = extractCellContent(cellNode);
+
+                // rowspan과 colspan 값 가져오기 (기본값 1)
+                int rowspan = resolveSpanValue(cellNode, "rowspan", "rowSpan");
+                int colspan = resolveSpanValue(cellNode, "colspan", "colSpan");
+
+                // colspan 범위 확인
+                if (colIndex + colspan > columnCount) {
+                    colspan = columnCount - colIndex;
+                }
+
+                // 셀을 그리드에 배치
+                for (int r = 0; r < rowspan && rowIndex + r < rowCount; r++) {
+                    for (int c = 0; c < colspan && colIndex + c < columnCount; c++) {
+                        if (r == 0 && c == 0) {
+                            // 첫 번째 위치에만 텍스트 저장
+                            grid[rowIndex + r][colIndex + c] = cellText;
+                        }
+                        // 모든 위치를 차지된 것으로 표시
+                        isOccupied[rowIndex + r][colIndex + c] = true;
+                    }
+                }
+
+                colIndex += colspan;
             }
         }
 
+        // 그리드를 순회하며 각 행의 텍스트 생성
+        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+            List<String> rowValues = new ArrayList<>();
+            for (int colIndex = 0; colIndex < columnCount; colIndex++) {
+                String cellText = grid[rowIndex][colIndex];
+                if (cellText == null) {
+                    // rowspan으로 차지된 위치는 빈 문자열
+                    cellText = "";
+                }
+                rowValues.add("\"" + cellText + "\"");
+            }
+            tableLines.add("[" + String.join(", ", rowValues) + "]");
+        }
+
         return tableLines;
+    }
+
+    /** 셀 내부의 content (BasicContent 리스트)를 텍스트로 추출 */
+    static String extractCellContent(JsonNode cellNode) {
+        if (!cellNode.has("content") || !cellNode.path("content").isArray()) {
+            return "";
+        }
+
+        List<String> cellParts = new ArrayList<>();
+        for (JsonNode contentItem : cellNode.path("content")) {
+            String type = contentItem.path("type").asText("");
+            switch (type) {
+                case "text":
+                    String textValue = contentItem.path("value").asText("");
+                    if (!textValue.isBlank()) {
+                        cellParts.add(textValue);
+                    }
+                    break;
+                case "image":
+                    Optional<String> imageText = extractImage(contentItem);
+                    imageText.ifPresent(cellParts::add);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return String.join(" ", cellParts);
     }
 
     /** 테이블 항목: 각 행을 "col1: v1, col2: v2 ..." */
@@ -199,5 +285,15 @@ public final class PlainTextExtractUtils {
             }
         }
         return result;
+    }
+
+    private static int resolveSpanValue(JsonNode cellNode, String lowerKey, String camelKey) {
+        if (cellNode.has(lowerKey)) {
+            return Math.max(1, cellNode.path(lowerKey).asInt(1));
+        }
+        if (cellNode.has(camelKey)) {
+            return Math.max(1, cellNode.path(camelKey).asInt(1));
+        }
+        return 1;
     }
 }

@@ -18,7 +18,14 @@ class PlainTextExtractUtilsTest {
                 "\"content\":[" +
                 "{\"type\":\"text\",\"value\":\"Hello\"}," +
                 "{\"type\":\"image\",\"caption\":\"cap\"}," +
-                "{\"type\":\"table\",\"columns\":[\"A\",\"B\"],\"rows\":[[\"1\",\"2\"],[\"3\",\"4\"]]}" +
+                "{\"type\":\"table\",\"columns\":[{\"width\":100},{\"width\":200}]," +
+                "\"rows\":[" +
+                "[{\"content\":[{\"type\":\"text\",\"value\":\"1\"}],\"rowspan\":1,\"colspan\":1}," +
+                "{\"content\":[{\"type\":\"text\",\"value\":\"2\"}],\"rowspan\":1,\"colspan\":1}]," +
+                "[{\"content\":[{\"type\":\"text\",\"value\":\"3\"}],\"rowspan\":1,\"colspan\":1}," +
+                "{\"content\":[{\"type\":\"text\",\"value\":\"4\"}],\"rowspan\":1,\"colspan\":1}]" +
+                "]" +
+                "}" +
                 "]}";
 
         String result = PlainTextExtractUtils.extractPlainText(mapper, json);
@@ -26,7 +33,7 @@ class PlainTextExtractUtilsTest {
         assertThat(result).isEqualTo(String.join("\n",
                 "Hello",
                 "[사진] cap",
-                "[\"A\", \"B\"]",
+                "[2 columns]",
                 "[\"1\", \"2\"]",
                 "[\"3\", \"4\"]"));
     }
@@ -60,5 +67,48 @@ class PlainTextExtractUtilsTest {
     void extractPlainText_invalidJson_throws() {
         assertThrows(IllegalArgumentException.class, () -> PlainTextExtractUtils.extractPlainText(mapper, "not-json"));
     }
-}
 
+    @Test
+    @DisplayName("테이블 셀에서 rowspan/colspan (lowercase) 지원")
+    void extractPlainText_tableWithLowercaseSpans() {
+        String json = "{" +
+                "\"content\":[" +
+                "{\"type\":\"table\",\"columns\":[{\"width\":100},{\"width\":200}]," +
+                "\"rows\":[" +
+                "[{\"content\":[{\"type\":\"text\",\"value\":\"A\"}],\"rowspan\":2,\"colspan\":1}," +
+                "{\"content\":[{\"type\":\"text\",\"value\":\"B\"}],\"rowspan\":1,\"colspan\":1}]," +
+                "[]" +
+                "]" +
+                "}" +
+                "]}";
+
+        String result = PlainTextExtractUtils.extractPlainText(mapper, json);
+
+        assertThat(result).isEqualTo(String.join("\n",
+                "[2 columns]",
+                "[\"A\", \"B\"]",
+                "[\"\", \"\"]"));
+    }
+
+    @Test
+    @DisplayName("테이블 셀에서 rowSpan/colSpan (camelCase) 지원")
+    void extractPlainText_tableWithCamelCaseSpans() {
+        String json = "{" +
+                "\"content\":[" +
+                "{\"type\":\"table\",\"columns\":[{\"width\":100},{\"width\":200}]," +
+                "\"rows\":[" +
+                "[{\"content\":[{\"type\":\"text\",\"value\":\"X\"}],\"rowSpan\":2,\"colSpan\":1}," +
+                "{\"content\":[{\"type\":\"text\",\"value\":\"Y\"}],\"rowSpan\":1,\"colSpan\":1}]," +
+                "[{\"content\":[{\"type\":\"text\",\"value\":\"C\"}],\"rowSpan\":1,\"colSpan\":1}]" +
+                "]" +
+                "}" +
+                "]}";
+
+        String result = PlainTextExtractUtils.extractPlainText(mapper, json);
+
+        assertThat(result).isEqualTo(String.join("\n",
+                "[2 columns]",
+                "[\"X\", \"Y\"]",
+                "[\"\", \"C\"]"));
+    }
+}
