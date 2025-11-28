@@ -8,6 +8,8 @@ public interface BusinessPlanQuery {
 
     BusinessPlan getOrThrow(Long id);
 
+    BusinessPlan getOrThrowWithAllSubSections(Long id);
+
     BusinessPlan save(BusinessPlan businessPlan);
 
     void delete(BusinessPlan businessPlan);

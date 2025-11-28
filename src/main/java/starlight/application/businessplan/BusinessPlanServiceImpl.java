@@ -72,7 +72,10 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     @Override
     @Transactional(readOnly = true)
     public BusinessPlanResponse.Detail getBusinessPlanDetail(Long planId, Long memberId) {
-        BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
+        BusinessPlan plan = businessPlanQuery.getOrThrowWithAllSubSections(planId);
+        if (!plan.isOwnedBy(memberId)) {
+            throw new BusinessPlanException(BusinessPlanErrorType.UNAUTHORIZED_ACCESS);
+        }
 
         List<SubSectionResponse.Detail> subSectionDetailList = Arrays.stream(SubSectionType.values())
                 .map(type -> getSectionByPlanAndType(plan, type.getSectionType()).getSubSectionByType(type))
