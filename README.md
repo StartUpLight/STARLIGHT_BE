@@ -16,8 +16,8 @@
 | Category             | Technology                                                                 |
 |----------------------|---------------------------------------------------------------------------|
 | **Language**         | Java 21                                                                 |
-| **Framework**        | Spring Boot 3.3.10                                                        |
-| **Databases**        | Postgresql, Redis                                                             |
+| **Framework**        | Spring Boot 3.4.10                                                      |
+| **Databases**        | MySQL, Redis                                                             |
 | **Authentication**   | JWT, Spring Security, OAuth2.0                                           |
 | **Development Tools**| Lombok                                                   |
 | **API Documentation**| Swagger UI (SpringDoc)                                                   |
