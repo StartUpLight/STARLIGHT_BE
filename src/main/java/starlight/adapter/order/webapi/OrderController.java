@@ -13,7 +13,6 @@ import starlight.adapter.order.webapi.dto.request.OrderPrepareRequest;
 import starlight.adapter.order.webapi.dto.response.OrderCancelResponse;
 import starlight.adapter.order.webapi.dto.response.OrderConfirmResponse;
 import starlight.adapter.order.webapi.dto.response.OrderPrepareResponse;
-import starlight.adapter.order.webapi.dto.response.WalletCheckResponse;
 import starlight.application.order.provided.OrderPaymentService;
 import starlight.application.order.provided.dto.PaymentHistoryItemDto;
 import starlight.application.usage.provided.UsageCreditPort;
@@ -31,10 +30,6 @@ public class OrderController {
     private final OrderPaymentService orderPaymentService;
     private final UsageCreditPort usageCreditPort;
 
-    /**
-     * 결제 준비 (주문 생성)
-     * POST /api/toss/request
-     */
     @PostMapping("/request")
     public ApiResponse<OrderPrepareResponse> prepareOrder(
             @Valid @RequestBody OrderPrepareRequest request,
@@ -51,10 +46,6 @@ public class OrderController {
         return ApiResponse.success(response);
     }
 
-    /**
-     * 결제 승인
-     * POST /api/toss/confirm
-     */
     @PostMapping("/confirm")
     public ApiResponse<OrderConfirmResponse> confirmPayment(
             @Valid @RequestBody OrderConfirmRequest request,
@@ -71,10 +62,6 @@ public class OrderController {
         return ApiResponse.success(response);
     }
 
-    /**
-     * 결제 취소
-     * POST /api/toss/cancel
-     */
     @PostMapping("/cancel")
     public ApiResponse<OrderCancelResponse> cancelPayment(
             @Valid @RequestBody OrderCancelRequest request
@@ -86,10 +73,6 @@ public class OrderController {
         return ApiResponse.success(response);
     }
 
-    /**
-     * 나의 결제 내역 조회
-     * GET /api/orders
-     */
     @GetMapping
     public ApiResponse<List<PaymentHistoryItemDto>> getMyPayments(
             @AuthenticationPrincipal AuthDetails authDetails
