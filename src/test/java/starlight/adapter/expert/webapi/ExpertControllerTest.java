@@ -1,6 +1,5 @@
 package starlight.adapter.expert.webapi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +37,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ExpertControllerTest {
 
     @Autowired MockMvc mockMvc;
-    @Autowired ObjectMapper om;
-
     @MockitoBean
     ExpertDetailQueryUseCase expertDetailQuery;
     @MockitoBean JpaMetamodelMappingContext jpaMetamodelMappingContext; 
