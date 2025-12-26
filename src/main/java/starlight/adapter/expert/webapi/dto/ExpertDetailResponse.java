@@ -7,7 +7,6 @@ import starlight.domain.expert.enumerate.TagCategory;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public record ExpertDetailResponse(
 
@@ -105,11 +104,5 @@ public record ExpertDetailResponse(
                 result.careerStartedAt(),
                 result.careerEndedAt()
         );
-    }
-
-    public static List<ExpertDetailResponse> fromAll(Collection<Expert> experts, Map<Long, Long> countMap) {
-        return experts.stream()
-                .map(e -> ExpertDetailResponse.from(e, countMap.getOrDefault(e.getId(), 0L)))
-                .toList();
     }
 }

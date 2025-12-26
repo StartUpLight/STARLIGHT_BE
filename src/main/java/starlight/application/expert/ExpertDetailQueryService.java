@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.application.expert.provided.ExpertDetailQueryUseCase;
 import starlight.application.expert.provided.dto.ExpertDetailResult;
-import starlight.application.expert.required.ExpertApplicationCountPort;
+import starlight.application.expert.required.ExpertApplicationLookupPort;
 import starlight.application.expert.required.ExpertQueryPort;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expert.enumerate.TagCategory;
@@ -20,7 +20,7 @@ import java.util.Set;
 public class ExpertDetailQueryService implements ExpertDetailQueryUseCase {
 
     private final ExpertQueryPort expertQueryPort;
-    private final ExpertApplicationCountPort expertApplicationCountQueryPort;
+    private final ExpertApplicationLookupPort expertApplicationLookupPort;
 
     @Override
     public List<ExpertDetailResult> search(Set<TagCategory> categories) {
@@ -32,7 +32,7 @@ public class ExpertDetailQueryService implements ExpertDetailQueryUseCase {
                 .map(Expert::getId)
                 .toList();
 
-        Map<Long, Long> countMap = expertApplicationCountQueryPort.countByExpertIds(expertIds);
+        Map<Long, Long> countMap = expertApplicationLookupPort.countByExpertIds(expertIds);
 
         return experts.stream()
                 .map(expert -> ExpertDetailResult.from(expert, countMap.getOrDefault(expert.getId(), 0L)))

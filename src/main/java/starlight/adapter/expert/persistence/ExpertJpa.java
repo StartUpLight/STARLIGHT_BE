@@ -19,7 +19,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ExpertJpa implements ExpertQueryPort {
+public class ExpertJpa implements ExpertQueryPort,
+        starlight.application.expertReport.required.ExpertLookupPort,
+        starlight.application.expertApplication.required.ExpertLookupPort {
 
     private final ExpertRepository repository;
 
@@ -64,8 +66,7 @@ public class ExpertJpa implements ExpertQueryPort {
     }
 
     @Override
-    public Map<Long, Expert> findExpertMapByIds(Set<Long> expertIds) {
-
+    public Map<Long, Expert> findByIds(Set<Long> expertIds) {
         List<Expert> experts = repository.findAllWithDetailsByIds(expertIds);
 
         return experts.stream()

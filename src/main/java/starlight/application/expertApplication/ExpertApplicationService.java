@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import starlight.application.businessplan.required.BusinessPlanQuery;
-import starlight.application.expert.required.ExpertQueryPort;
 import starlight.application.expertApplication.event.FeedbackRequestDto;
 import starlight.application.expertApplication.provided.ExpertApplicationServiceUseCase;
+import starlight.application.expertApplication.required.ExpertLookupPort;
 import starlight.application.expertApplication.required.ExpertApplicationQuery;
 import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
 import starlight.domain.businessplan.entity.BusinessPlan;
@@ -29,7 +29,7 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class ExpertApplicationService implements ExpertApplicationServiceUseCase {
 
-    private final ExpertQueryPort expertQuery;
+    private final ExpertLookupPort expertLookupPort;
     private final BusinessPlanQuery planQuery;
     private final ExpertApplicationQuery applicationQuery;
     private final ApplicationEventPublisher eventPublisher;
@@ -48,7 +48,7 @@ public class ExpertApplicationService implements ExpertApplicationServiceUseCase
             validateFile(file);
 
             BusinessPlan plan = planQuery.getOrThrow(planId);
-            Expert expert = expertQuery.findById(expertId);
+            Expert expert = expertLookupPort.findById(expertId);
 
             plan.updateStatus(PlanStatus.EXPERT_MATCHED);
 

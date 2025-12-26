@@ -1,11 +1,11 @@
-package starlight.application.expert.provided;
+package starlight.application.expertReport.required;
 
 import starlight.domain.expert.entity.Expert;
-import java.util.List;
+
 import java.util.Map;
 import java.util.Set;
 
-public interface ExpertQueryUseCase {
+public interface ExpertLookupPort {
 
     Expert findByIdWithDetails(Long id);
 

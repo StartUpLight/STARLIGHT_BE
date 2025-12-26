@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.expertApplication.webapi.swagger.ExpertApplicationApiDoc;
+import starlight.application.expertApplication.provided.ExpertApplicationQueryUseCase;
 import starlight.application.expertApplication.provided.ExpertApplicationServiceUseCase;
-import starlight.application.expertApplication.required.ExpertApplicationQuery;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;
@@ -20,14 +20,14 @@ import java.util.List;
 @RequestMapping("/v1/expert-applications")
 public class ExpertApplicationController implements ExpertApplicationApiDoc {
 
-    private final ExpertApplicationQuery finder;
-    private final ExpertApplicationServiceUseCase expertApplicationService;
+    private final ExpertApplicationQueryUseCase queryUseCase;
+    private final ExpertApplicationServiceUseCase applicationServiceUseCase;
 
     @GetMapping
     public ApiResponse<List<Long>> search(
             @RequestParam Long businessPlanId
     ) {
-        return ApiResponse.success(finder.findRequestedExpertIds(businessPlanId));
+        return ApiResponse.success(queryUseCase.findRequestedExpertIds(businessPlanId));
     }
 
     @PostMapping(value = "/{expertId}/request", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -37,7 +37,7 @@ public class ExpertApplicationController implements ExpertApplicationApiDoc {
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal AuthDetails auth
     ) throws Exception {
-        expertApplicationService.requestFeedback(expertId, businessPlanId, file, auth.getUser().getName());
+        applicationServiceUseCase.requestFeedback(expertId, businessPlanId, file, auth.getUser().getName());
         return ApiResponse.success("피드백 요청이 전달되었습니다.");
     }
 }
