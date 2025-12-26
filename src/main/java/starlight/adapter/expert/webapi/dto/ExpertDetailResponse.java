@@ -25,9 +25,7 @@ public record ExpertDetailResponse(
 
         List<ExpertCareerResponse> careers,
 
-        List<String> tags,
-
-        List<String> categories
+        List<String> tags
 ) {
     public static ExpertDetailResponse from(ExpertDetailResult result) {
         List<ExpertCareerResponse> careers = result.careers().stream()
@@ -45,8 +43,7 @@ public record ExpertDetailResponse(
                 result.email(),
                 result.mentoringPriceWon(),
                 careers,
-                result.tags(),
-                result.categories()
+                result.tags()
         );
     }
 

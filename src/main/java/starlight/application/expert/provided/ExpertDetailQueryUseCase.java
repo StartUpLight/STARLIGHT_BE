@@ -9,4 +9,6 @@ import java.util.Set;
 public interface ExpertDetailQueryUseCase {
 
     List<ExpertDetailResult> search(Set<TagCategory> categories);
+
+    ExpertDetailResult findById(Long expertId);
 }

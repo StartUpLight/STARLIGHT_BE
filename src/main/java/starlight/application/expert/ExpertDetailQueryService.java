@@ -38,4 +38,12 @@ public class ExpertDetailQueryService implements ExpertDetailQueryUseCase {
                 .map(expert -> ExpertDetailResult.from(expert, countMap.getOrDefault(expert.getId(), 0L)))
                 .toList();
     }
+
+    @Override
+    public ExpertDetailResult findById(Long expertId) {
+        Expert expert = expertQueryPort.findByIdWithDetails(expertId);
+        Map<Long, Long> countMap = expertApplicationLookupPort.countByExpertIds(List.of(expertId));
+        long count = countMap.getOrDefault(expertId, 0L);
+        return ExpertDetailResult.from(expert, count);
+    }
 }

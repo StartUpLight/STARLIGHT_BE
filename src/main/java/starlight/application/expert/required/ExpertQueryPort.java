@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface ExpertQueryPort {
 
+    Expert findByIdWithDetails(Long id);
+
     List<Expert> findAllWithDetails();
 
     List<Expert> findByAllCategories(Collection<TagCategory> categories);

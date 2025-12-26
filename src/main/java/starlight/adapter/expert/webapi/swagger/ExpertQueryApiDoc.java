@@ -8,8 +8,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import starlight.adapter.expert.webapi.dto.ExpertDetailResponse;
+import starlight.adapter.expert.webapi.dto.ExpertListResponse;
 import starlight.domain.expert.enumerate.TagCategory;
 import starlight.shared.apiPayload.response.ApiResponse;
 
@@ -36,7 +38,7 @@ public interface ExpertQueryApiDoc {
                     description = "성공",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = ExpertDetailResponse.class)),
+                            array = @ArraySchema(schema = @Schema(implementation = ExpertListResponse.class)),
                             examples = @ExampleObject(
                                     name = "성공 예시",
                                     value = """
@@ -46,19 +48,28 @@ public interface ExpertQueryApiDoc {
                             {
                               "id": 1,
                               "name": "홍길동",
+                              "oneLineIntroduction": "한 줄 소개",
                               "profileImageUrl": "https://cdn.example.com/profiles/1.png",
+                              "workedPeriod": 6,
                               "email": "hong@example.com",
-                              "mentoringPriceWon": 50000,
-                              "careers": ["A사 PO (2019-2022)","B스타트업 PM (2023-)"],
+                              "careers": [
+                                { "orderIndex": 0, "careerTitle": "A사 PO (2019-2022)" },
+                                { "orderIndex": 1, "careerTitle": "B스타트업 PM (2023-)" }
+                              ],
+                              "tags": ["B2B", "SaaS", "PM"],
                               "categories": ["성장 전략","팀 역량"]
                             },
                             {
                               "id": 2,
                               "name": "이영희",
+                              "oneLineIntroduction": "한 줄 소개",
                               "profileImageUrl": "https://cdn.example.com/profiles/2.png",
+                              "workedPeriod": 4,
                               "email": "lee@example.com",
-                              "mentoringPriceWon": 70000,
-                              "careers": ["C기업 데이터분석 (2020-)"],
+                              "careers": [
+                                { "orderIndex": 0, "careerTitle": "C기업 데이터분석 (2020-)" }
+                              ],
+                              "tags": ["데이터", "분석"],
                               "categories": ["시장성/BM","지표/데이터"]
                             }
                           ],
@@ -70,8 +81,24 @@ public interface ExpertQueryApiDoc {
             ),
     })
     @GetMapping
-    ApiResponse<List<ExpertDetailResponse>> search(
+    ApiResponse<List<ExpertListResponse>> search(
             @RequestParam(name = "categories", required = false)
             Set<TagCategory> categories
+    );
+
+    @Operation(summary = "전문가 상세 조회")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ExpertDetailResponse.class)
+                    )
+            ),
+    })
+    @GetMapping("/{expertId}")
+    ApiResponse<ExpertDetailResponse> detail(
+            @PathVariable Long expertId
     );
 }

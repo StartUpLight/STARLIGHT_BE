@@ -34,9 +34,21 @@ public class ExpertJpa implements ExpertQueryPort,
 
     @Override
     public Expert findByIdWithDetails(Long id) {
-        return repository.findByIdWithDetails(id).orElseThrow(
-                () -> new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND)
-        );
+        try {
+            List<Expert> experts = repository.fetchCareers(List.of(id));
+            if (experts.isEmpty()) {
+                throw new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND);
+            }
+
+            repository.fetchTags(List.of(id));
+
+            return experts.get(0);
+        } catch (ExpertException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("전문가 상세 조회 중 오류가 발생했습니다.", e);
+            throw new ExpertException(ExpertErrorType.EXPERT_QUERY_ERROR);
+        }
     }
 
     @Override
