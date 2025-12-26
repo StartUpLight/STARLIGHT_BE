@@ -1,6 +1,6 @@
 package starlight.adapter.expert.webapi.dto;
 
-import starlight.domain.expert.entity.ExpertCareer;
+import starlight.application.expert.provided.dto.ExpertCareerResult;
 
 import java.time.LocalDateTime;
 
@@ -17,14 +17,14 @@ public record ExpertCareerResponse(
 
         LocalDateTime careerEndedAt
 ) {
-    public static ExpertCareerResponse from(ExpertCareer expertCareer) {
+    public static ExpertCareerResponse from(ExpertCareerResult result) {
         return new ExpertCareerResponse(
-                expertCareer.getId(),
-                expertCareer.getOrderIndex(),
-                expertCareer.getCareerTitle(),
-                expertCareer.getCareerExplanation(),
-                expertCareer.getCareerStartedAt(),
-                expertCareer.getCareerEndedAt()
+                result.id(),
+                result.orderIndex(),
+                result.careerTitle(),
+                result.careerExplanation(),
+                result.careerStartedAt(),
+                result.careerEndedAt()
         );
     }
 }
