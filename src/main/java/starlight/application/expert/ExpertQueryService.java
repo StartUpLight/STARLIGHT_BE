@@ -6,9 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import starlight.application.expert.provided.ExpertQueryUseCase;
 import starlight.application.expert.required.ExpertQueryPort;
 import starlight.domain.expert.entity.Expert;
-import starlight.domain.expert.enumerate.TagCategory;
-
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,24 +18,9 @@ public class ExpertQueryService implements ExpertQueryUseCase {
     private final ExpertQueryPort expertQuery;
 
     @Override
-    public Expert findById(Long id) {
-        return expertQuery.findById(id);
-    }
-
-    @Override
     public Expert findByIdWithDetails(Long id) {
         return expertQuery.findByIdWithDetails(id);
     }
-
-//    @Override
-//    public List<Expert> loadAll() {
-//        return expertQuery.findAllWithDetails();
-//    }
-//
-//    @Override
-//    public List<Expert> findByAllCategories(Collection<TagCategory> categories) {
-//        return expertQuery.findByAllCategories(categories);
-//    }
 
     @Override
     public Map<Long, Expert> findByIds(Set<Long> expertIds) {

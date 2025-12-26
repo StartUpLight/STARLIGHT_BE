@@ -11,16 +11,14 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import starlight.adapter.auth.security.filter.JwtFilter;
-import starlight.application.expert.provided.ExpertQueryUseCase;
-import starlight.domain.expert.entity.Expert;
+import starlight.application.expert.provided.ExpertDetailQueryUseCase;
+import starlight.application.expert.provided.dto.ExpertCareerResult;
+import starlight.application.expert.provided.dto.ExpertDetailResult;
 import starlight.domain.expert.enumerate.TagCategory;
 
-import java.lang.reflect.Constructor;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -43,15 +41,15 @@ class ExpertControllerTest {
     @Autowired ObjectMapper om;
 
     @MockitoBean
-    ExpertQueryUseCase expertFinder;
+    ExpertDetailQueryUseCase expertDetailQuery;
     @MockitoBean JpaMetamodelMappingContext jpaMetamodelMappingContext; // ← 필드로 추가!
 
     @Test
     @DisplayName("카테고리 미전달 시 전체 조회")
     void listAll() throws Exception {
-        Expert e1 = expert(1L, "홍길동",
+        ExpertDetailResult e1 = expertResult(1L, "홍길동",
                 Set.of(TagCategory.GROWTH_STRATEGY, TagCategory.TEAM_CAPABILITY));
-        when(expertFinder.loadAll()).thenReturn(List.of(e1));
+        when(expertDetailQuery.search(null)).thenReturn(List.of(e1));
 
         mockMvc.perform(get("/v1/experts"))
                 .andExpect(status().isOk())
@@ -62,10 +60,10 @@ class ExpertControllerTest {
     @Test
     @DisplayName("카테고리 AND 매칭 (?categories=A&categories=B)")
     void searchByAllCategories_multiParams() throws Exception {
-        Expert e1 = expert(2L, "이영희",
+        ExpertDetailResult e1 = expertResult(2L, "이영희",
                 Set.of(TagCategory.GROWTH_STRATEGY, TagCategory.TEAM_CAPABILITY));
 
-        when(expertFinder.findByAllCategories(Set.of(
+        when(expertDetailQuery.search(Set.of(
                 TagCategory.GROWTH_STRATEGY, TagCategory.TEAM_CAPABILITY
         ))).thenReturn(List.of(e1));
 
@@ -80,10 +78,10 @@ class ExpertControllerTest {
     @Test
     @DisplayName("카테고리 AND 매칭 (콤마 구분)")
     void searchByAllCategories_commaSeparated() throws Exception {
-        Expert e1 = expert(3L, "박철수",
+        ExpertDetailResult e1 = expertResult(3L, "박철수",
                 Set.of(TagCategory.MARKET_BM, TagCategory.METRIC_DATA));
 
-        when(expertFinder.findByAllCategories(Set.of(
+        when(expertDetailQuery.search(Set.of(
                 TagCategory.MARKET_BM, TagCategory.METRIC_DATA
         ))).thenReturn(List.of(e1));
 
@@ -95,17 +93,25 @@ class ExpertControllerTest {
     }
 
     // helper
-    private Expert expert(Long id, String name, Set<TagCategory> cats) throws Exception {
-        Constructor<Expert> ctor = Expert.class.getDeclaredConstructor();
-        ctor.setAccessible(true);
-        Expert e = ctor.newInstance();
-        ReflectionTestUtils.setField(e, "id", id);
-        ReflectionTestUtils.setField(e, "name", name);
-        ReflectionTestUtils.setField(e, "email", name + "@example.com");
-        ReflectionTestUtils.setField(e, "profileImageUrl", "https://cdn.example.com/" + id + ".png");
-        ReflectionTestUtils.setField(e, "mentoringPriceWon", 50000);
-        ReflectionTestUtils.setField(e, "careers", List.of("A사 PO", "B사 PM"));
-        ReflectionTestUtils.setField(e, "categories", new LinkedHashSet<>(cats));
-        return e;
+    private ExpertDetailResult expertResult(Long id, String name, Set<TagCategory> cats) throws Exception {
+        List<ExpertCareerResult> careers = List.of(
+                new ExpertCareerResult(1L, 1, "A사 PO", "설명", null, null),
+                new ExpertCareerResult(2L, 2, "B사 PM", "설명", null, null)
+        );
+
+        return new ExpertDetailResult(
+                id,
+                0L,
+                name,
+                "한줄소개",
+                "상세소개",
+                "https://cdn.example.com/" + id + ".png",
+                12L,
+                name + "@example.com",
+                50000,
+                careers,
+                List.of("tag1", "tag2"),
+                cats.stream().map(TagCategory::name).toList()
+        );
     }
 }

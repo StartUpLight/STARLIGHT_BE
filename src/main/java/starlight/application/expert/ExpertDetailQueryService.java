@@ -19,20 +19,20 @@ import java.util.Set;
 @Transactional(readOnly = true)
 public class ExpertDetailQueryService implements ExpertDetailQueryUseCase {
 
-    private final ExpertQueryPort expertQuery;
-    private final ExpertApplicationCountPort expertApplicationCountQuery;
+    private final ExpertQueryPort expertQueryPort;
+    private final ExpertApplicationCountPort expertApplicationCountQueryPort;
 
     @Override
     public List<ExpertDetailResult> search(Set<TagCategory> categories) {
         List<Expert> experts = (categories == null || categories.isEmpty())
-                ? expertQuery.findAllWithDetails()
-                : expertQuery.findByAllCategories(categories);
+                ? expertQueryPort.findAllWithDetails()
+                : expertQueryPort.findByAllCategories(categories);
 
         List<Long> expertIds = experts.stream()
                 .map(Expert::getId)
                 .toList();
 
-        Map<Long, Long> countMap = expertApplicationCountQuery.countByExpertIds(expertIds);
+        Map<Long, Long> countMap = expertApplicationCountQueryPort.countByExpertIds(expertIds);
 
         return experts.stream()
                 .map(expert -> ExpertDetailResult.from(expert, countMap.getOrDefault(expert.getId(), 0L)))
