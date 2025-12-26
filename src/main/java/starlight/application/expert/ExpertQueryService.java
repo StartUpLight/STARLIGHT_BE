@@ -3,8 +3,8 @@ package starlight.application.expert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.application.expert.provided.ExpertFinder;
-import starlight.application.expert.required.ExpertQuery;
+import starlight.application.expert.provided.ExpertQueryUseCase;
+import starlight.application.expert.required.ExpertQueryPort;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expert.enumerate.TagCategory;
 
@@ -16,9 +16,9 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class ExpertQueryService implements ExpertFinder {
+public class ExpertQueryService implements ExpertQueryUseCase {
 
-    private final ExpertQuery expertQuery;
+    private final ExpertQueryPort expertQuery;
 
     @Override
     public Expert findById(Long id) {
@@ -30,15 +30,15 @@ public class ExpertQueryService implements ExpertFinder {
         return expertQuery.findByIdWithDetails(id);
     }
 
-    @Override
-    public List<Expert> loadAll() {
-        return expertQuery.findAllWithDetails();
-    }
-
-    @Override
-    public List<Expert> findByAllCategories(Collection<TagCategory> categories) {
-        return expertQuery.findByAllCategories(categories);
-    }
+//    @Override
+//    public List<Expert> loadAll() {
+//        return expertQuery.findAllWithDetails();
+//    }
+//
+//    @Override
+//    public List<Expert> findByAllCategories(Collection<TagCategory> categories) {
+//        return expertQuery.findByAllCategories(categories);
+//    }
 
     @Override
     public Map<Long, Expert> findByIds(Set<Long> expertIds) {

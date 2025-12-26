@@ -14,6 +14,18 @@ import java.util.Set;
 
 public interface ExpertRepository extends JpaRepository<Expert, Long> {
 
+    @Query("select e.id from Expert e")
+    List<Long> findAllIds();
+
+    @Query("select distinct e from Expert e left join fetch e.careers where e.id in :ids")
+    List<Expert> fetchCareers(@Param("ids") List<Long> ids);
+
+    @Query("select distinct e from Expert e left join fetch e.tags where e.id in :ids")
+    List<Expert> fetchTags(@Param("ids") List<Long> ids);
+
+    @Query("select distinct e from Expert e left join fetch e.categories where e.id in :ids")
+    List<Expert> fetchCategories(@Param("ids") List<Long> ids);
+
     @Query("select distinct e from Expert e")
     @EntityGraph(attributePaths = {"categories", "careers", "tags"})
     List<Expert> findAllWithDetails();

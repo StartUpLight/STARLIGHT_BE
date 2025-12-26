@@ -15,7 +15,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import starlight.adapter.auth.security.filter.JwtFilter;
-import starlight.application.expert.provided.ExpertFinder;
+import starlight.application.expert.provided.ExpertQueryUseCase;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expert.enumerate.TagCategory;
 
@@ -42,7 +42,8 @@ class ExpertControllerTest {
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper om;
 
-    @MockitoBean ExpertFinder expertFinder;
+    @MockitoBean
+    ExpertQueryUseCase expertFinder;
     @MockitoBean JpaMetamodelMappingContext jpaMetamodelMappingContext; // ← 필드로 추가!
 
     @Test

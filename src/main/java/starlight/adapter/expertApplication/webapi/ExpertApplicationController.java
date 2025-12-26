@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.expertApplication.webapi.swagger.ExpertApplicationApiDoc;
-import starlight.application.expertApplication.provided.ExpertApplicationService;
+import starlight.application.expertApplication.provided.ExpertApplicationServiceUseCase;
 import starlight.application.expertApplication.required.ExpertApplicationQuery;
 import starlight.shared.apiPayload.response.ApiResponse;
 
@@ -21,7 +21,7 @@ import java.util.List;
 public class ExpertApplicationController implements ExpertApplicationApiDoc {
 
     private final ExpertApplicationQuery finder;
-    private final ExpertApplicationService expertApplicationService;
+    private final ExpertApplicationServiceUseCase expertApplicationService;
 
     @GetMapping
     public ApiResponse<List<Long>> search(
