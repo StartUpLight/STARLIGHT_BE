@@ -64,14 +64,13 @@ class ExpertRepositoryTest {
     }
 
     private ExpertCareer career(Expert expert, int orderIndex, String title) {
-        ExpertCareer career = ExpertCareer.of(
+        return ExpertCareer.of(
+                expert,
+                orderIndex,
                 title,
                 "desc",
                 LocalDateTime.now().minusMonths(1),
                 LocalDateTime.now()
         );
-        ReflectionTestUtils.setField(career, "expert", expert);
-        ReflectionTestUtils.setField(career, "orderIndex", orderIndex);
-        return career;
     }
 }

@@ -55,12 +55,7 @@ public class ExpertJpa implements ExpertQueryPort,
     public List<Expert> findAllWithCareersTagsCategories() {
         try {
             List<Long> ids = repository.findAllIds();
-
-            List<Expert> experts = repository.fetchExpertsWithCareersByIds(ids);
-            repository.fetchExpertsWithTagsByIds(ids);
-            repository.fetchExpertsWithCategoriesByIds(ids);
-
-            return experts;
+            return fetchWithCollections(ids);
         } catch (Exception e) {
             log.error("전문가 목록 조회 중 오류가 발생했습니다.", e);
             throw new ExpertException(ExpertErrorType.EXPERT_QUERY_ERROR);
@@ -83,5 +78,12 @@ public class ExpertJpa implements ExpertQueryPort,
 
         return experts.stream()
                 .collect(Collectors.toMap(Expert::getId, Function.identity()));
+    }
+
+    private List<Expert> fetchWithCollections(List<Long> ids) {
+        List<Expert> experts = repository.fetchExpertsWithCareersByIds(ids);
+        repository.fetchExpertsWithTagsByIds(ids);
+        repository.fetchExpertsWithCategoriesByIds(ids);
+        return experts;
     }
 }

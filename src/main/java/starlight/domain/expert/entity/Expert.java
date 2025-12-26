@@ -5,9 +5,6 @@ import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import starlight.domain.expert.enumerate.TagCategory;
 import starlight.shared.AbstractEntity;
 
@@ -37,7 +34,7 @@ public class Expert extends AbstractEntity {
     private String oneLineIntroduction;
 
     @Column
-    private String DetailedIntroduction;
+    private String detailedIntroduction;
 
     @Min(0)
     @Column
