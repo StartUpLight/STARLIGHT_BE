@@ -7,7 +7,7 @@ import java.util.Set;
 
 public interface ExpertLookupPort {
 
-    Expert findByIdWithDetails(Long id);
+    Expert findByIdWithCareersAndTags(Long id);
 
     Map<Long, Expert> findByIds(Set<Long> expertIds);
 }

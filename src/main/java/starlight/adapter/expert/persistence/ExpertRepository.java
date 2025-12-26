@@ -16,16 +16,16 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
     List<Long> findAllIds();
 
     @Query("select distinct e from Expert e left join fetch e.careers where e.id in :ids")
-    List<Expert> fetchCareers(@Param("ids") List<Long> ids);
+    List<Expert> fetchExpertsWithCareersByIds(@Param("ids") List<Long> ids);
 
     @Query("select distinct e from Expert e left join fetch e.tags where e.id in :ids")
-    List<Expert> fetchTags(@Param("ids") List<Long> ids);
+    List<Expert> fetchExpertsWithTagsByIds(@Param("ids") List<Long> ids);
 
     @Query("select distinct e from Expert e left join fetch e.categories where e.id in :ids")
-    List<Expert> fetchCategories(@Param("ids") List<Long> ids);
+    List<Expert> fetchExpertsWithCategoriesByIds(@Param("ids") List<Long> ids);
 
     @Query("select distinct e from Expert e where e.id in :expertIds")
-    List<Expert> findAllWithDetailsByIds(Set<Long> expertIds);
+    List<Expert> findAllByIds(Set<Long> expertIds);
 
     @Query("""
     select distinct e from Expert e where e.id in (

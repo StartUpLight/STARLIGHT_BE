@@ -87,7 +87,7 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
         ExpertReport report = expertReportQuery.findByTokenWithDetails(token);
         report.incrementViewCount();
 
-        Expert expert = expertLookupPort.findByIdWithDetails(report.getExpertId());
+        Expert expert = expertLookupPort.findByIdWithCareersAndTags(report.getExpertId());
 
         return ExpertReportWithExpertDto.of(report, expert);
     }

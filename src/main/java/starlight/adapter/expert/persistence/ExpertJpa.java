@@ -33,14 +33,14 @@ public class ExpertJpa implements ExpertQueryPort,
     }
 
     @Override
-    public Expert findByIdWithDetails(Long id) {
+    public Expert findByIdWithCareersAndTags(Long id) {
         try {
-            List<Expert> experts = repository.fetchCareers(List.of(id));
+            List<Expert> experts = repository.fetchExpertsWithCareersByIds(List.of(id));
             if (experts.isEmpty()) {
                 throw new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND);
             }
 
-            repository.fetchTags(List.of(id));
+            repository.fetchExpertsWithTagsByIds(List.of(id));
 
             return experts.get(0);
         } catch (ExpertException e) {
@@ -52,13 +52,13 @@ public class ExpertJpa implements ExpertQueryPort,
     }
 
     @Override
-    public List<Expert> findAllWithDetails() {
+    public List<Expert> findAllWithCareersTagsCategories() {
         try {
             List<Long> ids = repository.findAllIds();
 
-            List<Expert> experts = repository.fetchCareers(ids);
-            repository.fetchTags(ids);
-            repository.fetchCategories(ids);
+            List<Expert> experts = repository.fetchExpertsWithCareersByIds(ids);
+            repository.fetchExpertsWithTagsByIds(ids);
+            repository.fetchExpertsWithCategoriesByIds(ids);
 
             return experts;
         } catch (Exception e) {
@@ -79,7 +79,7 @@ public class ExpertJpa implements ExpertQueryPort,
 
     @Override
     public Map<Long, Expert> findByIds(Set<Long> expertIds) {
-        List<Expert> experts = repository.findAllWithDetailsByIds(expertIds);
+        List<Expert> experts = repository.findAllByIds(expertIds);
 
         return experts.stream()
                 .collect(Collectors.toMap(Expert::getId, Function.identity()));

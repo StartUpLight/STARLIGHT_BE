@@ -25,7 +25,7 @@ public class ExpertDetailQueryService implements ExpertDetailQueryUseCase {
     @Override
     public List<ExpertDetailResult> search(Set<TagCategory> categories) {
         List<Expert> experts = (categories == null || categories.isEmpty())
-                ? expertQueryPort.findAllWithDetails()
+                ? expertQueryPort.findAllWithCareersTagsCategories()
                 : expertQueryPort.findByAllCategories(categories);
 
         List<Long> expertIds = experts.stream()
@@ -41,7 +41,7 @@ public class ExpertDetailQueryService implements ExpertDetailQueryUseCase {
 
     @Override
     public ExpertDetailResult findById(Long expertId) {
-        Expert expert = expertQueryPort.findByIdWithDetails(expertId);
+        Expert expert = expertQueryPort.findByIdWithCareersAndTags(expertId);
         Map<Long, Long> countMap = expertApplicationLookupPort.countByExpertIds(List.of(expertId));
         long count = countMap.getOrDefault(expertId, 0L);
         return ExpertDetailResult.from(expert, count);
