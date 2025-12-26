@@ -42,7 +42,7 @@ class ExpertControllerTest {
 
     @MockitoBean
     ExpertDetailQueryUseCase expertDetailQuery;
-    @MockitoBean JpaMetamodelMappingContext jpaMetamodelMappingContext; // ← 필드로 추가!
+    @MockitoBean JpaMetamodelMappingContext jpaMetamodelMappingContext; 
 
     @Test
     @DisplayName("카테고리 미전달 시 전체 조회")
@@ -54,7 +54,11 @@ class ExpertControllerTest {
         mockMvc.perform(get("/v1/experts"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value("SUCCESS"))
-                .andExpect(jsonPath("$.data[0].name").value("홍길동"));
+                .andExpect(jsonPath("$.data[0].name").value("홍길동"))
+                .andExpect(jsonPath("$.data[0].careers.length()").value(3))
+                .andExpect(jsonPath("$.data[0].careers[0].orderIndex").exists())
+                .andExpect(jsonPath("$.data[0].careers[0].careerTitle").exists())
+                .andExpect(jsonPath("$.data[0].applicationCount").doesNotExist());
     }
 
     @Test
@@ -72,7 +76,8 @@ class ExpertControllerTest {
                         .param("categories", "TEAM_CAPABILITY"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value("SUCCESS"))
-                .andExpect(jsonPath("$.data[0].name").value("이영희"));
+                .andExpect(jsonPath("$.data[0].name").value("이영희"))
+                .andExpect(jsonPath("$.data[0].careers.length()").value(3));
     }
 
     @Test
@@ -89,14 +94,33 @@ class ExpertControllerTest {
                         .param("categories", "MARKET_BM,METRIC_DATA"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value("SUCCESS"))
-                .andExpect(jsonPath("$.data[0].name").value("박철수"));
+                .andExpect(jsonPath("$.data[0].name").value("박철수"))
+                .andExpect(jsonPath("$.data[0].careers.length()").value(3));
+    }
+
+    @Test
+    @DisplayName("전문가 상세 조회")
+    void detail() throws Exception {
+        ExpertDetailResult result = expertResult(10L, "김철수",
+                Set.of(TagCategory.MARKET_BM, TagCategory.GROWTH_STRATEGY));
+        when(expertDetailQuery.findById(10L)).thenReturn(result);
+
+        mockMvc.perform(get("/v1/experts/10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.id").value(10L))
+                .andExpect(jsonPath("$.data.applicationCount").value(0))
+                .andExpect(jsonPath("$.data.categories").doesNotExist())
+                .andExpect(jsonPath("$.data.tags").isArray());
     }
 
     // helper
     private ExpertDetailResult expertResult(Long id, String name, Set<TagCategory> cats) throws Exception {
         List<ExpertCareerResult> careers = List.of(
-                new ExpertCareerResult(1L, 1, "A사 PO", "설명", null, null),
-                new ExpertCareerResult(2L, 2, "B사 PM", "설명", null, null)
+                new ExpertCareerResult(1L, 0, "A사 PO", "설명", null, null),
+                new ExpertCareerResult(2L, 1, "B사 PM", "설명", null, null),
+                new ExpertCareerResult(3L, 2, "C사 리드", "설명", null, null),
+                new ExpertCareerResult(4L, 3, "D사 CTO", "설명", null, null)
         );
 
         return new ExpertDetailResult(
