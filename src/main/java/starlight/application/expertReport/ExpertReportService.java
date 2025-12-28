@@ -9,7 +9,8 @@ import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
 import starlight.application.expertReport.provided.dto.ExpertReportWithExpertDto;
 import starlight.application.expertReport.required.ExpertLookupPort;
-import starlight.application.expertReport.required.ExpertReportQuery;
+import starlight.application.expertReport.required.ExpertReportCommandPort;
+import starlight.application.expertReport.required.ExpertReportQueryPort;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.PlanStatus;
 import starlight.domain.expert.entity.Expert;
@@ -37,7 +38,8 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
     @Value("${feedback-token.base-url}")
     private String feedbackBaseUrl;
 
-    private final ExpertReportQuery expertReportQuery;
+    private final ExpertReportQueryPort expertReportQuery;
+    private final ExpertReportCommandPort expertReportCommand;
     private final ExpertLookupPort expertLookupPort;
     private final BusinessPlanQuery businessPlanQuery;
     private final SecureRandom secureRandom = new SecureRandom();
@@ -50,7 +52,7 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
         String token = generateToken();
 
         ExpertReport report = ExpertReport.create(expertId, businessPlanId, token);
-        expertReportQuery.save(report);
+        expertReportCommand.save(report);
 
         return feedbackBaseUrl + token;
     }
@@ -79,7 +81,7 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
 
         }
 
-        return expertReportQuery.save(report);
+        return expertReportCommand.save(report);
     }
 
     @Override
@@ -95,7 +97,7 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<ExpertReportWithExpertDto> getExpertReportsWithExpertByBusinessPlanId(Long businessPlanId) {
-        List<ExpertReport> reports = expertReportQuery.findAllByBusinessPlanId(businessPlanId);
+        List<ExpertReport> reports = expertReportQuery.findAllByBusinessPlanIdOrderByCreatedAtDesc(businessPlanId);
 
         Set<Long> expertIds = reports.stream()
                 .map(ExpertReport::getExpertId)
