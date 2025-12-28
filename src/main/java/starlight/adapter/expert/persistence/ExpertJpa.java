@@ -65,7 +65,18 @@ public class ExpertJpa implements ExpertQueryPort,
     @Override
     public List<Expert> findByAllCategories(Collection<TagCategory> categories) {
         try {
-            return repository.findByAllCategories(categories, categories.size());
+            List<Expert> experts = repository.findByAllCategories(categories, categories.size());
+            if (experts.isEmpty()) {
+                return experts;
+            }
+
+            List<Long> ids = experts.stream()
+                    .map(Expert::getId)
+                    .toList();
+
+            fetchWithCollections(ids);
+
+            return experts;
         } catch (Exception e) {
             log.error("전문가 목록 필터링 중 오류가 발생했습니다.", e);
             throw new ExpertException(ExpertErrorType.EXPERT_QUERY_ERROR);
