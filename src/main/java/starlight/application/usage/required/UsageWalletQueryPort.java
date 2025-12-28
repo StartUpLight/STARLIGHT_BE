@@ -1,12 +1,10 @@
-package starlight.application.usage.provided;
+package starlight.application.usage.required;
 
 import starlight.domain.order.wallet.UsageWallet;
 
 import java.util.Optional;
 
-public interface UsageWalletQuery {
+public interface UsageWalletQueryPort {
 
     Optional<UsageWallet> findByUserId(Long userId);
-
-    UsageWallet save(UsageWallet usageWallet);
 }

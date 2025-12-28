@@ -11,7 +11,7 @@ import starlight.application.order.provided.OrderPaymentServiceUseCase;
 import starlight.application.order.provided.dto.TossClientResponse;
 import starlight.application.order.required.OrderCommandPort;
 import starlight.application.order.required.OrderQueryPort;
-import starlight.application.usage.provided.UsageCreditPort;
+import starlight.application.order.required.UsageCreditChargePort;
 import starlight.domain.order.enumerate.OrderStatus;
 import starlight.domain.order.enumerate.UsageProductType;
 import starlight.domain.order.exception.OrderErrorType;
@@ -34,7 +34,7 @@ public class OrderPaymentService implements OrderPaymentServiceUseCase {
     private final TossClient tossClient;
     private final OrderQueryPort orderQueryPort;
     private final OrderCommandPort orderCommandPort;
-    private final UsageCreditPort usageCreditPort;
+    private final UsageCreditChargePort usageCreditChargePort;
 
     /**
      * 결제 전 주문 준비
@@ -101,7 +101,7 @@ public class OrderPaymentService implements OrderPaymentServiceUseCase {
         );
         order.markPaid();
 
-        usageCreditPort.chargeForOrder(
+        usageCreditChargePort.chargeForOrder(
                 order.getBuyerId(),
                 order.getId(),
                 product.getUsageCount()

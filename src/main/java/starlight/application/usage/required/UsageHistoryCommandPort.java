@@ -1,8 +1,8 @@
-package starlight.application.usage.provided;
+package starlight.application.usage.required;
 
 import starlight.domain.order.wallet.UsageHistory;
 
-public interface UsageHistoryQuery {
+public interface UsageHistoryCommandPort {
 
     UsageHistory save(UsageHistory usageHistory);
 }

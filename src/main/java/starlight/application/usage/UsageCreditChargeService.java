@@ -3,9 +3,10 @@ package starlight.application.usage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import starlight.application.usage.provided.UsageCreditPort;
-import starlight.application.usage.provided.UsageHistoryQuery;
-import starlight.application.usage.provided.UsageWalletQuery;
+import starlight.application.order.required.UsageCreditChargePort;
+import starlight.application.usage.required.UsageHistoryCommandPort;
+import starlight.application.usage.required.UsageWalletCommandPort;
+import starlight.application.usage.required.UsageWalletQueryPort;
 import starlight.domain.order.exception.OrderErrorType;
 import starlight.domain.order.exception.OrderException;
 import starlight.domain.order.wallet.UsageHistory;
@@ -14,10 +15,11 @@ import starlight.domain.order.wallet.UsageWallet;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class UsageCreditService implements UsageCreditPort {
+public class UsageCreditChargeService implements UsageCreditChargePort {
 
-    private final UsageWalletQuery usageWalletQuery;
-    private final UsageHistoryQuery usageHistoryQuery;
+    private final UsageWalletQueryPort usageWalletQueryPort;
+    private final UsageWalletCommandPort usageWalletCommandPort;
+    private final UsageHistoryCommandPort usageHistoryCommandPort;
 
     /**
      * 주문 결제가 완료되었을 때 사용권(지갑)을 충전한다.
@@ -33,15 +35,15 @@ public class UsageCreditService implements UsageCreditPort {
         }
 
         // 지갑 조회 or 생성
-        UsageWallet wallet = usageWalletQuery.findByUserId(userId)
-                .orElseGet(() -> usageWalletQuery.save(UsageWallet.init(userId)));
+        UsageWallet wallet = usageWalletQueryPort.findByUserId(userId)
+                .orElseGet(() -> usageWalletCommandPort.save(UsageWallet.init(userId)));
 
         // 사용권 충전
         wallet.chargeAiReport(usageCount);
-        usageWalletQuery.save(wallet);
+        usageWalletCommandPort.save(wallet);
 
         // 이력 기록
-        usageHistoryQuery.save(
+        usageHistoryCommandPort.save(
                 UsageHistory.charged(
                         userId,
                         usageCount,
