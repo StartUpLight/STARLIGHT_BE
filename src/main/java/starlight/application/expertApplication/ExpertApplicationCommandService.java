@@ -9,9 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.expertApplication.event.FeedbackRequestDto;
-import starlight.application.expertApplication.provided.ExpertApplicationServiceUseCase;
+import starlight.application.expertApplication.provided.ExpertApplicationCommandUseCase;
 import starlight.application.expertApplication.required.ExpertLookupPort;
-import starlight.application.expertApplication.required.ExpertApplicationQuery;
+import starlight.application.expertApplication.required.ExpertApplicationQueryPort;
 import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.PlanStatus;
@@ -27,13 +27,13 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ExpertApplicationService implements ExpertApplicationServiceUseCase {
+public class ExpertApplicationCommandService implements ExpertApplicationCommandUseCase {
 
     private final ExpertLookupPort expertLookupPort;
     private final BusinessPlanQuery planQuery;
-    private final ExpertApplicationQuery applicationQuery;
+    private final ExpertApplicationQueryPort applicationQueryPort;
     private final ApplicationEventPublisher eventPublisher;
-    private final ExpertReportServiceUseCase expertReportService;
+    private final ExpertReportServiceUseCase expertReportUseCase;
 
     private static final long MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
     private static final String ALLOWED_CONTENT_TYPE = "application/pdf";
@@ -77,12 +77,12 @@ public class ExpertApplicationService implements ExpertApplicationServiceUseCase
     }
 
     public void registerApplicationRecord(Long expertId, Long planId) {
-        if (applicationQuery.existsByExpertIdAndBusinessPlanId(expertId, planId)) {
+        if (applicationQueryPort.existsByExpertIdAndBusinessPlanId(expertId, planId)) {
             throw new ExpertApplicationException(ExpertApplicationErrorType.APPLICATION_ALREADY_EXISTS);
         }
 
         ExpertApplication application = ExpertApplication.create(planId, expertId);
-        applicationQuery.save(application);
+        applicationQueryPort.save(application);
     }
 
     private String generateFilename(MultipartFile file, BusinessPlan plan, String menteeName) {
@@ -122,6 +122,6 @@ public class ExpertApplicationService implements ExpertApplicationServiceUseCase
     }
 
     private String buildFeedbackRequestUrl(Long expertId, Long planId) {
-        return expertReportService.createExpertReportLink(expertId, planId);
+        return expertReportUseCase.createExpertReportLink(expertId, planId);
     }
 }

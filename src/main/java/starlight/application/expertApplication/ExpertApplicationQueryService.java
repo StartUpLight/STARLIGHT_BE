@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.application.expertApplication.provided.ExpertApplicationQueryUseCase;
-import starlight.application.expertApplication.required.ExpertApplicationQuery;
+import starlight.application.expertApplication.required.ExpertApplicationQueryPort;
 
 import java.util.List;
 
@@ -13,10 +13,10 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ExpertApplicationQueryService implements ExpertApplicationQueryUseCase {
 
-    private final ExpertApplicationQuery expertApplicationQuery;
+    private final ExpertApplicationQueryPort expertApplicationQueryPort;
 
     @Override
     public List<Long> findRequestedExpertIds(Long businessPlanId) {
-        return expertApplicationQuery.findRequestedExpertIds(businessPlanId);
+        return expertApplicationQueryPort.findRequestedExpertIds(businessPlanId);
     }
 }

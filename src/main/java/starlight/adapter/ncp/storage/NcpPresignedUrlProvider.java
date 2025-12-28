@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
-import starlight.application.infrastructure.provided.PresignedUrlProvider;
+import starlight.application.aireport.required.PresignedUrlProvider;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 
 import java.net.URLEncoder;

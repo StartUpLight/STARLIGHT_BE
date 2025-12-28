@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.expertApplication.webapi.swagger.ExpertApplicationApiDoc;
 import starlight.application.expertApplication.provided.ExpertApplicationQueryUseCase;
-import starlight.application.expertApplication.provided.ExpertApplicationServiceUseCase;
+import starlight.application.expertApplication.provided.ExpertApplicationCommandUseCase;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.List;
 public class ExpertApplicationController implements ExpertApplicationApiDoc {
 
     private final ExpertApplicationQueryUseCase queryUseCase;
-    private final ExpertApplicationServiceUseCase applicationServiceUseCase;
+    private final ExpertApplicationCommandUseCase applicationServiceUseCase;
 
     @GetMapping
     public ApiResponse<List<Long>> search(

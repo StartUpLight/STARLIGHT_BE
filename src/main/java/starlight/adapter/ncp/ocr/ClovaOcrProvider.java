@@ -9,7 +9,7 @@ import starlight.adapter.ncp.ocr.infra.PdfDownloadClient;
 import starlight.adapter.ncp.ocr.util.OcrResponseMerger;
 import starlight.adapter.ncp.ocr.util.OcrTextExtractor;
 import starlight.adapter.ncp.ocr.util.PdfUtils;
-import starlight.application.infrastructure.provided.OcrProvider;
+import starlight.application.aireport.required.OcrProvider;
 import starlight.shared.dto.infrastructure.OcrResponse;
 
 import java.util.ArrayList;

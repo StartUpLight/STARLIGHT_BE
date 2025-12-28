@@ -6,7 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
-import starlight.application.infrastructure.provided.PresignedUrlProvider;
+import starlight.application.aireport.required.PresignedUrlProvider;
 import starlight.adapter.ncp.webapi.swagger.ImageApiDoc;
 import starlight.shared.apiPayload.response.ApiResponse;
 
