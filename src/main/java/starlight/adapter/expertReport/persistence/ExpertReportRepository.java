@@ -12,7 +12,7 @@ public interface ExpertReportRepository extends JpaRepository<ExpertReport, Long
     boolean existsByToken(String token);
 
     @EntityGraph(attributePaths = {"comments"})
-    Optional<ExpertReport> findByTokenWithComments(String token);
+    Optional<ExpertReport> findByToken(String token);
 
     @EntityGraph(attributePaths = {"comments"})
     List<ExpertReport> findAllByBusinessPlanIdOrderByCreatedAtDesc(Long businessPlanId);

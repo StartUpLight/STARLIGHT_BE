@@ -42,7 +42,7 @@ public class ExpertReportJpa implements ExpertReportQueryPort, ExpertReportComma
 
     @Override
     public ExpertReport findByTokenWithComments(String token) {
-        return repository.findByTokenWithComments(token).orElseThrow(
+        return repository.findByToken(token).orElseThrow(
                 () -> new ExpertReportException(ExpertReportErrorType.EXPERT_REPORT_NOT_FOUND)
         );
     }
