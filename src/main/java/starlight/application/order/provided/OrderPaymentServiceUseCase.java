@@ -1,13 +1,13 @@
 package starlight.application.order.provided;
 
-import starlight.application.order.provided.dto.TossClientResponse;
 import starlight.adapter.order.webapi.dto.request.OrderCancelRequest;
 import starlight.application.order.provided.dto.PaymentHistoryItemDto;
+import starlight.application.order.provided.dto.TossClientResponse;
 import starlight.domain.order.order.Orders;
 
 import java.util.List;
 
-public interface OrderPaymentService{
+public interface OrderPaymentServiceUseCase {
 
     Orders prepare(String orderCodeStr, Long buyerId, String productCode);
 

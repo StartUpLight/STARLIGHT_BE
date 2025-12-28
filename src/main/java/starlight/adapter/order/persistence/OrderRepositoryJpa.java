@@ -2,7 +2,8 @@ package starlight.adapter.order.persistence;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import starlight.application.order.provided.OrdersQuery;
+import starlight.application.order.required.OrderCommandPort;
+import starlight.application.order.required.OrderQueryPort;
 import starlight.domain.order.exception.OrderErrorType;
 import starlight.domain.order.exception.OrderException;
 import starlight.domain.order.order.Orders;
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class OrderRepositoryJpa implements OrdersQuery {
+public class OrderRepositoryJpa implements OrderQueryPort, OrderCommandPort {
 
     private final OrdersRepository repository;
 

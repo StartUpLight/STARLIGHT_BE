@@ -5,11 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import starlight.adapter.order.toss.TossClient;
-import starlight.application.order.provided.dto.TossClientResponse;
 import starlight.adapter.order.webapi.dto.request.OrderCancelRequest;
-import starlight.application.order.provided.OrderPaymentService;
-import starlight.application.order.provided.OrdersQuery;
 import starlight.application.order.provided.dto.PaymentHistoryItemDto;
+import starlight.application.order.provided.OrderPaymentServiceUseCase;
+import starlight.application.order.provided.dto.TossClientResponse;
+import starlight.application.order.required.OrderCommandPort;
+import starlight.application.order.required.OrderQueryPort;
 import starlight.application.usage.provided.UsageCreditPort;
 import starlight.domain.order.enumerate.OrderStatus;
 import starlight.domain.order.enumerate.UsageProductType;
@@ -28,10 +29,11 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class OrderPaymentServiceImpl implements OrderPaymentService {
+public class OrderPaymentService implements OrderPaymentServiceUseCase {
 
     private final TossClient tossClient;
-    private final OrdersQuery ordersQuery;
+    private final OrderQueryPort orderQueryPort;
+    private final OrderCommandPort orderCommandPort;
     private final UsageCreditPort usageCreditPort;
 
     /**
@@ -50,7 +52,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService {
         Money money = Money.krw(product.getPrice());
         OrderCode orderCode = OrderCode.of(orderCodeStr);
 
-        return ordersQuery.findByOrderCode(orderCodeStr)
+        return orderQueryPort.findByOrderCode(orderCodeStr)
                 .map(existing -> {
                     existing.validateSameBuyer(buyerId);
                     existing.validateSameProduct(product);
@@ -60,7 +62,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService {
                 .orElseGet(() -> {
                     Orders newOrder = Orders.newUsageOrder(orderCode, buyerId, money, product);
                     newOrder.addPaymentAttempt(money);
-                    return ordersQuery.save(newOrder);
+                    return orderCommandPort.save(newOrder);
                 });
     }
 
@@ -75,7 +77,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService {
     @Override
     public Orders confirm(String orderCodeStr, String paymentKey, Long buyerId) {
 
-        Orders order = ordersQuery.getByOrderCodeOrThrow(orderCodeStr);
+        Orders order = orderQueryPort.getByOrderCodeOrThrow(orderCodeStr);
 
         UsageProductType product = UsageProductType.fromCode(order.getUsageProductCode());
         long expectedAmount = product.getPrice();
@@ -105,7 +107,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService {
                 product.getUsageCount()
         );
 
-        return ordersQuery.save(order);
+        return orderCommandPort.save(order);
     }
 
     /**
@@ -117,7 +119,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService {
     @Override
     public TossClientResponse.Cancel cancel(OrderCancelRequest request) {
 
-        Orders order = ordersQuery.getByOrderCodeOrThrow(request.orderCode());
+        Orders order = orderQueryPort.getByOrderCodeOrThrow(request.orderCode());
 
         PaymentRecords payment = order.getLatestDoneOrThrow();
         payment.ensureHasPaymentKey();
@@ -129,14 +131,14 @@ public class OrderPaymentServiceImpl implements OrderPaymentService {
         payment.markCanceled();
         order.cancel();
 
-        ordersQuery.save(order);
+        orderCommandPort.save(order);
 
         return response;
     }
 
     public List<PaymentHistoryItemDto> getPaymentHistory(Long buyerId) {
         // 1) 이 회원(buyer)의 주문 전체를 최신순으로 가져오기
-        List<Orders> orders = ordersQuery.findAllWithPaymentsByBuyerIdOrderByCreatedAtDesc(buyerId);
+        List<Orders> orders = orderQueryPort.findAllWithPaymentsByBuyerIdOrderByCreatedAtDesc(buyerId);
 
         return orders.stream()
                 // 결제완료(PAID) 주문만
