@@ -3,7 +3,6 @@ package starlight.application.expertReport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
@@ -15,7 +14,7 @@ import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.PlanStatus;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expertReport.entity.ExpertReport;
-import starlight.domain.expertReport.entity.ExpertReportDetail;
+import starlight.domain.expertReport.entity.ExpertReportComment;
 import starlight.domain.expertReport.enumerate.SaveType;
 
 import java.security.SecureRandom;
@@ -61,13 +60,13 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
     public ExpertReport saveReport(
             String token,
             String overallComment,
-            List<ExpertReportDetail> details,
+            List<ExpertReportComment> comments,
             SaveType saveType
     ) {
-        ExpertReport report = expertReportQuery.findByTokenWithDetails(token);
+        ExpertReport report = expertReportQuery.findByTokenWithComments(token);
 
         report.updateOverallComment(overallComment);
-        report.updateDetails(details);
+        report.updateComments(comments);
 
         switch (saveType) {
             case TEMPORARY -> {
@@ -86,7 +85,7 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
 
     @Override
     public ExpertReportWithExpertDto getExpertReportWithExpert(String token) {
-        ExpertReport report = expertReportQuery.findByTokenWithDetails(token);
+        ExpertReport report = expertReportQuery.findByTokenWithComments(token);
         report.incrementViewCount();
 
         Expert expert = expertLookupPort.findByIdWithCareersAndTags(report.getExpertId());

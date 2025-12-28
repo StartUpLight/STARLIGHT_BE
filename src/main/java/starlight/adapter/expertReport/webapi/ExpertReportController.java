@@ -11,7 +11,7 @@ import starlight.adapter.expertReport.webapi.mapper.ExpertReportMapper;
 import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
 import starlight.application.expertReport.provided.dto.ExpertReportWithExpertDto;
 import starlight.domain.expertReport.entity.ExpertReport;
-import starlight.domain.expertReport.entity.ExpertReportDetail;
+import starlight.domain.expertReport.entity.ExpertReportComment;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;
@@ -64,12 +64,12 @@ public class ExpertReportController {
             @PathVariable String token,
             @Valid @RequestBody UpsertExpertReportRequest request
     ) {
-        List<ExpertReportDetail> details = mapper.toEntityList(request.details());
+        List<ExpertReportComment> comments = mapper.toEntityList(request.comments());
 
         ExpertReport report = expertReportService.saveReport(
                 token,
                 request.overallComment(),
-                details,
+                comments,
                 request.saveType()
         );
 

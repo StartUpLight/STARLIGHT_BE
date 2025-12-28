@@ -11,23 +11,23 @@ import starlight.shared.AbstractEntity;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ExpertReportDetail extends AbstractEntity {
+public class ExpertReportComment extends AbstractEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private CommentType commentType;
+    private CommentType type;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    public static ExpertReportDetail create(CommentType commentType, String content) {
-        Assert.notNull(commentType, "commentType은 필수입니다");
+    public static ExpertReportComment create(CommentType type, String content) {
+        Assert.notNull(type, "type은 필수입니다");
         Assert.hasText(content, "content는 필수입니다");
 
-        ExpertReportDetail detail = new ExpertReportDetail();
-        detail.commentType = commentType;
-        detail.content = content;
-        return detail;
+        ExpertReportComment comment = new ExpertReportComment();
+        comment.type = type;
+        comment.content = content;
+        return comment;
     }
 
     public void update(String content) {

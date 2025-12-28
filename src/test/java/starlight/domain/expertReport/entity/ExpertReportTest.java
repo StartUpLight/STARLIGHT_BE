@@ -104,32 +104,32 @@ class ExpertReportTest {
     }
 
     @Test
-    @DisplayName("Details 업데이트 - null 예외")
-    void updateDetails_Null_ThrowsException() {
+    @DisplayName("Comments 업데이트 - null 예외")
+    void updateComments_Null_ThrowsException() {
         // given
         ExpertReport report = ExpertReport.create(1L, 10L, "token");
 
         // when & then
-        assertThatThrownBy(() -> report.updateDetails(null))
+        assertThatThrownBy(() -> report.updateComments(null))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("details는 null일 수 없습니다");
+                .hasMessageContaining("comments는 null일 수 없습니다");
     }
 
     @Test
-    @DisplayName("Details 업데이트 - 성공")
-    void updateDetails_Success() {
+    @DisplayName("Comments 업데이트 - 성공")
+    void updateComments_Success() {
         // given
         ExpertReport report = ExpertReport.create(1L, 10L, "token");
-        List<ExpertReportDetail> details = List.of(
-                ExpertReportDetail.create(CommentType.STRENGTH, "좋습니다"),
-                ExpertReportDetail.create(CommentType.WEAKNESS, "개선 필요")
+        List<ExpertReportComment> comments = List.of(
+                ExpertReportComment.create(CommentType.STRENGTH, "좋습니다"),
+                ExpertReportComment.create(CommentType.WEAKNESS, "개선 필요")
         );
 
         // when
-        report.updateDetails(details);
+        report.updateComments(comments);
 
         // then
-        assertThat(report.getDetails()).hasSize(2);
+        assertThat(report.getComments()).hasSize(2);
     }
 
     @Test
@@ -148,27 +148,27 @@ class ExpertReportTest {
     }
 
     @Test
-    @DisplayName("ExpertReportDetail 생성 - 성공")
-    void createDetail_Success() {
+    @DisplayName("ExpertReportComment 생성 - 성공")
+    void createComment_Success() {
         // given
         CommentType type = CommentType.STRENGTH;
         String content = "시장 분석이 우수합니다.";
 
         // when
-        ExpertReportDetail detail = ExpertReportDetail.create(type, content);
+        ExpertReportComment comment = ExpertReportComment.create(type, content);
 
         // then
-        assertThat(detail).isNotNull();
-        assertThat(detail.getCommentType()).isEqualTo(type);
-        assertThat(detail.getContent()).isEqualTo(content);
+        assertThat(comment).isNotNull();
+        assertThat(comment.getType()).isEqualTo(type);
+        assertThat(comment.getContent()).isEqualTo(content);
     }
 
     @Test
-    @DisplayName("ExpertReportDetail 생성 - content empty 예외")
-    void createDetail_EmptyContent_ThrowsException() {
+    @DisplayName("ExpertReportComment 생성 - content empty 예외")
+    void createComment_EmptyContent_ThrowsException() {
         // when & then
         assertThatThrownBy(() ->
-                ExpertReportDetail.create(CommentType.STRENGTH, ""))
+                ExpertReportComment.create(CommentType.STRENGTH, ""))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("content는 필수입니다");
     }
