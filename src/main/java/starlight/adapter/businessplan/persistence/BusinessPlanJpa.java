@@ -23,6 +23,13 @@ public class BusinessPlanJpa implements BusinessPlanQuery {
     }
 
     @Override
+    public BusinessPlan getOrThrowWithAllSubSections(Long id) {
+        return businessPlanRepository.findByIdWithAllSubSections(id).orElseThrow(
+                () -> new BusinessPlanException(BusinessPlanErrorType.BUSINESS_PLAN_NOT_FOUND)
+        );
+    }
+
+    @Override
     public BusinessPlan save(BusinessPlan businessPlan) {
         return businessPlanRepository.save(businessPlan);
     }
