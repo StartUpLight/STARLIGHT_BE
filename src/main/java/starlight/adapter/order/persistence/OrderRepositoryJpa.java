@@ -3,7 +3,6 @@ package starlight.adapter.order.persistence;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import starlight.application.order.provided.OrdersQuery;
-import starlight.domain.expertReport.entity.ExpertReport;
 import starlight.domain.order.exception.OrderErrorType;
 import starlight.domain.order.exception.OrderException;
 import starlight.domain.order.order.Orders;

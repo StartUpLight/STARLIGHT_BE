@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import starlight.adapter.expertReport.webapi.dto.ExpertReportResponse;
 import starlight.adapter.expertReport.webapi.dto.UpsertExpertReportRequest;
 import starlight.adapter.expertReport.webapi.mapper.ExpertReportMapper;
-import starlight.application.expertReport.provided.ExpertReportService;
+import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
 import starlight.application.expertReport.provided.dto.ExpertReportWithExpertDto;
 import starlight.domain.expertReport.entity.ExpertReport;
 import starlight.domain.expertReport.entity.ExpertReportDetail;
@@ -23,7 +23,7 @@ import java.util.List;
 public class ExpertReportController {
 
     private final ExpertReportMapper mapper;
-    private final ExpertReportService expertReportService;
+    private final ExpertReportServiceUseCase expertReportService;
 
     @Operation(summary = "전문가 리포트 목록을 조회합니다. (사용자 사용)")
     @GetMapping

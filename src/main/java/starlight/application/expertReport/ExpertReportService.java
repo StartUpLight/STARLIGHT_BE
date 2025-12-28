@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.application.businessplan.required.BusinessPlanQuery;
-import starlight.application.expert.provided.ExpertFinder;
-import starlight.application.expertReport.provided.ExpertReportService;
+import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
 import starlight.application.expertReport.provided.dto.ExpertReportWithExpertDto;
+import starlight.application.expertReport.required.ExpertLookupPort;
 import starlight.application.expertReport.required.ExpertReportQuery;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.PlanStatus;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ExpertReportServiceImpl implements ExpertReportService {
+public class ExpertReportService implements ExpertReportServiceUseCase {
 
     @Value("${feedback-token.token-length}")
     private int tokenLength;
@@ -38,7 +38,7 @@ public class ExpertReportServiceImpl implements ExpertReportService {
     private String feedbackBaseUrl;
 
     private final ExpertReportQuery expertReportQuery;
-    private final ExpertFinder expertFinder;
+    private final ExpertLookupPort expertLookupPort;
     private final BusinessPlanQuery businessPlanQuery;
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -87,7 +87,7 @@ public class ExpertReportServiceImpl implements ExpertReportService {
         ExpertReport report = expertReportQuery.findByTokenWithDetails(token);
         report.incrementViewCount();
 
-        Expert expert = expertFinder.findByIdWithDetails(report.getExpertId());
+        Expert expert = expertLookupPort.findByIdWithCareersAndTags(report.getExpertId());
 
         return ExpertReportWithExpertDto.of(report, expert);
     }
@@ -101,7 +101,7 @@ public class ExpertReportServiceImpl implements ExpertReportService {
                 .map(ExpertReport::getExpertId)
                 .collect(Collectors.toSet());
 
-        Map<Long, Expert> expertsMap = expertFinder.findByIds(expertIds);
+        Map<Long, Expert> expertsMap = expertLookupPort.findByIds(expertIds);
 
         return reports.stream()
                 .map(report -> {

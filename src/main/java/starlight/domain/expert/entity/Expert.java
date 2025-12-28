@@ -30,15 +30,19 @@ public class Expert extends AbstractEntity {
     @Column(nullable = false, length = 320)
     private String email;
 
+    @Column
+    private String oneLineIntroduction;
+
+    @Column
+    private String detailedIntroduction;
+
     @Min(0)
     @Column
     private Integer mentoringPriceWon;
 
-    @ElementCollection
-    @CollectionTable(name = "expert_careers", joinColumns = @JoinColumn(name = "expert_id"))
-    @Column(name = "career_text", length = 300, nullable = false)
-    @OrderColumn(name = "order_index")
-    private List<String> careers = new ArrayList<>();
+    @OneToMany(mappedBy = "expert", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("orderIndex ASC")
+    private List<ExpertCareer> careers = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "expert_tags", joinColumns = @JoinColumn(name = "expert_id"))

@@ -15,7 +15,6 @@ import starlight.adapter.order.webapi.dto.response.OrderConfirmResponse;
 import starlight.adapter.order.webapi.dto.response.OrderPrepareResponse;
 import starlight.application.order.provided.OrderPaymentService;
 import starlight.application.order.provided.dto.PaymentHistoryItemDto;
-import starlight.application.usage.provided.UsageCreditPort;
 import starlight.domain.order.order.Orders;
 import starlight.shared.apiPayload.response.ApiResponse;
 
@@ -28,7 +27,6 @@ import java.util.List;
 public class OrderController {
 
     private final OrderPaymentService orderPaymentService;
-    private final UsageCreditPort usageCreditPort;
 
     @PostMapping("/request")
     public ApiResponse<OrderPrepareResponse> prepareOrder(

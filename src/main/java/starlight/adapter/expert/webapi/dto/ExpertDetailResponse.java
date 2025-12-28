@@ -1,16 +1,19 @@
 package starlight.adapter.expert.webapi.dto;
 
-import starlight.domain.expert.entity.Expert;
-import starlight.domain.expert.enumerate.TagCategory;
-
-import java.util.Collection;
+import starlight.application.expert.provided.dto.ExpertDetailResult;
 import java.util.List;
 
 public record ExpertDetailResponse(
 
         Long id,
 
+        Long applicationCount,
+
         String name,
+
+        String oneLineIntroduction,
+
+        String detailedIntroduction,
 
         String profileImageUrl,
 
@@ -20,32 +23,33 @@ public record ExpertDetailResponse(
 
         Integer mentoringPriceWon,
 
-        List<String> careers,
+        List<ExpertCareerResponse> careers,
 
-        List<String> tags,
-
-        List<String> categories
+        List<String> tags
 ) {
-    public static ExpertDetailResponse from(Expert expert) {
-        List <String> categories = expert.getCategories().stream()
-                .map(TagCategory::name)
-                .distinct()
+    public static ExpertDetailResponse from(ExpertDetailResult result) {
+        List<ExpertCareerResponse> careers = result.careers().stream()
+                .map(ExpertCareerResponse::from)
                 .toList();
 
         return new ExpertDetailResponse(
-                expert.getId(),
-                expert.getName(),
-                expert.getProfileImageUrl(),
-                expert.getWorkedPeriod(),
-                expert.getEmail(),
-                expert.getMentoringPriceWon(),
-                expert.getCareers(),
-                expert.getTags().stream().distinct().toList(),
-                categories
+                result.id(),
+                result.applicationCount(),
+                result.name(),
+                result.oneLineIntroduction(),
+                result.detailedIntroduction(),
+                result.profileImageUrl(),
+                result.workedPeriod(),
+                result.email(),
+                result.mentoringPriceWon(),
+                careers,
+                result.tags()
         );
     }
 
-    public static List<ExpertDetailResponse> fromAll(Collection<Expert> experts){
-        return experts.stream().map(ExpertDetailResponse::from).toList();
+    public static List<ExpertDetailResponse> fromAllResults(List<ExpertDetailResult> results) {
+        return results.stream()
+                .map(ExpertDetailResponse::from)
+                .toList();
     }
 }

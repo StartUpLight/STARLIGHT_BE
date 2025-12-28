@@ -6,10 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.util.ReflectionTestUtils;
 import starlight.domain.expert.entity.Expert;
+import starlight.domain.expert.entity.ExpertCareer;
 import starlight.domain.expert.enumerate.TagCategory;
 
 import jakarta.persistence.EntityManager;
 import java.lang.reflect.Constructor;
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,8 +55,22 @@ class ExpertRepositoryTest {
         Expert e = ctor.newInstance();
         ReflectionTestUtils.setField(e, "name", name);
         ReflectionTestUtils.setField(e, "email", name.toLowerCase() + "@example.com");
-        ReflectionTestUtils.setField(e, "careers", List.of("career1", "career2"));
+        ReflectionTestUtils.setField(e, "careers", List.of(
+                career(e, 1, "career1"),
+                career(e, 2, "career2")
+        ));
         ReflectionTestUtils.setField(e, "categories", new LinkedHashSet<>(cats));
         return e;
+    }
+
+    private ExpertCareer career(Expert expert, int orderIndex, String title) {
+        return ExpertCareer.of(
+                expert,
+                orderIndex,
+                title,
+                "desc",
+                LocalDateTime.now().minusMonths(1),
+                LocalDateTime.now()
+        );
     }
 }

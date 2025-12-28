@@ -1,6 +1,7 @@
 package starlight.adapter.expertReport.webapi.dto;
 
 import starlight.adapter.expert.webapi.dto.ExpertDetailResponse;
+import starlight.application.expert.provided.dto.ExpertDetailResult;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expertReport.entity.ExpertReport;
 import starlight.domain.expertReport.enumerate.SubmitStatus;
@@ -20,7 +21,7 @@ public record ExpertReportResponse(
 ) {
     public static ExpertReportResponse fromEntities(ExpertReport report, Expert expert) {
         return new ExpertReportResponse(
-                ExpertDetailResponse.from(expert),
+                ExpertDetailResponse.from(ExpertDetailResult.from(expert, 0L)),
                 report.getSubmitStatus(),
                 report.canEdit(),
                 report.getOverallComment(),

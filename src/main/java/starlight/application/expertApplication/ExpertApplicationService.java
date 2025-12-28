@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import starlight.application.businessplan.required.BusinessPlanQuery;
-import starlight.application.expert.required.ExpertQuery;
 import starlight.application.expertApplication.event.FeedbackRequestDto;
-import starlight.application.expertApplication.provided.ExpertApplicationService;
+import starlight.application.expertApplication.provided.ExpertApplicationServiceUseCase;
+import starlight.application.expertApplication.required.ExpertLookupPort;
 import starlight.application.expertApplication.required.ExpertApplicationQuery;
-import starlight.application.expertReport.provided.ExpertReportService;
+import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.PlanStatus;
 import starlight.domain.expert.entity.Expert;
@@ -27,13 +27,13 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ExpertApplicationServiceImpl implements ExpertApplicationService {
+public class ExpertApplicationService implements ExpertApplicationServiceUseCase {
 
-    private final ExpertQuery expertQuery;
+    private final ExpertLookupPort expertLookupPort;
     private final BusinessPlanQuery planQuery;
     private final ExpertApplicationQuery applicationQuery;
     private final ApplicationEventPublisher eventPublisher;
-    private final ExpertReportService expertReportService;
+    private final ExpertReportServiceUseCase expertReportService;
 
     private static final long MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
     private static final String ALLOWED_CONTENT_TYPE = "application/pdf";
@@ -48,7 +48,7 @@ public class ExpertApplicationServiceImpl implements ExpertApplicationService {
             validateFile(file);
 
             BusinessPlan plan = planQuery.getOrThrow(planId);
-            Expert expert = expertQuery.findById(expertId);
+            Expert expert = expertLookupPort.findById(expertId);
 
             plan.updateStatus(PlanStatus.EXPERT_MATCHED);
 
