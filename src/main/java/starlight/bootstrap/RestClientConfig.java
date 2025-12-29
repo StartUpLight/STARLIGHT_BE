@@ -47,8 +47,8 @@ public class RestClientConfig {
      * - UA만 지정 (일부 서버 호환)
      * 필요 없으면 이 빈은 제거해도 됨.
      */
-    @Bean(name = "downloadClient")
-    public RestClient downloadClient() {
+    @Bean(name = "pdfDownloadRestClient")
+    public RestClient pdfDownloadRestClient() {
         JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory();
         factory.setReadTimeout(Duration.ofSeconds(60));
 
@@ -58,8 +58,8 @@ public class RestClientConfig {
                 .build();
     }
 
-    @Bean(name = "clovaClient")
-    public RestClient clovaStudioClient(
+    @Bean(name = "clovaStudioRestClient")
+    public RestClient clovaStudioRestClient(
             @Value("${cloud.ncp.studio.host}") String clovaHost,
             @Value("${cloud.ncp.studio.api-key}") String apiKey,
             @Value("${cloud.ncp.studio.model}") String model
