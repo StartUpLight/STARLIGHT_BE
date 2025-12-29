@@ -25,7 +25,7 @@ import java.time.Duration;
 public class NcpPresignedUrlProvider implements PresignedUrlProvider {
 
     private final S3Client ncpS3Client;
-    private final S3Presigner s3Presigner;
+    private final S3Presigner ncpS3Presigner;
 
     @Value("${cloud.ncp.object-storage.bucket-name}")
     private String bucket;
@@ -55,7 +55,7 @@ public class NcpPresignedUrlProvider implements PresignedUrlProvider {
                 .putObjectRequest(putObjectRequest)
                 .build();
 
-        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
+        PresignedPutObjectRequest presignedRequest = ncpS3Presigner.presignPutObject(presignRequest);
 
         String presignedUrl = presignedRequest.url().toString();
         String objectUrl = buildObjectUrl(key);
