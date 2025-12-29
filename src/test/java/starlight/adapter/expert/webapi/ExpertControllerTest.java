@@ -42,11 +42,11 @@ class ExpertControllerTest {
     @MockitoBean JpaMetamodelMappingContext jpaMetamodelMappingContext; 
 
     @Test
-    @DisplayName("카테고리 미전달 시 전체 조회")
+    @DisplayName("전문가 전체 조회")
     void listAll() throws Exception {
         ExpertDetailResult e1 = expertResult(1L, "홍길동",
                 Set.of(TagCategory.GROWTH_STRATEGY, TagCategory.TEAM_CAPABILITY));
-        when(expertDetailQuery.search(null)).thenReturn(List.of(e1));
+        when(expertDetailQuery.searchAll()).thenReturn(List.of(e1));
 
         mockMvc.perform(get("/v1/experts"))
                 .andExpect(status().isOk())
@@ -56,43 +56,6 @@ class ExpertControllerTest {
                 .andExpect(jsonPath("$.data[0].careers[0].orderIndex").exists())
                 .andExpect(jsonPath("$.data[0].careers[0].careerTitle").exists())
                 .andExpect(jsonPath("$.data[0].applicationCount").doesNotExist());
-    }
-
-    @Test
-    @DisplayName("카테고리 AND 매칭 (?categories=A&categories=B)")
-    void searchByAllCategories_multiParams() throws Exception {
-        ExpertDetailResult e1 = expertResult(2L, "이영희",
-                Set.of(TagCategory.GROWTH_STRATEGY, TagCategory.TEAM_CAPABILITY));
-
-        when(expertDetailQuery.search(Set.of(
-                TagCategory.GROWTH_STRATEGY, TagCategory.TEAM_CAPABILITY
-        ))).thenReturn(List.of(e1));
-
-        mockMvc.perform(get("/v1/experts")
-                        .param("categories", "GROWTH_STRATEGY")
-                        .param("categories", "TEAM_CAPABILITY"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value("SUCCESS"))
-                .andExpect(jsonPath("$.data[0].name").value("이영희"))
-                .andExpect(jsonPath("$.data[0].careers.length()").value(3));
-    }
-
-    @Test
-    @DisplayName("카테고리 AND 매칭 (콤마 구분)")
-    void searchByAllCategories_commaSeparated() throws Exception {
-        ExpertDetailResult e1 = expertResult(3L, "박철수",
-                Set.of(TagCategory.MARKET_BM, TagCategory.METRIC_DATA));
-
-        when(expertDetailQuery.search(Set.of(
-                TagCategory.MARKET_BM, TagCategory.METRIC_DATA
-        ))).thenReturn(List.of(e1));
-
-        mockMvc.perform(get("/v1/experts")
-                        .param("categories", "MARKET_BM,METRIC_DATA"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value("SUCCESS"))
-                .andExpect(jsonPath("$.data[0].name").value("박철수"))
-                .andExpect(jsonPath("$.data[0].careers.length()").value(3));
     }
 
     @Test

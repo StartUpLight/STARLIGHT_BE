@@ -8,11 +8,9 @@ import starlight.application.expert.provided.dto.ExpertDetailResult;
 import starlight.application.expert.required.ExpertApplicationLookupPort;
 import starlight.application.expert.required.ExpertQueryPort;
 import starlight.domain.expert.entity.Expert;
-import starlight.domain.expert.enumerate.TagCategory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -23,10 +21,8 @@ public class ExpertDetailQueryService implements ExpertDetailQueryUseCase {
     private final ExpertApplicationLookupPort expertApplicationLookupPort;
 
     @Override
-    public List<ExpertDetailResult> search(Set<TagCategory> categories) {
-        List<Expert> experts = (categories == null || categories.isEmpty())
-                ? expertQueryPort.findAllWithCareersTagsCategories()
-                : expertQueryPort.findByAllCategories(categories);
+    public List<ExpertDetailResult> searchAll() {
+        List<Expert> experts = expertQueryPort.findAllWithCareersTagsCategories();
 
         List<Long> expertIds = experts.stream()
                 .map(Expert::getId)

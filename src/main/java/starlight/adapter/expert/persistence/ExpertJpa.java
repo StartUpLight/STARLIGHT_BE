@@ -5,11 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import starlight.application.expert.required.ExpertQueryPort;
 import starlight.domain.expert.entity.Expert;
-import starlight.domain.expert.enumerate.TagCategory;
 import starlight.domain.expert.exception.ExpertErrorType;
 import starlight.domain.expert.exception.ExpertException;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,27 +56,6 @@ public class ExpertJpa implements ExpertQueryPort,
             return fetchWithCollections(ids);
         } catch (Exception e) {
             log.error("전문가 목록 조회 중 오류가 발생했습니다.", e);
-            throw new ExpertException(ExpertErrorType.EXPERT_QUERY_ERROR);
-        }
-    }
-
-    @Override
-    public List<Expert> findByAllCategories(Collection<TagCategory> categories) {
-        try {
-            List<Expert> experts = repository.findByAllCategories(categories, categories.size());
-            if (experts.isEmpty()) {
-                return experts;
-            }
-
-            List<Long> ids = experts.stream()
-                    .map(Expert::getId)
-                    .toList();
-
-            fetchWithCollections(ids);
-
-            return experts;
-        } catch (Exception e) {
-            log.error("전문가 목록 필터링 중 오류가 발생했습니다.", e);
             throw new ExpertException(ExpertErrorType.EXPERT_QUERY_ERROR);
         }
     }
