@@ -11,6 +11,7 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import starlight.adapter.aireport.webapi.ImageController;
 import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.auth.security.filter.JwtFilter;
 import starlight.application.aireport.required.PresignedUrlProvider;
