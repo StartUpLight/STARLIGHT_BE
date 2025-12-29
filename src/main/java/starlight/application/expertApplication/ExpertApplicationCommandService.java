@@ -15,7 +15,9 @@ import starlight.application.expertApplication.required.ExpertApplicationQueryPo
 import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.PlanStatus;
+import starlight.domain.businessplan.exception.BusinessPlanException;
 import starlight.domain.expert.entity.Expert;
+import starlight.domain.expert.exception.ExpertException;
 import starlight.domain.expertApplication.entity.ExpertApplication;
 import starlight.domain.expertApplication.exception.ExpertApplicationErrorType;
 import starlight.domain.expertApplication.exception.ExpertApplicationException;
@@ -55,6 +57,8 @@ public class ExpertApplicationCommandService implements ExpertApplicationCommand
             registerApplicationRecord(expertId, planId);
 
             publishEmailEvent(expert, plan, file, menteeName);
+        } catch (ExpertApplicationException | BusinessPlanException | ExpertException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Failed to request Feedback. planId={}, expertId={}", planId, expertId, e);
             throw new ExpertApplicationException(ExpertApplicationErrorType.EXPERT_FEEDBACK_REQUEST_FAILED);

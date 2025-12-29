@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import starlight.adapter.auth.security.auth.AuthDetails;
+import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public interface ExpertApplicationApiDoc {
             description = "특정 사업계획서에 피드백을 요청한 전문가들의 ID 목록을 조회합니다."
     )
     @ApiResponses({
-            @ApiResponse(
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
                     description = "조회 성공",
                     content = @Content(
@@ -42,27 +42,46 @@ public interface ExpertApplicationApiDoc {
                             )
                     )
             ),
-            @ApiResponse(
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
-                    description = "사업계획서를 찾을 수 없음",
+                    description = "사업계획서 없음",
                     content = @Content(
                             mediaType = "application/json",
                             examples = @ExampleObject(
                                     value = """
                         {
-                            "result": "ERROR",
-                            "data": null,
-                            "error": {
-                                "code": "BUSINESS_PLAN_NOT_FOUND",
-                                "message": "사업계획서를 찾을 수 없습니다."
-                            }
+                          "result": "ERROR",
+                          "data": null,
+                          "error": {
+                            "code": "BUSINESS_PLAN_NOT_FOUND",
+                            "message": "해당 사업계획서가 존재하지 않습니다."
+                          }
+                        }
+                        """
+                            )
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "조회 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                        {
+                          "result": "ERROR",
+                          "data": null,
+                          "error": {
+                            "code": "EXPERT_APPLICATION_QUERY_ERROR",
+                            "message": "전문가 신청 정보를 조회하는 중에 오류가 발생했습니다."
+                          }
                         }
                         """
                             )
                     )
             )
     })
-    starlight.shared.apiPayload.response.ApiResponse<List<Long>> search(
+    ApiResponse<List<Long>> search(
             @Parameter(
                     description = "사업계획서 ID",
                     required = true,
@@ -83,7 +102,7 @@ public interface ExpertApplicationApiDoc {
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
     @ApiResponses({
-            @ApiResponse(
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
                     description = "피드백 요청 성공",
                     content = @Content(
@@ -99,26 +118,65 @@ public interface ExpertApplicationApiDoc {
                             )
                     )
             ),
-            @ApiResponse(
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
-                    description = "잘못된 요청 (파일 없음, 파일 형식 오류 등)",
+                    description = "잘못된 요청 (파일 없음)",
                     content = @Content(
                             mediaType = "application/json",
                             examples = @ExampleObject(
+                                    name = "빈 파일",
                                     value = """
                         {
-                            "result": "ERROR",
-                            "data": null,
-                            "error": {
-                                "code": "INVALID_FILE",
-                                "message": "유효하지 않은 파일입니다."
-                            }
+                          "result": "ERROR",
+                          "data": null,
+                          "error": {
+                            "code": "EMPTY_FILE",
+                            "message": "업로드할 파일이 비어 있습니다."
+                          }
                         }
                         """
                             )
                     )
             ),
-            @ApiResponse(
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "413",
+                    description = "파일 크기 초과",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                        {
+                          "result": "ERROR",
+                          "data": null,
+                          "error": {
+                            "code": "FILE_SIZE_EXCEEDED",
+                            "message": "파일 크기는 최대 20MB까지 업로드 가능합니다."
+                          }
+                        }
+                        """
+                            )
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "415",
+                    description = "지원하지 않는 파일 형식",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                        {
+                          "result": "ERROR",
+                          "data": null,
+                          "error": {
+                            "code": "UNSUPPORTED_FILE_TYPE",
+                            "message": "지원되지 않는 파일 형식입니다."
+                          }
+                        }
+                        """
+                            )
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
                     description = "전문가 또는 사업계획서를 찾을 수 없음",
                     content = @Content(
@@ -145,7 +203,7 @@ public interface ExpertApplicationApiDoc {
                                 "data": null,
                                 "error": {
                                     "code": "BUSINESS_PLAN_NOT_FOUND",
-                                    "message": "사업계획서를 찾을 수 없습니다."
+                                    "message": "해당 사업계획서가 존재하지 않습니다."
                                 }
                             }
                             """
@@ -153,7 +211,7 @@ public interface ExpertApplicationApiDoc {
                             }
                     )
             ),
-            @ApiResponse(
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "409",
                     description = "이미 피드백을 요청한 전문가",
                     content = @Content(
@@ -172,23 +230,39 @@ public interface ExpertApplicationApiDoc {
                             )
                     )
             ),
-            @ApiResponse(
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "500",
-                    description = "서버 오류 (파일 처리 실패, 이메일 발송 실패 등)",
+                    description = "서버 오류 (파일 처리 실패 등)",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    value = """
-                        {
-                            "result": "ERROR",
-                            "data": null,
-                            "error": {
-                                "code": "INTERNAL_SERVER_ERROR",
-                                "message": "서버 오류가 발생했습니다."
+                            examples = {
+                                    @ExampleObject(
+                                            name = "파일 읽기 실패",
+                                            value = """
+                            {
+                              "result": "ERROR",
+                              "data": null,
+                              "error": {
+                                "code": "FILE_READ_ERROR",
+                                "message": "파일을 읽는 중에 오류가 발생했습니다."
+                              }
                             }
-                        }
-                        """
-                            )
+                            """
+                                    ),
+                                    @ExampleObject(
+                                            name = "피드백 요청 처리 실패",
+                                            value = """
+                            {
+                              "result": "ERROR",
+                              "data": null,
+                              "error": {
+                                "code": "EXPERT_FEEDBACK_REQUEST_FAILED",
+                                "message": "전문가 피드백 요청에 실패했습니다."
+                              }
+                            }
+                            """
+                                    )
+                            }
                     )
             )
     })
@@ -200,7 +274,7 @@ public interface ExpertApplicationApiDoc {
                     schema = @Schema(implementation = FeedbackRequestSchema.class)
             )
     )
-    starlight.shared.apiPayload.response.ApiResponse<String> requestFeedback(
+    ApiResponse<String> requestFeedback(
             @Parameter(
                     description = "전문가 ID",
                     required = true,

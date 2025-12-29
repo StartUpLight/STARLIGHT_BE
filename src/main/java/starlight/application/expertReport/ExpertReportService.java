@@ -13,6 +13,8 @@ import starlight.application.expertReport.required.ExpertReportQueryPort;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.PlanStatus;
 import starlight.domain.expert.entity.Expert;
+import starlight.domain.expert.exception.ExpertErrorType;
+import starlight.domain.expert.exception.ExpertException;
 import starlight.domain.expertReport.entity.ExpertReport;
 import starlight.domain.expertReport.entity.ExpertReportComment;
 import starlight.domain.expertReport.enumerate.SaveType;
@@ -96,6 +98,8 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<ExpertReportWithExpertDto> getExpertReportsWithExpertByBusinessPlanId(Long businessPlanId) {
+        businessPlanQuery.getOrThrow(businessPlanId);
+
         List<ExpertReport> reports = expertReportQuery.findAllByBusinessPlanIdOrderByCreatedAtDesc(businessPlanId);
 
         Set<Long> expertIds = reports.stream()
@@ -103,6 +107,9 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
                 .collect(Collectors.toSet());
 
         Map<Long, Expert> expertsMap = expertLookupPort.findByIds(expertIds);
+        if (!expertIds.isEmpty() && expertsMap.size() != expertIds.size()) {
+            throw new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND);
+        }
 
         return reports.stream()
                 .map(report -> {
