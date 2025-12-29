@@ -8,7 +8,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@Deprecated
+/**
+ * Clova Studio API 요청/응답 보조 유틸리티.
+ *
+ * @deprecated 1.4.0 현재 사용 경로가 없으며, 필요 시 재도입할 수 있어 유지 중입니다.
+ *             대체 구현체는 없습니다.
+ */
+@Deprecated(since = "1.4.0", forRemoval = false)
 public final class ClovaUtil {
 
     public static Map<String, Object> buildClovaRequestBody(String systemMsg, String userMsg, int n){
