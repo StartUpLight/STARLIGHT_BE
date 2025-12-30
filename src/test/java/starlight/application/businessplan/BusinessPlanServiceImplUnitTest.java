@@ -66,7 +66,7 @@ class BusinessPlanServiceImplUnitTest {
         // memberQuery 기본 스텁
         Member stubMember = mock(Member.class);
         when(stubMember.getName()).thenReturn("tester");
-        when(memberQuery.getOrThrow(anyLong())).thenReturn(stubMember);
+        when(memberQuery.getMemberOrThrow(anyLong())).thenReturn(stubMember);
     }
 
     @Test

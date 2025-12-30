@@ -14,5 +14,5 @@ public interface AuthUseCase {
 
     void signOut(String refreshToken, String accessToken);
 
-    TokenResponse recreate(String token, Member member);
+    TokenResponse reissue(String token, Member member);
 }

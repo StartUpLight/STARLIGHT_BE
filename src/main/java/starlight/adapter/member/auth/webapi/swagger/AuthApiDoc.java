@@ -150,5 +150,5 @@ public interface AuthApiDoc {
             description = "AccessToken 만료 시 RefreshToken으로 AccessToken 재발급"
     )
     @GetMapping("/recreate")
-    ApiResponse<TokenResponse> recreate(HttpServletRequest request, @AuthenticationPrincipal AuthDetails authDetails);
+    ApiResponse<TokenResponse> reissue(HttpServletRequest request, @AuthenticationPrincipal AuthDetails authDetails);
 }

@@ -35,7 +35,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest req, HttpServletResponse res, Authentication auth) throws IOException {
         AuthDetails principal = (AuthDetails) auth.getPrincipal();
 
-        TokenResponse tokens = tokenProvider.createToken(principal.getUser());
+        TokenResponse tokens = tokenProvider.issueTokens(principal.getUser());
 
         String access = tokens.accessToken();
         String refresh = tokens.refreshToken();

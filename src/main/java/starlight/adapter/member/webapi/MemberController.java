@@ -21,6 +21,6 @@ public class MemberController implements MemberApiDoc {
     public ApiResponse<MemberDetailResponse> getMemberDetail(
             @AuthenticationPrincipal AuthDetails authDetails
     ) {
-        return ApiResponse.success(MemberDetailResponse.from(authDetails.getUser()));
+        return ApiResponse.success(MemberDetailResponse.fromMember(authDetails.getUser()));
     }
 }

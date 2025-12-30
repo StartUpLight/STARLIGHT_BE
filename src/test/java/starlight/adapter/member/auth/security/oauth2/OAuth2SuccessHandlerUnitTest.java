@@ -44,7 +44,7 @@ class OAuth2SuccessHandlerUnitTest {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(authDetails);
 
-        when(tokenProvider.createToken(any(Member.class)))
+        when(tokenProvider.issueTokens(any(Member.class)))
                 .thenReturn(new TokenResponse("access-token", "refresh-token"));
 
         MockHttpServletRequest request = new MockHttpServletRequest();

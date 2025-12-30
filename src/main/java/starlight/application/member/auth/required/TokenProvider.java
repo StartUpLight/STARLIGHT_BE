@@ -8,9 +8,9 @@ public interface TokenProvider {
 
     String createAccessToken(Member member);
 
-    TokenResponse createToken(Member member);
+    TokenResponse issueTokens(Member member);
 
-    TokenResponse recreate(Member member, String refreshToken);
+    TokenResponse reissueTokens(Member member, String refreshToken);
 
     boolean validateToken(String token);
 
@@ -32,5 +32,5 @@ public interface TokenProvider {
     @Deprecated(since = "1.4.0", forRemoval = false)
     String resolveAccessToken(HttpServletRequest request);
 
-    void invalidateTokens(String refreshToken, String accessToken);
+    void logoutTokens(String refreshToken, String accessToken);
 }

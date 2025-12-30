@@ -75,9 +75,9 @@ class JwtTokenProviderTest {
 
     @Test
     @DisplayName("AccessToken과 RefreshToken 생성 성공")
-    void createToken_Success() {
+    void issueTokens_Success() {
         // when
-        TokenResponse tokenResponse = jwtTokenProvider.createToken(member);
+        TokenResponse tokenResponse = jwtTokenProvider.issueTokens(member);
 
         // then
         assertThat(tokenResponse).isNotNull();
@@ -91,10 +91,10 @@ class JwtTokenProviderTest {
     @DisplayName("토큰 재발급 성공 - RefreshToken 유효기간이 충분한 경우")
     void recreate_Success_WithValidRefreshToken() {
         // given
-        TokenResponse originalToken = jwtTokenProvider.createToken(member);
+        TokenResponse originalToken = jwtTokenProvider.issueTokens(member);
 
         // when
-        TokenResponse newToken = jwtTokenProvider.recreate(member, originalToken.refreshToken());
+        TokenResponse newToken = jwtTokenProvider.reissueTokens(member, originalToken.refreshToken());
 
         // then
         assertThat(newToken).isNotNull();
@@ -118,7 +118,7 @@ class JwtTokenProviderTest {
                 .compact();
 
         // when
-        TokenResponse newToken = jwtTokenProvider.recreate(member, expiredRefreshToken);
+        TokenResponse newToken = jwtTokenProvider.reissueTokens(member, expiredRefreshToken);
 
         // then
         assertThat(newToken).isNotNull();
@@ -241,12 +241,12 @@ class JwtTokenProviderTest {
 
     @Test
     @DisplayName("토큰 무효화 성공")
-    void invalidateTokens_Success() {
+    void logoutTokens_Success() {
         // given
-        TokenResponse tokenResponse = jwtTokenProvider.createToken(member);
+        TokenResponse tokenResponse = jwtTokenProvider.issueTokens(member);
 
         // when
-        jwtTokenProvider.invalidateTokens(tokenResponse.refreshToken(), tokenResponse.accessToken());
+        jwtTokenProvider.logoutTokens(tokenResponse.refreshToken(), tokenResponse.accessToken());
 
         // then
         verify(redisClient).deleteValue(eq(member.getEmail()));
@@ -255,13 +255,13 @@ class JwtTokenProviderTest {
 
     @Test
     @DisplayName("토큰 무효화 실패 - 유효하지 않은 RefreshToken")
-    void invalidateTokens_Fail_InvalidRefreshToken() {
+    void logoutTokens_Fail_InvalidRefreshToken() {
         // given
         String invalidRefreshToken = "invalid.refresh.token";
         String accessToken = jwtTokenProvider.createAccessToken(member);
 
         // when & then
-        assertThatThrownBy(() -> jwtTokenProvider.invalidateTokens(invalidRefreshToken, accessToken))
+        assertThatThrownBy(() -> jwtTokenProvider.logoutTokens(invalidRefreshToken, accessToken))
                 .isInstanceOf(GlobalException.class);
     }
 }

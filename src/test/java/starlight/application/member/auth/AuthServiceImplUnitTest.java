@@ -42,7 +42,7 @@ class AuthServiceImplUnitTest {
         Member member = Member.create("testName", "a@b.com", null, MemberType.FOUNDER, null, "image.png");
         TokenResponse token = new TokenResponse("AT", "RT");
         when(memberService.getUserByEmail("a@b.com")).thenReturn(member);
-        when(tokenProvider.createToken(member)).thenReturn(token);
+        when(tokenProvider.issueTokens(member)).thenReturn(token);
 
         TokenResponse res = sut.signIn(req);
 
@@ -55,7 +55,7 @@ class AuthServiceImplUnitTest {
     void signOut_AccessToken_유효성_실패면_예외() {
         when(tokenProvider.validateToken("bad")).thenReturn(false);
         assertThrows(AuthException.class, () -> sut.signOut("r", "bad"));
-        verify(tokenProvider, never()).invalidateTokens(any(), any());
+        verify(tokenProvider, never()).logoutTokens(any(), any());
     }
 
     @Test
@@ -66,6 +66,6 @@ class AuthServiceImplUnitTest {
         when(redisClient.getValue("a@b.com")).thenReturn("OTHER_RT");
 
         assertThrows(AuthException.class,
-                () -> sut.recreate("Bearer REAL_RT", member));
+                () -> sut.reissue("Bearer REAL_RT", member));
     }
 }

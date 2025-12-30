@@ -64,7 +64,7 @@ class AuthServiceImplIntegrationTest {
         when(memberService.getUserByEmail("a@b.com")).thenReturn(member);
         // 비밀번호 검증은 side-effect만 확인
         doNothing().when(credentialService).checkPassword(member, "pw");
-        when(tokenProvider.createToken(member)).thenReturn(token);
+        when(tokenProvider.issueTokens(member)).thenReturn(token);
 
         TokenResponse out = sut.signIn(req);
 
@@ -84,7 +84,7 @@ class AuthServiceImplIntegrationTest {
                 .when(credentialService).checkPassword(member, "bad");
 
         assertThrows(AuthException.class, () -> sut.signIn(req));
-        verify(tokenProvider, never()).createToken(any());
+        verify(tokenProvider, never()).issueTokens(any());
         verify(redisClient, never()).setValue(any(), any(), anyLong());
     }
 
@@ -92,41 +92,41 @@ class AuthServiceImplIntegrationTest {
     void signOut_null토큰이면_TOKEN_NOT_FOUND() {
         assertThrows(AuthException.class, () -> sut.signOut(null, "AT"));
         assertThrows(AuthException.class, () -> sut.signOut("RT", null));
-        verify(tokenProvider, never()).invalidateTokens(any(), any());
+        verify(tokenProvider, never()).logoutTokens(any(), any());
     }
 
     @Test
     void signOut_AccessToken_유효성_실패면_TOKEN_INVALID() {
         when(tokenProvider.validateToken("BAD_AT")).thenReturn(false);
         assertThrows(AuthException.class, () -> sut.signOut("RT", "BAD_AT"));
-        verify(tokenProvider, never()).invalidateTokens(any(), any());
+        verify(tokenProvider, never()).logoutTokens(any(), any());
     }
 
     @Test
     void signOut_정상_무효화호출() {
         when(tokenProvider.validateToken("GOOD_AT")).thenReturn(true);
         when(tokenProvider.validateToken("RT")).thenReturn(true);
-        doNothing().when(tokenProvider).invalidateTokens("RT", "GOOD_AT");
+        doNothing().when(tokenProvider).logoutTokens("RT", "GOOD_AT");
 
         assertDoesNotThrow(() -> sut.signOut("RT", "GOOD_AT"));
-        verify(tokenProvider).invalidateTokens("RT", "GOOD_AT");
+        verify(tokenProvider).logoutTokens("RT", "GOOD_AT");
     }
 
     @Test
     void recreate_token_null이면_TOKEN_NOT_FOUND() {
         Member member = Member.create("m", "m@ex.com", null, MemberType.FOUNDER, null, "img.png");
-        assertThrows(AuthException.class, () -> sut.recreate(null, member));
+        assertThrows(AuthException.class, () -> sut.reissue(null, member));
     }
 
     @Test
     void recreate_member_null이면_MEMBER_NOT_FOUND() {
-        assertThrows(MemberException.class, () -> sut.recreate("Bearer RT", null));
+        assertThrows(MemberException.class, () -> sut.reissue("Bearer RT", null));
     }
 
     @Test
     void recreate_refresh_유효성_실패면_TOKEN_INVALID() {
         when(tokenProvider.validateToken("REAL_RT")).thenReturn(false);
-        assertThrows(AuthException.class, () -> sut.recreate("Bearer REAL_RT",
+        assertThrows(AuthException.class, () -> sut.reissue("Bearer REAL_RT",
                 Member.create("m","m@ex.com", null, MemberType.FOUNDER, null, "img.png")));
     }
 
@@ -138,8 +138,8 @@ class AuthServiceImplIntegrationTest {
         when(tokenProvider.getEmail("REAL_RT")).thenReturn("m@ex.com");
         when(redisClient.getValue("m@ex.com")).thenReturn("OTHER_RT"); // 불일치
 
-        assertThrows(AuthException.class, () -> sut.recreate("Bearer REAL_RT", member));
-        verify(tokenProvider, never()).recreate(any(), anyString());
+        assertThrows(AuthException.class, () -> sut.reissue("Bearer REAL_RT", member));
+        verify(tokenProvider, never()).reissueTokens(any(), anyString());
     }
 
     @Test
@@ -150,11 +150,11 @@ class AuthServiceImplIntegrationTest {
         when(tokenProvider.validateToken("REAL_RT")).thenReturn(true);
         when(tokenProvider.getEmail("REAL_RT")).thenReturn("m@ex.com");
         when(redisClient.getValue("m@ex.com")).thenReturn("REAL_RT");
-        when(tokenProvider.recreate(member, "REAL_RT")).thenReturn(recreated);
+        when(tokenProvider.reissueTokens(member, "REAL_RT")).thenReturn(recreated);
 
-        TokenResponse out = sut.recreate("Bearer REAL_RT", member);
+        TokenResponse out = sut.reissue("Bearer REAL_RT", member);
 
         assertEquals("NEW_AT", out.accessToken());
-        verify(tokenProvider).recreate(member, "REAL_RT");
+        verify(tokenProvider).reissueTokens(member, "REAL_RT");
     }
 }

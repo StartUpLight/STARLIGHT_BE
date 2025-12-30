@@ -91,7 +91,7 @@ public class JwtTokenProvider implements TokenProvider {
      * @return TokenResponse
      */
     @Override
-    public TokenResponse createToken(Member member) {
+    public TokenResponse issueTokens(Member member) {
         return TokenResponse.of(
                 createAccessToken(member),
                 createRefreshToken(member)
@@ -106,7 +106,7 @@ public class JwtTokenProvider implements TokenProvider {
      * @return TokenResponse
      */
     @Override
-    public TokenResponse recreate(Member member, String refreshToken) {
+    public TokenResponse reissueTokens(Member member, String refreshToken) {
         String accessToken = createAccessToken(member);
 
         if(getExpirationTime(refreshToken) <= getExpirationTime(accessToken)) {
@@ -210,7 +210,7 @@ public class JwtTokenProvider implements TokenProvider {
      */
     @Override
     @Transactional
-    public void invalidateTokens(String refreshToken, String accessToken) {
+    public void logoutTokens(String refreshToken, String accessToken) {
         if (!validateToken(refreshToken)) {
             throw new GlobalException(GlobalErrorType.INVALID_TOKEN);
         }

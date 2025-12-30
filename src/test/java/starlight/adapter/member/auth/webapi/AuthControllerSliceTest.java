@@ -110,13 +110,13 @@ class AuthControllerSliceTest {
     @Test
     void recreate_OK_헤더에서_토큰읽어_서비스호출() throws Exception {
         when(tokenResolver.resolveRefreshToken(any())).thenReturn("REAL_RT");
-        when(authUseCase.recreate(eq("REAL_RT"), any(Member.class)))
+        when(authUseCase.reissue(eq("REAL_RT"), any(Member.class)))
                 .thenReturn(new TokenResponse("NEW_AT", "RT_OR_NEW"));
 
         mvc.perform(get("/v1/auth/recreate"))
                 .andExpect(status().isOk());
 
-        verify(authUseCase).recreate(eq("REAL_RT"), any(Member.class));
+        verify(authUseCase).reissue(eq("REAL_RT"), any(Member.class));
     }
 
     @Test

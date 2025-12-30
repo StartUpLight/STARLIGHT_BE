@@ -65,7 +65,7 @@ public class AuthServiceImpl implements AuthUseCase {
         Member member = memberService.getUserByEmail(signInRequest.email());
         credentialService.checkPassword(member, signInRequest.password());
 
-        TokenResponse tokenResponse = tokenProvider.createToken(member);
+        TokenResponse tokenResponse = tokenProvider.issueTokens(member);
         redisClient.setValue(member.getEmail(), tokenResponse.refreshToken(), refreshTokenExpirationTime);
 
         return tokenResponse;
@@ -89,7 +89,7 @@ public class AuthServiceImpl implements AuthUseCase {
         if (!tokenProvider.validateToken(refreshToken)) {
             throw new AuthException(AuthErrorType.TOKEN_INVALID);
         }
-        tokenProvider.invalidateTokens(refreshToken, accessToken);
+        tokenProvider.logoutTokens(refreshToken, accessToken);
     }
 
     /**
@@ -100,7 +100,7 @@ public class AuthServiceImpl implements AuthUseCase {
      * @return tokenResponse
      */
     @Override
-    public TokenResponse recreate(String token, Member member) {
+    public TokenResponse reissue(String token, Member member) {
         if (token == null) {
             throw new AuthException(AuthErrorType.TOKEN_NOT_FOUND);
         }
@@ -126,7 +126,7 @@ public class AuthServiceImpl implements AuthUseCase {
             throw new AuthException(AuthErrorType.TOKEN_NOT_FOUND);
         }
 
-        return tokenProvider.recreate(member, refreshToken);
+        return tokenProvider.reissueTokens(member, refreshToken);
     }
 
     private String extractToken(String token) {

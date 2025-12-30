@@ -53,7 +53,7 @@ class BusinessPlanServiceImplIntegrationTest {
         MemberQueryPort memberQuery() {
             return new MemberQueryPort() {
                 @Override
-                public Member getOrThrow(Long memberId) {
+                public Member getMemberOrThrow(Long memberId) {
                     Member m = mock(Member.class);
                     when(m.getName()).thenReturn("tester");
                     return m;

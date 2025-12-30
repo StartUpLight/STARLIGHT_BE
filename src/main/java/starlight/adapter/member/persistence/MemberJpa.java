@@ -17,7 +17,7 @@ public class MemberJpa implements MemberQueryPort, MemberCommandPort {
     private final MemberRepository memberRepository;
 
     @Override
-    public Member getOrThrow(Long id) {
+    public Member getMemberOrThrow(Long id) {
         return memberRepository.findById(id).orElseThrow(
                 () -> new MemberException(MemberErrorType.MEMBER_NOT_FOUND)
         );
