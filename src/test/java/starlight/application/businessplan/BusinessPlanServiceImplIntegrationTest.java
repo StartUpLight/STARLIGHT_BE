@@ -63,6 +63,13 @@ class BusinessPlanServiceImplIntegrationTest {
                 public java.util.Optional<Member> findByEmail(String email) {
                     return java.util.Optional.empty();
                 }
+
+                @Override
+                public Member findByProviderAndProviderIdOrThrow(String provider, String providerId) {
+                    Member m = mock(Member.class);
+                    when(m.getName()).thenReturn("tester");
+                    return m;
+                }
             };
         }
     }

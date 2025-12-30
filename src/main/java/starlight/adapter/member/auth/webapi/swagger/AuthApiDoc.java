@@ -52,6 +52,7 @@ public interface AuthApiDoc {
                     responseCode = "400",
                     description = "잘못된 요청",
                     content = @Content(
+                            mediaType = "application/json",
                             examples = {
                                     @ExampleObject(
                                             name = "이미 존재하는 회원",
@@ -101,6 +102,7 @@ public interface AuthApiDoc {
                     responseCode = "200",
                     description = "로그인 성공",
                     content = @Content(
+                            mediaType = "application/json",
                             schema = @Schema(implementation = TokenResponse.class),
                             examples = @ExampleObject(
                                     name = "로그인 성공",
@@ -112,6 +114,46 @@ public interface AuthApiDoc {
                                                 "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdGFyTGlnaHRAZ21haWwuY29tIiwiaWF0IjoxNzU5Njg3MzAwLCJleHAiOjE3NjAyOTIxMDB9..."
                                               },
                                               "error": null
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401",
+                    description = "비밀번호 불일치",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "비밀번호 불일치",
+                                    value = """
+                                            {
+                                              "result": "ERROR",
+                                              "data": null,
+                                              "error": {
+                                                "code": "PASSWORD_MISMATCH",
+                                                "message": "비밀번호가 일치하지 않습니다."
+                                              }
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "사용자 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "사용자 없음",
+                                    value = """
+                                            {
+                                              "result": "ERROR",
+                                              "data": null,
+                                              "error": {
+                                                "code": "MEMBER_NOT_FOUND",
+                                                "message": "존재하지 않는 사용자입니다."
+                                              }
                                             }
                                             """
                             )
@@ -142,6 +184,65 @@ public interface AuthApiDoc {
             summary = "로그아웃",
             description = "사용자 로그아웃 기능"
     )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "로그아웃 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "로그아웃 성공",
+                                    value = """
+                                            {
+                                              "result": "SUCCESS",
+                                              "data": "로그아웃 성공",
+                                              "error": null
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "토큰 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "토큰 유효하지 않음",
+                                    value = """
+                                            {
+                                              "result": "ERROR",
+                                              "data": null,
+                                              "error": {
+                                                "code": "TOKEN_INVALID",
+                                                "message": "토큰이 유효하지 않습니다."
+                                              }
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "토큰 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "토큰 없음",
+                                    value = """
+                                            {
+                                              "result": "ERROR",
+                                              "data": null,
+                                              "error": {
+                                                "code": "TOKEN_NOT_FOUND",
+                                                "message": "토큰이 존재하지 않습니다."
+                                              }
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
     @PostMapping("/sign-out")
     ApiResponse<?> signOut(HttpServletRequest request);
 
@@ -149,6 +250,84 @@ public interface AuthApiDoc {
             summary = "토큰 재발급",
             description = "AccessToken 만료 시 RefreshToken으로 AccessToken 재발급"
     )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "재발급 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TokenResponse.class),
+                            examples = @ExampleObject(
+                                    name = "재발급 성공",
+                                    value = """
+                                            {
+                                              "result": "SUCCESS",
+                                              "data": {
+                                                "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdGFyTGlnaHRAZ21haWwuY29tIiwiaWF0IjoxNzU5Njg3MzAwLCJleHAiOjE3NTk2OTA5MDB9...",
+                                                "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdGFyTGlnaHRAZ21haWwuY29tIiwiaWF0IjoxNzU5Njg3MzAwLCJleHAiOjE3NjAyOTIxMDB9..."
+                                              },
+                                              "error": null
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "토큰 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "토큰 유효하지 않음",
+                                    value = """
+                                            {
+                                              "result": "ERROR",
+                                              "data": null,
+                                              "error": {
+                                                "code": "TOKEN_INVALID",
+                                                "message": "토큰이 유효하지 않습니다."
+                                              }
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "토큰/사용자 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "토큰 없음",
+                                            value = """
+                                            {
+                                              "result": "ERROR",
+                                              "data": null,
+                                              "error": {
+                                                "code": "TOKEN_NOT_FOUND",
+                                                "message": "토큰이 존재하지 않습니다."
+                                              }
+                                            }
+                                            """
+                                    ),
+                                    @ExampleObject(
+                                            name = "사용자 없음",
+                                            value = """
+                                            {
+                                              "result": "ERROR",
+                                              "data": null,
+                                              "error": {
+                                                "code": "MEMBER_NOT_FOUND",
+                                                "message": "존재하지 않는 사용자입니다."
+                                              }
+                                            }
+                                            """
+                                    )
+                            }
+                    )
+            )
+    })
     @GetMapping("/recreate")
     ApiResponse<TokenResponse> reissue(HttpServletRequest request, @AuthenticationPrincipal AuthDetails authDetails);
 }
