@@ -1,17 +1,16 @@
 package starlight.adapter.expertReport.webapi;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import starlight.adapter.expertReport.webapi.dto.ExpertReportResponse;
 import starlight.adapter.expertReport.webapi.dto.UpsertExpertReportRequest;
 import starlight.adapter.expertReport.webapi.mapper.ExpertReportMapper;
+import starlight.adapter.expertReport.webapi.swagger.ExpertReportApiDoc;
 import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
 import starlight.application.expertReport.provided.dto.ExpertReportWithExpertDto;
 import starlight.domain.expertReport.entity.ExpertReport;
-import starlight.domain.expertReport.entity.ExpertReportDetail;
+import starlight.domain.expertReport.entity.ExpertReportComment;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;
@@ -19,13 +18,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/expert-reports")
 @RequiredArgsConstructor
-@Tag(name = "전문가", description = "전문가 관련 API")
-public class ExpertReportController {
+public class ExpertReportController implements ExpertReportApiDoc {
 
     private final ExpertReportMapper mapper;
     private final ExpertReportServiceUseCase expertReportService;
 
-    @Operation(summary = "전문가 리포트 목록을 조회합니다. (사용자 사용)")
     @GetMapping
     public ApiResponse<List<ExpertReportResponse>> getExpertReports(
             @RequestParam Long businessPlanId
@@ -43,7 +40,6 @@ public class ExpertReportController {
         return ApiResponse.success(responses);
     }
 
-    @Operation(summary = "전문가 리포트를 조회합니다. (전문가 사용)")
     @GetMapping("/{token}")
     public ApiResponse<ExpertReportResponse> getExpertReport(
             @PathVariable String token
@@ -58,18 +54,17 @@ public class ExpertReportController {
         return ApiResponse.success(response);
     }
 
-    @Operation(summary = "전문가 리포트를 저장합니다 (전문가 사용)")
     @PostMapping("/{token}")
-    public ApiResponse<?> save(
+    public ApiResponse<ExpertReportResponse> save(
             @PathVariable String token,
             @Valid @RequestBody UpsertExpertReportRequest request
     ) {
-        List<ExpertReportDetail> details = mapper.toEntityList(request.details());
+        List<ExpertReportComment> comments = mapper.toEntityList(request.comments());
 
         ExpertReport report = expertReportService.saveReport(
                 token,
                 request.overallComment(),
-                details,
+                comments,
                 request.saveType()
         );
 

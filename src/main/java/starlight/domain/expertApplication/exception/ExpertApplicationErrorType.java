@@ -10,8 +10,8 @@ import starlight.shared.apiPayload.exception.ErrorType;
 public enum ExpertApplicationErrorType implements ErrorType {
 
     // 전문가 신청 관련 오류 타입 정의
-    EXPERT_APPLICATION_QUERY_ERROR(HttpStatus.NOT_FOUND, "전문가 정보를 조회하는 중에 오류가 발생했습니다."),
-    EXPERT_APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 전문가를 찾을 수 없습니다."),
+    EXPERT_APPLICATION_QUERY_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "전문가 신청 정보를 조회하는 중에 오류가 발생했습니다."),
+    EXPERT_APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 전문가 신청을 찾을 수 없습니다."),
     APPLICATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 신청한 전문가입니다."),
     EXPERT_FEEDBACK_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "전문가 피드백 요청에 실패했습니다."),
 

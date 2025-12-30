@@ -17,7 +17,7 @@ public record ExpertReportResponse(
 
         String overallComment,
 
-        List<ExpertReportDetailResponse> details
+        List<ExpertReportCommentResponse> comments
 ) {
     public static ExpertReportResponse fromEntities(ExpertReport report, Expert expert) {
         return new ExpertReportResponse(
@@ -25,8 +25,8 @@ public record ExpertReportResponse(
                 report.getSubmitStatus(),
                 report.canEdit(),
                 report.getOverallComment(),
-                report.getDetails().stream()
-                        .map(ExpertReportDetailResponse::from)
+                report.getComments().stream()
+                        .map(ExpertReportCommentResponse::from)
                         .toList()
         );
     }
@@ -37,8 +37,8 @@ public record ExpertReportResponse(
                 report.getSubmitStatus(),
                 report.canEdit(),
                 report.getOverallComment(),
-                report.getDetails().stream()
-                        .map(ExpertReportDetailResponse::from)
+                report.getComments().stream()
+                        .map(ExpertReportCommentResponse::from)
                         .toList()
         );
     }

@@ -17,10 +17,10 @@ import starlight.adapter.businessplan.persistence.BusinessPlanJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
 import starlight.application.aireport.provided.dto.AiReportResponse;
 import starlight.application.aireport.required.AiReportGrader;
+import starlight.application.aireport.required.OcrProvider;
 import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.application.businessplan.provided.dto.BusinessPlanResponse;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
-import starlight.application.infrastructure.provided.OcrProvider;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.SubSection;
@@ -46,10 +46,6 @@ class AiReportServiceImplIntegrationTest {
     AiReportRepository aiReportRepository;
     @Autowired
     EntityManager em;
-    @Autowired
-    ObjectMapper objectMapper;
-    @Autowired
-    AiReportResponseParser responseParser;
 
     @TestConfiguration
     static class TestBeans {

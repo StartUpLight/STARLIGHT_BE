@@ -15,7 +15,7 @@ import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.application.businessplan.provided.dto.BusinessPlanResponse;
 import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
-import starlight.application.infrastructure.provided.OcrProvider;
+import starlight.application.aireport.required.OcrProvider;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.aireport.exception.AiReportErrorType;
 import starlight.domain.aireport.exception.AiReportException;

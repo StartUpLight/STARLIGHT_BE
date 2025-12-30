@@ -1,11 +1,11 @@
 package starlight.adapter.order.webapi;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import starlight.adapter.auth.security.auth.AuthDetails;
+import starlight.adapter.order.webapi.swagger.OrderApiDoc;
 import starlight.application.order.provided.dto.TossClientResponse;
 import starlight.adapter.order.webapi.dto.request.OrderCancelRequest;
 import starlight.adapter.order.webapi.dto.request.OrderConfirmRequest;
@@ -13,7 +13,7 @@ import starlight.adapter.order.webapi.dto.request.OrderPrepareRequest;
 import starlight.adapter.order.webapi.dto.response.OrderCancelResponse;
 import starlight.adapter.order.webapi.dto.response.OrderConfirmResponse;
 import starlight.adapter.order.webapi.dto.response.OrderPrepareResponse;
-import starlight.application.order.provided.OrderPaymentService;
+import starlight.application.order.provided.OrderPaymentServiceUseCase;
 import starlight.application.order.provided.dto.PaymentHistoryItemDto;
 import starlight.domain.order.order.Orders;
 import starlight.shared.apiPayload.response.ApiResponse;
@@ -22,11 +22,10 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "결제", description = "결제 관련 API")
 @RequestMapping("/v1/orders")
-public class OrderController {
+public class OrderController implements OrderApiDoc {
 
-    private final OrderPaymentService orderPaymentService;
+    private final OrderPaymentServiceUseCase orderPaymentService;
 
     @PostMapping("/request")
     public ApiResponse<OrderPrepareResponse> prepareOrder(

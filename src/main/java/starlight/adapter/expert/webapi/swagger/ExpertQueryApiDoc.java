@@ -9,28 +9,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import starlight.adapter.expert.webapi.dto.ExpertDetailResponse;
 import starlight.adapter.expert.webapi.dto.ExpertListResponse;
-import starlight.domain.expert.enumerate.TagCategory;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;
-import java.util.Set;
 
 @Tag(name = "전문가", description = "전문가 관련 API")
 public interface ExpertQueryApiDoc {
 
     @Operation(
-            summary = "전문가 검색(AND 매칭)",
-            description = """
-            카테고리 파라미터가 없으면 전체 전문가를 반환합니다.
-            \n카테고리를 하나 이상 전달하면 **전달된 모든 카테고리**를 보유한 전문가만 반환합니다(AND 매칭).
-            \n MARKET_BM: 시장성/BM,  TEAM_CAPABILITY: 팀 역량, PROBLEM_DEFINITION: 문제 정의, GROWTH_STRATEGY: 성장 전략, METRIC_DATA: 지표/데이터 
-            \nSwagger UI에서는 'Add item'으로 항목을 추가하면 ?categories=A&categories=B 형태로 전송됩니다.
-            \n예) GET /v1/experts?categories=GROWTH_STRATEGY&categories=TEAM_CAPABILITY 
-            \n예) GET /v1/experts?categories=GROWTH_STRATEGY,TEAM_CAPABILITY
-            """
+            summary = "전문가 목록 조회",
+            description = "전체 전문가 목록을 반환합니다."
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -79,12 +69,47 @@ public interface ExpertQueryApiDoc {
                             )
                     )
             ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "전문가 조회 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                        {
+                          "result": "ERROR",
+                          "data": null,
+                          "error": {
+                            "code": "EXPERT_QUERY_ERROR",
+                            "message": "전문가 정보를 조회하는 중에 오류가 발생했습니다."
+                          }
+                        }
+                        """
+                            )
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "신청 건수 조회 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                        {
+                          "result": "ERROR",
+                          "data": null,
+                          "error": {
+                            "code": "EXPERT_APPLICATION_QUERY_ERROR",
+                            "message": "전문가 신청 정보를 조회하는 중에 오류가 발생했습니다."
+                          }
+                        }
+                        """
+                            )
+                    )
+            )
     })
     @GetMapping
-    ApiResponse<List<ExpertListResponse>> search(
-            @RequestParam(name = "categories", required = false)
-            Set<TagCategory> categories
-    );
+    ApiResponse<List<ExpertListResponse>> search();
 
     @Operation(summary = "전문가 상세 조회")
     @ApiResponses({
@@ -96,6 +121,60 @@ public interface ExpertQueryApiDoc {
                             schema = @Schema(implementation = ExpertDetailResponse.class)
                     )
             ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "전문가 조회 실패",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "전문가 없음",
+                                            value = """
+                        {
+                          "result": "ERROR",
+                          "data": null,
+                          "error": {
+                            "code": "EXPERT_NOT_FOUND",
+                            "message": "해당 전문가를 찾을 수 없습니다."
+                          }
+                        }
+                        """
+                                    ),
+                                    @ExampleObject(
+                                            name = "조회 오류",
+                                            value = """
+                        {
+                          "result": "ERROR",
+                          "data": null,
+                          "error": {
+                            "code": "EXPERT_QUERY_ERROR",
+                            "message": "전문가 정보를 조회하는 중에 오류가 발생했습니다."
+                          }
+                        }
+                        """
+                                    )
+                            }
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "신청 건수 조회 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                        {
+                          "result": "ERROR",
+                          "data": null,
+                          "error": {
+                            "code": "EXPERT_APPLICATION_QUERY_ERROR",
+                            "message": "전문가 신청 정보를 조회하는 중에 오류가 발생했습니다."
+                          }
+                        }
+                        """
+                            )
+                    )
+            )
     })
     @GetMapping("/{expertId}")
     ApiResponse<ExpertDetailResponse> detail(

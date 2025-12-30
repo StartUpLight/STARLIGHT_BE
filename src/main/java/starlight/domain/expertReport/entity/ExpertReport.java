@@ -51,7 +51,7 @@ public class ExpertReport extends AbstractEntity {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(nullable = false)
-    private List<ExpertReportDetail> details = new ArrayList<>();
+    private List<ExpertReportComment> comments = new ArrayList<>();
 
     // 7일의 기한을 가지고 기한 내에만 수정가능하다.
         // -> expiredAt, submitStatus 필드로 관리
@@ -120,12 +120,12 @@ public class ExpertReport extends AbstractEntity {
         this.overallComment = overallComment;
     }
 
-    public void updateDetails(List<ExpertReportDetail> newDetails) {
-        Assert.notNull(newDetails, "details는 null일 수 없습니다");
+    public void updateComments(List<ExpertReportComment> newComments) {
+        Assert.notNull(newComments, "comments는 null일 수 없습니다");
 
         validateCanEdit();
-        this.details.clear();
-        this.details.addAll(newDetails);
+        this.comments.clear();
+        this.comments.addAll(newComments);
     }
 
     public void incrementViewCount() {

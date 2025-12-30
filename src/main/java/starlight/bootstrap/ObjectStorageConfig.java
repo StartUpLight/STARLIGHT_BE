@@ -35,7 +35,7 @@ public class ObjectStorageConfig {
     }
 
     @Bean
-    public S3Presigner s3Presigner() {
+    public S3Presigner ncpS3Presigner() {
         return S3Presigner.builder()
                 .region(Region.of("kr-standard"))
                 .endpointOverride(URI.create(endpoint))
