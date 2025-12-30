@@ -3,11 +3,16 @@ package starlight.adapter.member.auth.webapi;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
@@ -17,10 +22,12 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.adapter.member.auth.security.auth.AuthDetailsService;
+import starlight.adapter.member.auth.security.filter.JwtFilter;
 import starlight.adapter.member.auth.security.jwt.dto.TokenResponse;
 import starlight.adapter.member.auth.webapi.dto.request.AuthRequest;
 import starlight.adapter.member.auth.webapi.dto.response.MemberResponse;
 import starlight.application.member.auth.provided.AuthUseCase;
+import starlight.bootstrap.SecurityConfig;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
@@ -34,7 +41,20 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(AuthController.class)
+@WebMvcTest(
+        controllers = AuthController.class,
+        excludeFilters = {
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
+                        JwtFilter.class,
+                        SecurityConfig.class
+                })
+        },
+        excludeAutoConfiguration = {
+                SecurityAutoConfiguration.class,
+                OAuth2ClientAutoConfiguration.class,
+                OAuth2ResourceServerAutoConfiguration.class
+        }
+)
 @AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(properties = {"jwt.header=Authorization"})
 @Import(AuthControllerSliceTest.AuthTestConfig.class) // 커스텀 argument resolver 등록

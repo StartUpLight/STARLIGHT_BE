@@ -38,6 +38,9 @@ public class JwtTokenProvider implements TokenProvider {
     @Value("${jwt.token.refresh-expiration-time}")
     private long refreshTokenExpirationTime;
 
+    @Value("${jwt.prefix:Bearer}")
+    private String jwtPrefix;
+
     private final KeyValueMap redisClient;
 
     @PostConstruct
@@ -174,8 +177,9 @@ public class JwtTokenProvider implements TokenProvider {
     @Override
     public String resolveRefreshToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        String prefix = normalizePrefix(jwtPrefix);
+        if (bearerToken != null && bearerToken.toLowerCase().startsWith(prefix)) {
+            return bearerToken.substring(prefix.length()).trim();
         }
         return null;
     }
@@ -190,8 +194,9 @@ public class JwtTokenProvider implements TokenProvider {
     @Override
     public String resolveAccessToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        String prefix = normalizePrefix(jwtPrefix);
+        if (bearerToken != null && bearerToken.toLowerCase().startsWith(prefix)) {
+            return bearerToken.substring(prefix.length()).trim();
         }
         return null;
     }
@@ -211,5 +216,13 @@ public class JwtTokenProvider implements TokenProvider {
         }
         redisClient.deleteValue(getEmail(refreshToken));
         redisClient.setValue(accessToken, "logout", getExpirationTime(accessToken));
+    }
+
+    private String normalizePrefix(String prefix) {
+        if (prefix == null || prefix.isBlank()) {
+            return "bearer ";
+        }
+        String normalized = prefix.trim().toLowerCase();
+        return normalized.endsWith(" ") ? normalized : normalized + " ";
     }
 }

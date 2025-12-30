@@ -1,6 +1,8 @@
 package starlight.adapter.member.auth.security.oauth2;
 
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Map;
@@ -31,6 +33,9 @@ public final class OAuth2Attributes {
                 String name         = (String) (response.getOrDefault("name", response.getOrDefault("nickname", "")));
                 String profileImage = (String) response.getOrDefault("profile_image", "");
 
+                if (id.isBlank()) {
+                    throw new OAuth2AuthenticationException(new OAuth2Error("invalid_provider_id"), "Missing provider id");
+                }
                 yield new Parsed("naver", id, email, name, profileImage, attributes, "id");
             }
             case "kakao" -> {
@@ -42,9 +47,13 @@ public final class OAuth2Attributes {
                 String name         = (String) ((Map<String, Object>) response.getOrDefault("profile", Map.of())).getOrDefault("nickname", "");
                 String profileImage = (String) ((Map<String, Object>) response.getOrDefault("profile", Map.of())).getOrDefault("profile_image_url", "");
 
+                if (id.isBlank()) {
+                    throw new OAuth2AuthenticationException(new OAuth2Error("invalid_provider_id"), "Missing provider id");
+                }
                 yield new Parsed("kakao", id, email, name, profileImage, attributes, "id");
             }
-            default -> new Parsed(registrationId, null, null, null, " ", attributes, "id");
+            default -> throw new OAuth2AuthenticationException(
+                    new OAuth2Error("unsupported_provider"), "Unsupported registrationId: " + registrationId);
         };
     }
 }

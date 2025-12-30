@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import starlight.adapter.member.auth.security.auth.AuthDetailsService;
+import starlight.adapter.member.auth.webapi.AuthTokenResolver;
+import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
 
 import java.io.IOException;
@@ -23,15 +25,17 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
+    private final KeyValueMap redisClient;
     private final AuthDetailsService authDetailsService;
+    private final AuthTokenResolver tokenResolver;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String token = getTokenFromRequest(request);
+        String token = tokenResolver.resolveAccessToken(request);
 
-        if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
+        if (StringUtils.hasText(token) && redisClient.getValue(token) == null && tokenProvider.validateToken(token)) {
             String email = tokenProvider.getEmail(token);
             UserDetails userDetails = authDetailsService.loadUserByUsername(email);
 
@@ -42,13 +46,5 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
-    }
-
-    private String getTokenFromRequest(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
-            return token.substring(7);
-        }
-        return null;
     }
 }

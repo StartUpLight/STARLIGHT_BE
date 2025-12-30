@@ -7,12 +7,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthTokenResolver {
 
-    private static final String BEARER_PREFIX = "Bearer ";
-
     private final String authHeaderName;
+    private final String bearerPrefix;
 
-    public AuthTokenResolver(@Value("${jwt.header}") String authHeaderName) {
+    public AuthTokenResolver(@Value("${jwt.header}") String authHeaderName,
+                             @Value("${jwt.prefix:Bearer}") String prefix) {
         this.authHeaderName = authHeaderName;
+        this.bearerPrefix = normalizePrefix(prefix);
     }
 
     public String resolveAccessToken(HttpServletRequest request) {
@@ -28,10 +29,18 @@ public class AuthTokenResolver {
             return null;
         }
         String trimmed = raw.trim();
-        if (trimmed.startsWith(BEARER_PREFIX)) {
-            String token = trimmed.substring(BEARER_PREFIX.length()).trim();
+        if (trimmed.toLowerCase().startsWith(bearerPrefix)) {
+            String token = trimmed.substring(bearerPrefix.length()).trim();
             return token.isEmpty() ? null : token;
         }
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private String normalizePrefix(String prefix) {
+        if (prefix == null || prefix.isBlank()) {
+            return "bearer ";
+        }
+        String normalized = prefix.trim().toLowerCase();
+        return normalized.endsWith(" ") ? normalized : normalized + " ";
     }
 }

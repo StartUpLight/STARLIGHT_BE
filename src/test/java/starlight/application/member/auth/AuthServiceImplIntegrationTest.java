@@ -105,6 +105,7 @@ class AuthServiceImplIntegrationTest {
     @Test
     void signOut_정상_무효화호출() {
         when(tokenProvider.validateToken("GOOD_AT")).thenReturn(true);
+        when(tokenProvider.validateToken("RT")).thenReturn(true);
         doNothing().when(tokenProvider).invalidateTokens("RT", "GOOD_AT");
 
         assertDoesNotThrow(() -> sut.signOut("RT", "GOOD_AT"));
