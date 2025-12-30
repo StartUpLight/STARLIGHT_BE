@@ -6,7 +6,7 @@ import starlight.adapter.auth.webapi.dto.request.SignInRequest;
 import starlight.adapter.auth.webapi.dto.response.MemberResponse;
 import starlight.domain.member.entity.Member;
 
-public interface AuthService {
+public interface AuthUseCase {
 
     MemberResponse signUp(AuthRequest authRequest);
 
@@ -16,4 +16,3 @@ public interface AuthService {
 
     TokenResponse recreate(String token, Member member);
 }
-

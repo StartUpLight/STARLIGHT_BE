@@ -8,7 +8,7 @@ import starlight.adapter.auth.security.jwt.dto.TokenResponse;
 import starlight.adapter.auth.webapi.dto.request.AuthRequest;
 import starlight.adapter.auth.webapi.dto.request.SignInRequest;
 import starlight.adapter.auth.webapi.dto.response.MemberResponse;
-import starlight.application.auth.provided.AuthService;
+import starlight.application.auth.provided.AuthUseCase;
 import starlight.application.auth.required.KeyValueMap;
 import starlight.application.auth.required.TokenProvider;
 import starlight.application.member.provided.CredentialService;
@@ -23,7 +23,7 @@ import starlight.domain.member.exception.MemberException;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class AuthServiceImpl implements AuthService {
+public class AuthServiceImpl implements AuthUseCase {
 
     private final MemberService memberService;
     private final CredentialService credentialService;
@@ -80,8 +80,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void signOut(String refreshToken, String accessToken) {
-        if(refreshToken==null || accessToken==null) throw new AuthException(AuthErrorType.TOKEN_NOT_FOUND);
-        if(!tokenProvider.validateToken(accessToken)) {
+        if (refreshToken == null || accessToken == null) {
+            throw new AuthException(AuthErrorType.TOKEN_NOT_FOUND);
+        }
+        if (!tokenProvider.validateToken(accessToken)) {
+            throw new AuthException(AuthErrorType.TOKEN_INVALID);
+        }
+        if (!tokenProvider.validateToken(refreshToken)) {
             throw new AuthException(AuthErrorType.TOKEN_INVALID);
         }
         tokenProvider.invalidateTokens(refreshToken, accessToken);
@@ -96,14 +101,14 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public TokenResponse recreate(String token, Member member) {
-        if (token ==null) {
+        if (token == null) {
             throw new AuthException(AuthErrorType.TOKEN_NOT_FOUND);
         }
         if (member == null) {
             throw new MemberException(MemberErrorType.MEMBER_NOT_FOUND);
         }
 
-        String refreshToken = token.substring(7);
+        String refreshToken = extractToken(token);
         boolean isValid = tokenProvider.validateToken(refreshToken);
 
         if (!isValid) {
@@ -111,12 +116,31 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String email = tokenProvider.getEmail(refreshToken);
+        if (!email.equals(member.getEmail())) {
+            throw new AuthException(AuthErrorType.TOKEN_INVALID);
+        }
         String redisRefreshToken = redisClient.getValue(email);
 
-        if (refreshToken.isEmpty() || redisRefreshToken.isEmpty() || !redisRefreshToken.equals(refreshToken)) {
+        if (refreshToken.isEmpty() || redisRefreshToken == null || redisRefreshToken.isEmpty()
+                || !redisRefreshToken.equals(refreshToken)) {
             throw new AuthException(AuthErrorType.TOKEN_NOT_FOUND);
         }
 
         return tokenProvider.recreate(member, refreshToken);
+    }
+
+    private String extractToken(String token) {
+        String trimmed = token.trim();
+        if (trimmed.startsWith("Bearer ")) {
+            String rawToken = trimmed.substring(7).trim();
+            if (rawToken.isEmpty()) {
+                throw new AuthException(AuthErrorType.TOKEN_INVALID);
+            }
+            return rawToken;
+        }
+        if (trimmed.isEmpty()) {
+            throw new AuthException(AuthErrorType.TOKEN_INVALID);
+        }
+        return trimmed;
     }
 }

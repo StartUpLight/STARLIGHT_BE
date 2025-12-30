@@ -20,7 +20,7 @@ import starlight.adapter.auth.security.auth.AuthDetailsService;
 import starlight.adapter.auth.security.jwt.dto.TokenResponse;
 import starlight.adapter.auth.webapi.dto.request.AuthRequest;
 import starlight.adapter.auth.webapi.dto.response.MemberResponse;
-import starlight.application.auth.provided.AuthService;
+import starlight.application.auth.provided.AuthUseCase;
 import starlight.application.auth.required.TokenProvider;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
@@ -43,7 +43,7 @@ class AuthControllerSliceTest {
 
     @Autowired MockMvc mvc;
 
-    @MockitoBean AuthService authService;
+    @MockitoBean AuthUseCase authUseCase;
     @MockitoBean TokenProvider tokenProvider;
     @MockitoBean AuthDetailsService authDetailsService;
 
@@ -85,24 +85,24 @@ class AuthControllerSliceTest {
         mvc.perform(post("/v1/auth/sign-out"))
                 .andExpect(status().isOk());
 
-        verify(authService).signOut("RT", "AT");
+        verify(authUseCase).signOut("RT", "AT");
     }
 
     @Test
     void recreate_OK_헤더에서_토큰읽어_서비스호출() throws Exception {
-        when(authService.recreate(eq("Bearer REAL_RT"), any(Member.class)))
+        when(authUseCase.recreate(eq("Bearer REAL_RT"), any(Member.class)))
                 .thenReturn(new TokenResponse("NEW_AT", "RT_OR_NEW"));
 
         mvc.perform(get("/v1/auth/recreate")
                         .header("Authorization", "Bearer REAL_RT"))
                 .andExpect(status().isOk());
 
-        verify(authService).recreate(eq("Bearer REAL_RT"), any(Member.class));
+        verify(authUseCase).recreate(eq("Bearer REAL_RT"), any(Member.class));
     }
 
     @Test
     void signIn_OK() throws Exception {
-        when(authService.signIn(argThat(req ->
+        when(authUseCase.signIn(argThat(req ->
                 "a@b.com".equals(req.email()) && "pw".equals(req.password())
         ))).thenReturn(new TokenResponse("AT", "RT"));
 
@@ -111,14 +111,14 @@ class AuthControllerSliceTest {
                         .content("{\"email\":\"a@b.com\",\"password\":\"pw\"}"))
                 .andExpect(status().isOk());
 
-        verify(authService).signIn(argThat(req ->
+        verify(authUseCase).signIn(argThat(req ->
                 "a@b.com".equals(req.email()) && "pw".equals(req.password())
         ));
     }
 
     @Test
     void signUp_OK() throws Exception {
-        when(authService.signUp(any(AuthRequest.class))).thenAnswer(invocation -> {
+        when(authUseCase.signUp(any(AuthRequest.class))).thenAnswer(invocation -> {
             AuthRequest request = invocation.getArgument(0);
             Credential credential = Credential.create("hashedPassword");
             Member member = request.toMember(credential);
@@ -130,7 +130,7 @@ class AuthControllerSliceTest {
                         .content("{\"name\":\"정성호\",\"email\":\"user@ex.com\",\"password\":\"pw\",\"phoneNumber\":\"010-1234-5678\"}"))
                 .andExpect(status().isOk());
 
-        verify(authService).signUp(argThat(req ->
+        verify(authUseCase).signUp(argThat(req ->
                 "user@ex.com".equals(req.email()) && "pw".equals(req.password()) && "010-1234-5678".equals(req.phoneNumber())
         ));
     }

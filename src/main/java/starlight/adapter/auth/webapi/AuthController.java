@@ -12,7 +12,7 @@ import starlight.adapter.auth.webapi.dto.request.AuthRequest;
 import starlight.adapter.auth.webapi.dto.request.SignInRequest;
 import starlight.adapter.auth.webapi.dto.response.MemberResponse;
 import starlight.adapter.auth.webapi.swagger.AuthApiDoc;
-import starlight.application.auth.provided.AuthService;
+import starlight.application.auth.provided.AuthUseCase;
 import starlight.application.auth.required.TokenProvider;
 import starlight.shared.apiPayload.response.ApiResponse;
 
@@ -24,17 +24,17 @@ public class AuthController implements AuthApiDoc {
     @Value("${jwt.header}")
     private String tokenHeader;
 
-    private final AuthService authService;
+    private final AuthUseCase authUseCase;
     private final TokenProvider tokenProvider;
 
     @PostMapping("/sign-up")
     public ApiResponse<MemberResponse> signUp(@Validated @RequestBody AuthRequest authRequest) {
-        return ApiResponse.success(authService.signUp(authRequest));
+        return ApiResponse.success(authUseCase.signUp(authRequest));
     }
 
     @PostMapping("/sign-in")
     public ApiResponse<TokenResponse> signIn(@Validated @RequestBody SignInRequest signInRequest) {
-        return ApiResponse.success(authService.signIn(signInRequest));
+        return ApiResponse.success(authUseCase.signIn(signInRequest));
     }
 
     @PostMapping("/sign-out")
@@ -42,13 +42,13 @@ public class AuthController implements AuthApiDoc {
         String refreshToken = tokenProvider.resolveRefreshToken(request);
         String accessToken = tokenProvider.resolveAccessToken(request);
 
-        authService.signOut(refreshToken, accessToken);
+        authUseCase.signOut(refreshToken, accessToken);
         return ApiResponse.success("로그아웃 성공");
     }
 
     @GetMapping("/recreate")
     public ApiResponse<TokenResponse> recreate(HttpServletRequest request, @AuthenticationPrincipal AuthDetails authDetails) {
         String token = request.getHeader(tokenHeader);
-        return ApiResponse.success(authService.recreate(token, authDetails.getUser()));
+        return ApiResponse.success(authUseCase.recreate(token, authDetails.getUser()));
     }
 }
