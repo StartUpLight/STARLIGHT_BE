@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthTokenResolver {
 
-    private static final String REFRESH_HEADER = "Refresh-Token";
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final String authHeaderName;
@@ -21,11 +20,7 @@ public class AuthTokenResolver {
     }
 
     public String resolveRefreshToken(HttpServletRequest request) {
-        String raw = request.getHeader(REFRESH_HEADER);
-        if (raw == null || raw.isBlank()) {
-            raw = request.getHeader(authHeaderName);
-        }
-        return extractToken(raw);
+        return extractToken(request.getHeader(authHeaderName));
     }
 
     private String extractToken(String raw) {

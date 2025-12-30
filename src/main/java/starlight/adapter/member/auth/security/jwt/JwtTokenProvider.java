@@ -167,9 +167,10 @@ public class JwtTokenProvider implements TokenProvider {
     /**
      * Bearer Token에서 RefreshToken을 추출하는 메서드
      *
-     * @param request
-     * @return String
+     * @deprecated Authorization 헤더 파싱은 {@code AuthTokenResolver}를 사용하세요.
+     *             1.4.0부터 Deprecated 처리되었고, 추후 제거될 수 있습니다.
      */
+    @Deprecated(since = "1.4.0", forRemoval = false)
     @Override
     public String resolveRefreshToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -182,9 +183,10 @@ public class JwtTokenProvider implements TokenProvider {
     /**
      * Bearer Token에서 AccessToken을 추출하는 메서드
      *
-     * @param request
-     * @return String
+     * @deprecated Authorization 헤더 파싱은 {@code AuthTokenResolver}를 사용하세요.
+     *             1.4.0부터 Deprecated 처리되었고, 추후 제거될 수 있습니다.
      */
+    @Deprecated(since = "1.4.0", forRemoval = false)
     @Override
     public String resolveAccessToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
