@@ -16,7 +16,7 @@ public class BusinessPlanJpa implements BusinessPlanQuery {
     private final BusinessPlanRepository businessPlanRepository;
 
     @Override
-    public BusinessPlan getOrThrow(Long id) {
+    public BusinessPlan findByIdOrThrow(Long id) {
         return businessPlanRepository.findById(id).orElseThrow(
                 () -> new BusinessPlanException(BusinessPlanErrorType.BUSINESS_PLAN_NOT_FOUND)
         );

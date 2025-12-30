@@ -24,7 +24,7 @@ public class ExpertJpa implements ExpertQueryPort,
     private final ExpertRepository repository;
 
     @Override
-    public Expert findById(Long id) {
+    public Expert findByIdOrThrow(Long id) {
         return repository.findById(id).orElseThrow(
                 () -> new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND)
         );

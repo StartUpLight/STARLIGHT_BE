@@ -10,7 +10,7 @@ public interface ExpertReportQueryPort {
 
     boolean existsByToken(String token);
 
-    ExpertReport findByTokenWithComments(String token);
+    ExpertReport findByTokenWithCommentsOrThrow(String token);
 
-    List<ExpertReport> findAllByBusinessPlanIdOrderByCreatedAtDesc(Long businessPlanId);
+    List<ExpertReport> findAllByBusinessPlanIdWithCommentsOrderByCreatedAtDesc(Long businessPlanId);
 }

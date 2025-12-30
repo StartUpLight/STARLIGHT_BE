@@ -41,7 +41,7 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
 
     @Override
     public BusinessPlanResponse.Result createBusinessPlan(Long memberId) {
-        Member member = memberQuery.getMemberOrThrow(memberId);
+        Member member = memberQuery.findByIdOrThrow(memberId);
 
         String planTitle = member.getName() == null ? "제목 없는 사업계획서" : member.getName() + "의 사업계획서";
 
@@ -233,7 +233,7 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     }
 
     private BusinessPlan getOwnedBusinessPlanOrThrow(Long planId, Long memberId) {
-        BusinessPlan businessPlan = businessPlanQuery.getOrThrow(planId);
+        BusinessPlan businessPlan = businessPlanQuery.findByIdOrThrow(planId);
         if (!businessPlan.isOwnedBy(memberId)) {
             throw new BusinessPlanException(BusinessPlanErrorType.UNAUTHORIZED_ACCESS);
         }

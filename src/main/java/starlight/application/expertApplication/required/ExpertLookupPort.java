@@ -4,5 +4,5 @@ import starlight.domain.expert.entity.Expert;
 
 public interface ExpertLookupPort {
 
-    Expert findById(Long id);
+    Expert findByIdOrThrow(Long id);
 }

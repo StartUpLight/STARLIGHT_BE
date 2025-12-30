@@ -19,7 +19,7 @@ public class ExpertApplicationQueryService implements ExpertApplicationQueryUseC
 
     @Override
     public List<Long> findRequestedExpertIds(Long businessPlanId) {
-        businessPlanQuery.getOrThrow(businessPlanId);
+        businessPlanQuery.findByIdOrThrow(businessPlanId);
         return expertApplicationQueryPort.findRequestedExpertIds(businessPlanId);
     }
 }

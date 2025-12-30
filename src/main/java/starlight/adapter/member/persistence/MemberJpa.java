@@ -17,7 +17,7 @@ public class MemberJpa implements MemberQueryPort, MemberCommandPort {
     private final MemberRepository memberRepository;
 
     @Override
-    public Member getMemberOrThrow(Long id) {
+    public Member findByIdOrThrow(Long id) {
         return memberRepository.findById(id).orElseThrow(
                 () -> new MemberException(MemberErrorType.MEMBER_NOT_FOUND)
         );
@@ -26,6 +26,13 @@ public class MemberJpa implements MemberQueryPort, MemberCommandPort {
     @Override
     public Optional<Member> findByEmail(String email) {
         return memberRepository.findByEmail(email);
+    }
+
+    @Override
+    public Member findByProviderAndProviderIdOrThrow(String provider, String providerId) {
+        return memberRepository.findByProviderAndProviderId(provider, providerId).orElseThrow(
+                () -> new MemberException(MemberErrorType.MEMBER_NOT_FOUND)
+        );
     }
 
     @Override

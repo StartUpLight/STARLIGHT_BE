@@ -6,7 +6,9 @@ import java.util.Optional;
 
 public interface MemberQueryPort {
 
-    Member getMemberOrThrow(Long id);
+    Member findByIdOrThrow(Long id);
 
     Optional<Member> findByEmail(String email);
+
+    Member findByProviderAndProviderIdOrThrow(String provider, String providerId);
 }

@@ -49,8 +49,8 @@ public class ExpertApplicationCommandService implements ExpertApplicationCommand
         try {
             validateFile(file);
 
-            BusinessPlan plan = planQuery.getOrThrow(planId);
-            Expert expert = expertLookupPort.findById(expertId);
+            BusinessPlan plan = planQuery.findByIdOrThrow(planId);
+            Expert expert = expertLookupPort.findByIdOrThrow(expertId);
 
             plan.updateStatus(PlanStatus.EXPERT_MATCHED);
 

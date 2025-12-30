@@ -65,7 +65,7 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
             List<ExpertReportComment> comments,
             SaveType saveType
     ) {
-        ExpertReport report = expertReportQuery.findByTokenWithComments(token);
+        ExpertReport report = expertReportQuery.findByTokenWithCommentsOrThrow(token);
 
         report.updateOverallComment(overallComment);
         report.updateComments(comments);
@@ -76,7 +76,7 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
             }
             case FINAL -> {
                 report.submit();
-                BusinessPlan plan = businessPlanQuery.getOrThrow(report.getBusinessPlanId());
+                BusinessPlan plan = businessPlanQuery.findByIdOrThrow(report.getBusinessPlanId());
                 plan.updateStatus(PlanStatus.FINALIZED);
             }
 
@@ -87,7 +87,7 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
 
     @Override
     public ExpertReportWithExpertDto getExpertReportWithExpert(String token) {
-        ExpertReport report = expertReportQuery.findByTokenWithComments(token);
+        ExpertReport report = expertReportQuery.findByTokenWithCommentsOrThrow(token);
         report.incrementViewCount();
 
         Expert expert = expertLookupPort.findByIdWithCareersAndTags(report.getExpertId());
@@ -98,9 +98,11 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<ExpertReportWithExpertDto> getExpertReportsWithExpertByBusinessPlanId(Long businessPlanId) {
-        businessPlanQuery.getOrThrow(businessPlanId);
+        businessPlanQuery.findByIdOrThrow(businessPlanId);
 
-        List<ExpertReport> reports = expertReportQuery.findAllByBusinessPlanIdOrderByCreatedAtDesc(businessPlanId);
+        List<ExpertReport> reports = expertReportQuery.findAllByBusinessPlanIdWithCommentsOrderByCreatedAtDesc(
+                businessPlanId
+        );
 
         Set<Long> expertIds = reports.stream()
                 .map(ExpertReport::getExpertId)
