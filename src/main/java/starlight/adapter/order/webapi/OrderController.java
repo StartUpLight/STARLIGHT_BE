@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import starlight.adapter.auth.security.auth.AuthDetails;
+import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.adapter.order.webapi.swagger.OrderApiDoc;
 import starlight.application.order.provided.dto.TossClientResponse;
 import starlight.adapter.order.webapi.dto.request.OrderCancelRequest;

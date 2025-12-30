@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import starlight.domain.auth.exception.AuthException;
+import starlight.domain.member.auth.exception.AuthException;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
 

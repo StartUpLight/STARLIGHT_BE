@@ -6,7 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import starlight.adapter.auth.security.auth.AuthDetails;
+import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.adapter.member.webapi.swagger.MemberApiDoc;
 import starlight.adapter.member.webapi.dto.MemberDetailResponse;
 import starlight.shared.apiPayload.response.ApiResponse;

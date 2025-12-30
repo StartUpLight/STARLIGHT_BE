@@ -13,7 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import starlight.adapter.auth.security.auth.AuthDetails;
+import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;

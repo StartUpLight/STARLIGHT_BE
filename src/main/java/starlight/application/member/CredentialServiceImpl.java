@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import starlight.application.member.provided.CredentialService;
-import starlight.domain.auth.exception.AuthErrorType;
-import starlight.domain.auth.exception.AuthException;
+import starlight.domain.member.auth.exception.AuthErrorType;
+import starlight.domain.member.auth.exception.AuthException;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
 

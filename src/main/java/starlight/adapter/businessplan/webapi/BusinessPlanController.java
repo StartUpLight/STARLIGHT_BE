@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import starlight.adapter.auth.security.auth.AuthDetails;
+import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.adapter.businessplan.webapi.dto.BusinessPlanCreateRequest;
 import starlight.adapter.businessplan.webapi.dto.BusinessPlanCreateWithPdfRequest;
 import starlight.adapter.businessplan.webapi.dto.SubSectionCreateRequest;

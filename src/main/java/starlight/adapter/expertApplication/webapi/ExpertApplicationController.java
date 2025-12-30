@@ -6,7 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import starlight.adapter.auth.security.auth.AuthDetails;
+import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.adapter.expertApplication.webapi.swagger.ExpertApplicationApiDoc;
 import starlight.application.expertApplication.provided.ExpertApplicationQueryUseCase;
 import starlight.application.expertApplication.provided.ExpertApplicationCommandUseCase;

@@ -12,7 +12,7 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import starlight.adapter.auth.security.filter.JwtFilter;
+import starlight.adapter.member.auth.security.filter.JwtFilter;
 import starlight.application.expert.provided.ExpertDetailQueryUseCase;
 import starlight.application.expert.provided.dto.ExpertCareerResult;
 import starlight.application.expert.provided.dto.ExpertDetailResult;

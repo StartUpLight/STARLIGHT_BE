@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import starlight.adapter.auth.security.auth.AuthDetails;
+import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 import starlight.application.aireport.required.PresignedUrlProvider;
 import starlight.adapter.aireport.webapi.swagger.ImageApiDoc;
