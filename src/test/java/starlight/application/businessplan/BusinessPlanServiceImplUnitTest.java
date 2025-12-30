@@ -20,7 +20,7 @@ import starlight.domain.businessplan.entity.BaseSection;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
 import starlight.shared.enumerate.SectionType;
-import starlight.application.member.required.MemberQuery;
+import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.member.entity.Member;
 
 import java.util.List;
@@ -46,7 +46,7 @@ class BusinessPlanServiceImplUnitTest {
     private ObjectMapper objectMapper;
 
     @Mock
-    private MemberQuery memberQuery;
+    private MemberQueryPort memberQuery;
 
     @InjectMocks
     private BusinessPlanServiceImpl sut;

@@ -6,8 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import starlight.adapter.auth.webapi.dto.request.AuthRequest;
-import starlight.adapter.member.persistence.CredentialRepository;
 import starlight.domain.auth.exception.AuthException;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
@@ -19,22 +17,14 @@ import static org.mockito.Mockito.*;
 class CredentialServiceImplUnitTest {
 
     @Mock PasswordEncoder passwordEncoder;
-    @Mock CredentialRepository credentialRepository;
-
     @InjectMocks CredentialServiceImpl sut;
 
     @Test
     void createCredential_정상_해싱후_저장() {
-        AuthRequest req = mock(AuthRequest.class);
-        when(req.password()).thenReturn("raw-pw");
         when(passwordEncoder.encode("raw-pw")).thenReturn("HASHED");
-        when(credentialRepository.save(any(Credential.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
-
-        Credential created = sut.createCredential(req);
+        Credential created = sut.createCredential("raw-pw");
 
         verify(passwordEncoder).encode("raw-pw");
-        verify(credentialRepository).save(any(Credential.class));
         assertNotNull(created);
     }
 

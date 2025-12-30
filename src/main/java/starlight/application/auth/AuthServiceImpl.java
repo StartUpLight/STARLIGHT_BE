@@ -42,8 +42,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public MemberResponse signUp(AuthRequest authRequest) {
-        Credential credential = credentialService.createCredential(authRequest);
-        Member member = memberService.createUser(credential, authRequest);
+        Credential credential = credentialService.createCredential(authRequest.password());
+        Member member = memberService.createUser(
+                credential,
+                authRequest.name(),
+                authRequest.email(),
+                authRequest.phoneNumber()
+        );
 
         return MemberResponse.of(member);
     }
@@ -115,4 +120,3 @@ public class AuthServiceImpl implements AuthService {
         return tokenProvider.recreate(member, refreshToken);
     }
 }
-

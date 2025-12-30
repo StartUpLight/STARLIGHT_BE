@@ -1,12 +1,11 @@
 package starlight.application.member.provided;
 
-import starlight.adapter.auth.webapi.dto.request.AuthRequest;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
 
 public interface CredentialService {
 
-    Credential createCredential(AuthRequest authRequest);
+    Credential createCredential(String rawPassword);
 
     /**
      * 비밀번호를 확인하는 메서드

@@ -16,7 +16,7 @@ import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.businessplan.required.ChecklistGrader;
 import starlight.application.businessplan.util.PlainTextExtractUtils;
 import starlight.application.businessplan.util.SubSectionSupportUtils;
-import starlight.application.member.required.MemberQuery;
+import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.businessplan.entity.*;
 import starlight.domain.businessplan.enumerate.PlanStatus;
 import starlight.domain.member.entity.Member;
@@ -35,7 +35,7 @@ import java.util.Objects;
 public class BusinessPlanServiceImpl implements BusinessPlanService {
 
     private final BusinessPlanQuery businessPlanQuery;
-    private final MemberQuery memberQuery;
+    private final MemberQueryPort memberQuery;
     private final ChecklistGrader checklistGrader;
     private final ObjectMapper objectMapper;
 

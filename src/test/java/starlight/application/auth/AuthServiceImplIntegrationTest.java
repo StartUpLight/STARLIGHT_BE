@@ -38,16 +38,20 @@ class AuthServiceImplIntegrationTest {
     @Test
     void signUp_정상_자격증명_생성후_회원생성_리턴() {
         AuthRequest req = mock(AuthRequest.class);
+        when(req.password()).thenReturn("pw");
+        when(req.name()).thenReturn("name");
+        when(req.email()).thenReturn("u@ex.com");
+        when(req.phoneNumber()).thenReturn("010-0000-0000");
         Credential cred = mock(Credential.class);
         Member member = Member.create("name", "u@ex.com", null, MemberType.FOUNDER, null, "img.png");
 
-        when(credentialService.createCredential(req)).thenReturn(cred);
-        when(memberService.createUser(cred, req)).thenReturn(member);
+        when(credentialService.createCredential("pw")).thenReturn(cred);
+        when(memberService.createUser(cred, "name", "u@ex.com", "010-0000-0000")).thenReturn(member);
 
         MemberResponse res = sut.signUp(req);
 
-        verify(credentialService).createCredential(req);
-        verify(memberService).createUser(cred, req);
+        verify(credentialService).createCredential("pw");
+        verify(memberService).createUser(cred, "name", "u@ex.com", "010-0000-0000");
         assertNotNull(res);
     }
 

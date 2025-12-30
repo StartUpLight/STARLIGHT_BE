@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import starlight.adapter.auth.webapi.dto.request.AuthRequest;
+import starlight.adapter.member.persistence.MemberJpa;
 import starlight.adapter.member.persistence.MemberRepository;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
@@ -15,12 +15,10 @@ import starlight.domain.member.exception.MemberException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Import(MemberServiceImpl.class)
+@Import({MemberServiceImpl.class, MemberJpa.class})
 class MemberServiceImplIntegrationTest {
 
     @Autowired MemberServiceImpl sut;
@@ -45,22 +43,15 @@ class MemberServiceImplIntegrationTest {
         // 중복 방지 로직은 DB 유니크 제약과 별개로 서비스가 findByEmail로 막음
         memberRepository.save(Member.create("dup", "dup@ex.com", null, MemberType.FOUNDER, null, "img.png"));
 
-        AuthRequest req = mock(AuthRequest.class);
-        when(req.email()).thenReturn("dup@ex.com");
-
         Credential newCredential = Credential.create("anotherHashedPassword");
         assertThrows(MemberException.class,
-                () -> sut.createUser(newCredential, req));
+                () -> sut.createUser(newCredential, "dup", "dup@ex.com", "010-0000-0000"));
     }
 
     @Test
     void createUser_정상저장_DB반영() {
         Credential cred = Credential.create("hashedPassword");
-        AuthRequest req = mock(AuthRequest.class);
-        when(req.email()).thenReturn("ok@ex.com");
-        when(req.toMember(cred)).thenReturn(Member.create("ok", "ok@ex.com", null, MemberType.FOUNDER, null, "img.png"));
-
-        Member saved = sut.createUser(cred, req);
+        Member saved = sut.createUser(cred, "ok", "ok@ex.com", "010-0000-0000");
 
         Optional<Member> found = memberRepository.findByEmail("ok@ex.com");
         assertTrue(found.isPresent());

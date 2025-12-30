@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Import;
 import starlight.adapter.businessplan.persistence.BusinessPlanJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
 import starlight.application.businessplan.required.ChecklistGrader;
-import starlight.application.member.required.MemberQuery;
+import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.SubSection;
 import starlight.domain.businessplan.enumerate.SubSectionType;
@@ -50,13 +50,18 @@ class BusinessPlanServiceImplIntegrationTest {
         }
 
         @Bean
-        MemberQuery memberQuery() {
-            return new MemberQuery() {
+        MemberQueryPort memberQuery() {
+            return new MemberQueryPort() {
                 @Override
                 public Member getOrThrow(Long memberId) {
                     Member m = mock(Member.class);
                     when(m.getName()).thenReturn("tester");
                     return m;
+                }
+
+                @Override
+                public java.util.Optional<Member> findByEmail(String email) {
+                    return java.util.Optional.empty();
                 }
             };
         }
