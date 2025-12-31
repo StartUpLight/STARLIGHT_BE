@@ -89,3 +89,31 @@ jobs:
           git add staging/deployment.yml
           git commit -m "Update image tag to $IMAGE_TAG" || exit 0
           git push
+
+      - name: Checkout manifest repository (oracle)
+        uses: actions/checkout@v6
+        with:
+          repository: 'StartUpLight/STARLIGHT_MANIFEST_ORACLE'
+          token: ${{ secrets.PAT }}
+          path: 'manifest-oracle'
+
+      - name: Update deployment.yml (oracle)
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+        run: |
+          sed -i "s|image:.*|image: ${DOCKERHUB_USERNAME}/startuplight-be:${IMAGE_TAG}|g" manifest-oracle/staging/deployment.yml
+
+          echo "Updated deployment.yml (oracle):"
+          cat manifest-oracle/staging/deployment.yml
+
+      - name: Commit and push changes (oracle)
+        env:
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+        run: |
+          cd manifest-oracle
+          git config --local user.email "kjeng7897@gmail.com"
+          git config --local user.name "SeongHo5356"
+          git add staging/deployment.yml
+          git commit -m "Update image tag to $IMAGE_TAG" || exit 0
+          git push
