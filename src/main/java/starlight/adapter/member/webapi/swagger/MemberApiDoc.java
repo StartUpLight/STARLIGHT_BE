@@ -9,8 +9,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.adapter.member.webapi.dto.MemberDetailResponse;
+import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 @Tag(name = "사용자", description = "사용자 관련 API")
@@ -65,6 +65,6 @@ public interface MemberApiDoc {
     })
     @GetMapping
     ApiResponse<MemberDetailResponse> getMemberDetail(
-            @AuthenticationPrincipal AuthDetails authDetails
+            @AuthenticationPrincipal AuthenticatedMember authDetails
     );
 }

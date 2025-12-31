@@ -44,6 +44,6 @@ public class AuthController implements AuthApiDoc {
     @GetMapping("/recreate")
     public ApiResponse<TokenResponse> reissue(HttpServletRequest request, @AuthenticationPrincipal AuthDetails authDetails) {
         String token = tokenResolver.resolveRefreshToken(request);
-        return ApiResponse.success(TokenResponse.from(authUseCase.reissue(token, authDetails.getUser())));
+        return ApiResponse.success(TokenResponse.from(authUseCase.reissue(token, authDetails.getMemberId())));
     }
 }

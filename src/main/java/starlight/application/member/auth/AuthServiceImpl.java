@@ -12,7 +12,7 @@ import starlight.application.member.auth.provided.dto.SignUpInput;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
 import starlight.application.member.provided.CredentialService;
-import starlight.application.member.provided.MemberService;
+import starlight.application.member.provided.MemberQueryUseCase;
 import starlight.domain.member.auth.exception.AuthErrorType;
 import starlight.domain.member.auth.exception.AuthException;
 import starlight.domain.member.entity.Credential;
@@ -25,7 +25,7 @@ import starlight.domain.member.exception.MemberException;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthUseCase {
 
-    private final MemberService memberService;
+    private final MemberQueryUseCase memberQueryUseCase;
     private final CredentialService credentialService;
     private final TokenProvider tokenProvider;
     private final KeyValueMap redisClient;
@@ -43,7 +43,7 @@ public class AuthServiceImpl implements AuthUseCase {
     @Transactional
     public AuthMemberResult signUp(SignUpInput input) {
         Credential credential = credentialService.createCredential(input.password());
-        Member member = memberService.createUser(
+        Member member = memberQueryUseCase.createUser(
                 credential,
                 input.name(),
                 input.email(),
@@ -62,7 +62,7 @@ public class AuthServiceImpl implements AuthUseCase {
     @Override
     @Transactional
     public AuthTokenResult signIn(SignInInput input) {
-        Member member = memberService.getUserByEmail(input.email());
+        Member member = memberQueryUseCase.getUserByEmail(input.email());
         credentialService.checkPassword(member, input.password());
 
         AuthTokenResult tokenResponse = tokenProvider.issueTokens(member);
@@ -100,13 +100,14 @@ public class AuthServiceImpl implements AuthUseCase {
      * @return AuthTokenResult
      */
     @Override
-    public AuthTokenResult reissue(String token, Member member) {
+    public AuthTokenResult reissue(String token, Long memberId) {
         if (token == null) {
             throw new AuthException(AuthErrorType.TOKEN_NOT_FOUND);
         }
-        if (member == null) {
+        if (memberId == null) {
             throw new MemberException(MemberErrorType.MEMBER_NOT_FOUND);
         }
+        Member member = memberQueryUseCase.getUserById(memberId);
 
         String refreshToken = extractToken(token);
         boolean isValid = tokenProvider.validateToken(refreshToken);

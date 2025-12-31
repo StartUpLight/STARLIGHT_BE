@@ -37,6 +37,11 @@ public record AuthDetails(Member member, Map<String, Object> attributes, String 
     }
 
     @Override
+    public String getMemberName() {
+        return member.getName();
+    }
+
+    @Override
     public String getPassword() {
         return "";
     }

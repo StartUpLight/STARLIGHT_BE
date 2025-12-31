@@ -6,9 +6,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.adapter.member.webapi.swagger.MemberApiDoc;
 import starlight.adapter.member.webapi.dto.MemberDetailResponse;
+import starlight.application.member.provided.MemberQueryUseCase;
+import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 @Slf4j
@@ -17,10 +18,12 @@ import starlight.shared.apiPayload.response.ApiResponse;
 @RequestMapping("/v1/members")
 public class MemberController implements MemberApiDoc {
 
+    private final MemberQueryUseCase memberQueryUseCase;
+
     @GetMapping
     public ApiResponse<MemberDetailResponse> getMemberDetail(
-            @AuthenticationPrincipal AuthDetails authDetails
+            @AuthenticationPrincipal AuthenticatedMember authDetails
     ) {
-        return ApiResponse.success(MemberDetailResponse.fromMember(authDetails.getUser()));
+        return ApiResponse.success(MemberDetailResponse.fromMember(memberQueryUseCase.getUserById(authDetails.getMemberId())));
     }
 }

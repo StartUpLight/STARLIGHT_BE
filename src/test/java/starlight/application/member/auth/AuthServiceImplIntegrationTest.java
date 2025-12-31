@@ -12,7 +12,7 @@ import starlight.application.member.auth.provided.dto.SignUpInput;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
 import starlight.application.member.provided.CredentialService;
-import starlight.application.member.provided.MemberService;
+import starlight.application.member.provided.MemberQueryUseCase;
 import starlight.domain.member.auth.exception.AuthException;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 })
 class AuthServiceImplIntegrationTest {
 
-    @MockitoBean MemberService memberService;
+    @MockitoBean MemberQueryUseCase memberQueryUseCase;
     @MockitoBean CredentialService credentialService;
     @MockitoBean TokenProvider tokenProvider;
     @MockitoBean KeyValueMap redisClient;
@@ -42,12 +42,12 @@ class AuthServiceImplIntegrationTest {
         Member member = Member.create("name", "u@ex.com", null, MemberType.FOUNDER, null, "img.png");
 
         when(credentialService.createCredential("pw")).thenReturn(cred);
-        when(memberService.createUser(cred, "name", "u@ex.com", "010-0000-0000")).thenReturn(member);
+        when(memberQueryUseCase.createUser(cred, "name", "u@ex.com", "010-0000-0000")).thenReturn(member);
 
         AuthMemberResult res = sut.signUp(req);
 
         verify(credentialService).createCredential("pw");
-        verify(memberService).createUser(cred, "name", "u@ex.com", "010-0000-0000");
+        verify(memberQueryUseCase).createUser(cred, "name", "u@ex.com", "010-0000-0000");
         assertNotNull(res);
     }
 
@@ -57,7 +57,7 @@ class AuthServiceImplIntegrationTest {
         Member member = Member.create("test", "a@b.com", null, MemberType.FOUNDER, null, "img.png");
         AuthTokenResult token = new AuthTokenResult("AT", "RT");
 
-        when(memberService.getUserByEmail("a@b.com")).thenReturn(member);
+        when(memberQueryUseCase.getUserByEmail("a@b.com")).thenReturn(member);
         // 비밀번호 검증은 side-effect만 확인
         doNothing().when(credentialService).checkPassword(member, "pw");
         when(tokenProvider.issueTokens(member)).thenReturn(token);
@@ -75,7 +75,7 @@ class AuthServiceImplIntegrationTest {
         SignInInput req = new SignInInput("a@b.com", "bad");
         Member member = Member.create("test", "a@b.com", null, MemberType.FOUNDER, null, "img.png");
 
-        when(memberService.getUserByEmail("a@b.com")).thenReturn(member);
+        when(memberQueryUseCase.getUserByEmail("a@b.com")).thenReturn(member);
         doThrow(new AuthException(starlight.domain.member.auth.exception.AuthErrorType.TOKEN_INVALID))
                 .when(credentialService).checkPassword(member, "bad");
 
@@ -110,8 +110,7 @@ class AuthServiceImplIntegrationTest {
 
     @Test
     void recreate_token_null이면_TOKEN_NOT_FOUND() {
-        Member member = Member.create("m", "m@ex.com", null, MemberType.FOUNDER, null, "img.png");
-        assertThrows(AuthException.class, () -> sut.reissue(null, member));
+        assertThrows(AuthException.class, () -> sut.reissue(null, 1L));
     }
 
     @Test
@@ -121,34 +120,40 @@ class AuthServiceImplIntegrationTest {
 
     @Test
     void recreate_refresh_유효성_실패면_TOKEN_INVALID() {
+        Long memberId = 1L;
+        Member member = Member.create("m","m@ex.com", null, MemberType.FOUNDER, null, "img.png");
+        when(memberQueryUseCase.getUserById(memberId)).thenReturn(member);
         when(tokenProvider.validateToken("REAL_RT")).thenReturn(false);
-        assertThrows(AuthException.class, () -> sut.reissue("Bearer REAL_RT",
-                Member.create("m","m@ex.com", null, MemberType.FOUNDER, null, "img.png")));
+        assertThrows(AuthException.class, () -> sut.reissue("Bearer REAL_RT", memberId));
     }
 
     @Test
     void recreate_Redis저장값과_불일치면_TOKEN_NOT_FOUND() {
+        Long memberId = 1L;
         Member member = Member.create("m","m@ex.com", null, MemberType.FOUNDER, null, "img.png");
+        when(memberQueryUseCase.getUserById(memberId)).thenReturn(member);
 
         when(tokenProvider.validateToken("REAL_RT")).thenReturn(true);
         when(tokenProvider.getEmail("REAL_RT")).thenReturn("m@ex.com");
         when(redisClient.getValue("m@ex.com")).thenReturn("OTHER_RT"); // 불일치
 
-        assertThrows(AuthException.class, () -> sut.reissue("Bearer REAL_RT", member));
+        assertThrows(AuthException.class, () -> sut.reissue("Bearer REAL_RT", memberId));
         verify(tokenProvider, never()).reissueTokens(any(), anyString());
     }
 
     @Test
     void recreate_정상_재발급성공() {
+        Long memberId = 1L;
         Member member = Member.create("m","m@ex.com", null, MemberType.FOUNDER, null, "img.png");
         AuthTokenResult recreated = new AuthTokenResult("NEW_AT", "SAME_OR_NEW_RT");
 
+        when(memberQueryUseCase.getUserById(memberId)).thenReturn(member);
         when(tokenProvider.validateToken("REAL_RT")).thenReturn(true);
         when(tokenProvider.getEmail("REAL_RT")).thenReturn("m@ex.com");
         when(redisClient.getValue("m@ex.com")).thenReturn("REAL_RT");
         when(tokenProvider.reissueTokens(member, "REAL_RT")).thenReturn(recreated);
 
-        AuthTokenResult out = sut.reissue("Bearer REAL_RT", member);
+        AuthTokenResult out = sut.reissue("Bearer REAL_RT", memberId);
 
         assertEquals("NEW_AT", out.accessToken());
         verify(tokenProvider).reissueTokens(member, "REAL_RT");

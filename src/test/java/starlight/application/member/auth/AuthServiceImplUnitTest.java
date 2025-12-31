@@ -12,7 +12,7 @@ import starlight.application.member.auth.provided.dto.SignInInput;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
 import starlight.application.member.provided.CredentialService;
-import starlight.application.member.provided.MemberService;
+import starlight.application.member.provided.MemberQueryUseCase;
 import starlight.domain.member.auth.exception.AuthException;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplUnitTest {
 
-    @Mock MemberService memberService;
+    @Mock MemberQueryUseCase memberQueryUseCase;
     @Mock CredentialService credentialService;
     @Mock TokenProvider tokenProvider;
     @Mock KeyValueMap redisClient;
@@ -41,7 +41,7 @@ class AuthServiceImplUnitTest {
         SignInInput req = new SignInInput("a@b.com", "pw");
         Member member = Member.create("testName", "a@b.com", null, MemberType.FOUNDER, null, "image.png");
         AuthTokenResult token = new AuthTokenResult("AT", "RT");
-        when(memberService.getUserByEmail("a@b.com")).thenReturn(member);
+        when(memberQueryUseCase.getUserByEmail("a@b.com")).thenReturn(member);
         when(tokenProvider.issueTokens(member)).thenReturn(token);
 
         AuthTokenResult res = sut.signIn(req);
@@ -61,11 +61,12 @@ class AuthServiceImplUnitTest {
     @Test
     void recreate_저장된_리프레시와_불일치면_예외() {
         Member member = Member.create("testName", "a@b.com", null, MemberType.FOUNDER, null, "image.png");
+        when(memberQueryUseCase.getUserById(1L)).thenReturn(member);
         when(tokenProvider.validateToken("REAL_RT")).thenReturn(true);
         when(tokenProvider.getEmail("REAL_RT")).thenReturn("a@b.com");
         when(redisClient.getValue("a@b.com")).thenReturn("OTHER_RT");
 
         assertThrows(AuthException.class,
-                () -> sut.reissue("Bearer REAL_RT", member));
+                () -> sut.reissue("Bearer REAL_RT", 1L));
     }
 }

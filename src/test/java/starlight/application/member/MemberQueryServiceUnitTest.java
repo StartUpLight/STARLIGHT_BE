@@ -18,11 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class MemberServiceImplUnitTest {
+class MemberQueryServiceUnitTest {
 
     @Mock MemberQueryPort memberQueryPort;
     @Mock MemberCommandPort memberCommandPort;
-    @InjectMocks MemberServiceImpl sut;
+    @InjectMocks MemberQueryService sut;
 
     @Test
     void createUser_중복이메일이면_예외() {

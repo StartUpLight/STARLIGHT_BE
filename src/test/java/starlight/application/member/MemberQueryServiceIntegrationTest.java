@@ -18,10 +18,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Import({MemberServiceImpl.class, MemberJpa.class})
-class MemberServiceImplIntegrationTest {
+@Import({MemberQueryService.class, MemberJpa.class})
+class MemberQueryServiceIntegrationTest {
 
-    @Autowired MemberServiceImpl sut;
+    @Autowired MemberQueryService sut;
     @Autowired MemberRepository memberRepository;
 
     @Test

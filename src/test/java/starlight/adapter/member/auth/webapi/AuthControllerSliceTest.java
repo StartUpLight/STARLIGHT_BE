@@ -83,8 +83,7 @@ class AuthControllerSliceTest {
                                               org.springframework.web.context.request.NativeWebRequest webRequest,
                                               org.springframework.web.bind.support.WebDataBinderFactory binderFactory) {
                     AuthDetails authDetails = Mockito.mock(AuthDetails.class);
-                    Member member = Member.create("tester","tester@ex.com", null, MemberType.FOUNDER, null, "image.png");
-                    when(authDetails.getUser()).thenReturn(member);
+                    when(authDetails.getMemberId()).thenReturn(1L);
                     return authDetails;
                 }
             };
@@ -110,13 +109,13 @@ class AuthControllerSliceTest {
     @Test
     void recreate_OK_헤더에서_토큰읽어_서비스호출() throws Exception {
         when(tokenResolver.resolveRefreshToken(any())).thenReturn("REAL_RT");
-        when(authUseCase.reissue(eq("REAL_RT"), any(Member.class)))
+        when(authUseCase.reissue(eq("REAL_RT"), eq(1L)))
                 .thenReturn(new AuthTokenResult("NEW_AT", "RT_OR_NEW"));
 
         mvc.perform(get("/v1/auth/recreate"))
                 .andExpect(status().isOk());
 
-        verify(authUseCase).reissue(eq("REAL_RT"), any(Member.class));
+        verify(authUseCase).reissue(eq("REAL_RT"), eq(1L));
     }
 
     @Test
