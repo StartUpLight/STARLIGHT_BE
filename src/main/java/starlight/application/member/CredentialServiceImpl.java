@@ -16,9 +16,9 @@ public class CredentialServiceImpl implements CredentialService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * Credential을 생성하고 저장하는 메서드
+     * Credential을 생성하는 메서드
      * @param rawPassword
-     * @return Credential
+     * @return 저장되지 않은 Credential
      */
     public Credential createCredential(String rawPassword) {
 

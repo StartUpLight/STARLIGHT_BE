@@ -36,7 +36,7 @@ public class AuthServiceImpl implements AuthUseCase {
     /**
      * 회원가입 메서드
      *
-     * @param authRequest
+     * @param input 회원가입 입력값
      * @return AuthMemberResult
      */
     @Override
@@ -56,7 +56,7 @@ public class AuthServiceImpl implements AuthUseCase {
     /**
      * 로그인 메서드
      *
-     * @param signInRequest
+     * @param input 로그인 입력값
      * @return AuthTokenResult
      */
     @Override
@@ -96,7 +96,7 @@ public class AuthServiceImpl implements AuthUseCase {
      * 토큰 재발급 메서드
      *
      * @param token
-     * @param member
+     * @param memberId
      * @return AuthTokenResult
      */
     @Override
