@@ -98,7 +98,22 @@ jobs:
             fi
 
             git -C "$dir" commit -m "Update image tag to $IMAGE_TAG"
-            git -C "$dir" push
+            
+            for i in {1..3}; do
+              echo "Push attempt $i for $dir"
+              git -C "$dir" pull --rebase origin main && \
+              git -C "$dir" push && \
+              echo "Successfully pushed $dir" && \
+              break || {
+                echo "Push failed for $dir, retrying in 2 seconds..."
+                sleep 2
+              }
+            done
+
+            if ! git -C "$dir" diff --quiet origin/main HEAD; then
+              echo "ERROR: Failed to push $dir after 3 attempts"
+              return 1
+            fi
           }
 
           update_manifest manifest
