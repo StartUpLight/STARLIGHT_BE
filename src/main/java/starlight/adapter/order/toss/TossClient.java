@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import starlight.application.order.provided.dto.TossClientResponse;
+import starlight.application.order.required.PaymentGatewayPort;
 import starlight.domain.order.exception.OrderErrorType;
 import starlight.domain.order.exception.OrderException;
 
@@ -14,7 +15,7 @@ import java.util.Objects;
 
 @Slf4j
 @Component
-public class TossClient {
+public class TossClient implements PaymentGatewayPort {
 
     private final RestClient restClient;
 
@@ -22,6 +23,7 @@ public class TossClient {
         this.restClient = restClient;
     }
 
+    @Override
     public TossClientResponse.Confirm confirm(String orderCode, String paymentKey, Long price) {
         Map<String, Object> body = Map.of(
                 "paymentKey", paymentKey,
@@ -48,6 +50,7 @@ public class TossClient {
         }
     }
 
+    @Override
     public TossClientResponse.Cancel cancel(String paymentKey, String reason) {
         Map<String, Object> body = Map.of(
                 "cancelReason", reason != null ? reason : "user_request"

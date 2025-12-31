@@ -63,7 +63,10 @@ public class OrderController implements OrderApiDoc {
     public ApiResponse<OrderCancelResponse> cancelPayment(
             @Valid @RequestBody OrderCancelRequest request
     ) {
-        TossClientResponse.Cancel tossResponse = orderPaymentService.cancel(request);
+        TossClientResponse.Cancel tossResponse = orderPaymentService.cancel(
+                request.orderCode(),
+                request.reason()
+        );
 
         OrderCancelResponse response = OrderCancelResponse.from(tossResponse);
 
