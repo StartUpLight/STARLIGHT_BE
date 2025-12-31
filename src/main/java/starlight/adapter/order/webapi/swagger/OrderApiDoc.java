@@ -13,7 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import starlight.adapter.member.auth.security.auth.AuthDetails;
+import starlight.shared.auth.AuthenticatedMember;
 import starlight.adapter.order.webapi.dto.request.OrderCancelRequest;
 import starlight.adapter.order.webapi.dto.request.OrderConfirmRequest;
 import starlight.adapter.order.webapi.dto.request.OrderPrepareRequest;
@@ -117,7 +117,7 @@ public interface OrderApiDoc {
     @PostMapping("/request")
     ApiResponse<OrderPrepareResponse> prepareOrder(
             @Valid @RequestBody OrderPrepareRequest request,
-            @AuthenticationPrincipal AuthDetails authDetails
+            @AuthenticationPrincipal AuthenticatedMember authDetails
     );
 
     @Operation(summary = "결제 승인", security = @SecurityRequirement(name = "Bearer Authentication"))
@@ -215,7 +215,7 @@ public interface OrderApiDoc {
     @PostMapping("/confirm")
     ApiResponse<OrderConfirmResponse> confirmPayment(
             @Valid @RequestBody OrderConfirmRequest request,
-            @AuthenticationPrincipal AuthDetails authDetails
+            @AuthenticationPrincipal AuthenticatedMember authDetails
     );
 
     @Operation(summary = "결제 취소")
@@ -328,6 +328,6 @@ public interface OrderApiDoc {
     })
     @GetMapping
     ApiResponse<List<PaymentHistoryItemResult>> getMyPayments(
-            @AuthenticationPrincipal AuthDetails authDetails
+            @AuthenticationPrincipal AuthenticatedMember authDetails
     );
 }

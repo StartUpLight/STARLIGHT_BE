@@ -6,10 +6,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.adapter.expertApplication.webapi.swagger.ExpertApplicationApiDoc;
 import starlight.application.expertApplication.provided.ExpertApplicationQueryUseCase;
 import starlight.application.expertApplication.provided.ExpertApplicationCommandUseCase;
+import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public class ExpertApplicationController implements ExpertApplicationApiDoc {
             @PathVariable Long expertId,
             @RequestParam Long businessPlanId,
             @RequestParam("file") MultipartFile file,
-            @AuthenticationPrincipal AuthDetails auth
+            @AuthenticationPrincipal AuthenticatedMember auth
     ) throws Exception {
         applicationServiceUseCase.requestFeedback(expertId, businessPlanId, file, auth.getUser().getName());
         return ApiResponse.success("피드백 요청이 전달되었습니다.");

@@ -13,7 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import starlight.adapter.member.auth.security.auth.AuthDetails;
+import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;
@@ -297,7 +297,7 @@ public interface ExpertApplicationApiDoc {
             @RequestParam("file") MultipartFile file,
 
             @Parameter(hidden = true)
-            @AuthenticationPrincipal AuthDetails auth
+            @AuthenticationPrincipal AuthenticatedMember auth
     ) throws Exception;
 
     /**

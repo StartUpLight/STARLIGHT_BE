@@ -5,11 +5,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import starlight.domain.member.entity.Member;
+import starlight.shared.auth.AuthenticatedMember;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public record AuthDetails(Member member, Map<String, Object> attributes, String nameAttributeKey) implements UserDetails, OAuth2User {
+public record AuthDetails(Member member, Map<String, Object> attributes, String nameAttributeKey)
+        implements UserDetails, OAuth2User, AuthenticatedMember {
 
     // 폼 로그인 호환용 보조 생성자
     public AuthDetails(Member member) {
@@ -80,4 +82,3 @@ public record AuthDetails(Member member, Map<String, Object> attributes, String 
         return new AuthDetails(member, attrs, nameKey);
     }
 }
-
