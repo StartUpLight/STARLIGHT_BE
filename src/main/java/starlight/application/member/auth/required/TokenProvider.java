@@ -1,16 +1,16 @@
 package starlight.application.member.auth.required;
 
 import jakarta.servlet.http.HttpServletRequest;
-import starlight.adapter.member.auth.security.jwt.dto.TokenResponse;
+import starlight.application.member.auth.provided.dto.AuthTokenResult;
 import starlight.domain.member.entity.Member;
 
 public interface TokenProvider {
 
     String createAccessToken(Member member);
 
-    TokenResponse issueTokens(Member member);
+    AuthTokenResult issueTokens(Member member);
 
-    TokenResponse reissueTokens(Member member, String refreshToken);
+    AuthTokenResult reissueTokens(Member member, String refreshToken);
 
     boolean validateToken(String token);
 

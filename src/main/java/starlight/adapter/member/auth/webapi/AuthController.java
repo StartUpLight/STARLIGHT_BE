@@ -24,12 +24,12 @@ public class AuthController implements AuthApiDoc {
 
     @PostMapping("/sign-up")
     public ApiResponse<MemberResponse> signUp(@Validated @RequestBody AuthRequest authRequest) {
-        return ApiResponse.success(authUseCase.signUp(authRequest));
+        return ApiResponse.success(MemberResponse.from(authUseCase.signUp(authRequest.toCommand())));
     }
 
     @PostMapping("/sign-in")
     public ApiResponse<TokenResponse> signIn(@Validated @RequestBody SignInRequest signInRequest) {
-        return ApiResponse.success(authUseCase.signIn(signInRequest));
+        return ApiResponse.success(TokenResponse.from(authUseCase.signIn(signInRequest.toCommand())));
     }
 
     @PostMapping("/sign-out")
@@ -44,6 +44,6 @@ public class AuthController implements AuthApiDoc {
     @GetMapping("/recreate")
     public ApiResponse<TokenResponse> reissue(HttpServletRequest request, @AuthenticationPrincipal AuthDetails authDetails) {
         String token = tokenResolver.resolveRefreshToken(request);
-        return ApiResponse.success(authUseCase.reissue(token, authDetails.getUser()));
+        return ApiResponse.success(TokenResponse.from(authUseCase.reissue(token, authDetails.getUser())));
     }
 }

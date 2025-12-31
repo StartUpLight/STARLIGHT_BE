@@ -1,6 +1,7 @@
 package starlight.adapter.member.auth.webapi.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import starlight.application.member.auth.provided.dto.AuthMemberResult;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
 
@@ -23,6 +24,15 @@ public record MemberResponse(
                 member.getEmail(),
                 member.getPhoneNumber(),
                 member.getMemberType()
+        );
+    }
+
+    public static MemberResponse from(AuthMemberResult result) {
+        return new MemberResponse(
+                result.id(),
+                result.email(),
+                result.phoneNumber(),
+                result.memberType()
         );
     }
 }

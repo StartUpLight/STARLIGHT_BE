@@ -7,8 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import starlight.adapter.member.auth.security.jwt.dto.TokenResponse;
-import starlight.adapter.member.auth.webapi.dto.request.SignInRequest;
+import starlight.application.member.auth.provided.dto.AuthTokenResult;
+import starlight.application.member.auth.provided.dto.SignInCommand;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
 import starlight.application.member.provided.CredentialService;
@@ -38,13 +38,13 @@ class AuthServiceImplUnitTest {
 
     @Test
     void signIn_정상() {
-        SignInRequest req = new SignInRequest("a@b.com", "pw");
+        SignInCommand req = new SignInCommand("a@b.com", "pw");
         Member member = Member.create("testName", "a@b.com", null, MemberType.FOUNDER, null, "image.png");
-        TokenResponse token = new TokenResponse("AT", "RT");
+        AuthTokenResult token = new AuthTokenResult("AT", "RT");
         when(memberService.getUserByEmail("a@b.com")).thenReturn(member);
         when(tokenProvider.issueTokens(member)).thenReturn(token);
 
-        TokenResponse res = sut.signIn(req);
+        AuthTokenResult res = sut.signIn(req);
 
         verify(credentialService).checkPassword(member, "pw");
         verify(redisClient).setValue("a@b.com", "RT", 3600L);

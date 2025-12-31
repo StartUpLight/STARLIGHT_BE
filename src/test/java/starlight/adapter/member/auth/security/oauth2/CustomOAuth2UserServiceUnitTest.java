@@ -14,7 +14,8 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.test.util.ReflectionTestUtils;
 import starlight.adapter.member.auth.security.auth.AuthDetails;
-import starlight.adapter.member.persistence.MemberRepository;
+import starlight.application.member.required.MemberCommandPort;
+import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
 
@@ -29,7 +30,8 @@ import static org.mockito.Mockito.*;
 
 class CustomOAuth2UserServiceUnitTest {
 
-    @Mock MemberRepository memberRepository;
+    @Mock MemberQueryPort memberQueryPort;
+    @Mock MemberCommandPort memberCommandPort;
     @Mock OAuth2UserService<OAuth2UserRequest, org.springframework.security.oauth2.core.user.OAuth2User> delegate;
 
     @InjectMocks CustomOAuth2UserService sut;
@@ -37,7 +39,7 @@ class CustomOAuth2UserServiceUnitTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        sut = new CustomOAuth2UserService(memberRepository);
+        sut = new CustomOAuth2UserService(memberQueryPort, memberCommandPort);
         ReflectionTestUtils.setField(sut, "delegate", delegate);
     }
 
@@ -86,12 +88,12 @@ class CustomOAuth2UserServiceUnitTest {
         when(delegate.loadUser(any())).thenReturn(oau);
 
         var existing = Member.newSocial("홍길동", "a@b.com", "naver", "nid-1", null, MemberType.FOUNDER, "1234.png");
-        when(memberRepository.findByProviderAndProviderId("naver", "nid-1"))
+        when(memberQueryPort.findByProviderAndProviderId("naver", "nid-1"))
                 .thenReturn(Optional.of(existing));
 
         var result = sut.loadUser(naverReq);
 
-        verify(memberRepository, never()).save(any());
+        verify(memberCommandPort, never()).save(any());
         assertThat(result).isInstanceOf(AuthDetails.class);
         var details = (AuthDetails) result;
         assertThat(details.member().getProvider()).isEqualTo("naver");
@@ -103,15 +105,15 @@ class CustomOAuth2UserServiceUnitTest {
         var oau = naverUser("nid-2", "c@d.com", "아무개");
         when(delegate.loadUser(any())).thenReturn(oau);
 
-        when(memberRepository.findByProviderAndProviderId("naver", "nid-2"))
+        when(memberQueryPort.findByProviderAndProviderId("naver", "nid-2"))
                 .thenReturn(Optional.empty());
 
         var byEmail = Member.newSocial("기존이름", "c@d.com", "kakao", "kid-9", null, MemberType.FOUNDER, "1234.png");
-        when(memberRepository.findByEmail("c@d.com")).thenReturn(Optional.of(byEmail));
+        when(memberQueryPort.findByEmail("c@d.com")).thenReturn(Optional.of(byEmail));
 
         var result = sut.loadUser(naverReq);
 
-        verify(memberRepository, never()).save(any());
+        verify(memberCommandPort, never()).save(any());
         var details = (AuthDetails) result;
         // 정책에 따라: 기존 계정에 naver 연결 or 그냥 로그인만
         assertThat(details.member().getEmail()).isEqualTo("c@d.com");
@@ -122,15 +124,15 @@ class CustomOAuth2UserServiceUnitTest {
         var oau = naverUser("nid-3", null, "신규유저"); // 이메일 동의 안 한 케이스
         when(delegate.loadUser(any())).thenReturn(oau);
 
-        when(memberRepository.findByProviderAndProviderId("naver", "nid-3"))
+        when(memberQueryPort.findByProviderAndProviderId("naver", "nid-3"))
                 .thenReturn(Optional.empty());
 
         var saved = Member.newSocial("신규유저", null, "naver", "nid-3", null, MemberType.FOUNDER, "1234.png");
-        when(memberRepository.save(any(Member.class))).thenReturn(saved);
+        when(memberCommandPort.save(any(Member.class))).thenReturn(saved);
 
         var result = sut.loadUser(naverReq);
 
-        verify(memberRepository).save(any(Member.class));
+        verify(memberCommandPort).save(any(Member.class));
         var details = (AuthDetails) result;
         assertThat(details.member().getProviderId()).isEqualTo("nid-3");
     }

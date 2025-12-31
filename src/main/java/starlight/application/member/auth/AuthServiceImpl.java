@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.adapter.member.auth.security.jwt.dto.TokenResponse;
-import starlight.adapter.member.auth.webapi.dto.request.AuthRequest;
-import starlight.adapter.member.auth.webapi.dto.request.SignInRequest;
-import starlight.adapter.member.auth.webapi.dto.response.MemberResponse;
 import starlight.application.member.auth.provided.AuthUseCase;
+import starlight.application.member.auth.provided.dto.AuthMemberResult;
+import starlight.application.member.auth.provided.dto.AuthTokenResult;
+import starlight.application.member.auth.provided.dto.SignInCommand;
+import starlight.application.member.auth.provided.dto.SignUpCommand;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
 import starlight.application.member.provided.CredentialService;
@@ -37,35 +37,35 @@ public class AuthServiceImpl implements AuthUseCase {
      * 회원가입 메서드
      *
      * @param authRequest
-     * @return MemberResponse
+     * @return AuthMemberResult
      */
     @Override
     @Transactional
-    public MemberResponse signUp(AuthRequest authRequest) {
-        Credential credential = credentialService.createCredential(authRequest.password());
+    public AuthMemberResult signUp(SignUpCommand command) {
+        Credential credential = credentialService.createCredential(command.password());
         Member member = memberService.createUser(
                 credential,
-                authRequest.name(),
-                authRequest.email(),
-                authRequest.phoneNumber()
+                command.name(),
+                command.email(),
+                command.phoneNumber()
         );
 
-        return MemberResponse.of(member);
+        return AuthMemberResult.from(member);
     }
 
     /**
      * 로그인 메서드
      *
      * @param signInRequest
-     * @return TokenResponse
+     * @return AuthTokenResult
      */
     @Override
     @Transactional
-    public TokenResponse signIn(SignInRequest signInRequest) {
-        Member member = memberService.getUserByEmail(signInRequest.email());
-        credentialService.checkPassword(member, signInRequest.password());
+    public AuthTokenResult signIn(SignInCommand command) {
+        Member member = memberService.getUserByEmail(command.email());
+        credentialService.checkPassword(member, command.password());
 
-        TokenResponse tokenResponse = tokenProvider.issueTokens(member);
+        AuthTokenResult tokenResponse = tokenProvider.issueTokens(member);
         redisClient.setValue(member.getEmail(), tokenResponse.refreshToken(), refreshTokenExpirationTime);
 
         return tokenResponse;
@@ -97,10 +97,10 @@ public class AuthServiceImpl implements AuthUseCase {
      *
      * @param token
      * @param member
-     * @return tokenResponse
+     * @return AuthTokenResult
      */
     @Override
-    public TokenResponse reissue(String token, Member member) {
+    public AuthTokenResult reissue(String token, Member member) {
         if (token == null) {
             throw new AuthException(AuthErrorType.TOKEN_NOT_FOUND);
         }

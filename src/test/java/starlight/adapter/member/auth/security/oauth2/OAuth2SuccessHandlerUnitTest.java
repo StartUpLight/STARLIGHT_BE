@@ -6,9 +6,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 import starlight.adapter.member.auth.security.auth.AuthDetails;
-import starlight.adapter.member.auth.security.jwt.dto.TokenResponse;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
+import starlight.application.member.auth.provided.dto.AuthTokenResult;
 import starlight.domain.member.entity.Member;
 
 import java.nio.charset.StandardCharsets;
@@ -45,7 +45,7 @@ class OAuth2SuccessHandlerUnitTest {
         when(authentication.getPrincipal()).thenReturn(authDetails);
 
         when(tokenProvider.issueTokens(any(Member.class)))
-                .thenReturn(new TokenResponse("access-token", "refresh-token"));
+                .thenReturn(new AuthTokenResult("access-token", "refresh-token"));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();

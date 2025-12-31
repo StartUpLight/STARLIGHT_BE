@@ -9,9 +9,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import starlight.adapter.member.auth.security.auth.AuthDetails;
-import starlight.adapter.member.auth.security.jwt.dto.TokenResponse;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
+import starlight.application.member.auth.provided.dto.AuthTokenResult;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -35,7 +35,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest req, HttpServletResponse res, Authentication auth) throws IOException {
         AuthDetails principal = (AuthDetails) auth.getPrincipal();
 
-        TokenResponse tokens = tokenProvider.issueTokens(principal.getUser());
+        AuthTokenResult tokens = tokenProvider.issueTokens(principal.getUser());
 
         String access = tokens.accessToken();
         String refresh = tokens.refreshToken();

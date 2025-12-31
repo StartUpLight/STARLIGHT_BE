@@ -14,8 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import starlight.adapter.member.auth.security.jwt.dto.TokenResponse;
 import starlight.application.member.auth.required.KeyValueMap;
+import starlight.application.member.auth.provided.dto.AuthTokenResult;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
 import starlight.shared.apiPayload.exception.GlobalException;
@@ -77,7 +77,7 @@ class JwtTokenProviderTest {
     @DisplayName("AccessToken과 RefreshToken 생성 성공")
     void issueTokens_Success() {
         // when
-        TokenResponse tokenResponse = jwtTokenProvider.issueTokens(member);
+        AuthTokenResult tokenResponse = jwtTokenProvider.issueTokens(member);
 
         // then
         assertThat(tokenResponse).isNotNull();
@@ -91,10 +91,10 @@ class JwtTokenProviderTest {
     @DisplayName("토큰 재발급 성공 - RefreshToken 유효기간이 충분한 경우")
     void recreate_Success_WithValidRefreshToken() {
         // given
-        TokenResponse originalToken = jwtTokenProvider.issueTokens(member);
+        AuthTokenResult originalToken = jwtTokenProvider.issueTokens(member);
 
         // when
-        TokenResponse newToken = jwtTokenProvider.reissueTokens(member, originalToken.refreshToken());
+        AuthTokenResult newToken = jwtTokenProvider.reissueTokens(member, originalToken.refreshToken());
 
         // then
         assertThat(newToken).isNotNull();
@@ -118,7 +118,7 @@ class JwtTokenProviderTest {
                 .compact();
 
         // when
-        TokenResponse newToken = jwtTokenProvider.reissueTokens(member, expiredRefreshToken);
+        AuthTokenResult newToken = jwtTokenProvider.reissueTokens(member, expiredRefreshToken);
 
         // then
         assertThat(newToken).isNotNull();
@@ -243,7 +243,7 @@ class JwtTokenProviderTest {
     @DisplayName("토큰 무효화 성공")
     void logoutTokens_Success() {
         // given
-        TokenResponse tokenResponse = jwtTokenProvider.issueTokens(member);
+        AuthTokenResult tokenResponse = jwtTokenProvider.issueTokens(member);
 
         // when
         jwtTokenProvider.logoutTokens(tokenResponse.refreshToken(), tokenResponse.accessToken());

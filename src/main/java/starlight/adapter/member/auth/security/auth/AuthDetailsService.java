@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.adapter.member.persistence.MemberRepository;
+import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.exception.MemberErrorType;
 import starlight.domain.member.exception.MemberException;
@@ -16,12 +16,13 @@ import starlight.domain.member.exception.MemberException;
 @RequiredArgsConstructor
 public class AuthDetailsService implements UserDetailsService {
 
-    private final MemberRepository memberRepository;
+    private final MemberQueryPort memberQueryPort;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Member member = memberRepository.findByEmail(email).orElseThrow(()
-                -> new MemberException(MemberErrorType.MEMBER_NOT_FOUND));
+        Member member = memberQueryPort.findByEmail(email).orElseThrow(
+                () -> new MemberException(MemberErrorType.MEMBER_NOT_FOUND)
+        );
 
         return new AuthDetails(member);
     }

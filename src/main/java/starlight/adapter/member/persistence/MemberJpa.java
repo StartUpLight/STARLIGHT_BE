@@ -29,6 +29,11 @@ public class MemberJpa implements MemberQueryPort, MemberCommandPort {
     }
 
     @Override
+    public Optional<Member> findByProviderAndProviderId(String provider, String providerId) {
+        return memberRepository.findByProviderAndProviderId(provider, providerId);
+    }
+
+    @Override
     public Member findByProviderAndProviderIdOrThrow(String provider, String providerId) {
         return memberRepository.findByProviderAndProviderId(provider, providerId).orElseThrow(
                 () -> new MemberException(MemberErrorType.MEMBER_NOT_FOUND)

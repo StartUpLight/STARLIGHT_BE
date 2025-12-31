@@ -8,7 +8,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.adapter.member.auth.security.auth.AuthDetails;
-import starlight.adapter.member.persistence.MemberRepository;
+import starlight.application.member.required.MemberCommandPort;
+import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
 
@@ -17,11 +18,13 @@ import java.util.Optional;
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-    private final MemberRepository memberRepository;
+    private final MemberQueryPort memberQueryPort;
+    private final MemberCommandPort memberCommandPort;
     private final OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate;
 
-    public CustomOAuth2UserService(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
+    public CustomOAuth2UserService(MemberQueryPort memberQueryPort, MemberCommandPort memberCommandPort) {
+        this.memberQueryPort = memberQueryPort;
+        this.memberCommandPort = memberCommandPort;
         this.delegate = new DefaultOAuth2UserService();
     }
 
@@ -31,20 +34,30 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuth2User oAuth2User = delegate.loadUser(request);
         OAuth2Attributes.Parsed parsed = OAuth2Attributes.parse(request, oAuth2User);
 
-        Optional<Member> found = memberRepository.findByProviderAndProviderId(parsed.provider(), parsed.providerId());
+        Optional<Member> found = memberQueryPort.findByProviderAndProviderId(parsed.provider(), parsed.providerId());
         if (found.isEmpty() && parsed.email() != null) {
-            found = memberRepository.findByEmail(parsed.email());
+            found = memberQueryPort.findByEmail(parsed.email());
         }
 
         Member member = found.orElseGet(() ->
-                memberRepository.save(Member.newSocial(parsed.name(), parsed.email(), parsed.provider(), parsed.providerId(), null, MemberType.FOUNDER, parsed.profileImageUrl()))
+                memberCommandPort.save(
+                        Member.newSocial(
+                                parsed.name(),
+                                parsed.email(),
+                                parsed.provider(),
+                                parsed.providerId(),
+                                null,
+                                MemberType.FOUNDER,
+                                parsed.profileImageUrl()
+                        )
+                )
         );
 
         String newImage = parsed.profileImageUrl();
         if (newImage != null && !newImage.isBlank() && (member.getProfileImageUrl() == null || !member.getProfileImageUrl().equals(newImage))) {
             member.updateProfileImage(newImage);
 
-            memberRepository.save(member);
+            memberCommandPort.save(member);
         }
 
         return AuthDetails.of(member, oAuth2User.getAttributes(), parsed.nameAttributeKey());

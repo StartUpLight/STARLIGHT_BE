@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.adapter.member.auth.security.jwt.dto.TokenResponse;
+import starlight.application.member.auth.provided.dto.AuthTokenResult;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
 import starlight.domain.member.entity.Member;
@@ -88,11 +88,11 @@ public class JwtTokenProvider implements TokenProvider {
      * AccessToken과 RefreshToken을 생성하는 메서드
      *
      * @param member
-     * @return TokenResponse
+     * @return AuthTokenResult
      */
     @Override
-    public TokenResponse issueTokens(Member member) {
-        return TokenResponse.of(
+    public AuthTokenResult issueTokens(Member member) {
+        return AuthTokenResult.of(
                 createAccessToken(member),
                 createRefreshToken(member)
         );
@@ -103,16 +103,16 @@ public class JwtTokenProvider implements TokenProvider {
      *
      * @param member
      * @param refreshToken
-     * @return TokenResponse
+     * @return AuthTokenResult
      */
     @Override
-    public TokenResponse reissueTokens(Member member, String refreshToken) {
+    public AuthTokenResult reissueTokens(Member member, String refreshToken) {
         String accessToken = createAccessToken(member);
 
         if(getExpirationTime(refreshToken) <= getExpirationTime(accessToken)) {
             refreshToken = createRefreshToken(member);
         }
-        return TokenResponse.of(accessToken, refreshToken);
+        return AuthTokenResult.of(accessToken, refreshToken);
     }
 
     /**

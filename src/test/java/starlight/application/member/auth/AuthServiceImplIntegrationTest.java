@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import starlight.adapter.member.auth.security.jwt.dto.TokenResponse;
-import starlight.adapter.member.auth.webapi.dto.request.AuthRequest;
-import starlight.adapter.member.auth.webapi.dto.request.SignInRequest;
-import starlight.adapter.member.auth.webapi.dto.response.MemberResponse;
+import starlight.application.member.auth.provided.dto.AuthMemberResult;
+import starlight.application.member.auth.provided.dto.AuthTokenResult;
+import starlight.application.member.auth.provided.dto.SignInCommand;
+import starlight.application.member.auth.provided.dto.SignUpCommand;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
 import starlight.application.member.provided.CredentialService;
@@ -37,18 +37,14 @@ class AuthServiceImplIntegrationTest {
 
     @Test
     void signUp_정상_자격증명_생성후_회원생성_리턴() {
-        AuthRequest req = mock(AuthRequest.class);
-        when(req.password()).thenReturn("pw");
-        when(req.name()).thenReturn("name");
-        when(req.email()).thenReturn("u@ex.com");
-        when(req.phoneNumber()).thenReturn("010-0000-0000");
+        SignUpCommand req = new SignUpCommand("name", "u@ex.com", "010-0000-0000", "pw");
         Credential cred = mock(Credential.class);
         Member member = Member.create("name", "u@ex.com", null, MemberType.FOUNDER, null, "img.png");
 
         when(credentialService.createCredential("pw")).thenReturn(cred);
         when(memberService.createUser(cred, "name", "u@ex.com", "010-0000-0000")).thenReturn(member);
 
-        MemberResponse res = sut.signUp(req);
+        AuthMemberResult res = sut.signUp(req);
 
         verify(credentialService).createCredential("pw");
         verify(memberService).createUser(cred, "name", "u@ex.com", "010-0000-0000");
@@ -57,16 +53,16 @@ class AuthServiceImplIntegrationTest {
 
     @Test
     void signIn_정상_토큰생성_리프레시_Redis저장() {
-        SignInRequest req = new SignInRequest("a@b.com", "pw");
+        SignInCommand req = new SignInCommand("a@b.com", "pw");
         Member member = Member.create("test", "a@b.com", null, MemberType.FOUNDER, null, "img.png");
-        TokenResponse token = new TokenResponse("AT", "RT");
+        AuthTokenResult token = new AuthTokenResult("AT", "RT");
 
         when(memberService.getUserByEmail("a@b.com")).thenReturn(member);
         // 비밀번호 검증은 side-effect만 확인
         doNothing().when(credentialService).checkPassword(member, "pw");
         when(tokenProvider.issueTokens(member)).thenReturn(token);
 
-        TokenResponse out = sut.signIn(req);
+        AuthTokenResult out = sut.signIn(req);
 
         verify(credentialService).checkPassword(member, "pw");
         verify(redisClient).setValue("a@b.com", "RT", 3600L);
@@ -76,7 +72,7 @@ class AuthServiceImplIntegrationTest {
 
     @Test
     void signIn_비번오류_전파() {
-        SignInRequest req = new SignInRequest("a@b.com", "bad");
+        SignInCommand req = new SignInCommand("a@b.com", "bad");
         Member member = Member.create("test", "a@b.com", null, MemberType.FOUNDER, null, "img.png");
 
         when(memberService.getUserByEmail("a@b.com")).thenReturn(member);
@@ -145,14 +141,14 @@ class AuthServiceImplIntegrationTest {
     @Test
     void recreate_정상_재발급성공() {
         Member member = Member.create("m","m@ex.com", null, MemberType.FOUNDER, null, "img.png");
-        TokenResponse recreated = new TokenResponse("NEW_AT", "SAME_OR_NEW_RT");
+        AuthTokenResult recreated = new AuthTokenResult("NEW_AT", "SAME_OR_NEW_RT");
 
         when(tokenProvider.validateToken("REAL_RT")).thenReturn(true);
         when(tokenProvider.getEmail("REAL_RT")).thenReturn("m@ex.com");
         when(redisClient.getValue("m@ex.com")).thenReturn("REAL_RT");
         when(tokenProvider.reissueTokens(member, "REAL_RT")).thenReturn(recreated);
 
-        TokenResponse out = sut.reissue("Bearer REAL_RT", member);
+        AuthTokenResult out = sut.reissue("Bearer REAL_RT", member);
 
         assertEquals("NEW_AT", out.accessToken());
         verify(tokenProvider).reissueTokens(member, "REAL_RT");

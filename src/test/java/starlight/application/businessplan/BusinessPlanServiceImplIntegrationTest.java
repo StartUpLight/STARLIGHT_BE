@@ -65,6 +65,11 @@ class BusinessPlanServiceImplIntegrationTest {
                 }
 
                 @Override
+                public java.util.Optional<Member> findByProviderAndProviderId(String provider, String providerId) {
+                    return java.util.Optional.empty();
+                }
+
+                @Override
                 public Member findByProviderAndProviderIdOrThrow(String provider, String providerId) {
                     Member m = mock(Member.class);
                     when(m.getName()).thenReturn("tester");

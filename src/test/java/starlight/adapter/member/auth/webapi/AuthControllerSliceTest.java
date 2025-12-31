@@ -23,10 +23,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.adapter.member.auth.security.auth.AuthDetailsService;
 import starlight.adapter.member.auth.security.filter.JwtFilter;
-import starlight.adapter.member.auth.security.jwt.dto.TokenResponse;
-import starlight.adapter.member.auth.webapi.dto.request.AuthRequest;
-import starlight.adapter.member.auth.webapi.dto.response.MemberResponse;
 import starlight.application.member.auth.provided.AuthUseCase;
+import starlight.application.member.auth.provided.dto.AuthMemberResult;
+import starlight.application.member.auth.provided.dto.AuthTokenResult;
+import starlight.application.member.auth.provided.dto.SignUpCommand;
 import starlight.bootstrap.SecurityConfig;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
@@ -111,7 +111,7 @@ class AuthControllerSliceTest {
     void recreate_OK_헤더에서_토큰읽어_서비스호출() throws Exception {
         when(tokenResolver.resolveRefreshToken(any())).thenReturn("REAL_RT");
         when(authUseCase.reissue(eq("REAL_RT"), any(Member.class)))
-                .thenReturn(new TokenResponse("NEW_AT", "RT_OR_NEW"));
+                .thenReturn(new AuthTokenResult("NEW_AT", "RT_OR_NEW"));
 
         mvc.perform(get("/v1/auth/recreate"))
                 .andExpect(status().isOk());
@@ -123,7 +123,7 @@ class AuthControllerSliceTest {
     void signIn_OK() throws Exception {
         when(authUseCase.signIn(argThat(req ->
                 "a@b.com".equals(req.email()) && "pw".equals(req.password())
-        ))).thenReturn(new TokenResponse("AT", "RT"));
+        ))).thenReturn(new AuthTokenResult("AT", "RT"));
 
         mvc.perform(post("/v1/auth/sign-in")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -137,11 +137,18 @@ class AuthControllerSliceTest {
 
     @Test
     void signUp_OK() throws Exception {
-        when(authUseCase.signUp(any(AuthRequest.class))).thenAnswer(invocation -> {
-            AuthRequest request = invocation.getArgument(0);
+        when(authUseCase.signUp(any(SignUpCommand.class))).thenAnswer(invocation -> {
+            SignUpCommand command = invocation.getArgument(0);
             Credential credential = Credential.create("hashedPassword");
-            Member member = request.toMember(credential);
-            return MemberResponse.of(member);
+            Member member = Member.create(
+                    command.name(),
+                    command.email(),
+                    command.phoneNumber(),
+                    MemberType.FOUNDER,
+                    credential,
+                    "image.png"
+            );
+            return AuthMemberResult.from(member);
         });
 
         mvc.perform(post("/v1/auth/sign-up")
