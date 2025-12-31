@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import starlight.application.member.auth.provided.AuthUseCase;
 import starlight.application.member.auth.provided.dto.AuthMemberResult;
 import starlight.application.member.auth.provided.dto.AuthTokenResult;
-import starlight.application.member.auth.provided.dto.SignInCommand;
-import starlight.application.member.auth.provided.dto.SignUpCommand;
+import starlight.application.member.auth.provided.dto.SignInInput;
+import starlight.application.member.auth.provided.dto.SignUpInput;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
 import starlight.application.member.provided.CredentialService;
@@ -41,13 +41,13 @@ public class AuthServiceImpl implements AuthUseCase {
      */
     @Override
     @Transactional
-    public AuthMemberResult signUp(SignUpCommand command) {
-        Credential credential = credentialService.createCredential(command.password());
+    public AuthMemberResult signUp(SignUpInput input) {
+        Credential credential = credentialService.createCredential(input.password());
         Member member = memberService.createUser(
                 credential,
-                command.name(),
-                command.email(),
-                command.phoneNumber()
+                input.name(),
+                input.email(),
+                input.phoneNumber()
         );
 
         return AuthMemberResult.from(member);
@@ -61,9 +61,9 @@ public class AuthServiceImpl implements AuthUseCase {
      */
     @Override
     @Transactional
-    public AuthTokenResult signIn(SignInCommand command) {
-        Member member = memberService.getUserByEmail(command.email());
-        credentialService.checkPassword(member, command.password());
+    public AuthTokenResult signIn(SignInInput input) {
+        Member member = memberService.getUserByEmail(input.email());
+        credentialService.checkPassword(member, input.password());
 
         AuthTokenResult tokenResponse = tokenProvider.issueTokens(member);
         redisClient.setValue(member.getEmail(), tokenResponse.refreshToken(), refreshTokenExpirationTime);

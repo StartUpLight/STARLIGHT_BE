@@ -7,8 +7,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import starlight.application.member.auth.provided.dto.AuthMemberResult;
 import starlight.application.member.auth.provided.dto.AuthTokenResult;
-import starlight.application.member.auth.provided.dto.SignInCommand;
-import starlight.application.member.auth.provided.dto.SignUpCommand;
+import starlight.application.member.auth.provided.dto.SignInInput;
+import starlight.application.member.auth.provided.dto.SignUpInput;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
 import starlight.application.member.provided.CredentialService;
@@ -37,7 +37,7 @@ class AuthServiceImplIntegrationTest {
 
     @Test
     void signUp_정상_자격증명_생성후_회원생성_리턴() {
-        SignUpCommand req = new SignUpCommand("name", "u@ex.com", "010-0000-0000", "pw");
+        SignUpInput req = new SignUpInput("name", "u@ex.com", "010-0000-0000", "pw");
         Credential cred = mock(Credential.class);
         Member member = Member.create("name", "u@ex.com", null, MemberType.FOUNDER, null, "img.png");
 
@@ -53,7 +53,7 @@ class AuthServiceImplIntegrationTest {
 
     @Test
     void signIn_정상_토큰생성_리프레시_Redis저장() {
-        SignInCommand req = new SignInCommand("a@b.com", "pw");
+        SignInInput req = new SignInInput("a@b.com", "pw");
         Member member = Member.create("test", "a@b.com", null, MemberType.FOUNDER, null, "img.png");
         AuthTokenResult token = new AuthTokenResult("AT", "RT");
 
@@ -72,7 +72,7 @@ class AuthServiceImplIntegrationTest {
 
     @Test
     void signIn_비번오류_전파() {
-        SignInCommand req = new SignInCommand("a@b.com", "bad");
+        SignInInput req = new SignInInput("a@b.com", "bad");
         Member member = Member.create("test", "a@b.com", null, MemberType.FOUNDER, null, "img.png");
 
         when(memberService.getUserByEmail("a@b.com")).thenReturn(member);

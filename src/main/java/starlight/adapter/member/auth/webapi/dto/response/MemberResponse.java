@@ -2,7 +2,6 @@ package starlight.adapter.member.auth.webapi.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import starlight.application.member.auth.provided.dto.AuthMemberResult;
-import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
 
 public record MemberResponse(
@@ -18,15 +17,6 @@ public record MemberResponse(
         @Schema(description = "회원 타입", example = "FOUNDER | EXPERT")
         MemberType memberType
 ) {
-    public static MemberResponse of(Member member) {
-        return new MemberResponse(
-                member.getId(),
-                member.getEmail(),
-                member.getPhoneNumber(),
-                member.getMemberType()
-        );
-    }
-
     public static MemberResponse from(AuthMemberResult result) {
         return new MemberResponse(
                 result.id(),

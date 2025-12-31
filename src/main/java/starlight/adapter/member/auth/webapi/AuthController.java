@@ -24,12 +24,12 @@ public class AuthController implements AuthApiDoc {
 
     @PostMapping("/sign-up")
     public ApiResponse<MemberResponse> signUp(@Validated @RequestBody AuthRequest authRequest) {
-        return ApiResponse.success(MemberResponse.from(authUseCase.signUp(authRequest.toCommand())));
+        return ApiResponse.success(MemberResponse.from(authUseCase.signUp(authRequest.toInput())));
     }
 
     @PostMapping("/sign-in")
     public ApiResponse<TokenResponse> signIn(@Validated @RequestBody SignInRequest signInRequest) {
-        return ApiResponse.success(TokenResponse.from(authUseCase.signIn(signInRequest.toCommand())));
+        return ApiResponse.success(TokenResponse.from(authUseCase.signIn(signInRequest.toInput())));
     }
 
     @PostMapping("/sign-out")

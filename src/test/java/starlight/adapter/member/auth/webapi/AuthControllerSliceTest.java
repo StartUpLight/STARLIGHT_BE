@@ -26,7 +26,7 @@ import starlight.adapter.member.auth.security.filter.JwtFilter;
 import starlight.application.member.auth.provided.AuthUseCase;
 import starlight.application.member.auth.provided.dto.AuthMemberResult;
 import starlight.application.member.auth.provided.dto.AuthTokenResult;
-import starlight.application.member.auth.provided.dto.SignUpCommand;
+import starlight.application.member.auth.provided.dto.SignUpInput;
 import starlight.bootstrap.SecurityConfig;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
@@ -137,13 +137,13 @@ class AuthControllerSliceTest {
 
     @Test
     void signUp_OK() throws Exception {
-        when(authUseCase.signUp(any(SignUpCommand.class))).thenAnswer(invocation -> {
-            SignUpCommand command = invocation.getArgument(0);
+        when(authUseCase.signUp(any(SignUpInput.class))).thenAnswer(invocation -> {
+            SignUpInput input = invocation.getArgument(0);
             Credential credential = Credential.create("hashedPassword");
             Member member = Member.create(
-                    command.name(),
-                    command.email(),
-                    command.phoneNumber(),
+                    input.name(),
+                    input.email(),
+                    input.phoneNumber(),
                     MemberType.FOUNDER,
                     credential,
                     "image.png"

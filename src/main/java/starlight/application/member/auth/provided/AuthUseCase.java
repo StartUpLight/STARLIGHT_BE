@@ -2,15 +2,15 @@ package starlight.application.member.auth.provided;
 
 import starlight.application.member.auth.provided.dto.AuthMemberResult;
 import starlight.application.member.auth.provided.dto.AuthTokenResult;
-import starlight.application.member.auth.provided.dto.SignInCommand;
-import starlight.application.member.auth.provided.dto.SignUpCommand;
+import starlight.application.member.auth.provided.dto.SignInInput;
+import starlight.application.member.auth.provided.dto.SignUpInput;
 import starlight.domain.member.entity.Member;
 
 public interface AuthUseCase {
 
-    AuthMemberResult signUp(SignUpCommand command);
+    AuthMemberResult signUp(SignUpInput input);
 
-    AuthTokenResult signIn(SignInCommand command);
+    AuthTokenResult signIn(SignInInput input);
 
     void signOut(String refreshToken, String accessToken);
 

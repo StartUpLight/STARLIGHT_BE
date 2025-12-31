@@ -11,8 +11,6 @@ import starlight.application.member.auth.required.TokenProvider;
 import starlight.application.member.auth.provided.dto.AuthTokenResult;
 import starlight.domain.member.entity.Member;
 
-import java.nio.charset.StandardCharsets;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 

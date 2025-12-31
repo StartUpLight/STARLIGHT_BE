@@ -5,10 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import starlight.application.member.auth.provided.dto.SignUpCommand;
-import starlight.domain.member.entity.Credential;
-import starlight.domain.member.entity.Member;
-import starlight.domain.member.enumerate.MemberType;
+import starlight.application.member.auth.provided.dto.SignUpInput;
 
 public record AuthRequest(
 
@@ -31,11 +28,7 @@ public record AuthRequest(
         @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         String password
 ) {
-    public Member toMember(Credential credential) {
-        return Member.create(name, email, phoneNumber, MemberType.FOUNDER, credential, null);
-    }
-
-    public SignUpCommand toCommand() {
-        return new SignUpCommand(name, email, phoneNumber, password);
+    public SignUpInput toInput() {
+        return new SignUpInput(name, email, phoneNumber, password);
     }
 }

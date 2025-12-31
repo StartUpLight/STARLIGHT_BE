@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import starlight.application.member.auth.provided.dto.AuthTokenResult;
-import starlight.application.member.auth.provided.dto.SignInCommand;
+import starlight.application.member.auth.provided.dto.SignInInput;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
 import starlight.application.member.provided.CredentialService;
@@ -38,7 +38,7 @@ class AuthServiceImplUnitTest {
 
     @Test
     void signIn_정상() {
-        SignInCommand req = new SignInCommand("a@b.com", "pw");
+        SignInInput req = new SignInInput("a@b.com", "pw");
         Member member = Member.create("testName", "a@b.com", null, MemberType.FOUNDER, null, "image.png");
         AuthTokenResult token = new AuthTokenResult("AT", "RT");
         when(memberService.getUserByEmail("a@b.com")).thenReturn(member);

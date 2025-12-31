@@ -3,7 +3,7 @@ package starlight.adapter.member.auth.webapi.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import starlight.application.member.auth.provided.dto.SignInCommand;
+import starlight.application.member.auth.provided.dto.SignInInput;
 
 public record SignInRequest(
 
@@ -16,7 +16,7 @@ public record SignInRequest(
         @NotBlank(message = "비밀번호는 필수입니다")
         String password
 ) {
-    public SignInCommand toCommand() {
-        return new SignInCommand(email, password);
+    public SignInInput toInput() {
+        return new SignInInput(email, password);
     }
 }
