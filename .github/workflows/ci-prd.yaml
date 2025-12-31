@@ -68,24 +68,30 @@ jobs:
           token: ${{ secrets.PAT }}
           path: 'manifest'
 
-      - name: Update deployment.yml
+      - name: Update deployment.yml and push manifest
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
-          sed -i "s|image:.*|image: ${DOCKERHUB_USERNAME}/startuplight-be:${IMAGE_TAG}|g" manifest/production/deployment.yml
-          
-          # 변경사항 확인
-          echo "Updated deployment.yml:"
-          cat manifest/production/deployment.yml
+          update_manifest() {
+            local dir="$1"
+            local file="$dir/production/deployment.yml"
 
-      - name: Commit and push changes
-        env:
-          IMAGE_TAG: ${{ env.IMAGE_TAG }}
-        run: |
-          cd manifest
-          git config --local user.email "kjeng7897@gmail.com"
-          git config --local user.name "SeongHo5356"
-          git add production/deployment.yml
-          git commit -m "Update image tag to $IMAGE_TAG" || exit 0
-          git push
+            sed -i "s|image:.*|image: ${DOCKERHUB_USERNAME}/startuplight-be:${IMAGE_TAG}|g" "$file"
+            echo "Updated $file:"
+            cat "$file"
+
+            git -C "$dir" config --local user.email "kjeng7897@gmail.com"
+            git -C "$dir" config --local user.name "SeongHo5356"
+            git -C "$dir" add production/deployment.yml
+
+            if [ -z "$(git -C "$dir" status --porcelain)" ]; then
+              echo "No changes to commit in $dir"
+              return 0
+            fi
+
+            git -C "$dir" commit -m "Update image tag to $IMAGE_TAG"
+            git -C "$dir" push
+          }
+
+          update_manifest manifest
