@@ -105,15 +105,15 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    @DisplayName("토큰 재발급 성공 - RefreshToken 재발급 필요한 경우")
-    void recreate_Success_WithExpiredRefreshToken() {
+    @DisplayName("토큰 재발급 성공 - RefreshToken 만료 임박")
+    void recreate_Success_WithNearExpiryRefreshToken() {
         // given
         Claims claims = Jwts.claims().setSubject(member.getEmail());
         Date now = new Date();
         String expiredRefreshToken = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + 1000L)) // 1초
+                .setExpiration(new Date(now.getTime() + 5 * 60 * 1000L)) // 5분
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
