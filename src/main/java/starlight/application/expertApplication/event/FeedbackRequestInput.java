@@ -1,6 +1,6 @@
 package starlight.application.expertApplication.event;
 
-public record FeedbackRequestDto(
+public record FeedbackRequestInput(
         String mentorEmail,
 
         String mentorName,
@@ -17,11 +17,11 @@ public record FeedbackRequestDto(
 
         String filename
 ) {
-    public static FeedbackRequestDto of(
+    public static FeedbackRequestInput of(
             String mentorEmail, String mentorName, String menteeName, String businessPlanTitle,
             String feedbackDeadline, String feedbackUrl, byte[] attachedFile, String filename
     ) {
-        return new FeedbackRequestDto(
+        return new FeedbackRequestInput(
                 mentorEmail, mentorName, menteeName, businessPlanTitle,
                 feedbackDeadline, feedbackUrl, attachedFile, filename
         );

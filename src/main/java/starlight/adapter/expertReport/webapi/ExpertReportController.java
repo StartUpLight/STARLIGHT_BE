@@ -8,7 +8,7 @@ import starlight.adapter.expertReport.webapi.dto.UpsertExpertReportRequest;
 import starlight.adapter.expertReport.webapi.mapper.ExpertReportMapper;
 import starlight.adapter.expertReport.webapi.swagger.ExpertReportApiDoc;
 import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
-import starlight.application.expertReport.provided.dto.ExpertReportWithExpertDto;
+import starlight.application.expertReport.provided.dto.ExpertReportWithExpertResult;
 import starlight.domain.expertReport.entity.ExpertReport;
 import starlight.domain.expertReport.entity.ExpertReportComment;
 import starlight.shared.apiPayload.response.ApiResponse;
@@ -27,7 +27,7 @@ public class ExpertReportController implements ExpertReportApiDoc {
     public ApiResponse<List<ExpertReportResponse>> getExpertReports(
             @RequestParam Long businessPlanId
     ) {
-        List<ExpertReportWithExpertDto> dtos = expertReportService
+        List<ExpertReportWithExpertResult> dtos = expertReportService
                 .getExpertReportsWithExpertByBusinessPlanId(businessPlanId);
 
         List<ExpertReportResponse> responses = dtos.stream()
@@ -44,7 +44,7 @@ public class ExpertReportController implements ExpertReportApiDoc {
     public ApiResponse<ExpertReportResponse> getExpertReport(
             @PathVariable String token
     ) {
-        ExpertReportWithExpertDto dto = expertReportService.getExpertReportWithExpert(token);
+        ExpertReportWithExpertResult dto = expertReportService.getExpertReportWithExpert(token);
 
         ExpertReportResponse response = ExpertReportResponse.fromEntities(
                 dto.report(),

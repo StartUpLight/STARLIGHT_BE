@@ -8,7 +8,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 @Slf4j
-public record TossClientResponse (
+public record TossClientResult (
 ) {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Cancel(

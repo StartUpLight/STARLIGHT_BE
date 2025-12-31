@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import starlight.application.businessplan.required.BusinessPlanQuery;
-import starlight.application.expertApplication.event.FeedbackRequestDto;
+import starlight.application.expertApplication.event.FeedbackRequestInput;
 import starlight.application.expertApplication.provided.ExpertApplicationCommandUseCase;
 import starlight.application.expertApplication.required.ExpertLookupPort;
 import starlight.application.expertApplication.required.ExpertApplicationQueryPort;
@@ -105,7 +105,7 @@ public class ExpertApplicationCommandService implements ExpertApplicationCommand
             String filename = generateFilename(file, plan, menteeName);
             String feedbackUrl = buildFeedbackRequestUrl(expert.getId(), plan.getId());
 
-            FeedbackRequestDto event = FeedbackRequestDto.of(
+            FeedbackRequestInput event = FeedbackRequestInput.of(
                     expert.getEmail(),
                     expert.getName(),
                     menteeName,

@@ -1,10 +1,10 @@
 package starlight.application.order.required;
 
-import starlight.application.order.provided.dto.TossClientResponse;
+import starlight.application.order.provided.dto.TossClientResult;
 
 public interface PaymentGatewayPort {
 
-    TossClientResponse.Confirm confirm(String orderCode, String paymentKey, Long price);
+    TossClientResult.Confirm confirm(String orderCode, String paymentKey, Long price);
 
-    TossClientResponse.Cancel cancel(String paymentKey, String reason);
+    TossClientResult.Cancel cancel(String paymentKey, String reason);
 }

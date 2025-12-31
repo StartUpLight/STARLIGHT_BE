@@ -20,7 +20,7 @@ import starlight.adapter.order.webapi.dto.request.OrderPrepareRequest;
 import starlight.adapter.order.webapi.dto.response.OrderCancelResponse;
 import starlight.adapter.order.webapi.dto.response.OrderConfirmResponse;
 import starlight.adapter.order.webapi.dto.response.OrderPrepareResponse;
-import starlight.application.order.provided.dto.PaymentHistoryItemDto;
+import starlight.application.order.provided.dto.PaymentHistoryItemResult;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;
@@ -322,12 +322,12 @@ public interface OrderApiDoc {
                     description = "성공",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = PaymentHistoryItemDto.class))
+                            array = @ArraySchema(schema = @Schema(implementation = PaymentHistoryItemResult.class))
                     )
             )
     })
     @GetMapping
-    ApiResponse<List<PaymentHistoryItemDto>> getMyPayments(
+    ApiResponse<List<PaymentHistoryItemResult>> getMyPayments(
             @AuthenticationPrincipal AuthDetails authDetails
     );
 }

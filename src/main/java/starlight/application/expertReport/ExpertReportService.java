@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
-import starlight.application.expertReport.provided.dto.ExpertReportWithExpertDto;
+import starlight.application.expertReport.provided.dto.ExpertReportWithExpertResult;
 import starlight.application.expertReport.required.ExpertLookupPort;
 import starlight.application.expertReport.required.ExpertReportCommandPort;
 import starlight.application.expertReport.required.ExpertReportQueryPort;
@@ -86,18 +86,18 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
     }
 
     @Override
-    public ExpertReportWithExpertDto getExpertReportWithExpert(String token) {
+    public ExpertReportWithExpertResult getExpertReportWithExpert(String token) {
         ExpertReport report = expertReportQuery.findByTokenWithCommentsOrThrow(token);
         report.incrementViewCount();
 
         Expert expert = expertLookupPort.findByIdWithCareersAndTags(report.getExpertId());
 
-        return ExpertReportWithExpertDto.of(report, expert);
+        return ExpertReportWithExpertResult.of(report, expert);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ExpertReportWithExpertDto> getExpertReportsWithExpertByBusinessPlanId(Long businessPlanId) {
+    public List<ExpertReportWithExpertResult> getExpertReportsWithExpertByBusinessPlanId(Long businessPlanId) {
         businessPlanQuery.findByIdOrThrow(businessPlanId);
 
         List<ExpertReport> reports = expertReportQuery.findAllByBusinessPlanIdWithCommentsOrderByCreatedAtDesc(
@@ -116,7 +116,7 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
         return reports.stream()
                 .map(report -> {
                     Expert expert = expertsMap.get(report.getExpertId());
-                    return ExpertReportWithExpertDto.of(report, expert);
+                    return ExpertReportWithExpertResult.of(report, expert);
                 })
                 .toList();
     }

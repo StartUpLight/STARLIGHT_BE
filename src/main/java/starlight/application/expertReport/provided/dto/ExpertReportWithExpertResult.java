@@ -3,12 +3,12 @@ package starlight.application.expertReport.provided.dto;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expertReport.entity.ExpertReport;
 
-public record ExpertReportWithExpertDto(
+public record ExpertReportWithExpertResult(
         ExpertReport report,
 
         Expert expert
 ) {
-    public static ExpertReportWithExpertDto of(ExpertReport report, Expert expert) {
-        return new ExpertReportWithExpertDto(report, expert);
+    public static ExpertReportWithExpertResult of(ExpertReport report, Expert expert) {
+        return new ExpertReportWithExpertResult(report, expert);
     }
 }

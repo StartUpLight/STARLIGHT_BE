@@ -6,7 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.adapter.order.webapi.swagger.OrderApiDoc;
-import starlight.application.order.provided.dto.TossClientResponse;
+import starlight.application.order.provided.dto.TossClientResult;
 import starlight.adapter.order.webapi.dto.request.OrderCancelRequest;
 import starlight.adapter.order.webapi.dto.request.OrderConfirmRequest;
 import starlight.adapter.order.webapi.dto.request.OrderPrepareRequest;
@@ -14,7 +14,7 @@ import starlight.adapter.order.webapi.dto.response.OrderCancelResponse;
 import starlight.adapter.order.webapi.dto.response.OrderConfirmResponse;
 import starlight.adapter.order.webapi.dto.response.OrderPrepareResponse;
 import starlight.application.order.provided.OrderPaymentServiceUseCase;
-import starlight.application.order.provided.dto.PaymentHistoryItemDto;
+import starlight.application.order.provided.dto.PaymentHistoryItemResult;
 import starlight.domain.order.order.Orders;
 import starlight.shared.apiPayload.response.ApiResponse;
 
@@ -63,7 +63,7 @@ public class OrderController implements OrderApiDoc {
     public ApiResponse<OrderCancelResponse> cancelPayment(
             @Valid @RequestBody OrderCancelRequest request
     ) {
-        TossClientResponse.Cancel tossResponse = orderPaymentService.cancel(
+        TossClientResult.Cancel tossResponse = orderPaymentService.cancel(
                 request.orderCode(),
                 request.reason()
         );
@@ -74,11 +74,11 @@ public class OrderController implements OrderApiDoc {
     }
 
     @GetMapping
-    public ApiResponse<List<PaymentHistoryItemDto>> getMyPayments(
+    public ApiResponse<List<PaymentHistoryItemResult>> getMyPayments(
             @AuthenticationPrincipal AuthDetails authDetails
     ) {
         Long memberId = authDetails.getMemberId();
-        List<PaymentHistoryItemDto> history = orderPaymentService.getPaymentHistory(memberId);
+        List<PaymentHistoryItemResult> history = orderPaymentService.getPaymentHistory(memberId);
 
         return ApiResponse.success(history);
     }
