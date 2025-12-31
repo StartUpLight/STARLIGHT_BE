@@ -3,7 +3,6 @@ package starlight.adapter.expertApplication.persistence;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import starlight.application.expert.required.ExpertApplicationLookupPort;
 import starlight.application.expertApplication.required.ExpertApplicationQueryPort;
 import starlight.domain.expertApplication.entity.ExpertApplication;
 import starlight.domain.expertApplication.exception.ExpertApplicationErrorType;
@@ -17,7 +16,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ExpertApplicationJpaPort implements ExpertApplicationQueryPort, ExpertApplicationLookupPort {
+public class ExpertApplicationJpaPort implements ExpertApplicationQueryPort, 
+        starlight.application.expert.required.ExpertApplicationCountLookupPort,
+        starlight.application.expertReport.required.ExpertApplicationCountLookupPort {
 
     private final ExpertApplicationRepository repository;
 

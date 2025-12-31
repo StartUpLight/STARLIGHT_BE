@@ -18,9 +18,9 @@ public record ExpertReportResponse(
 
         List<ExpertReportCommentResponse> comments
 ) {
-    public static ExpertReportResponse fromEntities(ExpertReport report, Expert expert) {
+    public static ExpertReportResponse fromEntities(ExpertReport report, Expert expert, Long applicationCount) {
         return new ExpertReportResponse(
-                ExpertReportExpertResponse.from(ExpertDetailResult.from(expert, 0L)),
+                ExpertReportExpertResponse.from(ExpertDetailResult.from(expert, applicationCount)),
                 report.getSubmitStatus(),
                 report.canEdit(),
                 report.getOverallComment(),

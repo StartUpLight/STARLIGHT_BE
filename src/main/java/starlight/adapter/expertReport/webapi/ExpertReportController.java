@@ -33,7 +33,8 @@ public class ExpertReportController implements ExpertReportApiDoc {
         List<ExpertReportResponse> responses = dtos.stream()
                 .map(dto -> ExpertReportResponse.fromEntities(
                         dto.report(),
-                        dto.expert()
+                        dto.expert(),
+                        dto.applicationCount()
                 ))
                 .toList();
 
@@ -48,7 +49,8 @@ public class ExpertReportController implements ExpertReportApiDoc {
 
         ExpertReportResponse response = ExpertReportResponse.fromEntities(
                 dto.report(),
-                dto.expert()
+                dto.expert(),
+                dto.applicationCount()
         );
 
         return ApiResponse.success(response);

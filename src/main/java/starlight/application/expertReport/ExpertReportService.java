@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
 import starlight.application.expertReport.provided.dto.ExpertReportWithExpertResult;
+import starlight.application.expertReport.required.ExpertApplicationCountLookupPort;
 import starlight.application.expertReport.required.ExpertLookupPort;
 import starlight.application.expertReport.required.ExpertReportCommandPort;
 import starlight.application.expertReport.required.ExpertReportQueryPort;
@@ -42,6 +43,7 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
     private final ExpertReportQueryPort expertReportQuery;
     private final ExpertReportCommandPort expertReportCommand;
     private final ExpertLookupPort expertLookupPort;
+    private final ExpertApplicationCountLookupPort expertApplicationLookupPort;
     private final BusinessPlanQuery businessPlanQuery;
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -92,7 +94,10 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
 
         Expert expert = expertLookupPort.findByIdWithCareersAndTags(report.getExpertId());
 
-        return ExpertReportWithExpertResult.of(report, expert);
+        Map<Long, Long> countMap = expertApplicationLookupPort.countByExpertIds(List.of(report.getExpertId()));
+        Long applicationCount = countMap.getOrDefault(report.getExpertId(), 0L);
+
+        return ExpertReportWithExpertResult.of(report, expert, applicationCount);
     }
 
     @Override
@@ -113,10 +118,13 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
             throw new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND);
         }
 
+        Map<Long, Long> countMap = expertApplicationLookupPort.countByExpertIds(expertIds.stream().toList());
+
         return reports.stream()
                 .map(report -> {
                     Expert expert = expertsMap.get(report.getExpertId());
-                    return ExpertReportWithExpertResult.of(report, expert);
+                    Long applicationCount = countMap.getOrDefault(report.getExpertId(), 0L);
+                    return ExpertReportWithExpertResult.of(report, expert, applicationCount);
                 })
                 .toList();
     }
