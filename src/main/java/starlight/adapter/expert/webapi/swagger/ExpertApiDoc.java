@@ -186,7 +186,7 @@ public interface ExpertApiDoc {
 
     @Operation(
             summary = "전문가 상세 내 AI 리포트 보유 사업계획서 목록",
-            description = "로그인한 사용자의 사업계획서 중 AI 리포트가 생성된 항목만 조회합니다."
+            description = "지정된 전문가의 전문가 상세 페이지에서 로그인한 사용자의 사업계획서 중 AI 리포트가 생성된 항목만 조회합니다."
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
