@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +21,8 @@ public interface ImageApiDoc {
 
     @Operation(
             summary = "Presigned URL 발급",
-            description = "S3 Presigned URL을 발급합니다."
+            description = "S3 Presigned URL을 발급합니다.",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -52,7 +54,8 @@ public interface ImageApiDoc {
 
     @Operation(
             summary = "이미지 공개 전환",
-            description = "업로드된 이미지를 공개 상태로 전환합니다."
+            description = "업로드된 이미지를 공개 상태로 전환합니다.",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(

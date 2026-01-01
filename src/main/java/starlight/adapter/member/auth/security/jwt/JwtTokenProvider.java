@@ -152,7 +152,9 @@ public class JwtTokenProvider implements TokenProvider {
      */
     @Override
     public Long getExpirationTime(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration().getTime();
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody()
+                .getExpiration()
+                .getTime();
     }
 
     /**

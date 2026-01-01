@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -182,7 +183,8 @@ public interface AuthApiDoc {
 
     @Operation(
             summary = "로그아웃",
-            description = "사용자 로그아웃 기능"
+            description = "사용자 로그아웃 기능",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -248,7 +250,8 @@ public interface AuthApiDoc {
 
     @Operation(
             summary = "토큰 재발급",
-            description = "AccessToken 만료 시 RefreshToken으로 AccessToken 재발급"
+            description = "AccessToken 만료 시 RefreshToken으로 AccessToken 재발급",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
