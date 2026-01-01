@@ -81,7 +81,7 @@ class RedisKeyValueMapTest {
 
     @Test
     @DisplayName("getValue 실패 - 값이 없는 경우")
-    void getValue_ReturnEmptyString() {
+    void getValue_ReturnNull() {
         // given
         String key = "testKey";
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
@@ -91,7 +91,7 @@ class RedisKeyValueMapTest {
         String result = redisKeyValueMap.getValue(key);
 
         // then
-        assertThat(result).isEmpty();
+        assertThat(result).isNull();
     }
 
     @Test
