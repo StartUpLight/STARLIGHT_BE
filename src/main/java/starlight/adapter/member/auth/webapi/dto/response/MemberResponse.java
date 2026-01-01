@@ -1,0 +1,28 @@
+package starlight.adapter.member.auth.webapi.dto.response;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import starlight.application.member.auth.provided.dto.AuthMemberResult;
+import starlight.domain.member.enumerate.MemberType;
+
+public record MemberResponse(
+        @Schema(description = "회원 ID", example = "1")
+        Long id,
+
+        @Schema(description = "이메일", example = "starLight@gmail.com")
+        String email,
+
+        @Schema(description = "전화번호", example = "010-1234-5678")
+        String phoneNumber,
+
+        @Schema(description = "회원 타입", example = "FOUNDER | EXPERT")
+        MemberType memberType
+) {
+    public static MemberResponse from(AuthMemberResult result) {
+        return new MemberResponse(
+                result.id(),
+                result.email(),
+                result.phoneNumber(),
+                result.memberType()
+        );
+    }
+}

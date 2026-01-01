@@ -3,11 +3,9 @@ package starlight.application.member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import starlight.adapter.auth.webapi.dto.request.AuthRequest;
 import starlight.application.member.provided.CredentialService;
-import starlight.adapter.member.persistence.CredentialRepository;
-import starlight.domain.auth.exception.AuthErrorType;
-import starlight.domain.auth.exception.AuthException;
+import starlight.domain.member.auth.exception.AuthErrorType;
+import starlight.domain.member.auth.exception.AuthException;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
 
@@ -16,19 +14,16 @@ import starlight.domain.member.entity.Member;
 public class CredentialServiceImpl implements CredentialService {
 
     private final PasswordEncoder passwordEncoder;
-    private final CredentialRepository credentialRepository;
 
     /**
-     * Credential을 생성하고 저장하는 메서드
-     * @param authRequest
-     * @return Credential
+     * Credential을 생성하는 메서드
+     * @param rawPassword
+     * @return 저장되지 않은 Credential
      */
-    public Credential createCredential(AuthRequest authRequest) {
+    public Credential createCredential(String rawPassword) {
 
-        String hashedPassword = passwordEncoder.encode(authRequest.password());
-        Credential credential = Credential.create(hashedPassword);
-
-        return credentialRepository.save(credential);
+        String hashedPassword = passwordEncoder.encode(rawPassword);
+        return Credential.create(hashedPassword);
     }
 
     /**

@@ -3,6 +3,7 @@ package starlight.adapter.expertReport.webapi.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import starlight.domain.expertReport.enumerate.SaveType;
+import starlight.adapter.expertReport.webapi.dto.CreateExpertReportCommentRequest;
 
 import java.util.List;
 
@@ -12,5 +13,5 @@ public record UpsertExpertReportRequest(
 
         String overallComment,
 
-        List<@Valid CreateExpertReportDetailRequest> details
+        List<@Valid CreateExpertReportCommentRequest> comments
 ) { }

@@ -11,10 +11,33 @@ public interface ExpertApplicationRepository extends JpaRepository<ExpertApplica
 
     Boolean existsByExpertIdAndBusinessPlanId(Long mentorId, Long businessPlanId);
 
+    interface ExpertIdCountProjection {
+        Long getExpertId();
+        long getCount();
+    }
+
     @Query("""
-           select distinct e.expertId
-           from ExpertApplication e
-           where e.businessPlanId = :businessPlanId
-           """)
-    List<Long> findRequestedExpertIdsByPlanId(@Param("businessPlanId") Long businessPlanId);
+        select e.expertId as expertId, count(e) as count
+        from ExpertApplication e
+        where e.expertId in :expertIds
+        group by e.expertId
+    """)
+    List<ExpertIdCountProjection> countByExpertIds(@Param("expertIds") List<Long> expertIds);
+
+    interface BusinessPlanIdCountProjection {
+        Long getBusinessPlanId();
+        long getCount();
+    }
+
+    @Query("""
+        select e.businessPlanId as businessPlanId, count(e) as count
+        from ExpertApplication e
+        where e.expertId = :expertId
+          and e.businessPlanId in :businessPlanIds
+        group by e.businessPlanId
+    """)
+    List<BusinessPlanIdCountProjection> countByExpertIdAndBusinessPlanIds(
+            @Param("expertId") Long expertId,
+            @Param("businessPlanIds") List<Long> businessPlanIds
+    );
 }

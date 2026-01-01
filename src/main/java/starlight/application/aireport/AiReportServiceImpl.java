@@ -15,7 +15,7 @@ import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.application.businessplan.provided.dto.BusinessPlanResponse;
 import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
-import starlight.application.infrastructure.provided.OcrProvider;
+import starlight.application.aireport.required.OcrProvider;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.aireport.exception.AiReportErrorType;
 import starlight.domain.aireport.exception.AiReportException;
@@ -41,7 +41,7 @@ public class AiReportServiceImpl implements AiReportService {
     @Override
     public AiReportResponse gradeBusinessPlan(Long planId, Long memberId) {
 
-        BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
+        BusinessPlan plan = businessPlanQuery.findByIdOrThrow(planId);
         checkBusinessPlanOwned(plan, memberId);
         checkBusinessPlanWritingCompleted(plan);
 
@@ -63,7 +63,7 @@ public class AiReportServiceImpl implements AiReportService {
                 memberId
         );
         Long businessPlanId = businessPlanResult.businessPlanId();
-        BusinessPlan plan = businessPlanQuery.getOrThrow(businessPlanId);
+        BusinessPlan plan = businessPlanQuery.findByIdOrThrow(businessPlanId);
 
         String pdfText = ocrProvider.ocrPdfTextByUrl(pdfUrl);
 
@@ -79,7 +79,7 @@ public class AiReportServiceImpl implements AiReportService {
     @Override
     @Transactional(readOnly = true)
     public AiReportResponse getAiReport(Long planId, Long memberId) {
-        BusinessPlan plan = businessPlanQuery.getOrThrow(planId);
+        BusinessPlan plan = businessPlanQuery.findByIdOrThrow(planId);
         checkBusinessPlanOwned(plan, memberId);
 
         AiReport aiReport = aiReportQuery.findByBusinessPlanId(planId)

@@ -6,13 +6,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.expertApplication.webapi.swagger.ExpertApplicationApiDoc;
-import starlight.application.expertApplication.provided.ExpertApplicationService;
-import starlight.application.expertApplication.required.ExpertApplicationQuery;
+import starlight.application.expertApplication.provided.ExpertApplicationCommandUseCase;
+import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.apiPayload.response.ApiResponse;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -20,24 +17,16 @@ import java.util.List;
 @RequestMapping("/v1/expert-applications")
 public class ExpertApplicationController implements ExpertApplicationApiDoc {
 
-    private final ExpertApplicationQuery finder;
-    private final ExpertApplicationService expertApplicationService;
-
-    @GetMapping
-    public ApiResponse<List<Long>> search(
-            @RequestParam Long businessPlanId
-    ) {
-        return ApiResponse.success(finder.findRequestedExpertIds(businessPlanId));
-    }
+    private final ExpertApplicationCommandUseCase applicationServiceUseCase;
 
     @PostMapping(value = "/{expertId}/request", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<String> requestFeedback(
             @PathVariable Long expertId,
             @RequestParam Long businessPlanId,
             @RequestParam("file") MultipartFile file,
-            @AuthenticationPrincipal AuthDetails auth
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     ) throws Exception {
-        expertApplicationService.requestFeedback(expertId, businessPlanId, file, auth.getUser().getName());
+        applicationServiceUseCase.requestFeedback(expertId, businessPlanId, file, authenticatedMember.getMemberName());
         return ApiResponse.success("피드백 요청이 전달되었습니다.");
     }
 }

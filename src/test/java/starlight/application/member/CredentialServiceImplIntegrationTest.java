@@ -1,16 +1,15 @@
 package starlight.application.member;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import starlight.adapter.auth.webapi.dto.request.AuthRequest;
-import starlight.adapter.member.persistence.CredentialRepository;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
 
@@ -18,9 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Import({CredentialServiceImpl.class, CredentialServiceImplIntegrationTest.TestBeans.class})
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {CredentialServiceImpl.class, CredentialServiceImplIntegrationTest.TestBeans.class})
 class CredentialServiceImplIntegrationTest {
 
     @TestConfiguration
@@ -29,21 +27,13 @@ class CredentialServiceImplIntegrationTest {
     }
 
     @Autowired CredentialServiceImpl sut;
-    @Autowired CredentialRepository credentialRepository;
     @Autowired PasswordEncoder passwordEncoder;
 
     @Test
     void createCredential_BCrypt로_해싱되고_DB에_저장된다() {
-        AuthRequest req = mock(AuthRequest.class);
-        when(req.password()).thenReturn("raw-pw");
-
-        Credential created = sut.createCredential(req);
+        Credential created = sut.createCredential("raw-pw");
         assertNotNull(created.getPassword());
         assertTrue(passwordEncoder.matches("raw-pw", created.getPassword()));
-
-        // 실제 DB에도 들어갔는지 확인 (id 존재 등)
-        assertNotNull(created.getId());
-        assertTrue(credentialRepository.findById(created.getId()).isPresent());
     }
 
     @Test

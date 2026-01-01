@@ -1,6 +1,6 @@
 package starlight.adapter.expertReport.webapi.dto;
 
-import starlight.adapter.expert.webapi.dto.ExpertDetailResponse;
+import starlight.application.expert.provided.dto.ExpertDetailResult;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expertReport.entity.ExpertReport;
 import starlight.domain.expertReport.enumerate.SubmitStatus;
@@ -8,7 +8,7 @@ import starlight.domain.expertReport.enumerate.SubmitStatus;
 import java.util.List;
 
 public record ExpertReportResponse(
-        ExpertDetailResponse expertDetailResponse,
+        ExpertReportExpertResponse expertDetailResponse,
 
         SubmitStatus status,
 
@@ -16,16 +16,16 @@ public record ExpertReportResponse(
 
         String overallComment,
 
-        List<ExpertReportDetailResponse> details
+        List<ExpertReportCommentResponse> comments
 ) {
-    public static ExpertReportResponse fromEntities(ExpertReport report, Expert expert) {
+    public static ExpertReportResponse fromEntities(ExpertReport report, Expert expert, Long applicationCount) {
         return new ExpertReportResponse(
-                ExpertDetailResponse.from(expert),
+                ExpertReportExpertResponse.from(ExpertDetailResult.from(expert, applicationCount)),
                 report.getSubmitStatus(),
                 report.canEdit(),
                 report.getOverallComment(),
-                report.getDetails().stream()
-                        .map(ExpertReportDetailResponse::from)
+                report.getComments().stream()
+                        .map(ExpertReportCommentResponse::from)
                         .toList()
         );
     }
@@ -36,8 +36,8 @@ public record ExpertReportResponse(
                 report.getSubmitStatus(),
                 report.canEdit(),
                 report.getOverallComment(),
-                report.getDetails().stream()
-                        .map(ExpertReportDetailResponse::from)
+                report.getComments().stream()
+                        .map(ExpertReportCommentResponse::from)
                         .toList()
         );
     }

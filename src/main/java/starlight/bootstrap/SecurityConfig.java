@@ -22,12 +22,12 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import starlight.adapter.auth.security.filter.ExceptionFilter;
-import starlight.adapter.auth.security.filter.JwtFilter;
-import starlight.adapter.auth.security.handler.JwtAccessDeniedHandler;
-import starlight.adapter.auth.security.handler.JwtAuthenticationHandler;
-import starlight.adapter.auth.security.oauth2.CustomOAuth2UserService;
-import starlight.adapter.auth.security.oauth2.OAuth2SuccessHandler;
+import starlight.adapter.member.auth.security.filter.ExceptionFilter;
+import starlight.adapter.member.auth.security.filter.JwtFilter;
+import starlight.adapter.member.auth.security.handler.JwtAccessDeniedHandler;
+import starlight.adapter.member.auth.security.handler.JwtAuthenticationHandler;
+import starlight.adapter.member.auth.security.oauth2.CustomOAuth2UserService;
+import starlight.adapter.member.auth.security.oauth2.OAuth2SuccessHandler;
 
 import java.util.List;
 
@@ -71,7 +71,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/", "/index.html", "/ops.html", "/payment.html", "/api/payment/**").permitAll()
-                        .requestMatchers("/v1/auth/**","/v1/user/**", "/v1/experts").permitAll()
+                        .requestMatchers("/v1/auth/**","/v1/user/**", "/v1/experts", "/v1/experts/*").permitAll()
                         .requestMatchers("/login/**", "/oauth2/**", "/login/oauth2/**", "/public/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/v1/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**").permitAll()
 

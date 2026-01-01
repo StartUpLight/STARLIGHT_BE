@@ -15,7 +15,7 @@ public record MemberDetailResponse (
 
     String profileImageUrl
 ){
-    public static MemberDetailResponse from(Member member) {
+    public static MemberDetailResponse fromMember(Member member) {
         return new MemberDetailResponse(
             member.getId(),
             member.getName(),

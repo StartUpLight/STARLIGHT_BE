@@ -25,7 +25,7 @@ public class FeedbackRequestEventListener {
             backoff = @Backoff(delay = 2000, multiplier = 2),
             retryFor = {Exception.class}
     )
-    public void handleFeedbackRequestEvent(FeedbackRequestDto event) {
+    public void handleFeedbackRequestEvent(FeedbackRequestInput event) {
         log.info("[EMAIL] listener triggered menteeName={}, businessPlanTitle={}", event.menteeName(), event.businessPlanTitle());
         try {
             emailSender.sendFeedbackRequestMail(event);
@@ -41,7 +41,7 @@ public class FeedbackRequestEventListener {
     }
 
     @Recover
-    public void recoverEmailSend(Exception e, FeedbackRequestDto event) {
+    public void recoverEmailSend(Exception e, FeedbackRequestInput event) {
         log.error("[EMAIL FINAL FAILURE] ... menteeName={}, businessPlanTitle={}",
                 event.menteeName(), event.businessPlanTitle(), e);
 

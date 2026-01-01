@@ -6,7 +6,9 @@ import starlight.domain.businessplan.entity.BusinessPlan;
 
 public interface BusinessPlanQuery {
 
-    BusinessPlan getOrThrow(Long id);
+    BusinessPlan findByIdOrThrow(Long id);
+
+    BusinessPlan getOrThrowWithAllSubSections(Long id);
 
     BusinessPlan save(BusinessPlan businessPlan);
 

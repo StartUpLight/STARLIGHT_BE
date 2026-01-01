@@ -9,12 +9,12 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import starlight.adapter.auth.security.filter.ExceptionFilter;
-import starlight.adapter.auth.security.filter.JwtFilter;
-import starlight.adapter.auth.security.handler.JwtAccessDeniedHandler;
-import starlight.adapter.auth.security.handler.JwtAuthenticationHandler;
-import starlight.adapter.auth.security.oauth2.CustomOAuth2UserService;
-import starlight.adapter.auth.security.oauth2.OAuth2SuccessHandler;
+import starlight.adapter.member.auth.security.filter.ExceptionFilter;
+import starlight.adapter.member.auth.security.filter.JwtFilter;
+import starlight.adapter.member.auth.security.handler.JwtAccessDeniedHandler;
+import starlight.adapter.member.auth.security.handler.JwtAuthenticationHandler;
+import starlight.adapter.member.auth.security.oauth2.CustomOAuth2UserService;
+import starlight.adapter.member.auth.security.oauth2.OAuth2SuccessHandler;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

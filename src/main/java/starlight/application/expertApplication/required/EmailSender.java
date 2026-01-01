@@ -1,8 +1,8 @@
 package starlight.application.expertApplication.required;
 
-import starlight.application.expertApplication.event.FeedbackRequestDto;
+import starlight.application.expertApplication.event.FeedbackRequestInput;
 
 public interface EmailSender {
 
-    void sendFeedbackRequestMail(FeedbackRequestDto dto);
+    void sendFeedbackRequestMail(FeedbackRequestInput dto);
 }

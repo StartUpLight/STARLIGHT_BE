@@ -1,48 +1,40 @@
 package starlight.adapter.order.webapi;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import starlight.adapter.auth.security.auth.AuthDetails;
-import starlight.application.order.provided.dto.TossClientResponse;
+import starlight.adapter.order.webapi.swagger.OrderApiDoc;
+import starlight.application.order.provided.dto.TossClientResult;
 import starlight.adapter.order.webapi.dto.request.OrderCancelRequest;
 import starlight.adapter.order.webapi.dto.request.OrderConfirmRequest;
 import starlight.adapter.order.webapi.dto.request.OrderPrepareRequest;
 import starlight.adapter.order.webapi.dto.response.OrderCancelResponse;
 import starlight.adapter.order.webapi.dto.response.OrderConfirmResponse;
 import starlight.adapter.order.webapi.dto.response.OrderPrepareResponse;
-import starlight.adapter.order.webapi.dto.response.WalletCheckResponse;
-import starlight.application.order.provided.OrderPaymentService;
-import starlight.application.order.provided.dto.PaymentHistoryItemDto;
-import starlight.application.usage.provided.UsageCreditPort;
+import starlight.application.order.provided.OrderPaymentServiceUseCase;
+import starlight.application.order.provided.dto.PaymentHistoryItemResult;
 import starlight.domain.order.order.Orders;
+import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "결제", description = "결제 관련 API")
 @RequestMapping("/v1/orders")
-public class OrderController {
+public class OrderController implements OrderApiDoc {
 
-    private final OrderPaymentService orderPaymentService;
-    private final UsageCreditPort usageCreditPort;
+    private final OrderPaymentServiceUseCase orderPaymentService;
 
-    /**
-     * 결제 준비 (주문 생성)
-     * POST /api/toss/request
-     */
     @PostMapping("/request")
     public ApiResponse<OrderPrepareResponse> prepareOrder(
             @Valid @RequestBody OrderPrepareRequest request,
-            @AuthenticationPrincipal AuthDetails authDetails
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     ) {
         Orders order = orderPaymentService.prepare(
                 request.orderCode(),
-                authDetails.getMemberId(),
+                authenticatedMember.getMemberId(),
                 request.productCode()
         );
 
@@ -51,19 +43,15 @@ public class OrderController {
         return ApiResponse.success(response);
     }
 
-    /**
-     * 결제 승인
-     * POST /api/toss/confirm
-     */
     @PostMapping("/confirm")
     public ApiResponse<OrderConfirmResponse> confirmPayment(
             @Valid @RequestBody OrderConfirmRequest request,
-            @AuthenticationPrincipal AuthDetails authDetails
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     ) {
         Orders order = orderPaymentService.confirm(
                 request.orderCode(),
                 request.paymentKey(),
-                authDetails.getMemberId()
+                authenticatedMember.getMemberId()
         );
 
         OrderConfirmResponse response = OrderConfirmResponse.from(order);
@@ -71,31 +59,26 @@ public class OrderController {
         return ApiResponse.success(response);
     }
 
-    /**
-     * 결제 취소
-     * POST /api/toss/cancel
-     */
     @PostMapping("/cancel")
     public ApiResponse<OrderCancelResponse> cancelPayment(
             @Valid @RequestBody OrderCancelRequest request
     ) {
-        TossClientResponse.Cancel tossResponse = orderPaymentService.cancel(request);
+        TossClientResult.Cancel tossResponse = orderPaymentService.cancel(
+                request.orderCode(),
+                request.reason()
+        );
 
         OrderCancelResponse response = OrderCancelResponse.from(tossResponse);
 
         return ApiResponse.success(response);
     }
 
-    /**
-     * 나의 결제 내역 조회
-     * GET /api/orders
-     */
     @GetMapping
-    public ApiResponse<List<PaymentHistoryItemDto>> getMyPayments(
-            @AuthenticationPrincipal AuthDetails authDetails
+    public ApiResponse<List<PaymentHistoryItemResult>> getMyPayments(
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     ) {
-        Long memberId = authDetails.getMemberId();
-        List<PaymentHistoryItemDto> history = orderPaymentService.getPaymentHistory(memberId);
+        Long memberId = authenticatedMember.getMemberId();
+        List<PaymentHistoryItemResult> history = orderPaymentService.getPaymentHistory(memberId);
 
         return ApiResponse.success(history);
     }

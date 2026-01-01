@@ -7,10 +7,10 @@ import starlight.adapter.ai.util.AiReportResponseParser;
 import starlight.application.aireport.provided.dto.AiReportResponse;
 import starlight.application.aireport.required.AiReportGrader;
 import starlight.application.aireport.required.AiReportQuery;
+import starlight.application.aireport.required.OcrProvider;
 import starlight.application.businessplan.provided.BusinessPlanService;
 import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
-import starlight.application.infrastructure.provided.OcrProvider;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.aireport.exception.AiReportErrorType;
 import starlight.domain.aireport.exception.AiReportException;
@@ -50,7 +50,7 @@ class AiReportServiceImplUnitTest {
         when(plan.getId()).thenReturn(planId);
         when(plan.isOwnedBy(memberId)).thenReturn(true);
         when(plan.areWritingCompleted()).thenReturn(true);
-        when(businessPlanQuery.getOrThrow(planId)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(planId)).thenReturn(plan);
         when(aiReportQuery.findByBusinessPlanId(planId)).thenReturn(Optional.empty());
 
         String extractedContent = "사업계획서 내용";
@@ -102,7 +102,7 @@ class AiReportServiceImplUnitTest {
         when(plan.getId()).thenReturn(planId);
         when(plan.isOwnedBy(memberId)).thenReturn(true);
         when(plan.areWritingCompleted()).thenReturn(true);
-        when(businessPlanQuery.getOrThrow(planId)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(planId)).thenReturn(plan);
 
         AiReport existingReport = mock(AiReport.class);
         when(aiReportQuery.findByBusinessPlanId(planId)).thenReturn(Optional.of(existingReport));
@@ -154,7 +154,7 @@ class AiReportServiceImplUnitTest {
         Long memberId = 1L;
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.isOwnedBy(memberId)).thenReturn(false);
-        when(businessPlanQuery.getOrThrow(planId)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(planId)).thenReturn(plan);
 
         sut = new AiReportServiceImpl(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
@@ -174,7 +174,7 @@ class AiReportServiceImplUnitTest {
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.isOwnedBy(memberId)).thenReturn(true);
         when(plan.areWritingCompleted()).thenReturn(false);
-        when(businessPlanQuery.getOrThrow(planId)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(planId)).thenReturn(plan);
 
         sut = new AiReportServiceImpl(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
@@ -195,7 +195,7 @@ class AiReportServiceImplUnitTest {
         when(plan.getId()).thenReturn(planId);
         when(plan.isOwnedBy(memberId)).thenReturn(true);
         when(plan.areWritingCompleted()).thenReturn(true);
-        when(businessPlanQuery.getOrThrow(planId)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(planId)).thenReturn(plan);
 
         String rawJson = """
                 {
@@ -235,7 +235,7 @@ class AiReportServiceImplUnitTest {
         when(plan.getId()).thenReturn(planId);
         when(plan.isOwnedBy(memberId)).thenReturn(true);
         when(plan.areWritingCompleted()).thenReturn(true);
-        when(businessPlanQuery.getOrThrow(planId)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(planId)).thenReturn(plan);
         when(aiReportQuery.findByBusinessPlanId(planId)).thenReturn(Optional.empty());
 
         sut = new AiReportServiceImpl(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);

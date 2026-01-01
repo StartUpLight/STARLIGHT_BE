@@ -20,7 +20,7 @@ import starlight.domain.businessplan.entity.BaseSection;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
 import starlight.shared.enumerate.SectionType;
-import starlight.application.member.required.MemberQuery;
+import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.member.entity.Member;
 
 import java.util.List;
@@ -46,7 +46,7 @@ class BusinessPlanServiceImplUnitTest {
     private ObjectMapper objectMapper;
 
     @Mock
-    private MemberQuery memberQuery;
+    private MemberQueryPort memberQuery;
 
     @InjectMocks
     private BusinessPlanServiceImpl sut;
@@ -66,7 +66,7 @@ class BusinessPlanServiceImplUnitTest {
         // memberQuery 기본 스텁
         Member stubMember = mock(Member.class);
         when(stubMember.getName()).thenReturn("tester");
-        when(memberQuery.getOrThrow(anyLong())).thenReturn(stubMember);
+        when(memberQuery.findByIdOrThrow(anyLong())).thenReturn(stubMember);
     }
 
     @Test
@@ -105,7 +105,7 @@ class BusinessPlanServiceImplUnitTest {
     void updateTitle_checksOwnership_thenSaves() {
         BusinessPlan plan = spy(buildPlanWithSections(10L));
         doReturn(true).when(plan).isOwnedBy(10L);
-        when(businessPlanQuery.getOrThrow(100L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(100L)).thenReturn(plan);
         when(businessPlanQuery.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -120,7 +120,7 @@ class BusinessPlanServiceImplUnitTest {
     void updateTitle_unauthorized_throws() {
         BusinessPlan plan = spy(buildPlanWithSections(20L));
         doReturn(false).when(plan).isOwnedBy(10L);
-        when(businessPlanQuery.getOrThrow(100L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(100L)).thenReturn(plan);
 
         org.junit.jupiter.api.Assertions.assertThrows(BusinessPlanException.class,
                 () -> sut.updateBusinessPlanTitle(100L, "title", 10L));
@@ -132,7 +132,7 @@ class BusinessPlanServiceImplUnitTest {
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.isOwnedBy(10L)).thenReturn(true);
         when(plan.getId()).thenReturn(100L);
-        when(businessPlanQuery.getOrThrow(100L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(100L)).thenReturn(plan);
 
         BusinessPlanResponse.Result deleted = sut.deleteBusinessPlan(100L, 10L);
 
@@ -150,7 +150,7 @@ class BusinessPlanServiceImplUnitTest {
         BusinessPlan plan = buildPlanWithSections(10L);
         Overview overview = plan.getOverview();
 
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
         when(businessPlanQuery.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -189,7 +189,7 @@ class BusinessPlanServiceImplUnitTest {
                 List.of(false, false, false, false, false));
         overview.putSubSection(existing);
 
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
         when(businessPlanQuery.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -215,7 +215,7 @@ class BusinessPlanServiceImplUnitTest {
     void upsertSubSection_unauthorized_throws() {
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.isOwnedBy(10L)).thenReturn(false);
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
 
         com.fasterxml.jackson.databind.node.ObjectNode jsonNode = new com.fasterxml.jackson.databind.ObjectMapper()
                 .createObjectNode();
@@ -236,7 +236,7 @@ class BusinessPlanServiceImplUnitTest {
                 List.of(true, false, true, false, true));
         overview.putSubSection(sub);
 
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
 
         SubSectionResponse.Detail detail = sut.getSubSectionDetail(1L, SubSectionType.OVERVIEW_BASIC, 10L);
 
@@ -249,7 +249,7 @@ class BusinessPlanServiceImplUnitTest {
     @DisplayName("서브섹션 조회: 없으면 예외")
     void getSubSectionDetail_notFound_throws() {
         BusinessPlan plan = buildPlanWithSections(10L);
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
 
         org.junit.jupiter.api.Assertions.assertThrows(BusinessPlanException.class,
                 () -> sut.getSubSectionDetail(1L, SubSectionType.OVERVIEW_BASIC, 10L));
@@ -260,7 +260,7 @@ class BusinessPlanServiceImplUnitTest {
     void getSubSectionDetail_unauthorized_throws() {
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.isOwnedBy(10L)).thenReturn(false);
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
 
         org.junit.jupiter.api.Assertions.assertThrows(BusinessPlanException.class,
                 () -> sut.getSubSectionDetail(1L, SubSectionType.OVERVIEW_BASIC, 10L));
@@ -276,7 +276,7 @@ class BusinessPlanServiceImplUnitTest {
                 List.of(false, false, false, false, false));
         overview.putSubSection(sub);
 
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
         when(businessPlanQuery.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -295,7 +295,7 @@ class BusinessPlanServiceImplUnitTest {
     void deleteSubSection_unauthorized_throws() {
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.isOwnedBy(10L)).thenReturn(false);
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
 
         org.junit.jupiter.api.Assertions.assertThrows(BusinessPlanException.class,
                 () -> sut.deleteSubSection(1L, SubSectionType.OVERVIEW_BASIC, 10L));
@@ -337,7 +337,7 @@ class BusinessPlanServiceImplUnitTest {
                 List.of(false, false, false, false, false));
         plan.getProblemRecognition().putSubSection(problem);
 
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.getOrThrowWithAllSubSections(1L)).thenReturn(plan);
 
         BusinessPlanResponse.Detail detail = sut.getBusinessPlanDetail(1L, 10L);
 
@@ -355,7 +355,7 @@ class BusinessPlanServiceImplUnitTest {
     void getBusinessPlanDetail_unauthorized_throws() {
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.isOwnedBy(10L)).thenReturn(false);
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.getOrThrowWithAllSubSections(1L)).thenReturn(plan);
 
         org.junit.jupiter.api.Assertions.assertThrows(BusinessPlanException.class,
                 () -> sut.getBusinessPlanDetail(1L, 10L));
@@ -371,7 +371,7 @@ class BusinessPlanServiceImplUnitTest {
         SubSection sub = SubSection.create(SubSectionType.OVERVIEW_BASIC, "previous-content", "{}", previousChecks);
         overview.putSubSection(sub);
 
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
         when(businessPlanQuery.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -411,7 +411,7 @@ class BusinessPlanServiceImplUnitTest {
     @DisplayName("서브섹션 체크: 없으면 예외")
     void checkAndUpdateSubSection_notFound_throws() {
         BusinessPlan plan = buildPlanWithSections(10L);
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
 
         JsonNode node = mock(JsonNode.class);
         org.junit.jupiter.api.Assertions.assertThrows(BusinessPlanException.class,
@@ -423,7 +423,7 @@ class BusinessPlanServiceImplUnitTest {
     void checkAndUpdateSubSection_unauthorized_throws() {
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.isOwnedBy(10L)).thenReturn(false);
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
 
         JsonNode node = mock(JsonNode.class);
         org.junit.jupiter.api.Assertions.assertThrows(BusinessPlanException.class,
@@ -434,7 +434,7 @@ class BusinessPlanServiceImplUnitTest {
     @DisplayName("섹션 매핑: 각 Section 타입별로 올바르게 SubSection이 저장된다")
     void createSubSection_forEachSectionType() {
         BusinessPlan plan = buildPlanWithSections(10L);
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
         when(businessPlanQuery.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -483,7 +483,7 @@ class BusinessPlanServiceImplUnitTest {
             getSectionByPlanAndType(plan, type.getSectionType()).putSubSection(sub);
         }
 
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
         when(businessPlanQuery.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -511,7 +511,7 @@ class BusinessPlanServiceImplUnitTest {
         BusinessPlan plan = spy(buildPlanWithSections(10L));
         doReturn(true).when(plan).isOwnedBy(10L);
 
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
         when(businessPlanQuery.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -545,7 +545,7 @@ class BusinessPlanServiceImplUnitTest {
             getSectionByPlanAndType(plan, type.getSectionType()).putSubSection(sub);
         }
 
-        when(businessPlanQuery.getOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
         when(businessPlanQuery.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
