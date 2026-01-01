@@ -33,16 +33,6 @@ public class ExpertApplicationJpaPort implements ExpertApplicationQueryPort,
     }
 
     @Override
-    public List<Long> findRequestedExpertIds(Long businessPlanId) {
-        try {
-            return repository.findRequestedExpertIdsByPlanId(businessPlanId);
-        } catch (Exception e) {
-            log.error("신청된 전문가 목록 조회 중 오류가 발생했습니다.", e);
-            throw new ExpertApplicationException(ExpertApplicationErrorType.EXPERT_APPLICATION_QUERY_ERROR);
-        }
-    }
-
-    @Override
     public ExpertApplication save(ExpertApplication application) {
         return repository.save(application);
     }

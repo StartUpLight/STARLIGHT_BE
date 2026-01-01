@@ -7,12 +7,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import starlight.adapter.expertApplication.webapi.swagger.ExpertApplicationApiDoc;
-import starlight.application.expertApplication.provided.ExpertApplicationQueryUseCase;
 import starlight.application.expertApplication.provided.ExpertApplicationCommandUseCase;
 import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.apiPayload.response.ApiResponse;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -20,15 +17,7 @@ import java.util.List;
 @RequestMapping("/v1/expert-applications")
 public class ExpertApplicationController implements ExpertApplicationApiDoc {
 
-    private final ExpertApplicationQueryUseCase queryUseCase;
     private final ExpertApplicationCommandUseCase applicationServiceUseCase;
-
-    @GetMapping
-    public ApiResponse<List<Long>> search(
-            @RequestParam Long businessPlanId
-    ) {
-        return ApiResponse.success(queryUseCase.findRequestedExpertIds(businessPlanId));
-    }
 
     @PostMapping(value = "/{expertId}/request", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<String> requestFeedback(
