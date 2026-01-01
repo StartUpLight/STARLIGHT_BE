@@ -34,8 +34,12 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String token = tokenResolver.resolveAccessToken(request);
+        boolean hasToken = StringUtils.hasText(token);
+        String redisValue = hasToken ? redisClient.getValue(token) : null;
+        boolean isBlacklisted = hasToken && redisValue != null;
+        boolean isValid = hasToken && tokenProvider.validateToken(token);
 
-        if (StringUtils.hasText(token) && redisClient.getValue(token) == null && tokenProvider.validateToken(token)) {
+        if (hasToken && !isBlacklisted && isValid) {
             String email = tokenProvider.getEmail(token);
             UserDetails userDetails = authDetailsService.loadUserByUsername(email);
 

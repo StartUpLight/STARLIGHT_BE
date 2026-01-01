@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,8 @@ public interface ExpertApiDoc {
 
     @Operation(
             summary = "전문가 목록 조회",
-            description = "전체 전문가 목록을 반환합니다."
+            description = "전체 전문가 목록을 반환합니다.",
+            security = {}
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -114,7 +116,7 @@ public interface ExpertApiDoc {
     @GetMapping
     ApiResponse<List<ExpertListResponse>> search();
 
-    @Operation(summary = "전문가 상세 조회")
+    @Operation(summary = "전문가 상세 조회", security = {})
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
@@ -186,7 +188,8 @@ public interface ExpertApiDoc {
 
     @Operation(
             summary = "전문가 상세 내 AI 리포트 보유 사업계획서 목록",
-            description = "지정된 전문가의 전문가 상세 페이지에서 로그인한 사용자의 사업계획서 중 AI 리포트가 생성된 항목만 조회합니다."
+            description = "지정된 전문가의 전문가 상세 페이지에서 로그인한 사용자의 사업계획서 중 AI 리포트가 생성된 항목만 조회합니다.",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(

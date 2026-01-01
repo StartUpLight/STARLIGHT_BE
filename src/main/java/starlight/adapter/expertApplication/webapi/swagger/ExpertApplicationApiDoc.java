@@ -28,7 +28,7 @@ public interface ExpertApplicationApiDoc {
             - 동일한 전문가에게 동일한 사업계획서로 중복 요청할 수 없습니다.
             - 이메일 발송은 비동기로 처리되며, 요청 즉시 응답을 반환합니다.
             """,
-            security = @SecurityRequirement(name = "Bearer Authentication")
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(

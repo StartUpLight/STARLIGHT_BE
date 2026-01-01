@@ -1,6 +1,7 @@
 package starlight.adapter.aireport.webapi;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import starlight.shared.apiPayload.response.ApiResponse;
 @RequiredArgsConstructor
 @RequestMapping("/v1/ai-reports")
 @Tag(name = "AI 리포트", description = "AI 리포트 채점 및 조회 API")
+@SecurityRequirement(name = "bearerAuth")
 public class AiReportController {
 
     private final AiReportService aiReportService;
