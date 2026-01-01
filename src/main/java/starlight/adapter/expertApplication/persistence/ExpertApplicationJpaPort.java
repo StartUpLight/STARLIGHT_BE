@@ -58,6 +58,9 @@ public class ExpertApplicationJpaPort implements ExpertApplicationQueryPort,
     @Override
     public Map<Long, Long> countByExpertIdAndBusinessPlanIds(Long expertId, List<Long> businessPlanIds) {
         try {
+            if (expertId == null) {
+                return Collections.emptyMap();
+            }
             if (businessPlanIds == null || businessPlanIds.isEmpty()) {
                 return Collections.emptyMap();
             }
