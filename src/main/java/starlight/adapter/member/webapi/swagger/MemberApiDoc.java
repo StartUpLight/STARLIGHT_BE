@@ -65,6 +65,6 @@ public interface MemberApiDoc {
     })
     @GetMapping
     ApiResponse<MemberDetailResponse> getMemberDetail(
-            @AuthenticationPrincipal AuthenticatedMember authDetails
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     );
 }

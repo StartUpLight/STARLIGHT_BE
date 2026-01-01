@@ -117,7 +117,7 @@ public interface OrderApiDoc {
     @PostMapping("/request")
     ApiResponse<OrderPrepareResponse> prepareOrder(
             @Valid @RequestBody OrderPrepareRequest request,
-            @AuthenticationPrincipal AuthenticatedMember authDetails
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     );
 
     @Operation(summary = "결제 승인", security = @SecurityRequirement(name = "Bearer Authentication"))
@@ -215,7 +215,7 @@ public interface OrderApiDoc {
     @PostMapping("/confirm")
     ApiResponse<OrderConfirmResponse> confirmPayment(
             @Valid @RequestBody OrderConfirmRequest request,
-            @AuthenticationPrincipal AuthenticatedMember authDetails
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     );
 
     @Operation(summary = "결제 취소")
@@ -328,6 +328,6 @@ public interface OrderApiDoc {
     })
     @GetMapping
     ApiResponse<List<PaymentHistoryItemResult>> getMyPayments(
-            @AuthenticationPrincipal AuthenticatedMember authDetails
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     );
 }

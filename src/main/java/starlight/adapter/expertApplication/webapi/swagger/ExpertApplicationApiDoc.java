@@ -226,7 +226,7 @@ public interface ExpertApplicationApiDoc {
             @RequestParam("file") MultipartFile file,
 
             @Parameter(hidden = true)
-            @AuthenticationPrincipal AuthenticatedMember auth
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     ) throws Exception;
 
     /**
