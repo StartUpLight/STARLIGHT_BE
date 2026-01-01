@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import starlight.domain.businessplan.entity.BusinessPlan;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface BusinessPlanRepository extends JpaRepository<BusinessPlan, Long> {
@@ -22,6 +23,14 @@ public interface BusinessPlanRepository extends JpaRepository<BusinessPlan, Long
             ORDER BY COALESCE(bp.modifiedAt, bp.createdAt) DESC, bp.id DESC
             """)
     Page<BusinessPlan> findAllByMemberIdOrderedByLastSavedAt(@Param("memberId") Long memberId, Pageable pageable);
+
+    @Query("""
+            SELECT bp
+            FROM BusinessPlan bp
+            WHERE bp.memberId = :memberId
+            ORDER BY COALESCE(bp.modifiedAt, bp.createdAt) DESC, bp.id DESC
+            """)
+    List<BusinessPlan> findAllByMemberIdOrderByLastSavedAt(@Param("memberId") Long memberId);
 
     @Query("""
             SELECT DISTINCT bp

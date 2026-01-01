@@ -64,4 +64,22 @@ public class ExpertApplicationJpaPort implements ExpertApplicationQueryPort,
             throw new ExpertApplicationException(ExpertApplicationErrorType.EXPERT_APPLICATION_QUERY_ERROR);
         }
     }
+
+    @Override
+    public Map<Long, Long> countByExpertIdAndBusinessPlanIds(Long expertId, List<Long> businessPlanIds) {
+        try {
+            if (businessPlanIds == null || businessPlanIds.isEmpty()) {
+                return Collections.emptyMap();
+            }
+
+            return repository.countByExpertIdAndBusinessPlanIds(expertId, businessPlanIds).stream()
+                    .collect(Collectors.toMap(
+                            ExpertApplicationRepository.BusinessPlanIdCountProjection::getBusinessPlanId,
+                            p -> (long) p.getCount()
+                    ));
+        } catch (Exception e) {
+            log.error("사업계획서별 신청 건수 조회 중 오류가 발생했습니다.", e);
+            throw new ExpertApplicationException(ExpertApplicationErrorType.EXPERT_APPLICATION_QUERY_ERROR);
+        }
+    }
 }

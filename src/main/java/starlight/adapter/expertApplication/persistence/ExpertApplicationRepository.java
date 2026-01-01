@@ -30,4 +30,21 @@ public interface ExpertApplicationRepository extends JpaRepository<ExpertApplica
         group by e.expertId
     """)
     List<ExpertIdCountProjection> countByExpertIds(@Param("expertIds") List<Long> expertIds);
+
+    interface BusinessPlanIdCountProjection {
+        Long getBusinessPlanId();
+        long getCount();
+    }
+
+    @Query("""
+        select e.businessPlanId as businessPlanId, count(e) as count
+        from ExpertApplication e
+        where e.expertId = :expertId
+          and e.businessPlanId in :businessPlanIds
+        group by e.businessPlanId
+    """)
+    List<BusinessPlanIdCountProjection> countByExpertIdAndBusinessPlanIds(
+            @Param("expertId") Long expertId,
+            @Param("businessPlanIds") List<Long> businessPlanIds
+    );
 }
