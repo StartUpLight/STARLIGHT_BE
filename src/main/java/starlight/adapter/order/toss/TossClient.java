@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import starlight.application.order.provided.dto.TossClientResponse;
+import starlight.application.order.provided.dto.TossClientResult;
+import starlight.application.order.required.PaymentGatewayPort;
 import starlight.domain.order.exception.OrderErrorType;
 import starlight.domain.order.exception.OrderException;
 
@@ -14,7 +15,7 @@ import java.util.Objects;
 
 @Slf4j
 @Component
-public class TossClient {
+public class TossClient implements PaymentGatewayPort {
 
     private final RestClient restClient;
 
@@ -22,20 +23,21 @@ public class TossClient {
         this.restClient = restClient;
     }
 
-    public TossClientResponse.Confirm confirm(String orderCode, String paymentKey, Long price) {
+    @Override
+    public TossClientResult.Confirm confirm(String orderCode, String paymentKey, Long price) {
         Map<String, Object> body = Map.of(
                 "paymentKey", paymentKey,
                 "orderId",    orderCode,
                 "amount",     price
         );
         try {
-            TossClientResponse.Confirm response = restClient.post()
+            TossClientResult.Confirm response = restClient.post()
                     .uri("/v1/payments/confirm")
                     .header("Idempotency-Key", orderCode)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(body)
                     .retrieve()
-                    .body(TossClientResponse.Confirm.class);
+                    .body(TossClientResult.Confirm.class);
 
             // 응답 검증
             validateConfirmResponse(response, orderCode, price);
@@ -48,17 +50,18 @@ public class TossClient {
         }
     }
 
-    public TossClientResponse.Cancel cancel(String paymentKey, String reason) {
+    @Override
+    public TossClientResult.Cancel cancel(String paymentKey, String reason) {
         Map<String, Object> body = Map.of(
                 "cancelReason", reason != null ? reason : "user_request"
         );
         try {
-            TossClientResponse.Cancel response = restClient.post()
+            TossClientResult.Cancel response = restClient.post()
                     .uri("/v1/payments/{paymentKey}/cancel", paymentKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(body)
                     .retrieve()
-                    .body(TossClientResponse.Cancel.class);
+                    .body(TossClientResult.Cancel.class);
 
             // 응답 검증
             validateCancelResponse(response);
@@ -76,7 +79,7 @@ public class TossClient {
     /**
      * confirm 응답 검증
      */
-    private void validateConfirmResponse(TossClientResponse.Confirm response, String expectedOrderId, Long expectedAmount) {
+    private void validateConfirmResponse(TossClientResult.Confirm response, String expectedOrderId, Long expectedAmount) {
         if (response == null) {
             throw new IllegalStateException("PG 응답이 null입니다.");
         }
@@ -105,7 +108,7 @@ public class TossClient {
     /**
      * cancel 응답 검증
      */
-    private void validateCancelResponse(TossClientResponse.Cancel response) {
+    private void validateCancelResponse(TossClientResult.Cancel response) {
         if (response == null) {
             throw new IllegalStateException("PG 취소 응답이 null입니다.");
         }

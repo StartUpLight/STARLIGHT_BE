@@ -4,9 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.order.webapi.swagger.OrderApiDoc;
-import starlight.application.order.provided.dto.TossClientResponse;
+import starlight.application.order.provided.dto.TossClientResult;
 import starlight.adapter.order.webapi.dto.request.OrderCancelRequest;
 import starlight.adapter.order.webapi.dto.request.OrderConfirmRequest;
 import starlight.adapter.order.webapi.dto.request.OrderPrepareRequest;
@@ -14,8 +13,9 @@ import starlight.adapter.order.webapi.dto.response.OrderCancelResponse;
 import starlight.adapter.order.webapi.dto.response.OrderConfirmResponse;
 import starlight.adapter.order.webapi.dto.response.OrderPrepareResponse;
 import starlight.application.order.provided.OrderPaymentServiceUseCase;
-import starlight.application.order.provided.dto.PaymentHistoryItemDto;
+import starlight.application.order.provided.dto.PaymentHistoryItemResult;
 import starlight.domain.order.order.Orders;
+import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class OrderController implements OrderApiDoc {
     @PostMapping("/request")
     public ApiResponse<OrderPrepareResponse> prepareOrder(
             @Valid @RequestBody OrderPrepareRequest request,
-            @AuthenticationPrincipal AuthDetails authDetails
+            @AuthenticationPrincipal AuthenticatedMember authDetails
     ) {
         Orders order = orderPaymentService.prepare(
                 request.orderCode(),
@@ -46,7 +46,7 @@ public class OrderController implements OrderApiDoc {
     @PostMapping("/confirm")
     public ApiResponse<OrderConfirmResponse> confirmPayment(
             @Valid @RequestBody OrderConfirmRequest request,
-            @AuthenticationPrincipal AuthDetails authDetails
+            @AuthenticationPrincipal AuthenticatedMember authDetails
     ) {
         Orders order = orderPaymentService.confirm(
                 request.orderCode(),
@@ -63,7 +63,10 @@ public class OrderController implements OrderApiDoc {
     public ApiResponse<OrderCancelResponse> cancelPayment(
             @Valid @RequestBody OrderCancelRequest request
     ) {
-        TossClientResponse.Cancel tossResponse = orderPaymentService.cancel(request);
+        TossClientResult.Cancel tossResponse = orderPaymentService.cancel(
+                request.orderCode(),
+                request.reason()
+        );
 
         OrderCancelResponse response = OrderCancelResponse.from(tossResponse);
 
@@ -71,11 +74,11 @@ public class OrderController implements OrderApiDoc {
     }
 
     @GetMapping
-    public ApiResponse<List<PaymentHistoryItemDto>> getMyPayments(
-            @AuthenticationPrincipal AuthDetails authDetails
+    public ApiResponse<List<PaymentHistoryItemResult>> getMyPayments(
+            @AuthenticationPrincipal AuthenticatedMember authDetails
     ) {
         Long memberId = authDetails.getMemberId();
-        List<PaymentHistoryItemDto> history = orderPaymentService.getPaymentHistory(memberId);
+        List<PaymentHistoryItemResult> history = orderPaymentService.getPaymentHistory(memberId);
 
         return ApiResponse.success(history);
     }

@@ -1,6 +1,6 @@
 package starlight.application.expertReport.provided;
 
-import starlight.application.expertReport.provided.dto.ExpertReportWithExpertDto;
+import starlight.application.expertReport.provided.dto.ExpertReportWithExpertResult;
 import starlight.domain.expertReport.entity.ExpertReport;
 import starlight.domain.expertReport.entity.ExpertReportComment;
 import starlight.domain.expertReport.enumerate.SaveType;
@@ -13,7 +13,7 @@ public interface ExpertReportServiceUseCase{
 
     ExpertReport saveReport(String token, String overallComment, List<ExpertReportComment> comments, SaveType saveType);
 
-    ExpertReportWithExpertDto getExpertReportWithExpert(String token);
+    ExpertReportWithExpertResult getExpertReportWithExpert(String token);
 
-    List<ExpertReportWithExpertDto> getExpertReportsWithExpertByBusinessPlanId(Long businessPlanId);
+    List<ExpertReportWithExpertResult> getExpertReportsWithExpertByBusinessPlanId(Long businessPlanId);
 }

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.application.expert.provided.ExpertDetailQueryUseCase;
 import starlight.application.expert.provided.dto.ExpertDetailResult;
-import starlight.application.expert.required.ExpertApplicationLookupPort;
+import starlight.application.expert.required.ExpertApplicationCountLookupPort;
 import starlight.application.expert.required.ExpertQueryPort;
 import starlight.domain.expert.entity.Expert;
 
@@ -18,7 +18,7 @@ import java.util.Map;
 public class ExpertDetailQueryService implements ExpertDetailQueryUseCase {
 
     private final ExpertQueryPort expertQueryPort;
-    private final ExpertApplicationLookupPort expertApplicationLookupPort;
+    private final ExpertApplicationCountLookupPort expertApplicationLookupPort;
 
     @Override
     public List<ExpertDetailResult> searchAll() {

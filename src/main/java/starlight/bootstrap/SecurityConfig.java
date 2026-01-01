@@ -22,12 +22,12 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import starlight.adapter.auth.security.filter.ExceptionFilter;
-import starlight.adapter.auth.security.filter.JwtFilter;
-import starlight.adapter.auth.security.handler.JwtAccessDeniedHandler;
-import starlight.adapter.auth.security.handler.JwtAuthenticationHandler;
-import starlight.adapter.auth.security.oauth2.CustomOAuth2UserService;
-import starlight.adapter.auth.security.oauth2.OAuth2SuccessHandler;
+import starlight.adapter.member.auth.security.filter.ExceptionFilter;
+import starlight.adapter.member.auth.security.filter.JwtFilter;
+import starlight.adapter.member.auth.security.handler.JwtAccessDeniedHandler;
+import starlight.adapter.member.auth.security.handler.JwtAuthenticationHandler;
+import starlight.adapter.member.auth.security.oauth2.CustomOAuth2UserService;
+import starlight.adapter.member.auth.security.oauth2.OAuth2SuccessHandler;
 
 import java.util.List;
 

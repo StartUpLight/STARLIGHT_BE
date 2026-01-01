@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import starlight.application.expertApplication.required.EmailSender;
-import starlight.application.expertApplication.event.FeedbackRequestDto;
+import starlight.application.expertApplication.event.FeedbackRequestInput;
 import starlight.domain.expertApplication.exception.ExpertApplicationErrorType;
 import starlight.domain.expertApplication.exception.ExpertApplicationException;
 
@@ -28,7 +28,7 @@ public class SMTPEmailSender implements EmailSender {
     private String senderEmail;
 
     @Override
-    public void sendFeedbackRequestMail(FeedbackRequestDto dto) {
+    public void sendFeedbackRequestMail(FeedbackRequestInput dto) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

@@ -13,14 +13,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import starlight.adapter.auth.security.auth.AuthDetails;
+import starlight.shared.auth.AuthenticatedMember;
 import starlight.adapter.order.webapi.dto.request.OrderCancelRequest;
 import starlight.adapter.order.webapi.dto.request.OrderConfirmRequest;
 import starlight.adapter.order.webapi.dto.request.OrderPrepareRequest;
 import starlight.adapter.order.webapi.dto.response.OrderCancelResponse;
 import starlight.adapter.order.webapi.dto.response.OrderConfirmResponse;
 import starlight.adapter.order.webapi.dto.response.OrderPrepareResponse;
-import starlight.application.order.provided.dto.PaymentHistoryItemDto;
+import starlight.application.order.provided.dto.PaymentHistoryItemResult;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;
@@ -117,7 +117,7 @@ public interface OrderApiDoc {
     @PostMapping("/request")
     ApiResponse<OrderPrepareResponse> prepareOrder(
             @Valid @RequestBody OrderPrepareRequest request,
-            @AuthenticationPrincipal AuthDetails authDetails
+            @AuthenticationPrincipal AuthenticatedMember authDetails
     );
 
     @Operation(summary = "결제 승인", security = @SecurityRequirement(name = "Bearer Authentication"))
@@ -215,7 +215,7 @@ public interface OrderApiDoc {
     @PostMapping("/confirm")
     ApiResponse<OrderConfirmResponse> confirmPayment(
             @Valid @RequestBody OrderConfirmRequest request,
-            @AuthenticationPrincipal AuthDetails authDetails
+            @AuthenticationPrincipal AuthenticatedMember authDetails
     );
 
     @Operation(summary = "결제 취소")
@@ -322,12 +322,12 @@ public interface OrderApiDoc {
                     description = "성공",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = PaymentHistoryItemDto.class))
+                            array = @ArraySchema(schema = @Schema(implementation = PaymentHistoryItemResult.class))
                     )
             )
     })
     @GetMapping
-    ApiResponse<List<PaymentHistoryItemDto>> getMyPayments(
-            @AuthenticationPrincipal AuthDetails authDetails
+    ApiResponse<List<PaymentHistoryItemResult>> getMyPayments(
+            @AuthenticationPrincipal AuthenticatedMember authDetails
     );
 }

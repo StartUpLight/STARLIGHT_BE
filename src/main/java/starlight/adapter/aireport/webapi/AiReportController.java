@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import starlight.adapter.auth.security.auth.AuthDetails;
 import starlight.adapter.businessplan.webapi.dto.BusinessPlanCreateWithPdfRequest;
+import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.application.aireport.provided.dto.AiReportResponse;
 import starlight.application.aireport.provided.AiReportService;
 import starlight.shared.apiPayload.response.ApiResponse;
@@ -53,4 +53,3 @@ public class AiReportController {
         return ApiResponse.success(aiReportService.getAiReport(planId, authDetails.getMemberId()));
     }
 }
-

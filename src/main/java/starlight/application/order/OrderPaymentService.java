@@ -4,13 +4,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import starlight.adapter.order.toss.TossClient;
-import starlight.adapter.order.webapi.dto.request.OrderCancelRequest;
-import starlight.application.order.provided.dto.PaymentHistoryItemDto;
+import starlight.application.order.provided.dto.PaymentHistoryItemResult;
 import starlight.application.order.provided.OrderPaymentServiceUseCase;
-import starlight.application.order.provided.dto.TossClientResponse;
+import starlight.application.order.provided.dto.TossClientResult;
 import starlight.application.order.required.OrderCommandPort;
 import starlight.application.order.required.OrderQueryPort;
+import starlight.application.order.required.PaymentGatewayPort;
 import starlight.application.order.required.UsageCreditChargePort;
 import starlight.domain.order.enumerate.OrderStatus;
 import starlight.domain.order.enumerate.UsageProductType;
@@ -31,7 +30,7 @@ import java.util.Objects;
 @Transactional
 public class OrderPaymentService implements OrderPaymentServiceUseCase {
 
-    private final TossClient tossClient;
+    private final PaymentGatewayPort paymentGatewayPort;
     private final OrderQueryPort orderQueryPort;
     private final OrderCommandPort orderCommandPort;
     private final UsageCreditChargePort usageCreditChargePort;
@@ -88,7 +87,7 @@ public class OrderPaymentService implements OrderPaymentServiceUseCase {
 
         PaymentRecords payment = order.getLatestRequestedOrThrow();
 
-        TossClientResponse.Confirm response = tossClient.confirm(
+        TossClientResult.Confirm response = paymentGatewayPort.confirm(
                 orderCodeStr, paymentKey, expectedAmount
         );
 
@@ -113,19 +112,20 @@ public class OrderPaymentService implements OrderPaymentServiceUseCase {
     /**
      * 결제 취소
      *
-     * @param request 취소 요청
-     * @return TossClientResponse.Cancel 취소 응답
+     * @param orderCode 주문번호
+     * @param reason 취소 사유
+     * @return TossClientResult.Cancel 취소 응답
      */
     @Override
-    public TossClientResponse.Cancel cancel(OrderCancelRequest request) {
+    public TossClientResult.Cancel cancel(String orderCode, String reason) {
 
-        Orders order = orderQueryPort.getByOrderCodeOrThrow(request.orderCode());
+        Orders order = orderQueryPort.getByOrderCodeOrThrow(orderCode);
 
         PaymentRecords payment = order.getLatestDoneOrThrow();
         payment.ensureHasPaymentKey();
 
-        TossClientResponse.Cancel response = tossClient.cancel(
-                payment.getPaymentKey(), request.reason()
+        TossClientResult.Cancel response = paymentGatewayPort.cancel(
+                payment.getPaymentKey(), reason
         );
 
         payment.markCanceled();
@@ -136,7 +136,7 @@ public class OrderPaymentService implements OrderPaymentServiceUseCase {
         return response;
     }
 
-    public List<PaymentHistoryItemDto> getPaymentHistory(Long buyerId) {
+    public List<PaymentHistoryItemResult> getPaymentHistory(Long buyerId) {
         // 1) 이 회원(buyer)의 주문 전체를 최신순으로 가져오기
         List<Orders> orders = orderQueryPort.findAllWithPaymentsByBuyerIdOrderByCreatedAtDesc(buyerId);
 
@@ -156,7 +156,7 @@ public class OrderPaymentService implements OrderPaymentServiceUseCase {
                             ? payment.getApprovedAt()
                             : payment.getCreatedAt();
 
-                    return PaymentHistoryItemDto.of(
+                    return PaymentHistoryItemResult.of(
                             productName,
                             payment.getMethod(),
                             payment.getPrice(),

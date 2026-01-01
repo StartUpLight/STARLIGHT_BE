@@ -16,7 +16,7 @@ import starlight.application.businessplan.required.BusinessPlanQuery;
 import starlight.application.businessplan.required.ChecklistGrader;
 import starlight.application.businessplan.util.PlainTextExtractUtils;
 import starlight.application.businessplan.util.SubSectionSupportUtils;
-import starlight.application.member.required.MemberQuery;
+import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.businessplan.entity.*;
 import starlight.domain.businessplan.enumerate.PlanStatus;
 import starlight.domain.member.entity.Member;
@@ -35,13 +35,13 @@ import java.util.Objects;
 public class BusinessPlanServiceImpl implements BusinessPlanService {
 
     private final BusinessPlanQuery businessPlanQuery;
-    private final MemberQuery memberQuery;
+    private final MemberQueryPort memberQuery;
     private final ChecklistGrader checklistGrader;
     private final ObjectMapper objectMapper;
 
     @Override
     public BusinessPlanResponse.Result createBusinessPlan(Long memberId) {
-        Member member = memberQuery.getOrThrow(memberId);
+        Member member = memberQuery.findByIdOrThrow(memberId);
 
         String planTitle = member.getName() == null ? "제목 없는 사업계획서" : member.getName() + "의 사업계획서";
 
@@ -236,7 +236,7 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     }
 
     private BusinessPlan getOwnedBusinessPlanOrThrow(Long planId, Long memberId) {
-        BusinessPlan businessPlan = businessPlanQuery.getOrThrow(planId);
+        BusinessPlan businessPlan = businessPlanQuery.findByIdOrThrow(planId);
         if (!businessPlan.isOwnedBy(memberId)) {
             throw new BusinessPlanException(BusinessPlanErrorType.UNAUTHORIZED_ACCESS);
         }
