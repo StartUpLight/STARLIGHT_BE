@@ -30,11 +30,11 @@ public class OrderController implements OrderApiDoc {
     @PostMapping("/request")
     public ApiResponse<OrderPrepareResponse> prepareOrder(
             @Valid @RequestBody OrderPrepareRequest request,
-            @AuthenticationPrincipal AuthenticatedMember authDetails
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     ) {
         Orders order = orderPaymentService.prepare(
                 request.orderCode(),
-                authDetails.getMemberId(),
+                authenticatedMember.getMemberId(),
                 request.productCode()
         );
 
@@ -46,12 +46,12 @@ public class OrderController implements OrderApiDoc {
     @PostMapping("/confirm")
     public ApiResponse<OrderConfirmResponse> confirmPayment(
             @Valid @RequestBody OrderConfirmRequest request,
-            @AuthenticationPrincipal AuthenticatedMember authDetails
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     ) {
         Orders order = orderPaymentService.confirm(
                 request.orderCode(),
                 request.paymentKey(),
-                authDetails.getMemberId()
+                authenticatedMember.getMemberId()
         );
 
         OrderConfirmResponse response = OrderConfirmResponse.from(order);
@@ -75,9 +75,9 @@ public class OrderController implements OrderApiDoc {
 
     @GetMapping
     public ApiResponse<List<PaymentHistoryItemResult>> getMyPayments(
-            @AuthenticationPrincipal AuthenticatedMember authDetails
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     ) {
-        Long memberId = authDetails.getMemberId();
+        Long memberId = authenticatedMember.getMemberId();
         List<PaymentHistoryItemResult> history = orderPaymentService.getPaymentHistory(memberId);
 
         return ApiResponse.success(history);

@@ -46,7 +46,7 @@ public interface ImageApiDoc {
     })
     @GetMapping(value = "/v1/image/upload-url", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<PreSignedUrlResponse> getPresignedUrl(
-            @AuthenticationPrincipal AuthenticatedMember authDetails,
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember,
             @io.swagger.v3.oas.annotations.Parameter(description = "파일명", required = true) @RequestParam String fileName
     );
 

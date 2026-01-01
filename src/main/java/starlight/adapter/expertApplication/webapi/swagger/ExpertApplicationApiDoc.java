@@ -16,79 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.apiPayload.response.ApiResponse;
 
-import java.util.List;
-
 @Tag(name = "전문가", description = "전문가 관련 API")
 public interface ExpertApplicationApiDoc {
-
-    @Operation(
-            summary = "피드백 요청한 전문가 목록 조회",
-            description = "특정 사업계획서에 피드백을 요청한 전문가들의 ID 목록을 조회합니다."
-    )
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "200",
-                    description = "조회 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    value = """
-                        {
-                            "result": "SUCCESS",
-                            "data": [1, 3, 5, 7],
-                            "error": null
-                        }
-                        """
-                            )
-                    )
-            ),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "404",
-                    description = "사업계획서 없음",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    value = """
-                        {
-                          "result": "ERROR",
-                          "data": null,
-                          "error": {
-                            "code": "BUSINESS_PLAN_NOT_FOUND",
-                            "message": "해당 사업계획서가 존재하지 않습니다."
-                          }
-                        }
-                        """
-                            )
-                    )
-            ),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "500",
-                    description = "조회 오류",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    value = """
-                        {
-                          "result": "ERROR",
-                          "data": null,
-                          "error": {
-                            "code": "EXPERT_APPLICATION_QUERY_ERROR",
-                            "message": "전문가 신청 정보를 조회하는 중에 오류가 발생했습니다."
-                          }
-                        }
-                        """
-                            )
-                    )
-            )
-    })
-    ApiResponse<List<Long>> search(
-            @Parameter(
-                    description = "사업계획서 ID",
-                    required = true,
-                    example = "1"
-            )
-            @RequestParam Long businessPlanId
-    );
 
     @Operation(
             summary = "전문가에게 피드백 요청",
@@ -297,7 +226,7 @@ public interface ExpertApplicationApiDoc {
             @RequestParam("file") MultipartFile file,
 
             @Parameter(hidden = true)
-            @AuthenticationPrincipal AuthenticatedMember auth
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     ) throws Exception;
 
     /**

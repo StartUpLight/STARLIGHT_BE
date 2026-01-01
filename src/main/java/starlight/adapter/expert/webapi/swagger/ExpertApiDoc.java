@@ -7,16 +7,19 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import starlight.adapter.expert.webapi.dto.ExpertAiReportBusinessPlanResponse;
 import starlight.adapter.expert.webapi.dto.ExpertDetailResponse;
 import starlight.adapter.expert.webapi.dto.ExpertListResponse;
 import starlight.shared.apiPayload.response.ApiResponse;
+import starlight.shared.auth.AuthenticatedMember;
 
 import java.util.List;
 
 @Tag(name = "전문가", description = "전문가 관련 API")
-public interface ExpertQueryApiDoc {
+public interface ExpertApiDoc {
 
     @Operation(
             summary = "전문가 목록 조회",
@@ -179,5 +182,83 @@ public interface ExpertQueryApiDoc {
     @GetMapping("/{expertId}")
     ApiResponse<ExpertDetailResponse> detail(
             @PathVariable Long expertId
+    );
+
+    @Operation(
+            summary = "전문가 상세 내 AI 리포트 보유 사업계획서 목록",
+            description = "지정된 전문가의 전문가 상세 페이지에서 로그인한 사용자의 사업계획서 중 AI 리포트가 생성된 항목만 조회합니다."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ExpertAiReportBusinessPlanResponse.class)),
+                            examples = @ExampleObject(
+                                    name = "성공 예시",
+                                    value = """
+                        {
+                          "result": "SUCCESS",
+                          "data": [
+                            {
+                              "businessPlanId": 10,
+                              "businessPlanTitle": "테스트 사업계획서",
+                              "requestCount": 2,
+                              "isOver70": true
+                            },
+                            {
+                              "businessPlanId": 11,
+                              "businessPlanTitle": "신규 사업계획서",
+                              "requestCount": 0,
+                              "isOver70": false
+                            }
+                          ],
+                          "error": null
+                        }
+                        """
+                            )
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "조회 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "전문가 신청 조회 오류",
+                                            value = """
+                        {
+                          "result": "ERROR",
+                          "data": null,
+                          "error": {
+                            "code": "EXPERT_APPLICATION_QUERY_ERROR",
+                            "message": "전문가 신청 정보를 조회하는 중에 오류가 발생했습니다."
+                          }
+                        }
+                        """
+                                    ),
+                                    @ExampleObject(
+                                            name = "AI 리포트 파싱 오류",
+                                            value = """
+                        {
+                          "result": "ERROR",
+                          "data": null,
+                          "error": {
+                            "code": "AI_RESPONSE_PARSING_FAILED",
+                            "message": "AI 응답 파싱에 실패했습니다."
+                          }
+                        }
+                        """
+                                    )
+                            }
+                    )
+            )
+    })
+    @GetMapping("/{expertId}/business-plans/ai-reports")
+    ApiResponse<List<ExpertAiReportBusinessPlanResponse>> aiReportBusinessPlans(
+            @PathVariable Long expertId,
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     );
 }

@@ -19,10 +19,10 @@ public class ImageController implements ImageApiDoc {
 
     @GetMapping(value = "/upload-url", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<PreSignedUrlResponse> getPresignedUrl(
-            @AuthenticationPrincipal AuthenticatedMember authDetails,
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember,
             @RequestParam String fileName
     ) {
-        return ApiResponse.success(presignedUrlReader.getPreSignedUrl(authDetails.getMemberId(), fileName));
+        return ApiResponse.success(presignedUrlReader.getPreSignedUrl(authenticatedMember.getMemberId(), fileName));
     }
 
     @PostMapping("/upload-url/public")
