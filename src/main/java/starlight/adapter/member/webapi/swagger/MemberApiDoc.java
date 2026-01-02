@@ -16,7 +16,7 @@ import starlight.shared.apiPayload.response.ApiResponse;
 @Tag(name = "사용자", description = "사용자 관련 API")
 public interface MemberApiDoc {
 
-    @Operation(summary = "멤버 정보를 조회합니다.", security = @SecurityRequirement(name = "Bearer Authentication"))
+    @Operation(summary = "멤버 정보를 조회합니다.", security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",

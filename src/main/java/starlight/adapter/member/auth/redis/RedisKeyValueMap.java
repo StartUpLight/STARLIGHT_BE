@@ -41,10 +41,8 @@ public class RedisKeyValueMap implements KeyValueMap {
     public String getValue(String key) {
         try {
             ValueOperations<String, Object> values = redisTemplate.opsForValue();
-            if (values.get(key) == null) {
-                return "";
-            }
-            return values.get(key).toString();
+            Object value = values.get(key);
+            return value == null ? null : value.toString();
         } catch (Exception e) {
             throw new GlobalException(GlobalErrorType.REDIS_GET_ERROR);
         }

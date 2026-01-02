@@ -28,7 +28,7 @@ import java.util.List;
 @Tag(name = "결제", description = "결제 관련 API")
 public interface OrderApiDoc {
 
-    @Operation(summary = "결제 준비", security = @SecurityRequirement(name = "Bearer Authentication"))
+    @Operation(summary = "결제 준비", security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
@@ -120,7 +120,7 @@ public interface OrderApiDoc {
             @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     );
 
-    @Operation(summary = "결제 승인", security = @SecurityRequirement(name = "Bearer Authentication"))
+    @Operation(summary = "결제 승인", security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
@@ -315,7 +315,7 @@ public interface OrderApiDoc {
             @Valid @RequestBody OrderCancelRequest request
     );
 
-    @Operation(summary = "내 결제 내역 조회", security = @SecurityRequirement(name = "Bearer Authentication"))
+    @Operation(summary = "내 결제 내역 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
