@@ -1,4 +1,4 @@
-package starlight.adapter.aireport.reportgrader.circuitbreaker;
+package starlight.adapter.aireport.report.circuitbreaker;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

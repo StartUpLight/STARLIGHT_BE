@@ -8,39 +8,58 @@ import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvi
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Component;
+import starlight.adapter.aireport.report.agent.FullReportGradeAgent;
 import starlight.adapter.aireport.report.provider.SpringAiAdvisorProvider;
 import starlight.adapter.aireport.report.provider.ReportPromptProvider;
+import starlight.adapter.aireport.report.util.AiReportResponseParser;
+import starlight.application.aireport.provided.dto.AiReportResult;
+import starlight.domain.aireport.exception.AiReportErrorType;
+import starlight.domain.aireport.exception.AiReportException;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SpringAiGenerator {
+public class SpringAiFullReportGradeAgent implements FullReportGradeAgent {
 
-    private final ChatClient.Builder chatClientBuilder;
-    private final ReportPromptProvider reportPromptProvider;
-    private final SpringAiAdvisorProvider advisorProvider;
+        private final ChatClient.Builder chatClientBuilder;
+        private final ReportPromptProvider reportPromptProvider;
+        private final SpringAiAdvisorProvider advisorProvider;
+        private final AiReportResponseParser responseParser;
 
-    /**
-     * 전체 프롬프트를 사용하여 LLM에 리포트 채점을 요청하고 응답을 반환
-     * @param content PDF에서 추출한 텍스트 또는 전체 사업계획서 내용
-     * @return LLM 응답 문자열 (JSON 형식)
-     */
-    public String generateReport(String content) {
-        Prompt prompt = reportPromptProvider.createReportGradingPrompt(content);
+        @Override
+        public AiReportResult gradeFullReport(String content) {
+                if (content == null || content.trim().isEmpty()) {
+                        throw new AiReportException(AiReportErrorType.AI_GRADING_FAILED);
+                }
 
-        ChatClient chatClient = chatClientBuilder.build();
-        QuestionAnswerAdvisor qaAdvisor = advisorProvider
-                .getQuestionAnswerAdvisor(0.6, 3, null);
-        SimpleLoggerAdvisor slAdvisor = advisorProvider.getSimpleLoggerAdvisor();
+                try {
+                        Prompt prompt = reportPromptProvider.createReportGradingPrompt(content);
 
-        return chatClient
-                .prompt(prompt)
-                .options(ChatOptions.builder()
-                        .temperature(0.0)
-                        .topP(0.1)
-                        .build())
-                .advisors(qaAdvisor, slAdvisor)
-                .call()
-                .content();
-    }
+                        ChatClient chatClient = chatClientBuilder.build();
+                        QuestionAnswerAdvisor qaAdvisor = advisorProvider
+                                        .getQuestionAnswerAdvisor(0.6, 3, null);
+                        SimpleLoggerAdvisor slAdvisor = advisorProvider.getSimpleLoggerAdvisor();
+
+                        String llmResponse = chatClient
+                                        .prompt(prompt)
+                                        .options(ChatOptions.builder()
+                                                        .temperature(0.0)
+                                                        .topP(0.1)
+                                                        .build())
+                                        .advisors(qaAdvisor, slAdvisor)
+                                        .call()
+                                        .content();
+
+                        if (llmResponse == null || llmResponse.trim().isEmpty()) {
+                                throw new AiReportException(AiReportErrorType.AI_GRADING_FAILED);
+                        }
+
+                        return responseParser.parse(llmResponse);
+
+                } catch (AiReportException e) {
+                        throw e;
+                } catch (Exception e) {
+                        throw new AiReportException(AiReportErrorType.AI_GRADING_FAILED);
+                }
+        }
 }

@@ -1,15 +1,15 @@
-package starlight.adapter.aireport.reportgrader.config;
+package starlight.adapter.aireport.report.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import starlight.adapter.aireport.reportgrader.agent.SectionGradeAgent;
-import starlight.adapter.aireport.reportgrader.agent.impl.SpringAiSectionGradeAgent;
-import starlight.adapter.aireport.reportgrader.circuitbreaker.SectionGradingCircuitBreaker;
-import starlight.adapter.aireport.reportgrader.provider.SpringAiAdvisorProvider;
-import starlight.adapter.aireport.reportgrader.provider.ReportPromptProvider;
-import starlight.adapter.aireport.reportgrader.util.AiReportResponseParser;
+import starlight.adapter.aireport.report.agent.SectionGradeAgent;
+import starlight.adapter.aireport.report.agent.impl.SpringAiSectionGradeAgent;
+import starlight.adapter.aireport.report.circuitbreaker.SectionGradingCircuitBreaker;
+import starlight.adapter.aireport.report.provider.SpringAiAdvisorProvider;
+import starlight.adapter.aireport.report.provider.ReportPromptProvider;
+import starlight.adapter.aireport.report.util.AiReportResponseParser;
 import starlight.shared.enumerate.SectionType;
 
 import java.util.Arrays;
@@ -34,7 +34,7 @@ public class SectionAdvisorConfig {
             .map(sectionType -> new SpringAiSectionGradeAgent(
                 sectionType,
                 chatClientBuilder,
-                    reportPromptProvider,
+                reportPromptProvider,
                 advisorProvider,
                 responseParser,
                 circuitBreaker

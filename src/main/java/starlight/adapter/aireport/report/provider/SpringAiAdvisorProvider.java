@@ -1,4 +1,4 @@
-package starlight.adapter.aireport.reportgrader.provider;
+package starlight.adapter.aireport.report.provider;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package starlight.adapter.aireport.reportgrader.dto;
+package starlight.adapter.aireport.report.dto;
 
 import starlight.application.aireport.provided.dto.AiReportResult.SectionScoreDetailResponse;
 import starlight.shared.enumerate.SectionType;

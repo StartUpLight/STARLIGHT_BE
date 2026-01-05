@@ -1,4 +1,4 @@
-package starlight.adapter.aireport.reportgrader.supervisor;
+package starlight.adapter.aireport.report.supervisor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +10,8 @@ import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import starlight.adapter.aireport.reportgrader.dto.SectionGradingResult;
-import starlight.adapter.aireport.reportgrader.util.AiReportResponseParser;
+import starlight.adapter.aireport.report.dto.SectionGradingResult;
+import starlight.adapter.aireport.report.util.AiReportResponseParser;
 import starlight.application.aireport.provided.dto.AiReportResult;
 
 import java.util.HashMap;
@@ -61,8 +61,8 @@ public class ReportSupervisor {
                     new UserMessage(prompt)
                 )))
                 .options(ChatOptions.builder()
-                    .temperature(0.1)
-                    .topP(0.2)
+                    .temperature(0.0)
+                    .topP(0.1)
                     .build())
                 .call()
                 .content();

@@ -1,4 +1,4 @@
-package starlight.adapter.aireport.reportgrader.agent.impl;
+package starlight.adapter.aireport.report.agent.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,12 +7,12 @@ import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
-import starlight.adapter.aireport.reportgrader.agent.SectionGradeAgent;
-import starlight.adapter.aireport.reportgrader.circuitbreaker.SectionGradingCircuitBreaker;
-import starlight.adapter.aireport.reportgrader.dto.SectionGradingResult;
-import starlight.adapter.aireport.reportgrader.provider.SpringAiAdvisorProvider;
-import starlight.adapter.aireport.reportgrader.provider.ReportPromptProvider;
-import starlight.adapter.aireport.reportgrader.util.AiReportResponseParser;
+import starlight.adapter.aireport.report.agent.SectionGradeAgent;
+import starlight.adapter.aireport.report.circuitbreaker.SectionGradingCircuitBreaker;
+import starlight.adapter.aireport.report.dto.SectionGradingResult;
+import starlight.adapter.aireport.report.provider.SpringAiAdvisorProvider;
+import starlight.adapter.aireport.report.provider.ReportPromptProvider;
+import starlight.adapter.aireport.report.util.AiReportResponseParser;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.shared.enumerate.SectionType;
 
@@ -85,16 +85,17 @@ public class SpringAiSectionGradeAgent implements SectionGradeAgent {
 
     private SectionGradingResult parseSectionResult(String llmResponse) {
         try {
-            AiReportResult fullResponse = responseParser.parse(llmResponse);
+            // 섹션별 응답 파싱 메소드 사용
+            AiReportResult sectionResponse = responseParser.parseSectionResponse(llmResponse);
 
             // SectionType의 score 추출 메서드 사용
-            Integer score = getSectionType().extractScore(fullResponse);
+            Integer score = getSectionType().extractScore(sectionResponse);
 
             // sectionScores에서 해당 섹션 찾기
             String sectionTypeString = getSectionType().getSectionTypeString();
             AiReportResult.SectionScoreDetailResponse sectionScore = null;
             if (sectionTypeString != null) {
-                sectionScore = fullResponse.sectionScores().stream()
+                sectionScore = sectionResponse.sectionScores().stream()
                         .filter(ss -> sectionTypeString.equals(ss.sectionType()))
                         .findFirst()
                         .orElse(null);
