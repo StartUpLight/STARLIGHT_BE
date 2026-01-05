@@ -3,7 +3,7 @@ package starlight.application.member.provided;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
 
-public interface CredentialService {
+public interface CredentialUseCase {
 
     Credential createCredential(String rawPassword);
 

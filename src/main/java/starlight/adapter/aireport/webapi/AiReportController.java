@@ -10,8 +10,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import starlight.adapter.businessplan.webapi.dto.BusinessPlanCreateWithPdfRequest;
 import starlight.adapter.member.auth.security.auth.AuthDetails;
-import starlight.application.aireport.provided.dto.AiReportResponse;
-import starlight.application.aireport.provided.AiReportService;
+import starlight.application.aireport.provided.dto.AiReportResult;
+import starlight.application.aireport.provided.AiReportUseCase;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 @Validated
@@ -22,24 +22,24 @@ import starlight.shared.apiPayload.response.ApiResponse;
 @SecurityRequirement(name = "bearerAuth")
 public class AiReportController {
 
-    private final AiReportService aiReportService;
+    private final AiReportUseCase aiReportUseCase;
 
     @Operation(summary = "사업계획서를 AI로 채점 및 생성합니다.")
     @PostMapping("/evaluation/{planId}")
-    public ApiResponse<AiReportResponse> gradeBusinessPlan(
+    public ApiResponse<AiReportResult> gradeBusinessPlan(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId
     ) {
-        return ApiResponse.success(aiReportService.gradeBusinessPlan(planId, authDetails.getMemberId()));
+        return ApiResponse.success(aiReportUseCase.gradeBusinessPlan(planId, authDetails.getMemberId()));
     }
 
     @Operation(summary = "PDF URL을 기반으로 사업계획서를 생성하고, AI로 채점 및 생성합니다.")
     @PostMapping("/evaluation/pdf")
-    public ApiResponse<AiReportResponse> createAndGradeBusinessPlan(
+    public ApiResponse<AiReportResult> createAndGradeBusinessPlan(
             @AuthenticationPrincipal AuthDetails authDetails,
             @Valid @RequestBody BusinessPlanCreateWithPdfRequest request
     ) {
-        return ApiResponse.success(aiReportService.createAndGradePdfBusinessPlan(
+        return ApiResponse.success(aiReportUseCase.createAndGradePdfBusinessPlan(
                 request.title(),
                 request.pdfUrl(),
                 authDetails.getMemberId()
@@ -48,10 +48,10 @@ public class AiReportController {
 
     @Operation(summary = "AI 리포트를 조회합니다.")
     @GetMapping("/{planId}")
-    public ApiResponse<AiReportResponse> getAiReport(
+    public ApiResponse<AiReportResult> getAiReport(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId
     ) {
-        return ApiResponse.success(aiReportService.getAiReport(planId, authDetails.getMemberId()));
+        return ApiResponse.success(aiReportUseCase.getAiReport(planId, authDetails.getMemberId()));
     }
 }

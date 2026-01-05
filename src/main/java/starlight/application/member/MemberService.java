@@ -2,7 +2,7 @@ package starlight.application.member;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import starlight.application.member.provided.MemberQueryUseCase;
+import starlight.application.member.provided.MemberUseCase;
 import starlight.application.member.required.MemberCommandPort;
 import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.member.entity.Credential;
@@ -13,7 +13,7 @@ import starlight.domain.member.exception.MemberException;
 
 @Service
 @RequiredArgsConstructor
-public class MemberQueryService implements MemberQueryUseCase {
+public class MemberService implements MemberUseCase {
 
     private final MemberQueryPort memberQueryPort;
     private final MemberCommandPort memberCommandPort;

@@ -7,7 +7,7 @@ import starlight.domain.expertReport.enumerate.SaveType;
 
 import java.util.List;
 
-public interface ExpertReportServiceUseCase{
+public interface ExpertReportUseCase {
 
     String createExpertReportLink(Long expertId, Long businessPlanId);
 

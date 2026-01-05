@@ -3,7 +3,7 @@ package starlight.application.member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import starlight.application.member.provided.CredentialService;
+import starlight.application.member.provided.CredentialUseCase;
 import starlight.domain.member.auth.exception.AuthErrorType;
 import starlight.domain.member.auth.exception.AuthException;
 import starlight.domain.member.entity.Credential;
@@ -11,7 +11,7 @@ import starlight.domain.member.entity.Member;
 
 @Service
 @RequiredArgsConstructor
-public class CredentialServiceImpl implements CredentialService {
+public class CredentialService implements CredentialUseCase {
 
     private final PasswordEncoder passwordEncoder;
 
