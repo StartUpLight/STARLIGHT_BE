@@ -1,5 +1,6 @@
 package starlight.application.businessplan.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import starlight.domain.businessplan.entity.BaseSection;
 import starlight.domain.businessplan.entity.BusinessPlan;
@@ -8,11 +9,14 @@ import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.shared.enumerate.SectionType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * BusinessPlan에서 LLM 채점을 위한 텍스트 컨텐츠를 추출하는 컴포넌트
  */
+@Slf4j
 @Component
 public class BusinessPlanContentExtractor {
 
@@ -87,6 +91,54 @@ public class BusinessPlanContentExtractor {
         }
 
         return sectionBuilder.toString();
+    }
+
+    /**
+     * BusinessPlan에서 섹션별로 컨텐츠를 추출하여 Map으로 반환
+     */
+    public Map<SectionType, String> extractSectionContents(BusinessPlan businessPlan) {
+        Map<SectionType, String> sectionContents = new HashMap<>();
+        
+        String problemRecognition = extractSectionContent(
+            businessPlan.getProblemRecognition(),
+            SectionType.PROBLEM_RECOGNITION, "문제 인식");
+        sectionContents.put(SectionType.PROBLEM_RECOGNITION, problemRecognition);
+        
+        String feasibility = extractSectionContent(
+            businessPlan.getFeasibility(),
+            SectionType.FEASIBILITY, "실현 가능성");
+        sectionContents.put(SectionType.FEASIBILITY, feasibility);
+        
+        String growthStrategy = extractSectionContent(
+            businessPlan.getGrowthTactic(),
+            SectionType.GROWTH_STRATEGY, "성장 전략");
+        sectionContents.put(SectionType.GROWTH_STRATEGY, growthStrategy);
+        
+        String teamCompetence = extractSectionContent(
+            businessPlan.getTeamCompetence(),
+            SectionType.TEAM_COMPETENCE, "팀 역량");
+        sectionContents.put(SectionType.TEAM_COMPETENCE, teamCompetence);
+        
+        return sectionContents;
+    }
+
+    /**
+     * 전체 텍스트에서 섹션별로 내용을 추출 (PDF 케이스용)
+     * TODO: 실제 구현 필요 - 섹션 제목을 기준으로 파싱
+     */
+    public Map<SectionType, String> extractSectionContentsFromText(String fullContent) {
+        // 간단한 구현: 전체 내용을 각 섹션에 동일하게 할당
+        // 나중에 실제 파싱 로직으로 개선 필요
+        Map<SectionType, String> sectionContents = new HashMap<>();
+        
+        // 섹션 제목을 찾아서 분리하는 로직 필요
+        // 현재는 전체 내용을 각 섹션에 할당
+        sectionContents.put(SectionType.PROBLEM_RECOGNITION, fullContent);
+        sectionContents.put(SectionType.FEASIBILITY, fullContent);
+        sectionContents.put(SectionType.GROWTH_STRATEGY, fullContent);
+        sectionContents.put(SectionType.TEAM_COMPETENCE, fullContent);
+        
+        return sectionContents;
     }
 }
 
