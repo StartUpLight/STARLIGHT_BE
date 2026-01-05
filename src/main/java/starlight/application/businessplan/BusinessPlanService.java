@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import starlight.application.businessplan.provided.dto.BusinessPlanResult;
 import starlight.application.businessplan.provided.dto.SubSectionResult;
 import starlight.application.businessplan.provided.BusinessPlanUseCase;
+import starlight.application.businessplan.required.BusinessPlanCommandPort;
 import starlight.application.businessplan.required.BusinessPlanQueryPort;
 import starlight.application.businessplan.required.ChecklistGraderPort;
 import starlight.application.businessplan.util.PlainTextExtractUtils;
@@ -34,20 +35,21 @@ import java.util.Objects;
 @Transactional
 public class BusinessPlanService implements BusinessPlanUseCase {
 
-    private final BusinessPlanQueryPort businessPlanQuery;
-    private final MemberQueryPort memberQuery;
+    private final BusinessPlanCommandPort businessPlanCommandPort;
+    private final BusinessPlanQueryPort businessPlanQueryPort;
+    private final MemberQueryPort memberQueryPort;
     private final ChecklistGraderPort checklistGrader;
     private final ObjectMapper objectMapper;
 
     @Override
     public BusinessPlanResult.Result createBusinessPlan(Long memberId) {
-        Member member = memberQuery.findByIdOrThrow(memberId);
+        Member member = memberQueryPort.findByIdOrThrow(memberId);
 
         String planTitle = member.getName() == null ? "제목 없는 사업계획서" : member.getName() + "의 사업계획서";
 
         BusinessPlan plan = BusinessPlan.create(planTitle, memberId);
 
-        return BusinessPlanResult.Result.from(businessPlanQuery.save(plan), "Business plan created");
+        return BusinessPlanResult.Result.from(businessPlanCommandPort.save(plan), "Business plan created");
     }
 
     @Override
@@ -58,7 +60,7 @@ public class BusinessPlanService implements BusinessPlanUseCase {
                 pdfUrl
         );
 
-        return BusinessPlanResult.Result.from(businessPlanQuery.save(plan), "PDF Business plan created");
+        return BusinessPlanResult.Result.from(businessPlanCommandPort.save(plan), "PDF Business plan created");
     }
 
     @Override
@@ -72,7 +74,7 @@ public class BusinessPlanService implements BusinessPlanUseCase {
     @Override
     @Transactional(readOnly = true)
     public BusinessPlanResult.Detail getBusinessPlanDetail(Long planId, Long memberId) {
-        BusinessPlan plan = businessPlanQuery.findWithAllSubSectionsOrThrow(planId);
+        BusinessPlan plan = businessPlanQueryPort.findWithAllSubSectionsOrThrow(planId);
         if (!plan.isOwnedBy(memberId)) {
             throw new BusinessPlanException(BusinessPlanErrorType.UNAUTHORIZED_ACCESS);
         }
@@ -89,7 +91,7 @@ public class BusinessPlanService implements BusinessPlanUseCase {
     @Override
     @Transactional(readOnly = true)
     public BusinessPlanResult.PreviewPage getBusinessPlanList(Long memberId, Pageable pageable) {
-        Page<BusinessPlan> page = businessPlanQuery.findPreviewPage(memberId, pageable);
+        Page<BusinessPlan> page = businessPlanQueryPort.findPreviewPage(memberId, pageable);
         List<BusinessPlanResult.Preview> content = page.getContent().stream()
                 .map(BusinessPlanResult.Preview::from)
                 .toList();
@@ -103,7 +105,7 @@ public class BusinessPlanService implements BusinessPlanUseCase {
 
         plan.updateTitle(title);
 
-        businessPlanQuery.save(plan);
+        businessPlanCommandPort.save(plan);
 
         return plan.getTitle();
     }
@@ -113,7 +115,7 @@ public class BusinessPlanService implements BusinessPlanUseCase {
         BusinessPlan plan = getOwnedBusinessPlanOrThrow(planId, memberId);
 
         BusinessPlanResult.Result result = BusinessPlanResult.Result.from(plan, "Business plan deleted");
-        businessPlanQuery.delete(plan);
+        businessPlanCommandPort.delete(plan);
 
         return result;
     }
@@ -151,7 +153,7 @@ public class BusinessPlanService implements BusinessPlanUseCase {
             message = "Subsection writing completed";
         }
 
-        BusinessPlan savedPlan = businessPlanQuery.save(plan);
+        BusinessPlan savedPlan = businessPlanCommandPort.save(plan);
         SubSection persistedSubSection = getSectionByPlanAndType(savedPlan, sectionType)
                 .getSubSectionByType(subSectionType);
 
@@ -195,7 +197,7 @@ public class BusinessPlanService implements BusinessPlanUseCase {
 
         subSection.update(content, rawJsonStr, checks);
 
-        businessPlanQuery.save(plan);
+        businessPlanCommandPort.save(plan);
 
         return checks;
     }
@@ -213,7 +215,7 @@ public class BusinessPlanService implements BusinessPlanUseCase {
         SubSectionResult.Result result = SubSectionResult.Result.from(target, "Subsection deleted");
         section.removeSubSection(subSectionType);
 
-        businessPlanQuery.save(plan);
+        businessPlanCommandPort.save(plan);
 
         return result;
     }
@@ -236,7 +238,7 @@ public class BusinessPlanService implements BusinessPlanUseCase {
     }
 
     private BusinessPlan getOwnedBusinessPlanOrThrow(Long planId, Long memberId) {
-        BusinessPlan businessPlan = businessPlanQuery.findByIdOrThrow(planId);
+        BusinessPlan businessPlan = businessPlanQueryPort.findByIdOrThrow(planId);
         if (!businessPlan.isOwnedBy(memberId)) {
             throw new BusinessPlanException(BusinessPlanErrorType.UNAUTHORIZED_ACCESS);
         }

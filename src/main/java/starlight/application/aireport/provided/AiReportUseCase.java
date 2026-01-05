@@ -9,4 +9,3 @@ public interface AiReportUseCase {
 
     AiReportResult getAiReport(Long businessPlanId, Long memberId);
 }
-

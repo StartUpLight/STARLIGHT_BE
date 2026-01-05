@@ -10,9 +10,5 @@ public interface BusinessPlanQueryPort {
 
     BusinessPlan findWithAllSubSectionsOrThrow(Long id);
 
-    BusinessPlan save(BusinessPlan businessPlan);
-
-    void delete(BusinessPlan businessPlan);
-
     Page<BusinessPlan> findPreviewPage(Long memberId, Pageable pageable);
 }
