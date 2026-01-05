@@ -2,8 +2,9 @@ package starlight.adapter.ai;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import starlight.adapter.ai.infra.OpenAiGenerator;
-import starlight.adapter.ai.util.ChecklistCatalog;
+import starlight.adapter.businessplan.checklist.SpringAiChecklistGrader;
+import starlight.adapter.aireport.report.agent.impl.SpringAiFullReportGradeAgent;
+import starlight.adapter.businessplan.checklist.provider.ChecklistPromptProvider;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 
 import java.util.List;
@@ -17,17 +18,17 @@ class AiChecklistGraderTest {
     @Test
     @DisplayName("criteria별 컨텍스트를 합치고 LLM 결과를 반환")
     void check_returnsFromLlm() {
-        OpenAiGenerator generator = mock(OpenAiGenerator.class);
+        SpringAiFullReportGradeAgent generator = mock(SpringAiFullReportGradeAgent.class);
         when(generator.generateChecklistArray(any(SubSectionType.class), anyString(), anyList(), anyList()))
                 .thenReturn(List.of(true, false, true, false, true));
 
-        ChecklistCatalog catalog = mock(ChecklistCatalog.class);
+        ChecklistPromptProvider catalog = mock(ChecklistPromptProvider.class);
         when(catalog.getCriteriaBySubSectionType(any(SubSectionType.class)))
                 .thenReturn(List.of("c1", "c2", "c3", "c4", "c5"));
         when(catalog.getDetailedCriteriaBySubSectionType(any(SubSectionType.class)))
                 .thenReturn(List.of("d1", "d2", "d3", "d4", "d5"));
 
-        OpenAiChecklistGrader sut = new OpenAiChecklistGrader(generator, catalog);
+        SpringAiChecklistGrader sut = new SpringAiChecklistGrader(generator, catalog);
 
         List<Boolean> result = sut.check(SubSectionType.OVERVIEW_BASIC, "input text");
         assertThat(result).containsExactly(true, false, true, false, true);
@@ -44,17 +45,17 @@ class AiChecklistGraderTest {
     @Test
     @DisplayName("LLM 결과 길이가 5보다 짧으면 false로 패딩")
     void check_normalizesToFive() {
-        OpenAiGenerator generator = mock(OpenAiGenerator.class);
+        SpringAiFullReportGradeAgent generator = mock(SpringAiFullReportGradeAgent.class);
         when(generator.generateChecklistArray(any(SubSectionType.class), anyString(), anyList(), anyList()))
                 .thenReturn(List.of(true));
 
-        ChecklistCatalog catalog = mock(ChecklistCatalog.class);
+        ChecklistPromptProvider catalog = mock(ChecklistPromptProvider.class);
         when(catalog.getCriteriaBySubSectionType(any(SubSectionType.class)))
                 .thenReturn(List.of("c1", "c2", "c3", "c4", "c5"));
         when(catalog.getDetailedCriteriaBySubSectionType(any(SubSectionType.class)))
                 .thenReturn(List.of("d1", "d2", "d3", "d4", "d5"));
 
-        OpenAiChecklistGrader sut = new OpenAiChecklistGrader(generator, catalog);
+        SpringAiChecklistGrader sut = new SpringAiChecklistGrader(generator, catalog);
         List<Boolean> result = sut.check(SubSectionType.OVERVIEW_BASIC, "input text");
         assertThat(result).containsExactly(true, false, false, false, false);
     }

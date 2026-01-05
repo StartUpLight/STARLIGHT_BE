@@ -9,10 +9,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import starlight.application.businessplan.provided.dto.BusinessPlanResponse;
-import starlight.application.businessplan.provided.dto.SubSectionResponse;
-import starlight.application.businessplan.required.BusinessPlanQuery;
-import starlight.application.businessplan.required.ChecklistGrader;
+import starlight.application.businessplan.provided.dto.BusinessPlanResult;
+import starlight.application.businessplan.provided.dto.SubSectionResult;
+import starlight.application.businessplan.required.BusinessPlanQueryPort;
+import starlight.application.businessplan.required.ChecklistGraderPort;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.Overview;
 import starlight.domain.businessplan.entity.SubSection;
@@ -37,10 +37,10 @@ import static org.mockito.Mockito.*;
 class BusinessPlanServiceImplUnitTest {
 
     @Mock
-    private BusinessPlanQuery businessPlanQuery;
+    private BusinessPlanQueryPort businessPlanQuery;
 
     @Mock
-    private ChecklistGrader checklistGrader;
+    private ChecklistGraderPort checklistGrader;
 
     @Mock
     private ObjectMapper objectMapper;
@@ -49,7 +49,7 @@ class BusinessPlanServiceImplUnitTest {
     private MemberQueryPort memberQuery;
 
     @InjectMocks
-    private BusinessPlanServiceImpl sut;
+    private BusinessPlanService sut;
 
     private BusinessPlan buildPlanWithSections(Long memberId) {
         return BusinessPlan.create("default title", memberId);
@@ -75,7 +75,7 @@ class BusinessPlanServiceImplUnitTest {
         when(businessPlanQuery.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        BusinessPlanResponse.Result created = sut.createBusinessPlan(1L);
+        BusinessPlanResult.Result created = sut.createBusinessPlan(1L);
 
         assertThat(created).isNotNull();
         assertThat(created.message()).isEqualTo("Business plan created");
@@ -92,7 +92,7 @@ class BusinessPlanServiceImplUnitTest {
         String pdfUrl = "https://example.com/test.pdf";
         Long memberId = 1L;
 
-        BusinessPlanResponse.Result created = sut.createBusinessPlanWithPdf(title, pdfUrl, memberId);
+        BusinessPlanResult.Result created = sut.createBusinessPlanWithPdf(title, pdfUrl, memberId);
 
         assertThat(created).isNotNull();
         assertThat(created.message()).isEqualTo("PDF Business plan created");
@@ -134,7 +134,7 @@ class BusinessPlanServiceImplUnitTest {
         when(plan.getId()).thenReturn(100L);
         when(businessPlanQuery.findByIdOrThrow(100L)).thenReturn(plan);
 
-        BusinessPlanResponse.Result deleted = sut.deleteBusinessPlan(100L, 10L);
+        BusinessPlanResult.Result deleted = sut.deleteBusinessPlan(100L, 10L);
 
         assertThat(deleted).isNotNull();
         assertThat(deleted.businessPlanId()).isEqualTo(100L);
@@ -165,7 +165,7 @@ class BusinessPlanServiceImplUnitTest {
 
         // when
         List<Boolean> checks = List.of(false, false, false, false, false);
-        SubSectionResponse.Result res = sut.upsertSubSection(1L, jsonNode, checks,
+        SubSectionResult.Result res = sut.upsertSubSection(1L, jsonNode, checks,
                 SubSectionType.OVERVIEW_BASIC, 10L);
 
         // then
@@ -203,7 +203,7 @@ class BusinessPlanServiceImplUnitTest {
         }
 
         List<Boolean> checks = List.of(false, false, false, false, false);
-        SubSectionResponse.Result res = sut.upsertSubSection(1L, jsonNode, checks,
+        SubSectionResult.Result res = sut.upsertSubSection(1L, jsonNode, checks,
                 SubSectionType.OVERVIEW_BASIC, 10L);
 
         assertThat(res.message()).isEqualTo("Subsection updated");
@@ -238,7 +238,7 @@ class BusinessPlanServiceImplUnitTest {
 
         when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
 
-        SubSectionResponse.Detail detail = sut.getSubSectionDetail(1L, SubSectionType.OVERVIEW_BASIC, 10L);
+        SubSectionResult.Detail detail = sut.getSubSectionDetail(1L, SubSectionType.OVERVIEW_BASIC, 10L);
 
         assertThat(detail).isNotNull();
         assertThat(detail.subSectionType()).isEqualTo(SubSectionType.OVERVIEW_BASIC);
@@ -280,7 +280,7 @@ class BusinessPlanServiceImplUnitTest {
         when(businessPlanQuery.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        SubSectionResponse.Result res = sut.deleteSubSection(1L, SubSectionType.OVERVIEW_BASIC, 10L);
+        SubSectionResult.Result res = sut.deleteSubSection(1L, SubSectionType.OVERVIEW_BASIC, 10L);
 
         assertThat(res).isNotNull();
         assertThat(res.subSectionType()).isEqualTo(SubSectionType.OVERVIEW_BASIC);
@@ -311,7 +311,7 @@ class BusinessPlanServiceImplUnitTest {
                 .thenReturn(new PageImpl<>(List.of(plan), pageable, 7));
 
         // when
-        BusinessPlanResponse.PreviewPage res = sut.getBusinessPlanList(1L, pageable);
+        BusinessPlanResult.PreviewPage res = sut.getBusinessPlanList(1L, pageable);
 
         // then
         assertThat(res.totalElements()).isEqualTo(7);
@@ -337,14 +337,14 @@ class BusinessPlanServiceImplUnitTest {
                 List.of(false, false, false, false, false));
         plan.getProblemRecognition().putSubSection(problem);
 
-        when(businessPlanQuery.getOrThrowWithAllSubSections(1L)).thenReturn(plan);
+        when(businessPlanQuery.findWithAllSubSectionsOrThrow(1L)).thenReturn(plan);
 
-        BusinessPlanResponse.Detail detail = sut.getBusinessPlanDetail(1L, 10L);
+        BusinessPlanResult.Detail detail = sut.getBusinessPlanDetail(1L, 10L);
 
         assertThat(detail.title()).isEqualTo(plan.getTitle());
         assertThat(detail.subSectionDetailList()).hasSize(2);
         assertThat(detail.subSectionDetailList())
-                .extracting(SubSectionResponse.Detail::subSectionType)
+                .extracting(SubSectionResult.Detail::subSectionType)
                 .containsExactly(SubSectionType.OVERVIEW_BASIC, SubSectionType.PROBLEM_BACKGROUND);
         assertThat(detail.subSectionDetailList().get(0).content().path("text").asText()).isEqualTo("overview");
         assertThat(detail.subSectionDetailList().get(1).content().path("text").asText()).isEqualTo("problem");
@@ -355,7 +355,7 @@ class BusinessPlanServiceImplUnitTest {
     void getBusinessPlanDetail_unauthorized_throws() {
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.isOwnedBy(10L)).thenReturn(false);
-        when(businessPlanQuery.getOrThrowWithAllSubSections(1L)).thenReturn(plan);
+        when(businessPlanQuery.findWithAllSubSectionsOrThrow(1L)).thenReturn(plan);
 
         org.junit.jupiter.api.Assertions.assertThrows(BusinessPlanException.class,
                 () -> sut.getBusinessPlanDetail(1L, 10L));
@@ -448,13 +448,13 @@ class BusinessPlanServiceImplUnitTest {
         }
 
         List<Boolean> checks = List.of(false, false, false, false, false);
-        SubSectionResponse.Result r1 = sut.upsertSubSection(1L, jsonNode, checks,
+        SubSectionResult.Result r1 = sut.upsertSubSection(1L, jsonNode, checks,
                 SubSectionType.PROBLEM_BACKGROUND, 10L);
-        SubSectionResponse.Result r2 = sut.upsertSubSection(1L, jsonNode, checks,
+        SubSectionResult.Result r2 = sut.upsertSubSection(1L, jsonNode, checks,
                 SubSectionType.FEASIBILITY_STRATEGY, 10L);
-        SubSectionResponse.Result r3 = sut.upsertSubSection(1L, jsonNode, checks, SubSectionType.GROWTH_MODEL,
+        SubSectionResult.Result r3 = sut.upsertSubSection(1L, jsonNode, checks, SubSectionType.GROWTH_MODEL,
                 10L);
-        SubSectionResponse.Result r4 = sut.upsertSubSection(1L, jsonNode, checks, SubSectionType.TEAM_FOUNDER,
+        SubSectionResult.Result r4 = sut.upsertSubSection(1L, jsonNode, checks, SubSectionType.TEAM_FOUNDER,
                 10L);
 
         assertThat(r1.message()).isEqualTo("Subsection created");

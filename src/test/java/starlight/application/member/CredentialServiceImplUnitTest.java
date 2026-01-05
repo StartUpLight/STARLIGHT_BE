@@ -17,7 +17,8 @@ import static org.mockito.Mockito.*;
 class CredentialServiceImplUnitTest {
 
     @Mock PasswordEncoder passwordEncoder;
-    @InjectMocks CredentialServiceImpl sut;
+    @InjectMocks
+    CredentialService sut;
 
     @Test
     void createCredential_정상_해싱후_저장() {

@@ -4,6 +4,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
+import starlight.adapter.aireport.report.provider.SpringAiAdvisorProvider;
+import starlight.adapter.aireport.report.agent.impl.SpringAiFullReportGradeAgent;
+import starlight.adapter.aireport.report.provider.ReportPromptProvider;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 
 import java.util.List;
@@ -30,15 +33,15 @@ class OpenAiGeneratorTest {
                 .call()
                 .content()).thenReturn("[true,false,true,false,true]");
 
-        PromptProvider promptProvider = mock(PromptProvider.class);
-        when(promptProvider.createChecklistGradingPrompt(any(SubSectionType.class), anyString(), anyList(), anyList()))
+        ReportPromptProvider reportPromptProvider = mock(ReportPromptProvider.class);
+        when(reportPromptProvider.createChecklistGradingPrompt(any(SubSectionType.class), anyString(), anyList(), anyList()))
                 .thenReturn(mock(Prompt.class));
 
-        AdvisorProvider advisorProvider = mock(AdvisorProvider.class);
+        SpringAiAdvisorProvider advisorProvider = mock(SpringAiAdvisorProvider.class);
         when(advisorProvider.getSimpleLoggerAdvisor())
                 .thenReturn(mock(org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.class));
 
-        OpenAiGenerator sut = new OpenAiGenerator(builder, promptProvider, advisorProvider);
+        SpringAiFullReportGradeAgent sut = new SpringAiFullReportGradeAgent(builder, reportPromptProvider, advisorProvider);
 
         List<Boolean> result = sut.generateChecklistArray(
                 SubSectionType.OVERVIEW_BASIC,
@@ -64,15 +67,15 @@ class OpenAiGeneratorTest {
                 .call()
                 .content()).thenReturn("not-json");
 
-        PromptProvider promptProvider = mock(PromptProvider.class);
-        when(promptProvider.createChecklistGradingPrompt(any(SubSectionType.class), anyString(), anyList(), anyList()))
+        ReportPromptProvider reportPromptProvider = mock(ReportPromptProvider.class);
+        when(reportPromptProvider.createChecklistGradingPrompt(any(SubSectionType.class), anyString(), anyList(), anyList()))
                 .thenReturn(mock(Prompt.class));
 
-        AdvisorProvider advisorProvider = mock(AdvisorProvider.class);
+        SpringAiAdvisorProvider advisorProvider = mock(SpringAiAdvisorProvider.class);
         when(advisorProvider.getSimpleLoggerAdvisor())
                 .thenReturn(mock(org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.class));
 
-        OpenAiGenerator sut = new OpenAiGenerator(builder, promptProvider, advisorProvider);
+        SpringAiFullReportGradeAgent sut = new SpringAiFullReportGradeAgent(builder, reportPromptProvider, advisorProvider);
 
         List<Boolean> result = sut.generateChecklistArray(
                 SubSectionType.OVERVIEW_BASIC,
@@ -110,17 +113,17 @@ class OpenAiGeneratorTest {
                 .call()
                 .content()).thenReturn(expectedResponse);
 
-        PromptProvider promptProvider = mock(PromptProvider.class);
-        when(promptProvider.createReportGradingPrompt(anyString()))
+        ReportPromptProvider reportPromptProvider = mock(ReportPromptProvider.class);
+        when(reportPromptProvider.createReportGradingPrompt(anyString()))
                 .thenReturn(mock(Prompt.class));
 
-        AdvisorProvider advisorProvider = mock(AdvisorProvider.class);
+        SpringAiAdvisorProvider advisorProvider = mock(SpringAiAdvisorProvider.class);
         when(advisorProvider.getQuestionAnswerAdvisor(anyDouble(), anyInt(), any()))
                 .thenReturn(mock(org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor.class));
         when(advisorProvider.getSimpleLoggerAdvisor())
                 .thenReturn(mock(org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.class));
 
-        OpenAiGenerator sut = new OpenAiGenerator(builder, promptProvider, advisorProvider);
+        SpringAiFullReportGradeAgent sut = new SpringAiFullReportGradeAgent(builder, reportPromptProvider, advisorProvider);
 
         String result = sut.generateReport("test content");
 

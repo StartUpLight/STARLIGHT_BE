@@ -2,9 +2,10 @@ package starlight.adapter.ai;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import starlight.adapter.ai.infra.OpenAiGenerator;
-import starlight.adapter.ai.util.AiReportResponseParser;
-import starlight.application.aireport.provided.dto.AiReportResponse;
+import starlight.adapter.aireport.report.SpringAiReportGrader;
+import starlight.adapter.aireport.report.agent.impl.SpringAiFullReportGradeAgent;
+import starlight.adapter.aireport.report.util.AiReportResponseParser;
+import starlight.application.aireport.provided.dto.AiReportResult;
 
 import java.util.List;
 
@@ -41,22 +42,22 @@ class OpenAiReportGraderTest {
                 }
                 """;
 
-        OpenAiGenerator generator = mock(OpenAiGenerator.class);
+        SpringAiFullReportGradeAgent generator = mock(SpringAiFullReportGradeAgent.class);
         when(generator.generateReport(content)).thenReturn(llmResponse);
 
         AiReportResponseParser parser = mock(AiReportResponseParser.class);
-        AiReportResponse expectedResponse = AiReportResponse.fromGradingResult(
+        AiReportResult expectedResponse = AiReportResult.fromGradingResult(
                 20, 25, 30, 20,
-                List.of(new AiReportResponse.SectionScoreDetailResponse("PROBLEM_RECOGNITION", "[{\"item\":\"항목1\",\"score\":5,\"maxScore\":5}]")),
-                List.of(new AiReportResponse.StrengthWeakness("강점1", "내용1")),
-                List.of(new AiReportResponse.StrengthWeakness("약점1", "내용1"))
+                List.of(new AiReportResult.SectionScoreDetailResponse("PROBLEM_RECOGNITION", "[{\"item\":\"항목1\",\"score\":5,\"maxScore\":5}]")),
+                List.of(new AiReportResult.StrengthWeakness("강점1", "내용1")),
+                List.of(new AiReportResult.StrengthWeakness("약점1", "내용1"))
         );
         when(parser.parse(llmResponse)).thenReturn(expectedResponse);
 
-        OpenAiReportGrader sut = new OpenAiReportGrader(generator, parser);
+        SpringAiReportGrader sut = new SpringAiReportGrader(generator, parser);
 
         // when
-        AiReportResponse result = sut.gradeContent(content);
+        AiReportResult result = sut.gradeWithSectionAgents(content);
 
         // then
         assertThat(result).isNotNull();
@@ -80,16 +81,16 @@ class OpenAiReportGraderTest {
         String content = "사업계획서 내용";
         String llmResponse = "{}";
 
-        OpenAiGenerator generator = mock(OpenAiGenerator.class);
+        SpringAiFullReportGradeAgent generator = mock(SpringAiFullReportGradeAgent.class);
         when(generator.generateReport(any())).thenReturn(llmResponse);
 
         AiReportResponseParser parser = mock(AiReportResponseParser.class);
-        when(parser.parse(any())).thenReturn(AiReportResponse.fromGradingResult(0, 0, 0, 0, List.of(), List.of(), List.of()));
+        when(parser.parse(any())).thenReturn(AiReportResult.fromGradingResult(0, 0, 0, 0, List.of(), List.of(), List.of()));
 
-        OpenAiReportGrader sut = new OpenAiReportGrader(generator, parser);
+        SpringAiReportGrader sut = new SpringAiReportGrader(generator, parser);
 
         // when
-        sut.gradeContent(content);
+        sut.gradeWithSectionAgents(content);
 
         // then
         var inOrder = inOrder(generator, parser);

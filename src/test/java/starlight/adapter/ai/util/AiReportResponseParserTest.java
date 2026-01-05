@@ -3,7 +3,8 @@ package starlight.adapter.ai.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import starlight.application.aireport.provided.dto.AiReportResponse;
+import starlight.adapter.aireport.report.util.AiReportResponseParser;
+import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.domain.aireport.exception.AiReportException;
 import starlight.domain.aireport.exception.AiReportErrorType;
 
@@ -42,7 +43,7 @@ class AiReportResponseParserTest {
                 """;
 
         // when
-        AiReportResponse result = parser.parse(validJson);
+        AiReportResult result = parser.parse(validJson);
 
         // then
         assertThat(result).isNotNull();
@@ -127,7 +128,7 @@ class AiReportResponseParserTest {
                 """;
 
         // when
-        AiReportResponse result = parser.parse(textFieldJson);
+        AiReportResult result = parser.parse(textFieldJson);
 
         // then
         assertThat(result).isNotNull();

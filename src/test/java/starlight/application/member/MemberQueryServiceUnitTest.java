@@ -22,7 +22,8 @@ class MemberQueryServiceUnitTest {
 
     @Mock MemberQueryPort memberQueryPort;
     @Mock MemberCommandPort memberCommandPort;
-    @InjectMocks MemberQueryService sut;
+    @InjectMocks
+    MemberService sut;
 
     @Test
     void createUser_중복이메일이면_예외() {

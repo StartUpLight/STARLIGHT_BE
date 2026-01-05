@@ -3,13 +3,13 @@ package starlight.application.aireport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import starlight.adapter.ai.util.AiReportResponseParser;
-import starlight.application.aireport.provided.dto.AiReportResponse;
-import starlight.application.aireport.required.AiReportGrader;
-import starlight.application.aireport.required.AiReportQuery;
-import starlight.application.aireport.required.OcrProvider;
-import starlight.application.businessplan.provided.BusinessPlanService;
-import starlight.application.businessplan.required.BusinessPlanQuery;
+import starlight.adapter.aireport.report.util.AiReportResponseParser;
+import starlight.application.aireport.provided.dto.AiReportResult;
+import starlight.application.aireport.required.ReportGraderPort;
+import starlight.application.aireport.required.AiReportQueryPort;
+import starlight.application.aireport.required.OcrProviderPort;
+import starlight.application.businessplan.provided.BusinessPlanUseCase;
+import starlight.application.businessplan.required.BusinessPlanQueryPort;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.aireport.exception.AiReportErrorType;
@@ -29,16 +29,16 @@ import static org.mockito.Mockito.*;
 @DisplayName("AiReportServiceImpl 유닛 테스트")
 class AiReportServiceImplUnitTest {
 
-    private final BusinessPlanQuery businessPlanQuery = mock(BusinessPlanQuery.class);
-    private final BusinessPlanService businessPlanService = mock(BusinessPlanService.class);
-    private final AiReportQuery aiReportQuery = mock(AiReportQuery.class);
-    private final AiReportGrader aiReportGrader = mock(AiReportGrader.class);
+    private final BusinessPlanQueryPort businessPlanQuery = mock(BusinessPlanQueryPort.class);
+    private final BusinessPlanUseCase businessPlanService = mock(BusinessPlanUseCase.class);
+    private final AiReportQueryPort aiReportQuery = mock(AiReportQueryPort.class);
+    private final ReportGraderPort aiReportGrader = mock(ReportGraderPort.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final OcrProvider ocrProvider = mock(OcrProvider.class);
+    private final OcrProviderPort ocrProvider = mock(OcrProviderPort.class);
     private final AiReportResponseParser responseParser = new AiReportResponseParser(objectMapper);
     private final BusinessPlanContentExtractor contentExtractor = mock(BusinessPlanContentExtractor.class);
 
-    private AiReportServiceImpl sut;
+    private AiReportService sut;
 
     @Test
     @DisplayName("채점 성공 시 새로운 AiReport를 생성하고 저장한다")
@@ -56,13 +56,13 @@ class AiReportServiceImplUnitTest {
         String extractedContent = "사업계획서 내용";
         when(contentExtractor.extractContent(plan)).thenReturn(extractedContent);
 
-        AiReportResponse gradingResult = AiReportResponse.fromGradingResult(
+        AiReportResult gradingResult = AiReportResult.fromGradingResult(
                 20, 25, 30, 20,
                 List.of(),
                 List.of(),
                 List.of()
         );
-        when(aiReportGrader.gradeContent(extractedContent)).thenReturn(gradingResult);
+        when(aiReportGrader.gradeWithSectionAgents(extractedContent)).thenReturn(gradingResult);
 
         String rawJson = """
                 {
@@ -81,10 +81,10 @@ class AiReportServiceImplUnitTest {
         when(savedReport.getRawJson()).thenReturn(RawJson.create(rawJson));
         when(aiReportQuery.save(any(AiReport.class))).thenReturn(savedReport);
 
-        sut = new AiReportServiceImpl(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
+        sut = new AiReportService(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
         // when
-        AiReportResponse result = sut.gradeBusinessPlan(planId, memberId);
+        AiReportResult result = sut.gradeBusinessPlan(planId, memberId);
 
         // then
         assertThat(result).isNotNull();
@@ -110,13 +110,13 @@ class AiReportServiceImplUnitTest {
         String extractedContent = "사업계획서 내용";
         when(contentExtractor.extractContent(plan)).thenReturn(extractedContent);
 
-        AiReportResponse gradingResult = AiReportResponse.fromGradingResult(
+        AiReportResult gradingResult = AiReportResult.fromGradingResult(
                 20, 25, 30, 20,
                 List.of(),
                 List.of(),
                 List.of()
         );
-        when(aiReportGrader.gradeContent(extractedContent)).thenReturn(gradingResult);
+        when(aiReportGrader.gradeWithSectionAgents(extractedContent)).thenReturn(gradingResult);
 
         String rawJson = """
                 {
@@ -134,10 +134,10 @@ class AiReportServiceImplUnitTest {
         when(existingReport.getRawJson()).thenReturn(RawJson.create(rawJson));
         when(aiReportQuery.save(existingReport)).thenReturn(existingReport);
 
-        sut = new AiReportServiceImpl(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
+        sut = new AiReportService(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
         // when
-        AiReportResponse result = sut.gradeBusinessPlan(planId, memberId);
+        AiReportResult result = sut.gradeBusinessPlan(planId, memberId);
 
         // then
         assertThat(result).isNotNull();
@@ -156,7 +156,7 @@ class AiReportServiceImplUnitTest {
         when(plan.isOwnedBy(memberId)).thenReturn(false);
         when(businessPlanQuery.findByIdOrThrow(planId)).thenReturn(plan);
 
-        sut = new AiReportServiceImpl(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
+        sut = new AiReportService(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
         // when & then
         assertThatThrownBy(() -> sut.gradeBusinessPlan(planId, memberId))
@@ -176,7 +176,7 @@ class AiReportServiceImplUnitTest {
         when(plan.areWritingCompleted()).thenReturn(false);
         when(businessPlanQuery.findByIdOrThrow(planId)).thenReturn(plan);
 
-        sut = new AiReportServiceImpl(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
+        sut = new AiReportService(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
         // when & then
         assertThatThrownBy(() -> sut.gradeBusinessPlan(planId, memberId))
@@ -214,10 +214,10 @@ class AiReportServiceImplUnitTest {
         when(aiReport.getRawJson()).thenReturn(RawJson.create(rawJson));
         when(aiReportQuery.findByBusinessPlanId(planId)).thenReturn(Optional.of(aiReport));
 
-        sut = new AiReportServiceImpl(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
+        sut = new AiReportService(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
         // when
-        AiReportResponse result = sut.getAiReport(planId, memberId);
+        AiReportResult result = sut.getAiReport(planId, memberId);
 
         // then
         assertThat(result).isNotNull();
@@ -238,7 +238,7 @@ class AiReportServiceImplUnitTest {
         when(businessPlanQuery.findByIdOrThrow(planId)).thenReturn(plan);
         when(aiReportQuery.findByBusinessPlanId(planId)).thenReturn(Optional.empty());
 
-        sut = new AiReportServiceImpl(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
+        sut = new AiReportService(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
         // when & then
         assertThatThrownBy(() -> sut.getAiReport(planId, memberId))

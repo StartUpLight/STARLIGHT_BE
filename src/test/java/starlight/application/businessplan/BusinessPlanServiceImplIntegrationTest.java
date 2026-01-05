@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import starlight.adapter.businessplan.persistence.BusinessPlanJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
-import starlight.application.businessplan.required.ChecklistGrader;
+import starlight.application.businessplan.required.ChecklistGraderPort;
 import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.SubSection;
@@ -26,12 +26,12 @@ import static org.mockito.Mockito.when;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Import({ BusinessPlanServiceImpl.class, BusinessPlanJpa.class,
+@Import({ BusinessPlanService.class, BusinessPlanJpa.class,
         BusinessPlanServiceImplIntegrationTest.TestBeans.class })
 class BusinessPlanServiceImplIntegrationTest {
 
     @Autowired
-    BusinessPlanServiceImpl sut;
+    BusinessPlanService sut;
     @Autowired
     BusinessPlanRepository businessPlanRepository;
     @Autowired
@@ -40,7 +40,7 @@ class BusinessPlanServiceImplIntegrationTest {
     @TestConfiguration
     static class TestBeans {
         @Bean
-        ChecklistGrader checklistGrader() {
+        ChecklistGraderPort checklistGrader() {
             return (subSectionType, content) -> List.of(false, false, false, false, false);
         }
 

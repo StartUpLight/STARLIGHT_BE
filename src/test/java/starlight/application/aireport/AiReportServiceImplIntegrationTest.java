@@ -10,16 +10,17 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import starlight.adapter.ai.util.AiReportResponseParser;
+import starlight.adapter.aireport.report.util.AiReportResponseParser;
 import starlight.adapter.aireport.persistence.AiReportJpa;
 import starlight.adapter.aireport.persistence.AiReportRepository;
 import starlight.adapter.businessplan.persistence.BusinessPlanJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
-import starlight.application.aireport.provided.dto.AiReportResponse;
-import starlight.application.aireport.required.AiReportGrader;
-import starlight.application.aireport.required.OcrProvider;
-import starlight.application.businessplan.provided.BusinessPlanService;
-import starlight.application.businessplan.provided.dto.BusinessPlanResponse;
+import starlight.application.aireport.provided.dto.AiReportResult;
+import starlight.application.aireport.required.ReportGraderPort;
+import starlight.application.aireport.required.OcrProviderPort;
+import starlight.application.businessplan.provided.dto.SubSectionResult;
+import starlight.application.businessplan.provided.BusinessPlanUseCase;
+import starlight.application.businessplan.provided.dto.BusinessPlanResult;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.businessplan.entity.BusinessPlan;
@@ -34,12 +35,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Import({AiReportServiceImpl.class, AiReportJpa.class, BusinessPlanJpa.class, AiReportServiceImplIntegrationTest.TestBeans.class})
+@Import({AiReportService.class, AiReportJpa.class, BusinessPlanJpa.class, AiReportServiceImplIntegrationTest.TestBeans.class})
 @DisplayName("AiReportServiceImpl 통합 테스트")
 class AiReportServiceImplIntegrationTest {
 
     @Autowired
-    AiReportServiceImpl sut;
+    AiReportService sut;
     @Autowired
     BusinessPlanRepository businessPlanRepository;
     @Autowired
@@ -51,14 +52,14 @@ class AiReportServiceImplIntegrationTest {
     static class TestBeans {
         
         @Bean
-        AiReportGrader aiReportGrader() {
+        ReportGraderPort aiReportGrader() {
             return content -> {
                 // 간단한 mock 응답 반환
-                return AiReportResponse.fromGradingResult(
+                return AiReportResult.fromGradingResult(
                         20, 25, 30, 20,
-                        List.of(new AiReportResponse.SectionScoreDetailResponse("PROBLEM_RECOGNITION", "[{\"item\":\"항목1\",\"score\":5,\"maxScore\":5}]")),
-                        List.of(new AiReportResponse.StrengthWeakness("강점1", "내용1")),
-                        List.of(new AiReportResponse.StrengthWeakness("약점1", "내용1"))
+                        List.of(new AiReportResult.SectionScoreDetailResponse("PROBLEM_RECOGNITION", "[{\"item\":\"항목1\",\"score\":5,\"maxScore\":5}]")),
+                        List.of(new AiReportResult.StrengthWeakness("강점1", "내용1")),
+                        List.of(new AiReportResult.StrengthWeakness("약점1", "내용1"))
                 );
             };
         }
@@ -74,33 +75,33 @@ class AiReportServiceImplIntegrationTest {
         }
 
         @Bean
-        BusinessPlanService businessPlanService(BusinessPlanRepository businessPlanRepository) {
-            return new BusinessPlanService() {
+        BusinessPlanUseCase businessPlanService(BusinessPlanRepository businessPlanRepository) {
+            return new BusinessPlanUseCase() {
                 @Override
-                public starlight.application.businessplan.provided.dto.BusinessPlanResponse.PreviewPage getBusinessPlanList(Long memberId, org.springframework.data.domain.Pageable pageable) {
+                public BusinessPlanResult.PreviewPage getBusinessPlanList(Long memberId, org.springframework.data.domain.Pageable pageable) {
                     throw new UnsupportedOperationException("Not implemented in test");
                 }
                 @Override
-                public BusinessPlanResponse.Result createBusinessPlan(Long memberId) {
+                public BusinessPlanResult.Result createBusinessPlan(Long memberId) {
                     BusinessPlan plan = BusinessPlan.create("default title", memberId);
                     BusinessPlan saved = businessPlanRepository.save(plan);
-                    return BusinessPlanResponse.Result.from(saved, "Business plan created");
+                    return BusinessPlanResult.Result.from(saved, "Business plan created");
                 }
 
                 @Override
-                public BusinessPlanResponse.Result createBusinessPlanWithPdf(String title, String pdfUrl, Long memberId) {
+                public BusinessPlanResult.Result createBusinessPlanWithPdf(String title, String pdfUrl, Long memberId) {
                     BusinessPlan plan = BusinessPlan.createWithPdf(title, memberId, pdfUrl);
                     BusinessPlan saved = businessPlanRepository.save(plan);
-                    return BusinessPlanResponse.Result.from(saved, "PDF Business plan created");
+                    return BusinessPlanResult.Result.from(saved, "PDF Business plan created");
                 }
 
                 @Override
-                public BusinessPlanResponse.Result getBusinessPlanInfo(Long planId, Long memberId) {
+                public BusinessPlanResult.Result getBusinessPlanInfo(Long planId, Long memberId) {
                     throw new UnsupportedOperationException("Not implemented in test");
                 }
 
                 @Override
-                public BusinessPlanResponse.Detail getBusinessPlanDetail(Long planId, Long memberId) {
+                public BusinessPlanResult.Detail getBusinessPlanDetail(Long planId, Long memberId) {
                     throw new UnsupportedOperationException("Not implemented in test");
                 }
 
@@ -110,19 +111,19 @@ class AiReportServiceImplIntegrationTest {
                 }
 
                 @Override
-                public BusinessPlanResponse.Result deleteBusinessPlan(Long planId, Long memberId) {
+                public BusinessPlanResult.Result deleteBusinessPlan(Long planId, Long memberId) {
                     throw new UnsupportedOperationException("Not implemented in test");
                 }
 
                 @Override
-                public starlight.application.businessplan.provided.dto.SubSectionResponse.Result upsertSubSection(
+                public SubSectionResult.Result upsertSubSection(
                         Long planId, com.fasterxml.jackson.databind.JsonNode jsonNode, List<Boolean> checks,
                         starlight.domain.businessplan.enumerate.SubSectionType subSectionType, Long memberId) {
                     throw new UnsupportedOperationException("Not implemented in test");
                 }
 
                 @Override
-                public starlight.application.businessplan.provided.dto.SubSectionResponse.Detail getSubSectionDetail(
+                public SubSectionResult.Detail getSubSectionDetail(
                         Long planId, starlight.domain.businessplan.enumerate.SubSectionType subSectionType, Long memberId) {
                     throw new UnsupportedOperationException("Not implemented in test");
                 }
@@ -134,7 +135,7 @@ class AiReportServiceImplIntegrationTest {
                 }
 
                 @Override
-                public starlight.application.businessplan.provided.dto.SubSectionResponse.Result deleteSubSection(
+                public SubSectionResult.Result deleteSubSection(
                         Long planId, starlight.domain.businessplan.enumerate.SubSectionType subSectionType, Long memberId) {
                     throw new UnsupportedOperationException("Not implemented in test");
                 }
@@ -142,8 +143,8 @@ class AiReportServiceImplIntegrationTest {
         }
 
         @Bean
-        OcrProvider ocrProvider() {
-            return new OcrProvider() {
+        OcrProviderPort ocrProvider() {
+            return new OcrProviderPort() {
                 @Override
                 public starlight.shared.dto.infrastructure.OcrResponse ocrPdfByUrl(String pdfUrl) {
                     throw new UnsupportedOperationException("Not implemented in test");
@@ -159,6 +160,45 @@ class AiReportServiceImplIntegrationTest {
         @Bean
         BusinessPlanContentExtractor businessPlanContentExtractor() {
             return new BusinessPlanContentExtractor();
+        }
+
+        @Bean
+        LlmGenerator llmGenerator() {
+            return new LlmGenerator() {
+                @Override
+                public java.util.List<Boolean> generateChecklistArray(
+                        starlight.domain.businessplan.enumerate.SubSectionType subSectionType,
+                        String content,
+                        java.util.List<String> criteria,
+                        java.util.List<String> detailedCriteria) {
+                    throw new UnsupportedOperationException("Not implemented in test");
+                }
+
+                @Override
+                public String generateReport(String content) {
+                    // PDF 채점용 mock JSON 응답 반환
+                    return """
+                        {
+                            "problemRecognitionScore": 20,
+                            "feasibilityScore": 25,
+                            "growthStrategyScore": 30,
+                            "teamCompetenceScore": 20,
+                            "sectionScores": [
+                                {
+                                    "sectionType": "PROBLEM_RECOGNITION",
+                                    "gradingListScores": "[{\\"item\\":\\"항목1\\",\\"score\\":5,\\"maxScore\\":5}]"
+                                }
+                            ],
+                            "strengths": [
+                                {"title": "강점1", "content": "내용1"}
+                            ],
+                            "weaknesses": [
+                                {"title": "약점1", "content": "내용1"}
+                            ]
+                        }
+                        """;
+                }
+            };
         }
     }
 
@@ -213,7 +253,7 @@ class AiReportServiceImplIntegrationTest {
         Long planId = plan.getId();
 
         // when
-        AiReportResponse result = sut.gradeBusinessPlan(planId, memberId);
+        AiReportResult result = sut.gradeBusinessPlan(planId, memberId);
 
         // then
         assertThat(result).isNotNull();
@@ -252,12 +292,12 @@ class AiReportServiceImplIntegrationTest {
         Long planId = plan.getId();
 
         // 첫 번째 채점
-        AiReportResponse firstResult = sut.gradeBusinessPlan(planId, memberId);
+        AiReportResult firstResult = sut.gradeBusinessPlan(planId, memberId);
         em.flush();
         em.clear();
 
         // 두 번째 채점 (업데이트)
-        AiReportResponse secondResult = sut.gradeBusinessPlan(planId, memberId);
+        AiReportResult secondResult = sut.gradeBusinessPlan(planId, memberId);
 
         // then
         assertThat(secondResult).isNotNull();
@@ -288,7 +328,7 @@ class AiReportServiceImplIntegrationTest {
         em.clear();
 
         // when
-        AiReportResponse result = sut.getAiReport(planId, memberId);
+        AiReportResult result = sut.getAiReport(planId, memberId);
 
         // then
         assertThat(result).isNotNull();
@@ -314,12 +354,12 @@ class AiReportServiceImplIntegrationTest {
         Long planId = plan.getId();
 
         // 채점하여 리포트 생성
-        AiReportResponse gradingResult = sut.gradeBusinessPlan(planId, memberId);
+        AiReportResult gradingResult = sut.gradeBusinessPlan(planId, memberId);
         em.flush();
         em.clear();
 
         // when - 조회
-        AiReportResponse retrievedResult = sut.getAiReport(planId, memberId);
+        AiReportResult retrievedResult = sut.getAiReport(planId, memberId);
 
         // then - 저장된 데이터와 조회된 데이터가 일치하는지 확인
         assertThat(retrievedResult.problemRecognitionScore()).isEqualTo(gradingResult.problemRecognitionScore());
@@ -341,7 +381,7 @@ class AiReportServiceImplIntegrationTest {
         String pdfUrl = "https://example.com/test.pdf";
 
         // when
-        AiReportResponse result = sut.createAndGradePdfBusinessPlan(title, pdfUrl, memberId);
+        AiReportResult result = sut.createAndGradePdfBusinessPlan(title, pdfUrl, memberId);
 
         // then
         assertThat(result).isNotNull();
@@ -378,13 +418,13 @@ class AiReportServiceImplIntegrationTest {
         String pdfUrl = "https://example.com/test.pdf";
 
         // when - PDF로 사업계획서 생성 및 채점
-        AiReportResponse createdResult = sut.createAndGradePdfBusinessPlan(title, pdfUrl, memberId);
+        AiReportResult createdResult = sut.createAndGradePdfBusinessPlan(title, pdfUrl, memberId);
         Long planId = createdResult.businessPlanId();
         em.flush();
         em.clear();
 
         // when - 리포트 조회
-        AiReportResponse retrievedResult = sut.getAiReport(planId, memberId);
+        AiReportResult retrievedResult = sut.getAiReport(planId, memberId);
 
         // then
         assertThat(retrievedResult).isNotNull();
