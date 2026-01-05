@@ -1,11 +1,18 @@
-package starlight.adapter.aireport.reportgrader.provider;
+package starlight.adapter.businessplan.checklist.provider;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,6 +24,12 @@ import java.util.stream.Collectors;
 public class ChecklistPromptProvider {
 
         private Map<String, CatalogSection> catalog;
+
+        @Value("${prompt.checklist.grading.system}")
+        private String checklistGradingSystemPrompt;
+
+        @Value("${prompt.checklist.grading.user.template}")
+        private String checklistGradingUserPromptTemplate;
 
         @Getter
         @Setter
@@ -61,5 +74,45 @@ public class ChecklistPromptProvider {
                                 .map(ChecklistItem::getDetailed)
                                 .filter(d -> d != null && !d.isEmpty())
                                 .collect(Collectors.toList());
+        }
+
+        /**
+         * 체크리스트 채점용 Prompt 객체 생성
+         */
+        public Prompt createChecklistGradingPrompt(
+                SubSectionType subSectionType,
+                String content,
+                List<String> criteria,
+                List<String> detailedCriteria) {
+                String userPrompt = buildChecklistGradingUserPrompt(subSectionType, content, criteria, detailedCriteria);
+                Message systemMessage = new SystemMessage(checklistGradingSystemPrompt);
+                Message userMessage = new UserMessage(userPrompt);
+                return new Prompt(List.of(systemMessage, userMessage));
+        }
+
+        /**
+         * 체크리스트 채점용 사용자 프롬프트 생성
+         */
+        private String buildChecklistGradingUserPrompt(
+                SubSectionType subSectionType,
+                String content,
+                List<String> criteria,
+                List<String> detailedCriteria) {
+                // 체크리스트 상세 기준 포맷팅
+                StringBuilder criteriaBuilder = new StringBuilder();
+                for (int i = 0; i < criteria.size() && i < detailedCriteria.size(); i++) {
+                        criteriaBuilder.append(i + 1).append(") ").append(criteria.get(i)).append("\n");
+                        criteriaBuilder.append(detailedCriteria.get(i)).append("\n\n");
+                }
+                String formattedCriteria = criteriaBuilder.toString().trim();
+
+                Map<String, Object> variables = new HashMap<>();
+                variables.put("subsectionType", subSectionType.getDescription());
+                variables.put("checklistCriteria", formattedCriteria);
+                variables.put("input", content);
+                variables.put("requestLength", criteria.size());
+
+                PromptTemplate promptTemplate = new PromptTemplate(checklistGradingUserPromptTemplate);
+                return promptTemplate.render(variables);
         }
 }

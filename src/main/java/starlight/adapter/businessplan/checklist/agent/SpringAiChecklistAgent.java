@@ -1,4 +1,4 @@
-package starlight.adapter.businessplan.checklist.generator;
+package starlight.adapter.businessplan.checklist.agent;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SpringAiChecklistGenerator {
+public class SpringAiChecklistAgent {
 
     private final ChatClient.Builder chatClientBuilder;
     private final ChecklistPromptProvider checklistPromptProvider;

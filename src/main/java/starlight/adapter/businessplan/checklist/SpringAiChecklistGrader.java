@@ -1,22 +1,22 @@
-package starlight.adapter.businessplan.checklistgrader;
+package starlight.adapter.businessplan.checklist;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import starlight.adapter.businessplan.checklistgrader.generator.SpringAiChecklistGenerator;
+import starlight.adapter.businessplan.checklist.agent.SpringAiChecklistAgent;
 import starlight.application.businessplan.required.ChecklistGraderPort;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 
 import java.util.List;
 import java.util.ArrayList;
-import starlight.adapter.aireport.reportgrader.provider.ChecklistPromptProvider;
+import starlight.adapter.businessplan.checklist.provider.ChecklistPromptProvider;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SpringAiChecklistGrader implements ChecklistGraderPort {
 
-    private final SpringAiChecklistGenerator generator;
+    private final SpringAiChecklistAgent generator;
     private final ChecklistPromptProvider checklistCatalog;
 
     @Override
