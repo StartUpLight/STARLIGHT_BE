@@ -1,0 +1,18 @@
+package starlight.application.businessplan.required;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import starlight.domain.businessplan.entity.BusinessPlan;
+
+public interface BusinessPlanQueryPort {
+
+    BusinessPlan findByIdOrThrow(Long id);
+
+    BusinessPlan findWithAllSubSectionsOrThrow(Long id);
+
+    BusinessPlan save(BusinessPlan businessPlan);
+
+    void delete(BusinessPlan businessPlan);
+
+    Page<BusinessPlan> findPreviewPage(Long memberId, Pageable pageable);
+}

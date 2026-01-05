@@ -6,16 +6,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.adapter.ai.util.AiReportResponseParser;
-import starlight.application.aireport.provided.AiReportService;
-import starlight.application.aireport.provided.dto.AiReportResponse;
-import starlight.application.aireport.required.AiReportGrader;
-import starlight.application.aireport.required.AiReportQuery;
-import starlight.application.businessplan.provided.BusinessPlanService;
-import starlight.application.businessplan.provided.dto.BusinessPlanResponse;
-import starlight.application.businessplan.required.BusinessPlanQuery;
+import starlight.adapter.aireport.reportgrader.util.AiReportResponseParser;
+import starlight.application.aireport.provided.AiReportUseCase;
+import starlight.application.aireport.provided.dto.AiReportResult;
+import starlight.application.aireport.required.AiReportGradingPort;
+import starlight.application.aireport.required.AiReportQueryPort;
+import starlight.application.businessplan.provided.BusinessPlanUseCase;
+import starlight.application.businessplan.provided.dto.BusinessPlanResult;
+import starlight.application.businessplan.required.BusinessPlanQueryPort;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
-import starlight.application.aireport.required.OcrProvider;
+import starlight.application.aireport.required.OcrProviderPort;
+import starlight.application.infrastructure.provided.LlmGenerator;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.aireport.exception.AiReportErrorType;
 import starlight.domain.aireport.exception.AiReportException;
@@ -27,25 +28,26 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class AiReportServiceImpl implements AiReportService {
+public class AiReportServiceImpl implements AiReportUseCase {
 
-    private final BusinessPlanQuery businessPlanQuery;
-    private final BusinessPlanService businessPlanService;
-    private final AiReportQuery aiReportQuery;
-    private final AiReportGrader aiReportGrader;
+    private final BusinessPlanQueryPort businessPlanQuery;
+    private final BusinessPlanUseCase businessPlanService;
+    private final AiReportQueryPort aiReportQuery;
+    private final AiReportGradingPort aiReportGrader;
     private final ObjectMapper objectMapper;
-    private final OcrProvider ocrProvider;
+    private final OcrProviderPort ocrProvider;
     private final AiReportResponseParser responseParser;
     private final BusinessPlanContentExtractor contentExtractor;
+    private final LlmGenerator llmGenerator;
 
     @Override
-    public AiReportResponse gradeBusinessPlan(Long planId, Long memberId) {
+    public AiReportResult gradeBusinessPlan(Long planId, Long memberId) {
 
         BusinessPlan plan = businessPlanQuery.findByIdOrThrow(planId);
         checkBusinessPlanOwned(plan, memberId);
         checkBusinessPlanWritingCompleted(plan);
 
-        AiReportResponse gradingResult = aiReportGrader.gradeContent(contentExtractor.extractContent(plan));
+        AiReportResult gradingResult = aiReportGrader.gradeContent(contentExtractor.extractContent(plan));
 
         String rawJsonString = getRawJsonAiReportResponseFromGradingResult(gradingResult);
 
@@ -55,9 +57,9 @@ public class AiReportServiceImpl implements AiReportService {
     }
 
     @Override
-    public AiReportResponse createAndGradePdfBusinessPlan(String title, String pdfUrl, Long memberId) {
+    public AiReportResult createAndGradePdfBusinessPlan(String title, String pdfUrl, Long memberId) {
 
-        BusinessPlanResponse.Result businessPlanResult = businessPlanService.createBusinessPlanWithPdf(
+        BusinessPlanResult.Result businessPlanResult = businessPlanService.createBusinessPlanWithPdf(
                 title,
                 pdfUrl,
                 memberId
@@ -67,7 +69,9 @@ public class AiReportServiceImpl implements AiReportService {
 
         String pdfText = ocrProvider.ocrPdfTextByUrl(pdfUrl);
 
-        AiReportResponse gradingResult = aiReportGrader.gradeContent(pdfText);
+        // PDF의 경우 기존 한 번에 LLM에 돌리는 방식을 사용
+        String llmResponse = llmGenerator.generateReport(pdfText);
+        AiReportResult gradingResult = responseParser.parse(llmResponse);
 
         String rawJsonString = getRawJsonAiReportResponseFromGradingResult(gradingResult);
 
@@ -78,7 +82,7 @@ public class AiReportServiceImpl implements AiReportService {
 
     @Override
     @Transactional(readOnly = true)
-    public AiReportResponse getAiReport(Long planId, Long memberId) {
+    public AiReportResult getAiReport(Long planId, Long memberId) {
         BusinessPlan plan = businessPlanQuery.findByIdOrThrow(planId);
         checkBusinessPlanOwned(plan, memberId);
 
@@ -88,7 +92,7 @@ public class AiReportServiceImpl implements AiReportService {
         return responseParser.toResponse(aiReport);
     }
 
-    private String getRawJsonAiReportResponseFromGradingResult(AiReportResponse gradingResult) {
+    private String getRawJsonAiReportResponseFromGradingResult(AiReportResult gradingResult) {
         JsonNode gradingJsonNode = responseParser.convertToJsonNode(gradingResult);
         String rawJsonString;
         try {
