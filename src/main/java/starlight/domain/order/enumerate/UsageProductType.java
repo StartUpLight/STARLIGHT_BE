@@ -9,8 +9,8 @@ import starlight.domain.order.exception.OrderException;
 @RequiredArgsConstructor
 public enum UsageProductType {
 
-    AI_REPORT_1("AI_REPORT_1", 1, 0L, "LITE 요금제"),
-    AI_REPORT_2("AI_REPORT_2", 2, 0L, "STANDARD 요금제");
+    AI_REPORT_1("AI_REPORT_1", 1, 49_000L, "LITE 요금제"),
+    AI_REPORT_2("AI_REPORT_2", 2, 89_000L, "STANDARD 요금제");
 
     private final String code;        // 상품 코드
     private final int usageCount;     // 사용 가능 횟수
