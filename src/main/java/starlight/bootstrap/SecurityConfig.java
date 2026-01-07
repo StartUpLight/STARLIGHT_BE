@@ -39,6 +39,7 @@ public class SecurityConfig {
 
     @Value("${cors.origin.server}") String ServerBaseUrl;
     @Value("${cors.origin.client}") String clientBaseUrl;
+    @Value("${cors.origin.develop}") String devBaseUrl;
 
     private final JwtFilter jwtFilter;
     private final ExceptionFilter exceptionFilter;
@@ -100,7 +101,8 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(List.of(
                 clientBaseUrl,
-                ServerBaseUrl
+                ServerBaseUrl,
+                devBaseUrl
         ));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
