@@ -2,7 +2,7 @@ package starlight.adapter.aireport.persistence;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import starlight.adapter.aireport.report.util.AiReportResponseParser;
+import starlight.application.aireport.util.AiReportResponseParser;
 import starlight.application.aireport.required.AiReportCommandPort;
 import starlight.application.aireport.required.AiReportQueryPort;
 import starlight.application.expert.required.AiReportSummaryLookupPort;
