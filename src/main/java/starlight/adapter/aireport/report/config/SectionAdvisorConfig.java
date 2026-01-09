@@ -9,7 +9,7 @@ import starlight.adapter.aireport.report.agent.impl.SpringAiSectionGradeAgent;
 import starlight.adapter.aireport.report.circuitbreaker.SectionGradingCircuitBreaker;
 import starlight.adapter.aireport.report.provider.SpringAiAdvisorProvider;
 import starlight.adapter.aireport.report.provider.ReportPromptProvider;
-import starlight.adapter.aireport.report.util.AiReportResponseParser;
+import starlight.application.aireport.util.AiReportResponseParser;
 import starlight.shared.enumerate.SectionType;
 
 import java.util.Arrays;
