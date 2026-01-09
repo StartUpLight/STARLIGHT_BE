@@ -10,9 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import starlight.application.aireport.provided.AiReportUseCase;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.AiReportCommandPort;
+import starlight.application.aireport.required.AiReportQueryPort;
 import starlight.application.aireport.required.ReportGraderPort;
 import starlight.application.aireport.util.AiReportResponseParser;
 import starlight.application.businessplan.required.BusinessPlanCommandPort;
+import starlight.application.aireport.required.BusinessPlanCreationPort;
 import starlight.application.businessplan.required.BusinessPlanQueryPort;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
 import starlight.application.aireport.required.OcrProviderPort;
@@ -34,7 +36,7 @@ public class AiReportService implements AiReportUseCase {
 
     private final BusinessPlanCommandPort businessPlanCommandPort;
     private final BusinessPlanQueryPort businessPlanQueryPort;
-    private final BusinessPlanUseCase businessPlanUseCase;
+    private final BusinessPlanCreationPort businessPlanCreationPort;
     private final AiReportQueryPort aiReportQueryPort;
     private final AiReportCommandPort aiReportCommandPort;
     private final ReportGraderPort reportGrader;
@@ -83,12 +85,7 @@ public class AiReportService implements AiReportUseCase {
     public AiReportResult createAndGradePdfBusinessPlan(String title, String pdfUrl, Long memberId) {
         log.info("PDF 사업계획서 생성 및 AI 채점 시작. title: {}, pdfUrl: {}, memberId: {}", title, pdfUrl, memberId);
 
-        BusinessPlanResult.Result businessPlanResult = businessPlanUseCase.createBusinessPlanWithPdf(
-                title,
-                pdfUrl,
-                memberId
-        );
-        Long businessPlanId = businessPlanResult.businessPlanId();
+        Long businessPlanId = businessPlanCreationPort.createBusinessPlanWithPdf(title, pdfUrl, memberId);
         BusinessPlan plan = businessPlanQueryPort.findByIdOrThrow(businessPlanId);
 
         log.debug("OCR 시작. pdfUrl: {}", pdfUrl);
@@ -178,11 +175,11 @@ public class AiReportService implements AiReportUseCase {
                 (result.feasibilityScore() == null || result.feasibilityScore() == 0) &&
                 (result.growthStrategyScore() == null || result.growthStrategyScore() == 0) &&
                 (result.teamCompetenceScore() == null || result.teamCompetenceScore() == 0);
-        
+
         boolean allArraysEmpty = (result.strengths() == null || result.strengths().isEmpty()) &&
                 (result.weaknesses() == null || result.weaknesses().isEmpty()) &&
                 (result.sectionScores() == null || result.sectionScores().isEmpty());
-        
+
         return allScoresZero && allArraysEmpty;
     }
 }
