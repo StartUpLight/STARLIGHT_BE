@@ -47,6 +47,8 @@ public class SectionGradingCircuitBreaker {
                         .getSeconds() >= HALF_OPEN_TIMEOUT_SECONDS) {
                     if (state.compareAndSet(State.OPEN, State.HALF_OPEN)) {
                         successCount.set(0);
+                        failureCount.set(0); // HALF_OPEN 전환 시 failureCount 리셋
+                        lastFailureTime.set(LocalDateTime.now()); // lastFailureTime도 갱신
                         log.info("Circuit breaker transitioning to HALF_OPEN");
                         return true;
                     }
@@ -75,14 +77,20 @@ public class SectionGradingCircuitBreaker {
         
         public void recordFailure() {
             State current = state.get();
-            if (current == State.CLOSED || current == State.HALF_OPEN) {
+            if (current == State.CLOSED) {
                 int failures = failureCount.incrementAndGet();
                 lastFailureTime.set(LocalDateTime.now());
                 
                 if (failures >= FAILURE_THRESHOLD) {
-                    if (state.compareAndSet(current, State.OPEN)) {
+                    if (state.compareAndSet(State.CLOSED, State.OPEN)) {
                         log.warn("Circuit breaker OPENED after {} failures", failures);
                     }
+                }
+            } else if (current == State.HALF_OPEN) {
+                // HALF_OPEN에서는 첫 실패 시 즉시 OPEN으로 전환
+                lastFailureTime.set(LocalDateTime.now());
+                if (state.compareAndSet(State.HALF_OPEN, State.OPEN)) {
+                    log.warn("Circuit breaker OPENED after failure in HALF_OPEN state");
                 }
             }
         }
@@ -95,21 +103,22 @@ public class SectionGradingCircuitBreaker {
         );
         return circuit.allowRequest();
     }
-    
+
     public void recordSuccess(SectionType sectionType) {
-        CircuitState circuit = circuitStates.get(sectionType);
-        if (circuit != null) {
-            circuit.recordSuccess();
-        }
+        CircuitState circuit = circuitStates.computeIfAbsent(
+                sectionType,
+                k -> new CircuitState());
+        circuit.recordSuccess();
     }
-    
+
+    public void recordFailure(SectionType sectionType, String errorMessage) {
+        CircuitState circuit = circuitStates.computeIfAbsent(
+                sectionType,
+                k -> new CircuitState());
+        circuit.recordFailure();
+    }
+
     public void recordFailure(SectionType sectionType) {
-        CircuitState circuit = circuitStates.get(sectionType);
-        if (circuit != null) {
-            circuit.recordFailure();
-        }
+        recordFailure(sectionType, null);
     }
 }
-
-
-
