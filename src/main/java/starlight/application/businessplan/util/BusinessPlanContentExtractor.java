@@ -124,21 +124,27 @@ public class BusinessPlanContentExtractor {
 
     /**
      * 전체 텍스트에서 섹션별로 내용을 추출 (PDF 케이스용)
+     * 
+     * 현재 PDF 입력은 섹션별 채점 대신 FullReportGradeAgent를 사용 중
+     * 현재 PDF 처리는 {@link starlight.application.aireport.required.ReportGraderPort#gradeWithFullPrompt(String)}를 사용
+     * 
+     * @param fullContent 전체 텍스트 내용
+     * @return 섹션별 내용 맵 (현재는 모든 섹션에 전체 내용을 할당)
      * TODO: 실제 구현 필요 - 섹션 제목을 기준으로 파싱
      */
-    public Map<SectionType, String> extractSectionContentsFromText(String fullContent) {
-        // 간단한 구현: 전체 내용을 각 섹션에 동일하게 할당
-        // 나중에 실제 파싱 로직으로 개선 필요
-        Map<SectionType, String> sectionContents = new HashMap<>();
-        
-        // 섹션 제목을 찾아서 분리하는 로직 필요
-        // 현재는 전체 내용을 각 섹션에 할당
-        sectionContents.put(SectionType.PROBLEM_RECOGNITION, fullContent);
-        sectionContents.put(SectionType.FEASIBILITY, fullContent);
-        sectionContents.put(SectionType.GROWTH_STRATEGY, fullContent);
-        sectionContents.put(SectionType.TEAM_COMPETENCE, fullContent);
-        
-        return sectionContents;
-    }
+//    public Map<SectionType, String> extractSectionContentsFromText(String fullContent) {
+//        // 간단한 구현: 전체 내용을 각 섹션에 동일하게 할당
+//        // 나중에 실제 파싱 로직으로 개선 필요
+//        Map<SectionType, String> sectionContents = new HashMap<>();
+//
+//        // 섹션 제목을 찾아서 분리하는 로직 필요
+//        // 현재는 전체 내용을 각 섹션에 할당
+//        sectionContents.put(SectionType.PROBLEM_RECOGNITION, fullContent);
+//        sectionContents.put(SectionType.FEASIBILITY, fullContent);
+//        sectionContents.put(SectionType.GROWTH_STRATEGY, fullContent);
+//        sectionContents.put(SectionType.TEAM_COMPETENCE, fullContent);
+//
+//        return sectionContents;
+//    }
 }
 
