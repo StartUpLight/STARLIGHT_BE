@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import starlight.application.businessplan.provided.dto.BusinessPlanResult;
 import starlight.application.businessplan.provided.dto.SubSectionResult;
+import starlight.application.businessplan.required.BusinessPlanCommandPort;
 import starlight.application.businessplan.required.BusinessPlanQueryPort;
 import starlight.application.businessplan.required.ChecklistGraderPort;
 import starlight.domain.businessplan.entity.BusinessPlan;
@@ -34,7 +35,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
-class BusinessPlanServiceImplUnitTest {
+class BusinessPlanServiceUnitTest {
+
+    @Mock
+    private BusinessPlanCommandPort businessPlanCommand;
 
     @Mock
     private BusinessPlanQueryPort businessPlanQuery;
@@ -72,20 +76,20 @@ class BusinessPlanServiceImplUnitTest {
     @Test
     @DisplayName("사업계획서 생성 시 루트가 저장된다")
     void createBusinessPlan_savesRoot() {
-        when(businessPlanQuery.save(any(BusinessPlan.class)))
+        when(businessPlanCommand.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         BusinessPlanResult.Result created = sut.createBusinessPlan(1L);
 
         assertThat(created).isNotNull();
         assertThat(created.message()).isEqualTo("Business plan created");
-        verify(businessPlanQuery).save(any(BusinessPlan.class));
+        verify(businessPlanCommand).save(any(BusinessPlan.class));
     }
 
     @Test
     @DisplayName("PDF URL을 기반으로 사업계획서를 생성하면 저장된다")
     void createBusinessPlanWithPdf_savesRoot() {
-        when(businessPlanQuery.save(any(BusinessPlan.class)))
+        when(businessPlanCommand.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         String title = "테스트 사업계획서";
@@ -97,7 +101,7 @@ class BusinessPlanServiceImplUnitTest {
         assertThat(created).isNotNull();
         assertThat(created.message()).isEqualTo("PDF Business plan created");
         assertThat(created.title()).isEqualTo(title);
-        verify(businessPlanQuery).save(any(BusinessPlan.class));
+        verify(businessPlanCommand).save(any(BusinessPlan.class));
     }
 
     @Test
@@ -106,13 +110,13 @@ class BusinessPlanServiceImplUnitTest {
         BusinessPlan plan = spy(buildPlanWithSections(10L));
         doReturn(true).when(plan).isOwnedBy(10L);
         when(businessPlanQuery.findByIdOrThrow(100L)).thenReturn(plan);
-        when(businessPlanQuery.save(any(BusinessPlan.class)))
+        when(businessPlanCommand.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         String updatedTitle = sut.updateBusinessPlanTitle(100L, "new-title", 10L);
 
         assertThat(updatedTitle).isEqualTo("new-title");
-        verify(businessPlanQuery).save(plan);
+        verify(businessPlanCommand).save(plan);
     }
 
     @Test
@@ -140,7 +144,7 @@ class BusinessPlanServiceImplUnitTest {
         assertThat(deleted.businessPlanId()).isEqualTo(100L);
         assertThat(deleted.message()).isEqualTo("Business plan deleted");
 
-        verify(businessPlanQuery).delete(plan);
+        verify(businessPlanCommand).delete(plan);
     }
 
     @Test
@@ -151,7 +155,7 @@ class BusinessPlanServiceImplUnitTest {
         Overview overview = plan.getOverview();
 
         when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
-        when(businessPlanQuery.save(any(BusinessPlan.class)))
+        when(businessPlanCommand.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         com.fasterxml.jackson.databind.node.ObjectNode jsonNode = new com.fasterxml.jackson.databind.ObjectMapper()
@@ -175,7 +179,7 @@ class BusinessPlanServiceImplUnitTest {
         assertThat(overview.getSubSectionByType(SubSectionType.OVERVIEW_BASIC)).isNotNull();
         assertThat(overview.getSubSectionByType(SubSectionType.OVERVIEW_BASIC).getSubSectionType())
                 .isEqualTo(SubSectionType.OVERVIEW_BASIC);
-        verify(businessPlanQuery).save(plan);
+        verify(businessPlanCommand).save(plan);
     }
 
     @Test
@@ -190,7 +194,7 @@ class BusinessPlanServiceImplUnitTest {
         overview.putSubSection(existing);
 
         when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
-        when(businessPlanQuery.save(any(BusinessPlan.class)))
+        when(businessPlanCommand.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         com.fasterxml.jackson.databind.node.ObjectNode jsonNode = new com.fasterxml.jackson.databind.ObjectMapper()
@@ -207,7 +211,7 @@ class BusinessPlanServiceImplUnitTest {
                 SubSectionType.OVERVIEW_BASIC, 10L);
 
         assertThat(res.message()).isEqualTo("Subsection updated");
-        verify(businessPlanQuery).save(plan);
+        verify(businessPlanCommand).save(plan);
     }
 
     @Test
@@ -277,7 +281,7 @@ class BusinessPlanServiceImplUnitTest {
         overview.putSubSection(sub);
 
         when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
-        when(businessPlanQuery.save(any(BusinessPlan.class)))
+        when(businessPlanCommand.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         SubSectionResult.Result res = sut.deleteSubSection(1L, SubSectionType.OVERVIEW_BASIC, 10L);
@@ -287,7 +291,7 @@ class BusinessPlanServiceImplUnitTest {
         assertThat(res.subSectionId()).isNull();
         assertThat(res.message()).isEqualTo("Subsection deleted");
         assertThat(overview.getSubSectionByType(SubSectionType.OVERVIEW_BASIC)).isNull();
-        verify(businessPlanQuery).save(plan);
+        verify(businessPlanCommand).save(plan);
     }
 
     @Test
@@ -372,7 +376,7 @@ class BusinessPlanServiceImplUnitTest {
         overview.putSubSection(sub);
 
         when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
-        when(businessPlanQuery.save(any(BusinessPlan.class)))
+        when(businessPlanCommand.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         List<Boolean> updatedChecks = List.of(true, true, true, true, true);
@@ -404,7 +408,7 @@ class BusinessPlanServiceImplUnitTest {
         assertThat(result).containsExactlyElementsOf(updatedChecks);
         assertThat(sub.getChecks()).containsExactlyElementsOf(updatedChecks);
         assertThat(sub.getContent()).isEqualTo("updated content");
-        verify(businessPlanQuery).save(plan);
+        verify(businessPlanCommand).save(plan);
     }
 
     @Test
@@ -435,7 +439,7 @@ class BusinessPlanServiceImplUnitTest {
     void createSubSection_forEachSectionType() {
         BusinessPlan plan = buildPlanWithSections(10L);
         when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
-        when(businessPlanQuery.save(any(BusinessPlan.class)))
+        when(businessPlanCommand.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         com.fasterxml.jackson.databind.node.ObjectNode jsonNode = new com.fasterxml.jackson.databind.ObjectMapper()
@@ -484,7 +488,7 @@ class BusinessPlanServiceImplUnitTest {
         }
 
         when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
-        when(businessPlanQuery.save(any(BusinessPlan.class)))
+        when(businessPlanCommand.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         com.fasterxml.jackson.databind.node.ObjectNode jsonNode = new com.fasterxml.jackson.databind.ObjectMapper()
@@ -512,7 +516,7 @@ class BusinessPlanServiceImplUnitTest {
         doReturn(true).when(plan).isOwnedBy(10L);
 
         when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
-        when(businessPlanQuery.save(any(BusinessPlan.class)))
+        when(businessPlanCommand.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         com.fasterxml.jackson.databind.node.ObjectNode jsonNode = new com.fasterxml.jackson.databind.ObjectMapper()
@@ -546,7 +550,7 @@ class BusinessPlanServiceImplUnitTest {
         }
 
         when(businessPlanQuery.findByIdOrThrow(1L)).thenReturn(plan);
-        when(businessPlanQuery.save(any(BusinessPlan.class)))
+        when(businessPlanCommand.save(any(BusinessPlan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when - 서브섹션 삭제

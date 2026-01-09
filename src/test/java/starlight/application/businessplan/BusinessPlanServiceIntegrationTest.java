@@ -27,8 +27,8 @@ import static org.mockito.Mockito.when;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @Import({ BusinessPlanService.class, BusinessPlanJpa.class,
-        BusinessPlanServiceImplIntegrationTest.TestBeans.class })
-class BusinessPlanServiceImplIntegrationTest {
+        BusinessPlanServiceIntegrationTest.TestBeans.class })
+class BusinessPlanServiceIntegrationTest {
 
     @Autowired
     BusinessPlanService sut;

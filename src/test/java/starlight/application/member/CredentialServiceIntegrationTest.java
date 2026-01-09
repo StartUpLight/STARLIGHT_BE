@@ -17,8 +17,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {CredentialService.class, CredentialServiceImplIntegrationTest.TestBeans.class})
-class CredentialServiceImplIntegrationTest {
+@ContextConfiguration(classes = {CredentialService.class, CredentialServiceIntegrationTest.TestBeans.class})
+class CredentialServiceIntegrationTest {
 
     @TestConfiguration
     static class TestBeans {

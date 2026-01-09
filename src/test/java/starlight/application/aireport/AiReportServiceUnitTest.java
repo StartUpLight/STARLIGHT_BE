@@ -3,22 +3,27 @@ package starlight.application.aireport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import starlight.adapter.aireport.report.util.AiReportResponseParser;
+import starlight.application.aireport.util.AiReportResponseParser;
 import starlight.application.aireport.provided.dto.AiReportResult;
+import starlight.application.aireport.required.BusinessPlanCreationPort;
 import starlight.application.aireport.required.ReportGraderPort;
 import starlight.application.aireport.required.AiReportQueryPort;
+import starlight.application.aireport.required.AiReportCommandPort;
 import starlight.application.aireport.required.OcrProviderPort;
-import starlight.application.businessplan.provided.BusinessPlanUseCase;
 import starlight.application.businessplan.required.BusinessPlanQueryPort;
+import starlight.application.businessplan.required.BusinessPlanCommandPort;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.aireport.exception.AiReportErrorType;
 import starlight.domain.aireport.exception.AiReportException;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.PlanStatus;
+import starlight.shared.enumerate.SectionType;
 import starlight.shared.valueobject.RawJson;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,12 +31,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@DisplayName("AiReportServiceImpl 유닛 테스트")
-class AiReportServiceImplUnitTest {
+@DisplayName("AiReportService 유닛 테스트")
+class AiReportServiceUnitTest {
 
+    private final BusinessPlanCommandPort businessPlanCommand = mock(BusinessPlanCommandPort.class);
     private final BusinessPlanQueryPort businessPlanQuery = mock(BusinessPlanQueryPort.class);
-    private final BusinessPlanUseCase businessPlanService = mock(BusinessPlanUseCase.class);
+    private final BusinessPlanCreationPort businessPlanCreationPort = mock(BusinessPlanCreationPort.class);
     private final AiReportQueryPort aiReportQuery = mock(AiReportQueryPort.class);
+    private final AiReportCommandPort aiReportCommand = mock(AiReportCommandPort.class);
     private final ReportGraderPort aiReportGrader = mock(ReportGraderPort.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final OcrProviderPort ocrProvider = mock(OcrProviderPort.class);
@@ -55,6 +62,13 @@ class AiReportServiceImplUnitTest {
 
         String extractedContent = "사업계획서 내용";
         when(contentExtractor.extractContent(plan)).thenReturn(extractedContent);
+        
+        Map<SectionType, String> sectionContents = new HashMap<>();
+        sectionContents.put(SectionType.PROBLEM_RECOGNITION, "문제인식 내용");
+        sectionContents.put(SectionType.FEASIBILITY, "실현가능성 내용");
+        sectionContents.put(SectionType.GROWTH_STRATEGY, "성장전략 내용");
+        sectionContents.put(SectionType.TEAM_COMPETENCE, "팀역량 내용");
+        when(contentExtractor.extractSectionContents(plan)).thenReturn(sectionContents);
 
         AiReportResult gradingResult = AiReportResult.fromGradingResult(
                 20, 25, 30, 20,
@@ -62,7 +76,7 @@ class AiReportServiceImplUnitTest {
                 List.of(),
                 List.of()
         );
-        when(aiReportGrader.gradeWithSectionAgents(extractedContent)).thenReturn(gradingResult);
+        when(aiReportGrader.gradeWithSectionAgents(sectionContents, extractedContent)).thenReturn(gradingResult);
 
         String rawJson = """
                 {
@@ -79,9 +93,10 @@ class AiReportServiceImplUnitTest {
         when(savedReport.getId()).thenReturn(1L);
         when(savedReport.getBusinessPlanId()).thenReturn(planId);
         when(savedReport.getRawJson()).thenReturn(RawJson.create(rawJson));
-        when(aiReportQuery.save(any(AiReport.class))).thenReturn(savedReport);
+        when(aiReportCommand.save(any(AiReport.class))).thenReturn(savedReport);
+        when(businessPlanCommand.save(any(BusinessPlan.class))).thenReturn(plan);
 
-        sut = new AiReportService(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
+        sut = new AiReportService(businessPlanCommand, businessPlanQuery, businessPlanCreationPort, aiReportQuery, aiReportCommand, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
         // when
         AiReportResult result = sut.gradeBusinessPlan(planId, memberId);
@@ -89,7 +104,7 @@ class AiReportServiceImplUnitTest {
         // then
         assertThat(result).isNotNull();
         verify(plan).updateStatus(PlanStatus.AI_REVIEWED);
-        verify(aiReportQuery).save(any(AiReport.class));
+        verify(aiReportCommand).save(any(AiReport.class));
     }
 
     @Test
@@ -109,6 +124,13 @@ class AiReportServiceImplUnitTest {
 
         String extractedContent = "사업계획서 내용";
         when(contentExtractor.extractContent(plan)).thenReturn(extractedContent);
+        
+        Map<SectionType, String> sectionContents = new HashMap<>();
+        sectionContents.put(SectionType.PROBLEM_RECOGNITION, "문제인식 내용");
+        sectionContents.put(SectionType.FEASIBILITY, "실현가능성 내용");
+        sectionContents.put(SectionType.GROWTH_STRATEGY, "성장전략 내용");
+        sectionContents.put(SectionType.TEAM_COMPETENCE, "팀역량 내용");
+        when(contentExtractor.extractSectionContents(plan)).thenReturn(sectionContents);
 
         AiReportResult gradingResult = AiReportResult.fromGradingResult(
                 20, 25, 30, 20,
@@ -116,7 +138,7 @@ class AiReportServiceImplUnitTest {
                 List.of(),
                 List.of()
         );
-        when(aiReportGrader.gradeWithSectionAgents(extractedContent)).thenReturn(gradingResult);
+        when(aiReportGrader.gradeWithSectionAgents(sectionContents, extractedContent)).thenReturn(gradingResult);
 
         String rawJson = """
                 {
@@ -132,9 +154,10 @@ class AiReportServiceImplUnitTest {
         when(existingReport.getId()).thenReturn(1L);
         when(existingReport.getBusinessPlanId()).thenReturn(planId);
         when(existingReport.getRawJson()).thenReturn(RawJson.create(rawJson));
-        when(aiReportQuery.save(existingReport)).thenReturn(existingReport);
+        when(aiReportCommand.save(existingReport)).thenReturn(existingReport);
+        when(businessPlanCommand.save(any(BusinessPlan.class))).thenReturn(plan);
 
-        sut = new AiReportService(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
+        sut = new AiReportService(businessPlanCommand, businessPlanQuery, businessPlanCreationPort, aiReportQuery, aiReportCommand, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
         // when
         AiReportResult result = sut.gradeBusinessPlan(planId, memberId);
@@ -156,7 +179,7 @@ class AiReportServiceImplUnitTest {
         when(plan.isOwnedBy(memberId)).thenReturn(false);
         when(businessPlanQuery.findByIdOrThrow(planId)).thenReturn(plan);
 
-        sut = new AiReportService(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
+        sut = new AiReportService(businessPlanCommand, businessPlanQuery, businessPlanCreationPort, aiReportQuery, aiReportCommand, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
         // when & then
         assertThatThrownBy(() -> sut.gradeBusinessPlan(planId, memberId))
@@ -176,7 +199,7 @@ class AiReportServiceImplUnitTest {
         when(plan.areWritingCompleted()).thenReturn(false);
         when(businessPlanQuery.findByIdOrThrow(planId)).thenReturn(plan);
 
-        sut = new AiReportService(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
+        sut = new AiReportService(businessPlanCommand, businessPlanQuery, businessPlanCreationPort, aiReportQuery, aiReportCommand, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
         // when & then
         assertThatThrownBy(() -> sut.gradeBusinessPlan(planId, memberId))
@@ -214,7 +237,7 @@ class AiReportServiceImplUnitTest {
         when(aiReport.getRawJson()).thenReturn(RawJson.create(rawJson));
         when(aiReportQuery.findByBusinessPlanId(planId)).thenReturn(Optional.of(aiReport));
 
-        sut = new AiReportService(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
+        sut = new AiReportService(businessPlanCommand, businessPlanQuery, businessPlanCreationPort, aiReportQuery, aiReportCommand, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
         // when
         AiReportResult result = sut.getAiReport(planId, memberId);
@@ -238,7 +261,7 @@ class AiReportServiceImplUnitTest {
         when(businessPlanQuery.findByIdOrThrow(planId)).thenReturn(plan);
         when(aiReportQuery.findByBusinessPlanId(planId)).thenReturn(Optional.empty());
 
-        sut = new AiReportService(businessPlanQuery, businessPlanService, aiReportQuery, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
+        sut = new AiReportService(businessPlanCommand, businessPlanQuery, businessPlanCreationPort, aiReportQuery, aiReportCommand, aiReportGrader, objectMapper, ocrProvider, responseParser, contentExtractor);
 
         // when & then
         assertThatThrownBy(() -> sut.getAiReport(planId, memberId))

@@ -1,9 +1,9 @@
-package starlight.adapter.ai.util;
+package starlight.application.aireport.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import starlight.adapter.aireport.report.util.AiReportResponseParser;
+import starlight.application.aireport.util.AiReportResponseParser;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.domain.aireport.exception.AiReportException;
 import starlight.domain.aireport.exception.AiReportErrorType;

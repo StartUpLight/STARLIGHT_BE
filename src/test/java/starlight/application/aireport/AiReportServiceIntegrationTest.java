@@ -10,17 +10,19 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import starlight.adapter.aireport.report.util.AiReportResponseParser;
+import starlight.application.aireport.util.AiReportResponseParser;
 import starlight.adapter.aireport.persistence.AiReportJpa;
 import starlight.adapter.aireport.persistence.AiReportRepository;
 import starlight.adapter.businessplan.persistence.BusinessPlanJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
 import starlight.application.aireport.provided.dto.AiReportResult;
-import starlight.application.aireport.required.ReportGraderPort;
+import starlight.application.aireport.required.AiReportCommandPort;
+import starlight.application.aireport.required.AiReportQueryPort;
+import starlight.application.aireport.required.BusinessPlanCreationPort;
 import starlight.application.aireport.required.OcrProviderPort;
-import starlight.application.businessplan.provided.dto.SubSectionResult;
-import starlight.application.businessplan.provided.BusinessPlanUseCase;
-import starlight.application.businessplan.provided.dto.BusinessPlanResult;
+import starlight.application.aireport.required.ReportGraderPort;
+import starlight.application.businessplan.required.BusinessPlanCommandPort;
+import starlight.application.businessplan.required.BusinessPlanQueryPort;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.businessplan.entity.BusinessPlan;
@@ -35,9 +37,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Import({AiReportService.class, AiReportJpa.class, BusinessPlanJpa.class, AiReportServiceImplIntegrationTest.TestBeans.class})
-@DisplayName("AiReportServiceImpl 통합 테스트")
-class AiReportServiceImplIntegrationTest {
+@Import({AiReportService.class, AiReportJpa.class, BusinessPlanJpa.class, AiReportServiceIntegrationTest.TestBeans.class})
+@DisplayName("AiReportService 통합 테스트")
+class AiReportServiceIntegrationTest {
 
     @Autowired
     AiReportService sut;
@@ -53,14 +55,52 @@ class AiReportServiceImplIntegrationTest {
         
         @Bean
         ReportGraderPort aiReportGrader() {
-            return content -> {
-                // 간단한 mock 응답 반환
-                return AiReportResult.fromGradingResult(
-                        20, 25, 30, 20,
-                        List.of(new AiReportResult.SectionScoreDetailResponse("PROBLEM_RECOGNITION", "[{\"item\":\"항목1\",\"score\":5,\"maxScore\":5}]")),
-                        List.of(new AiReportResult.StrengthWeakness("강점1", "내용1")),
-                        List.of(new AiReportResult.StrengthWeakness("약점1", "내용1"))
-                );
+            return new ReportGraderPort() {
+                @Override
+                public AiReportResult gradeWithSectionAgents(java.util.Map<starlight.shared.enumerate.SectionType, String> sectionContents, String fullContent) {
+                    return AiReportResult.fromGradingResult(
+                            20, 25, 30, 20,
+                            List.of(
+                                    new AiReportResult.SectionScoreDetailResponse("PROBLEM_RECOGNITION", "[{\"item\":\"근본 원인 논리 분석\",\"score\":5,\"maxScore\":5}]"),
+                                    new AiReportResult.SectionScoreDetailResponse("FEASIBILITY", "[{\"item\":\"로드맵 구체성\",\"score\":6,\"maxScore\":6}]"),
+                                    new AiReportResult.SectionScoreDetailResponse("GROWTH_STRATEGY", "[{\"item\":\"BM 9요소 완결·연계성\",\"score\":6,\"maxScore\":6}]"),
+                                    new AiReportResult.SectionScoreDetailResponse("TEAM_COMPETENCE", "[{\"item\":\"창업자 전문성·연관성\",\"score\":5,\"maxScore\":5}]")
+                            ),
+                            List.of(
+                                    new AiReportResult.StrengthWeakness("강점1", "내용1"),
+                                    new AiReportResult.StrengthWeakness("강점2", "내용2"),
+                                    new AiReportResult.StrengthWeakness("강점3", "내용3")
+                            ),
+                            List.of(
+                                    new AiReportResult.StrengthWeakness("약점1", "내용1"),
+                                    new AiReportResult.StrengthWeakness("약점2", "내용2"),
+                                    new AiReportResult.StrengthWeakness("약점3", "내용3")
+                            )
+                    );
+                }
+
+                @Override
+                public AiReportResult gradeWithFullPrompt(String content) {
+                    return AiReportResult.fromGradingResult(
+                            20, 25, 30, 20,
+                            List.of(
+                                    new AiReportResult.SectionScoreDetailResponse("PROBLEM_RECOGNITION", "[{\"item\":\"근본 원인 논리 분석\",\"score\":5,\"maxScore\":5}]"),
+                                    new AiReportResult.SectionScoreDetailResponse("FEASIBILITY", "[{\"item\":\"로드맵 구체성\",\"score\":6,\"maxScore\":6}]"),
+                                    new AiReportResult.SectionScoreDetailResponse("GROWTH_STRATEGY", "[{\"item\":\"BM 9요소 완결·연계성\",\"score\":6,\"maxScore\":6}]"),
+                                    new AiReportResult.SectionScoreDetailResponse("TEAM_COMPETENCE", "[{\"item\":\"창업자 전문성·연관성\",\"score\":5,\"maxScore\":5}]")
+                            ),
+                            List.of(
+                                    new AiReportResult.StrengthWeakness("강점1", "내용1"),
+                                    new AiReportResult.StrengthWeakness("강점2", "내용2"),
+                                    new AiReportResult.StrengthWeakness("강점3", "내용3")
+                            ),
+                            List.of(
+                                    new AiReportResult.StrengthWeakness("약점1", "내용1"),
+                                    new AiReportResult.StrengthWeakness("약점2", "내용2"),
+                                    new AiReportResult.StrengthWeakness("약점3", "내용3")
+                            )
+                    );
+                }
             };
         }
 
@@ -75,69 +115,70 @@ class AiReportServiceImplIntegrationTest {
         }
 
         @Bean
-        BusinessPlanUseCase businessPlanService(BusinessPlanRepository businessPlanRepository) {
-            return new BusinessPlanUseCase() {
+        BusinessPlanCommandPort businessPlanCommandPort(BusinessPlanRepository businessPlanRepository) {
+            return new BusinessPlanCommandPort() {
                 @Override
-                public BusinessPlanResult.PreviewPage getBusinessPlanList(Long memberId, org.springframework.data.domain.Pageable pageable) {
-                    throw new UnsupportedOperationException("Not implemented in test");
-                }
-                @Override
-                public BusinessPlanResult.Result createBusinessPlan(Long memberId) {
-                    BusinessPlan plan = BusinessPlan.create("default title", memberId);
-                    BusinessPlan saved = businessPlanRepository.save(plan);
-                    return BusinessPlanResult.Result.from(saved, "Business plan created");
+                public BusinessPlan save(BusinessPlan businessPlan) {
+                    return businessPlanRepository.save(businessPlan);
                 }
 
                 @Override
-                public BusinessPlanResult.Result createBusinessPlanWithPdf(String title, String pdfUrl, Long memberId) {
+                public void delete(BusinessPlan businessPlan) {
+                    businessPlanRepository.delete(businessPlan);
+                }
+            };
+        }
+
+        @Bean
+        BusinessPlanQueryPort businessPlanQueryPort(BusinessPlanRepository businessPlanRepository) {
+            return new BusinessPlanQueryPort() {
+                @Override
+                public BusinessPlan findByIdOrThrow(Long id) {
+                    return businessPlanRepository.findById(id)
+                            .orElseThrow(() -> new RuntimeException("BusinessPlan not found: " + id));
+                }
+
+                @Override
+                public BusinessPlan findWithAllSubSectionsOrThrow(Long id) {
+                    return businessPlanRepository.findByIdWithAllSubSections(id)
+                            .orElseThrow(() -> new RuntimeException("BusinessPlan not found: " + id));
+                }
+
+                @Override
+                public org.springframework.data.domain.Page<BusinessPlan> findPreviewPage(Long memberId, org.springframework.data.domain.Pageable pageable) {
+                    return businessPlanRepository.findAllByMemberIdOrderedByLastSavedAt(memberId, pageable);
+                }
+            };
+        }
+
+        @Bean
+        BusinessPlanCreationPort businessPlanCreationPort(BusinessPlanRepository businessPlanRepository) {
+            return new BusinessPlanCreationPort() {
+                @Override
+                public Long createBusinessPlanWithPdf(String title, String pdfUrl, Long memberId) {
                     BusinessPlan plan = BusinessPlan.createWithPdf(title, memberId, pdfUrl);
                     BusinessPlan saved = businessPlanRepository.save(plan);
-                    return BusinessPlanResult.Result.from(saved, "PDF Business plan created");
+                    return saved.getId();
                 }
+            };
+        }
 
+        @Bean
+        AiReportCommandPort aiReportCommandPort(AiReportRepository aiReportRepository) {
+            return new AiReportCommandPort() {
                 @Override
-                public BusinessPlanResult.Result getBusinessPlanInfo(Long planId, Long memberId) {
-                    throw new UnsupportedOperationException("Not implemented in test");
+                public starlight.domain.aireport.entity.AiReport save(starlight.domain.aireport.entity.AiReport aiReport) {
+                    return aiReportRepository.save(aiReport);
                 }
+            };
+        }
 
+        @Bean
+        AiReportQueryPort aiReportQueryPort(AiReportRepository aiReportRepository) {
+            return new AiReportQueryPort() {
                 @Override
-                public BusinessPlanResult.Detail getBusinessPlanDetail(Long planId, Long memberId) {
-                    throw new UnsupportedOperationException("Not implemented in test");
-                }
-
-                @Override
-                public String updateBusinessPlanTitle(Long planId, String title, Long memberId) {
-                    throw new UnsupportedOperationException("Not implemented in test");
-                }
-
-                @Override
-                public BusinessPlanResult.Result deleteBusinessPlan(Long planId, Long memberId) {
-                    throw new UnsupportedOperationException("Not implemented in test");
-                }
-
-                @Override
-                public SubSectionResult.Result upsertSubSection(
-                        Long planId, com.fasterxml.jackson.databind.JsonNode jsonNode, List<Boolean> checks,
-                        starlight.domain.businessplan.enumerate.SubSectionType subSectionType, Long memberId) {
-                    throw new UnsupportedOperationException("Not implemented in test");
-                }
-
-                @Override
-                public SubSectionResult.Detail getSubSectionDetail(
-                        Long planId, starlight.domain.businessplan.enumerate.SubSectionType subSectionType, Long memberId) {
-                    throw new UnsupportedOperationException("Not implemented in test");
-                }
-
-                @Override
-                public List<Boolean> checkAndUpdateSubSection(Long planId, com.fasterxml.jackson.databind.JsonNode jsonNode,
-                        starlight.domain.businessplan.enumerate.SubSectionType subSectionType, Long memberId) {
-                    throw new UnsupportedOperationException("Not implemented in test");
-                }
-
-                @Override
-                public SubSectionResult.Result deleteSubSection(
-                        Long planId, starlight.domain.businessplan.enumerate.SubSectionType subSectionType, Long memberId) {
-                    throw new UnsupportedOperationException("Not implemented in test");
+                public Optional<starlight.domain.aireport.entity.AiReport> findByBusinessPlanId(Long businessPlanId) {
+                    return aiReportRepository.findByBusinessPlanId(businessPlanId);
                 }
             };
         }
@@ -162,44 +203,6 @@ class AiReportServiceImplIntegrationTest {
             return new BusinessPlanContentExtractor();
         }
 
-        @Bean
-        LlmGenerator llmGenerator() {
-            return new LlmGenerator() {
-                @Override
-                public java.util.List<Boolean> generateChecklistArray(
-                        starlight.domain.businessplan.enumerate.SubSectionType subSectionType,
-                        String content,
-                        java.util.List<String> criteria,
-                        java.util.List<String> detailedCriteria) {
-                    throw new UnsupportedOperationException("Not implemented in test");
-                }
-
-                @Override
-                public String generateReport(String content) {
-                    // PDF 채점용 mock JSON 응답 반환
-                    return """
-                        {
-                            "problemRecognitionScore": 20,
-                            "feasibilityScore": 25,
-                            "growthStrategyScore": 30,
-                            "teamCompetenceScore": 20,
-                            "sectionScores": [
-                                {
-                                    "sectionType": "PROBLEM_RECOGNITION",
-                                    "gradingListScores": "[{\\"item\\":\\"항목1\\",\\"score\\":5,\\"maxScore\\":5}]"
-                                }
-                            ],
-                            "strengths": [
-                                {"title": "강점1", "content": "내용1"}
-                            ],
-                            "weaknesses": [
-                                {"title": "약점1", "content": "내용1"}
-                            ]
-                        }
-                        """;
-                }
-            };
-        }
     }
 
     /**
@@ -264,9 +267,9 @@ class AiReportServiceImplIntegrationTest {
         assertThat(result.feasibilityScore()).isEqualTo(25);
         assertThat(result.growthStrategyScore()).isEqualTo(30);
         assertThat(result.teamCompetenceScore()).isEqualTo(20);
-        assertThat(result.strengths()).hasSize(1);
-        assertThat(result.weaknesses()).hasSize(1);
-        assertThat(result.sectionScores()).hasSize(1);
+        assertThat(result.strengths()).hasSize(3);
+        assertThat(result.weaknesses()).hasSize(3);
+        assertThat(result.sectionScores()).hasSize(4);
 
         // DB에 저장되었는지 확인
         Optional<AiReport> savedReport = aiReportRepository.findByBusinessPlanId(planId);
@@ -335,9 +338,9 @@ class AiReportServiceImplIntegrationTest {
         assertThat(result.id()).isNotNull();
         assertThat(result.businessPlanId()).isEqualTo(planId);
         assertThat(result.totalScore()).isEqualTo(95);
-        assertThat(result.strengths()).hasSize(1);
-        assertThat(result.weaknesses()).hasSize(1);
-        assertThat(result.sectionScores()).hasSize(1);
+        assertThat(result.strengths()).hasSize(3);
+        assertThat(result.weaknesses()).hasSize(3);
+        assertThat(result.sectionScores()).hasSize(4);
     }
 
     @Test
@@ -392,9 +395,9 @@ class AiReportServiceImplIntegrationTest {
         assertThat(result.feasibilityScore()).isEqualTo(25);
         assertThat(result.growthStrategyScore()).isEqualTo(30);
         assertThat(result.teamCompetenceScore()).isEqualTo(20);
-        assertThat(result.strengths()).hasSize(1);
-        assertThat(result.weaknesses()).hasSize(1);
-        assertThat(result.sectionScores()).hasSize(1);
+        assertThat(result.strengths()).hasSize(3);
+        assertThat(result.weaknesses()).hasSize(3);
+        assertThat(result.sectionScores()).hasSize(4);
 
         // BusinessPlan이 생성되었는지 확인
         BusinessPlan createdPlan = businessPlanRepository.findById(result.businessPlanId()).orElseThrow();

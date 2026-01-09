@@ -1,9 +1,8 @@
-package starlight.adapter.ai;
+package starlight.adapter.businessplan.checklist;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import starlight.adapter.businessplan.checklist.SpringAiChecklistGrader;
-import starlight.adapter.aireport.report.agent.impl.SpringAiFullReportGradeAgent;
+import starlight.adapter.businessplan.checklist.agent.SpringAiChecklistAgent;
 import starlight.adapter.businessplan.checklist.provider.ChecklistPromptProvider;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 
@@ -13,12 +12,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-class AiChecklistGraderTest {
+@DisplayName("SpringAiChecklistGrader 테스트")
+class SpringAiChecklistGraderTest {
 
     @Test
     @DisplayName("criteria별 컨텍스트를 합치고 LLM 결과를 반환")
     void check_returnsFromLlm() {
-        SpringAiFullReportGradeAgent generator = mock(SpringAiFullReportGradeAgent.class);
+        SpringAiChecklistAgent generator = mock(SpringAiChecklistAgent.class);
         when(generator.generateChecklistArray(any(SubSectionType.class), anyString(), anyList(), anyList()))
                 .thenReturn(List.of(true, false, true, false, true));
 
@@ -45,7 +45,7 @@ class AiChecklistGraderTest {
     @Test
     @DisplayName("LLM 결과 길이가 5보다 짧으면 false로 패딩")
     void check_normalizesToFive() {
-        SpringAiFullReportGradeAgent generator = mock(SpringAiFullReportGradeAgent.class);
+        SpringAiChecklistAgent generator = mock(SpringAiChecklistAgent.class);
         when(generator.generateChecklistArray(any(SubSectionType.class), anyString(), anyList(), anyList()))
                 .thenReturn(List.of(true));
 
