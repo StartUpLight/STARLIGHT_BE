@@ -21,7 +21,7 @@ import java.util.Map;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ReportSupervisor {
+public class SpringAiReportSupervisor {
     
     private final ChatClient.Builder chatClientBuilder;
     private final AiReportResponseParser responseParser;

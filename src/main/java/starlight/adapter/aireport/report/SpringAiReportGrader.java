@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import starlight.adapter.aireport.report.agent.FullReportGradeAgent;
 import starlight.adapter.aireport.report.agent.SectionGradeAgent;
 import starlight.adapter.aireport.report.dto.SectionGradingResult;
-import starlight.adapter.aireport.report.supervisor.ReportSupervisor;
+import starlight.adapter.aireport.report.supervisor.SpringAiReportSupervisor;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.ReportGraderPort;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
@@ -28,14 +28,14 @@ public class SpringAiReportGrader implements ReportGraderPort {
 
     private final Map<SectionType, SectionGradeAgent> sectionGradeAgentMap;
     private final FullReportGradeAgent fullReportGradeAgent;
-    private final ReportSupervisor supervisor;
+    private final SpringAiReportSupervisor supervisor;
     private final BusinessPlanContentExtractor contentExtractor;
     private final Executor sectionGradingExecutor;
 
     public SpringAiReportGrader(
             List<SectionGradeAgent> sectionGradeAgentList,
             FullReportGradeAgent fullReportGradeAgent,
-            ReportSupervisor supervisor,
+            SpringAiReportSupervisor supervisor,
             BusinessPlanContentExtractor contentExtractor,
             @Qualifier("sectionGradingExecutor") Executor sectionGradingExecutor) {
         this.sectionGradeAgentMap = sectionGradeAgentList.stream()
