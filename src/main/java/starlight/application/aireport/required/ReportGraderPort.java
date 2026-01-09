@@ -6,7 +6,9 @@ import starlight.shared.enumerate.SectionType;
 import java.util.Map;
 
 public interface ReportGraderPort {
+
     AiReportResult gradeWithSectionAgents(Map<SectionType, String> sectionContents, String fullContent);
+
     AiReportResult gradeWithFullPrompt(String content);
 }
 

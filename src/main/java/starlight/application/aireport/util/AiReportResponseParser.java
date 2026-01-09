@@ -1,4 +1,4 @@
-package starlight.adapter.aireport.report.util;
+package starlight.application.aireport.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,9 +15,6 @@ import starlight.domain.aireport.exception.AiReportErrorType;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * LLM 응답을 파싱하여 AiReportResponse로 변환하는 컴포넌트
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
