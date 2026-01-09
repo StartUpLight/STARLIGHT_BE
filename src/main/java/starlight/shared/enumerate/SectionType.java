@@ -25,7 +25,7 @@ public enum SectionType {
      * AiReportResponse에서 해당 섹션의 score를 추출
      */
     public Integer extractScore(AiReportResult response) {
-        if (scoreExtractor == null) {
+        if (scoreExtractor == null || response == null) {
             return 0;
         }
         return scoreExtractor.apply(response);
