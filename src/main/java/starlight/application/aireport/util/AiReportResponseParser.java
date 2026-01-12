@@ -124,7 +124,6 @@ public class AiReportResponseParser {
      * 4개의 전체 점수 필드를 모두 요구
      */
     public AiReportResult parse(String llmResponse) {
-        log.debug("Raw LLM response: {}", llmResponse);
 
         // 1. 기본 검증
         if (llmResponse == null || llmResponse.trim().isEmpty()) {
@@ -135,7 +134,6 @@ public class AiReportResponseParser {
         try {
             // 2. JSON 문자열 정리
             String cleanedJson = cleanJsonResponse(llmResponse);
-            log.debug("Cleaned JSON: {}", cleanedJson);
 
             // 3. JSON 파싱 시도
             JsonNode jsonNode = objectMapper.readTree(cleanedJson);
@@ -159,7 +157,6 @@ public class AiReportResponseParser {
 
             return response;
         } catch (Exception e) {
-            log.error("Failed to parse LLM response. Response: {}", llmResponse, e);
             throw new AiReportException(AiReportErrorType.AI_RESPONSE_PARSING_FAILED);
         }
     }
@@ -170,7 +167,6 @@ public class AiReportResponseParser {
      * 예: {"feasibilityScore": 0, "sectionScores": [...]}
      */
     public AiReportResult parseSectionResponse(String llmResponse) {
-        log.debug("Raw section LLM response: {}", llmResponse);
 
         // 1. 기본 검증
         if (llmResponse == null || llmResponse.trim().isEmpty()) {
@@ -181,7 +177,6 @@ public class AiReportResponseParser {
         try {
             // 2. JSON 문자열 정리
             String cleanedJson = cleanJsonResponse(llmResponse);
-            log.debug("Cleaned section JSON: {}", cleanedJson);
 
             // 3. JSON 파싱 시도
             JsonNode jsonNode = objectMapper.readTree(cleanedJson);
@@ -209,7 +204,6 @@ public class AiReportResponseParser {
             // 최소 하나의 점수 필드는 있어야 함
             if (problemRecognitionScore == null && feasibilityScore == null
                     && growthStrategyScore == null && teamCompetenceScore == null) {
-                log.error("No section score field found in response");
                 throw new AiReportException(AiReportErrorType.AI_RESPONSE_PARSING_FAILED);
             }
 
@@ -229,7 +223,6 @@ public class AiReportResponseParser {
             );
 
         } catch (Exception e) {
-            log.error("Failed to parse section LLM response. Response: {}", llmResponse, e);
             throw new AiReportException(AiReportErrorType.AI_RESPONSE_PARSING_FAILED);
         }
     }
@@ -279,10 +272,8 @@ public class AiReportResponseParser {
                                 .replace("\\\"", "\"")
                                 .replace("\\\\", "\\");
                         cleaned = extracted;
-                        log.debug("Extracted text field using regex");
                     }
                 } catch (Exception e2) {
-                    log.warn("Failed to extract text field using regex: {}", e2.getMessage());
                 }
             }
         }
@@ -457,8 +448,6 @@ public class AiReportResponseParser {
                                 objectMapper.readTree(gradingListScores);
                             }
                         } catch (Exception e) {
-                            log.warn("Failed to parse gradingListScores for sectionType: {}, using default. Value: {}",
-                                    sectionType, gradingListScores);
                             gradingListScores = "[]";
                         }
                     }
@@ -466,7 +455,6 @@ public class AiReportResponseParser {
                     list.add(new AiReportResult.SectionScoreDetailResponse(sectionType, gradingListScores));
                 } catch (Exception e) {
                     log.warn("Failed to parse sectionScore item, skipping: {}", e.getMessage());
-                    // 불완전한 항목은 건너뛰기
                 }
             }
         }
