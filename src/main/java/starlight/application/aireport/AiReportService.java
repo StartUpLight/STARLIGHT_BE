@@ -78,7 +78,7 @@ public class AiReportService implements AiReportUseCase {
 
         AiReport aiReport = upsertAiReportWithRawJsonStr(rawJsonString, plan);
 
-        return responseParser.toResponse(aiReportCommandPort.save(aiReport));
+        return responseParser.toResponse(aiReport);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class AiReportService implements AiReportUseCase {
 
         AiReport aiReport = upsertAiReportWithRawJsonStr(rawJsonString, plan);
 
-        return responseParser.toResponse(aiReportCommandPort.save(aiReport));
+        return responseParser.toResponse(aiReport);
     }
 
     @Override
@@ -148,10 +148,11 @@ public class AiReportService implements AiReportUseCase {
         } else {
             aiReport = AiReport.create(plan.getId(), rawJsonString);
         }
+
         plan.updateStatus(PlanStatus.AI_REVIEWED);
         businessPlanCommandPort.save(plan);
 
-        return aiReport;
+        return aiReportCommandPort.save(aiReport);
     }
 
     private void checkBusinessPlanOwned(BusinessPlan plan, Long memberId) {
