@@ -126,20 +126,40 @@ public class SpringAiReportGrader implements ReportGraderPort {
                         }));
 
         // 모든 채점 완료 대기 (최대 2분)
+        CompletableFuture<?>[] futures = futureMap.values().toArray(new CompletableFuture[0]);
+        CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures);
+
+        try {
+            allFutures.get(2, TimeUnit.MINUTES);
+        } catch (java.util.concurrent.TimeoutException e) {
+            log.warn("섹션별 채점 타임아웃 발생. 모든 Future 취소하여 스레드 자원 해제 중...");
+            for (CompletableFuture<SectionGradingResult> future : futureMap.values()) {
+                if (!future.isDone()) {
+                    future.cancel(true);
+                }
+            }
+        } catch (Exception e) {
+            log.error("섹션별 채점 중 예외 발생", e);
+            for (CompletableFuture<SectionGradingResult> future : futureMap.values()) {
+                if (!future.isDone()) {
+                    future.cancel(true);
+                }
+            }
+        }
+
+        // 결과 수집
         List<SectionGradingResult> results = futureMap.entrySet().stream()
                 .map(entry -> {
                     SectionType sectionType = entry.getKey();
                     CompletableFuture<SectionGradingResult> future = entry.getValue();
                     try {
-                        SectionGradingResult result = future.get(2, TimeUnit.MINUTES);
-                        log.debug("[{}] 섹션 채점 완료. 성공: {}, 점수: {}",
-                                sectionType, result.success(), result.score());
-                        return result;
+                        if (future.isCancelled()) {
+                            return SectionGradingResult.failure(sectionType, "타임아웃");
+                        }
+                        return future.get(0, TimeUnit.SECONDS);
                     } catch (java.util.concurrent.TimeoutException e) {
-                        log.error("[{}] 섹션 채점 타임아웃 (2분 초과)", sectionType);
                         return SectionGradingResult.failure(sectionType, "타임아웃");
                     } catch (Exception e) {
-                        log.error("[{}] 섹션 채점 Future 완료 실패", sectionType, e);
                         return SectionGradingResult.failure(sectionType, "예외: " + e.getMessage());
                     }
                 })
