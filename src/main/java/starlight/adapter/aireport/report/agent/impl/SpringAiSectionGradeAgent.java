@@ -13,6 +13,7 @@ import starlight.adapter.aireport.report.dto.SectionGradingResult;
 import starlight.adapter.aireport.report.provider.SpringAiAdvisorProvider;
 import starlight.adapter.aireport.report.provider.ReportPromptProvider;
 import starlight.application.aireport.util.AiReportResponseParser;
+import starlight.application.aireport.util.SectionScoreExtractor;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.shared.enumerate.SectionType;
 
@@ -88,18 +89,15 @@ public class SpringAiSectionGradeAgent implements SectionGradeAgent {
             // 섹션별 응답 파싱 메소드 사용
             AiReportResult sectionResponse = responseParser.parseSectionResponse(llmResponse);
 
-            // SectionType의 score 추출 메서드 사용
-            Integer score = getSectionType().extractScore(sectionResponse);
+            // SectionScoreExtractor를 사용하여 점수 추출
+            Integer score = SectionScoreExtractor.extractScore(getSectionType(), sectionResponse);
 
             // sectionScores에서 해당 섹션 찾기
-            String sectionTypeString = getSectionType().getSectionTypeString();
-            AiReportResult.SectionScoreDetailResponse sectionScore = null;
-            if (sectionTypeString != null) {
-                sectionScore = sectionResponse.sectionScores().stream()
-                        .filter(ss -> sectionTypeString.equals(ss.sectionType()))
-                        .findFirst()
-                        .orElse(null);
-            }
+            String sectionTypeString = getSectionType().name();
+            AiReportResult.SectionScoreDetailResponse sectionScore = sectionResponse.sectionScores().stream()
+                    .filter(ss -> sectionTypeString.equals(ss.sectionType()))
+                    .findFirst()
+                    .orElse(null);
 
             return SectionGradingResult.success(getSectionType(), score, sectionScore);
 
