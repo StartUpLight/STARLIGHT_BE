@@ -10,6 +10,8 @@ import starlight.adapter.aireport.report.supervisor.SpringAiReportSupervisor;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.ReportGraderPort;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
+import starlight.domain.aireport.exception.AiReportErrorType;
+import starlight.domain.aireport.exception.AiReportException;
 import starlight.shared.enumerate.SectionType;
 
 import java.util.*;
@@ -38,10 +40,15 @@ public class SpringAiReportGrader implements ReportGraderPort {
             SpringAiReportSupervisor supervisor,
             BusinessPlanContentExtractor contentExtractor,
             @Qualifier("sectionGradingExecutor") Executor sectionGradingExecutor) {
-        this.sectionGradeAgentMap = sectionGradeAgentList.stream()
-                .collect(Collectors.toMap(
-                        SectionGradeAgent::getSectionType,
-                        advisor -> advisor));
+        try {
+            this.sectionGradeAgentMap = sectionGradeAgentList.stream()
+                    .collect(Collectors.toMap(
+                            SectionGradeAgent::getSectionType,
+                            advisor -> advisor));
+        } catch (IllegalStateException e) {
+            log.error("중복된 SectionType 에이전트로 인한 에러", e);
+            throw new AiReportException(AiReportErrorType.AI_AGENT_DUPLICATED);
+        }
         this.fullReportGradeAgent = fullReportGradeAgent;
         this.supervisor = supervisor;
         this.contentExtractor = contentExtractor;
