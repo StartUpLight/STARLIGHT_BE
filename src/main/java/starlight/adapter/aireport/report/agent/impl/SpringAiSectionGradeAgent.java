@@ -84,6 +84,17 @@ public class SpringAiSectionGradeAgent implements SectionGradeAgent {
         }
     }
 
+    private String buildFilterExpression() {
+        SectionType sectionType = getSectionType();
+        String tag = sectionType.getTag();
+
+        if (tag == null || tag.isBlank()) {
+            return null;
+        }
+
+        return "tag == '" + tag + "'";
+    }
+
     private SectionGradingResult parseSectionResult(String llmResponse) {
         try {
             // 섹션별 응답 파싱 메소드 사용
