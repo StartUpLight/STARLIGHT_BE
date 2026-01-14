@@ -11,6 +11,14 @@ import starlight.shared.AbstractEntity;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_ai_report_business_plan",
+                        columnNames = {"business_plan_id"}
+                )
+        }
+)
 public class AiReport extends AbstractEntity {
 
     @Column(name = "business_plan_id", nullable = false)

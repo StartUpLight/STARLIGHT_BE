@@ -8,7 +8,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 import starlight.adapter.businessplan.spellcheck.dto.Finding;
 import starlight.adapter.businessplan.spellcheck.util.SpellCheckUtil;
-import starlight.application.businessplan.required.SpellChecker;
+import starlight.application.businessplan.required.SpellCheckerPort;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -16,7 +16,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class DaumSpellChecker implements SpellChecker {
+public class DaumSpellChecker implements SpellCheckerPort {
 
     private static final int  MAX_CHARS            = 1000;  // 요청 글자 수 제한
     private static final long DAUM_MIN_INTERVAL_MS = 400L;  // 호출 간 최소 간격

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import starlight.adapter.member.webapi.swagger.MemberApiDoc;
 import starlight.adapter.member.webapi.dto.MemberDetailResponse;
-import starlight.application.member.provided.MemberQueryUseCase;
+import starlight.application.member.provided.MemberUseCase;
 import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.apiPayload.response.ApiResponse;
 
@@ -18,7 +18,7 @@ import starlight.shared.apiPayload.response.ApiResponse;
 @RequestMapping("/v1/members")
 public class MemberController implements MemberApiDoc {
 
-    private final MemberQueryUseCase memberQueryUseCase;
+    private final MemberUseCase memberQueryUseCase;
 
     @GetMapping
     public ApiResponse<MemberDetailResponse> getMemberDetail(

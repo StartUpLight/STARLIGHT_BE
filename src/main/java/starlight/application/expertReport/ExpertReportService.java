@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.application.businessplan.required.BusinessPlanQuery;
-import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
+import starlight.application.businessplan.required.BusinessPlanQueryPort;
+import starlight.application.expertReport.provided.ExpertReportUseCase;
 import starlight.application.expertReport.provided.dto.ExpertReportWithExpertResult;
 import starlight.application.expertReport.required.ExpertApplicationCountLookupPort;
 import starlight.application.expertReport.required.ExpertLookupPort;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ExpertReportService implements ExpertReportServiceUseCase {
+public class ExpertReportService implements ExpertReportUseCase {
 
     @Value("${feedback-token.token-length}")
     private int tokenLength;
@@ -44,7 +44,7 @@ public class ExpertReportService implements ExpertReportServiceUseCase {
     private final ExpertReportCommandPort expertReportCommand;
     private final ExpertLookupPort expertLookupPort;
     private final ExpertApplicationCountLookupPort expertApplicationLookupPort;
-    private final BusinessPlanQuery businessPlanQuery;
+    private final BusinessPlanQueryPort businessPlanQuery;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Override

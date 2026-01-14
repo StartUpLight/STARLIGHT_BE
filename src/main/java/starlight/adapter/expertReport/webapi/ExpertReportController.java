@@ -7,7 +7,7 @@ import starlight.adapter.expertReport.webapi.dto.ExpertReportResponse;
 import starlight.adapter.expertReport.webapi.dto.UpsertExpertReportRequest;
 import starlight.adapter.expertReport.webapi.mapper.ExpertReportMapper;
 import starlight.adapter.expertReport.webapi.swagger.ExpertReportApiDoc;
-import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
+import starlight.application.expertReport.provided.ExpertReportUseCase;
 import starlight.application.expertReport.provided.dto.ExpertReportWithExpertResult;
 import starlight.domain.expertReport.entity.ExpertReport;
 import starlight.domain.expertReport.entity.ExpertReportComment;
@@ -21,7 +21,7 @@ import java.util.List;
 public class ExpertReportController implements ExpertReportApiDoc {
 
     private final ExpertReportMapper mapper;
-    private final ExpertReportServiceUseCase expertReportService;
+    private final ExpertReportUseCase expertReportService;
 
     @GetMapping
     public ApiResponse<List<ExpertReportResponse>> getExpertReports(

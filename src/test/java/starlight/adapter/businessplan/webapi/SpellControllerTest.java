@@ -1,24 +1,19 @@
 package starlight.adapter.businessplan.webapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import starlight.adapter.businessplan.spellcheck.dto.Finding;
-import starlight.application.businessplan.required.SpellChecker;
+import starlight.application.businessplan.required.SpellCheckerPort;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc(addFilters = false)
@@ -32,8 +27,8 @@ class SpellControllerTest {
     @TestConfiguration
     static class TestBeans {
         @Bean
-        SpellChecker spellChecker() {
-            return new SpellChecker() {
+        SpellCheckerPort spellChecker() {
+            return new SpellCheckerPort() {
                 @Override
                 public List<Finding> check(String sentence) {
                     if (sentence.contains("teh")) {

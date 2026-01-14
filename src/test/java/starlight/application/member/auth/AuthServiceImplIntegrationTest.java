@@ -11,8 +11,8 @@ import starlight.application.member.auth.provided.dto.SignInInput;
 import starlight.application.member.auth.provided.dto.SignUpInput;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
-import starlight.application.member.provided.CredentialService;
-import starlight.application.member.provided.MemberQueryUseCase;
+import starlight.application.member.provided.CredentialUseCase;
+import starlight.application.member.provided.MemberUseCase;
 import starlight.domain.member.auth.exception.AuthException;
 import starlight.domain.member.entity.Credential;
 import starlight.domain.member.entity.Member;
@@ -28,8 +28,10 @@ import static org.mockito.Mockito.*;
 })
 class AuthServiceImplIntegrationTest {
 
-    @MockitoBean MemberQueryUseCase memberQueryUseCase;
-    @MockitoBean CredentialService credentialService;
+    @MockitoBean
+    MemberUseCase memberQueryUseCase;
+    @MockitoBean
+    CredentialUseCase credentialService;
     @MockitoBean TokenProvider tokenProvider;
     @MockitoBean KeyValueMap redisClient;
 

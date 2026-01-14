@@ -5,7 +5,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
-import starlight.application.aireport.required.PresignedUrlProvider;
+import starlight.application.aireport.required.PresignedUrlProviderPort;
 import starlight.adapter.aireport.webapi.swagger.ImageApiDoc;
 import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.apiPayload.response.ApiResponse;
@@ -15,7 +15,7 @@ import starlight.shared.apiPayload.response.ApiResponse;
 @RequiredArgsConstructor
 public class ImageController implements ImageApiDoc {
 
-    private final PresignedUrlProvider presignedUrlReader;
+    private final PresignedUrlProviderPort presignedUrlReader;
 
     @GetMapping(value = "/upload-url", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<PreSignedUrlResponse> getPresignedUrl(

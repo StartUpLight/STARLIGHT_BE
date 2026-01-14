@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import starlight.application.businessplan.required.BusinessPlanQuery;
+import starlight.application.businessplan.required.BusinessPlanCommandPort;
+import starlight.application.businessplan.required.BusinessPlanQueryPort;
 import starlight.application.expert.required.BusinessPlanLookupPort;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class BusinessPlanJpa implements BusinessPlanQuery, BusinessPlanLookupPort {
+public class BusinessPlanJpa implements BusinessPlanCommandPort, BusinessPlanQueryPort, BusinessPlanLookupPort {
 
     private final BusinessPlanRepository businessPlanRepository;
 
@@ -26,7 +27,7 @@ public class BusinessPlanJpa implements BusinessPlanQuery, BusinessPlanLookupPor
     }
 
     @Override
-    public BusinessPlan getOrThrowWithAllSubSections(Long id) {
+    public BusinessPlan findWithAllSubSectionsOrThrow(Long id) {
         return businessPlanRepository.findByIdWithAllSubSections(id).orElseThrow(
                 () -> new BusinessPlanException(BusinessPlanErrorType.BUSINESS_PLAN_NOT_FOUND)
         );

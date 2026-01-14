@@ -9,7 +9,7 @@ import starlight.adapter.aireport.infrastructure.ocr.infra.PdfDownloadClient;
 import starlight.adapter.aireport.infrastructure.ocr.util.OcrResponseMerger;
 import starlight.adapter.aireport.infrastructure.ocr.util.OcrTextExtractor;
 import starlight.adapter.aireport.infrastructure.ocr.util.PdfUtils;
-import starlight.application.aireport.required.OcrProvider;
+import starlight.application.aireport.required.OcrProviderPort;
 import starlight.shared.dto.infrastructure.OcrResponse;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ClovaOcrProvider implements OcrProvider {
+public class ClovaOcrProvider implements OcrProviderPort {
 
     private static final int MAX_PAGES_PER_REQUEST = 10;
 
