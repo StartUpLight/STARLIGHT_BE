@@ -73,6 +73,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/", "/index.html", "/ops.html", "/payment.html", "/api/payment/**").permitAll()
                         .requestMatchers("/v1/auth/**","/v1/user/**", "/v1/experts", "/v1/experts/*").permitAll()
+                        .requestMatchers("/v1/backoffice/mail/**").permitAll()
+                        .requestMatchers("/send-email").permitAll()
                         .requestMatchers("/login/**", "/oauth2/**", "/login/oauth2/**", "/public/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/v1/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**").permitAll()
 

@@ -1,0 +1,34 @@
+package starlight.adapter.backoffice.mail.webapi.dto.request;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import starlight.application.backoffice.mail.provided.dto.input.BackofficeMailSendInput;
+import starlight.domain.backoffice.mail.BackofficeMailContentType;
+
+import java.util.List;
+
+public record BackofficeMailSendRequest(
+        @NotEmpty(message = "to is required")
+        List<@Email @NotBlank String> to,
+        @NotBlank(message = "subject is required")
+        String subject,
+        @NotBlank(message = "contentType is required")
+        String contentType,
+        String html,
+        String text
+) {
+    public BackofficeMailSendInput toInput() {
+        return new BackofficeMailSendInput(
+                to,
+                subject,
+                contentType,
+                html,
+                text
+        );
+    }
+
+    public BackofficeMailContentType toContentType() {
+        return BackofficeMailContentType.from(contentType);
+    }
+}
