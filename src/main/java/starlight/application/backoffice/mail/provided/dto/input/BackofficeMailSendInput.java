@@ -8,4 +8,14 @@ public record BackofficeMailSendInput(
         String contentType,
         String html,
         String text
-) { }
+) {
+    public static BackofficeMailSendInput of(
+            List<String> to,
+            String subject,
+            String contentType,
+            String html,
+            String text
+    ) {
+        return new BackofficeMailSendInput(to, subject, contentType, html, text);
+    }
+}

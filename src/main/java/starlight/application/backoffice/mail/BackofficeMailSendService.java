@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import starlight.domain.backoffice.exception.BackofficeErrorType;
 import starlight.domain.backoffice.exception.BackofficeException;
 import starlight.domain.backoffice.mail.BackofficeMailContentType;
+import starlight.domain.backoffice.mail.BackofficeMailSendLog;
 
 @Service
 @RequiredArgsConstructor
@@ -27,14 +28,15 @@ public class BackofficeMailSendService implements BackofficeMailSendUseCase {
         try {
             validate(input, contentType);
             mailSenderPort.send(input, contentType);
-            eventPublisher.publishEvent(new BackofficeMailSendEvent(
+            BackofficeMailSendEvent log = BackofficeMailSendEvent.of(
                     input.to(),
                     input.subject(),
                     contentType,
                     true,
                     null
-            ));
-            return;
+            );
+            eventPublisher.publishEvent(log);
+
         } catch (IllegalArgumentException exception) {
             publishFailureEvent(input, contentType, exception.getMessage());
             throw new BackofficeException(BackofficeErrorType.INVALID_MAIL_REQUEST);
@@ -76,7 +78,7 @@ public class BackofficeMailSendService implements BackofficeMailSendUseCase {
             BackofficeMailContentType contentType,
             String errorMessage
     ) {
-        eventPublisher.publishEvent(new BackofficeMailSendEvent(
+        eventPublisher.publishEvent(BackofficeMailSendEvent.of(
                 input.to(),
                 input.subject(),
                 contentType,

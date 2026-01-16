@@ -11,6 +11,7 @@ import starlight.application.backoffice.mail.required.BackofficeMailTemplateComm
 import starlight.application.backoffice.mail.required.BackofficeMailTemplateQueryPort;
 import starlight.domain.backoffice.exception.BackofficeErrorType;
 import starlight.domain.backoffice.exception.BackofficeException;
+import starlight.domain.backoffice.mail.BackofficeMailContentType;
 import starlight.domain.backoffice.mail.BackofficeMailTemplate;
 
 import java.util.List;
@@ -25,10 +26,11 @@ public class BackofficeMailTemplateService implements BackofficeMailTemplateUseC
     @Override
     @Transactional
     public BackofficeMailTemplateResult createTemplate(BackofficeMailTemplateCreateInput input) {
+        BackofficeMailContentType contentType = parseContentType(input.contentType());
         BackofficeMailTemplate template = BackofficeMailTemplate.create(
                 input.name(),
                 input.title(),
-                input.contentType(),
+                contentType,
                 input.html(),
                 input.text()
         );
@@ -38,6 +40,14 @@ public class BackofficeMailTemplateService implements BackofficeMailTemplateUseC
             return toResult(saved);
         } catch (DataAccessException exception) {
             throw new BackofficeException(BackofficeErrorType.MAIL_TEMPLATE_SAVE_FAILED);
+        }
+    }
+
+    private BackofficeMailContentType parseContentType(String contentType) {
+        try {
+            return BackofficeMailContentType.from(contentType);
+        } catch (IllegalArgumentException exception) {
+            throw new BackofficeException(BackofficeErrorType.INVALID_MAIL_CONTENT_TYPE);
         }
     }
 
@@ -64,7 +74,7 @@ public class BackofficeMailTemplateService implements BackofficeMailTemplateUseC
     }
 
     private BackofficeMailTemplateResult toResult(BackofficeMailTemplate template) {
-        return new BackofficeMailTemplateResult(
+        return BackofficeMailTemplateResult.of(
                 template.getId(),
                 template.getName(),
                 template.getEmailTitle(),

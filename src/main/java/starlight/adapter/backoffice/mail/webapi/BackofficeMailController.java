@@ -24,7 +24,7 @@ public class BackofficeMailController {
             @Valid @RequestBody BackofficeMailSendRequest request
     ) {
         backofficeMailSendUseCase.send(request.toInput());
-        return ApiResponse.success("이메일 전송 성공");
+        return ApiResponse.success("이메일 전송에 성공하였습니다.");
     }
 
     @PostMapping("/v1/backoffice/mail/templates")

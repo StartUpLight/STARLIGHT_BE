@@ -11,4 +11,13 @@ public record BackofficeMailSendEvent(
         boolean success,
         String errorMessage
 ) {
+    public static BackofficeMailSendEvent of(
+            List<String> to,
+            String subject,
+            BackofficeMailContentType contentType,
+            boolean success,
+            String errorMessage
+    ) {
+        return new BackofficeMailSendEvent(to, subject, contentType, success, errorMessage);
+    }
 }

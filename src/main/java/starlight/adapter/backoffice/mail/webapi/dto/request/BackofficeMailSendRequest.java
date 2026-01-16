@@ -18,6 +18,6 @@ public record BackofficeMailSendRequest(
         String text
 ) {
     public BackofficeMailSendInput toInput() {
-        return new BackofficeMailSendInput(to, subject, contentType, html, text);
+        return BackofficeMailSendInput.of(to, subject, contentType, html, text);
     }
 }
