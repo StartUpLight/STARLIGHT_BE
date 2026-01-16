@@ -8,5 +8,4 @@ public record BackofficeMailTemplateCreateInput(
         BackofficeMailContentType contentType,
         String html,
         String text
-) {
-}
+) { }

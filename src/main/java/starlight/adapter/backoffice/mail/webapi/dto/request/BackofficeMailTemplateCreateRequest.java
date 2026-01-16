@@ -15,12 +15,6 @@ public record BackofficeMailTemplateCreateRequest(
         String text
 ) {
     public BackofficeMailTemplateCreateInput toInput() {
-        return new BackofficeMailTemplateCreateInput(
-                name,
-                title,
-                BackofficeMailContentType.from(contentType),
-                html,
-                text
-        );
+        return new BackofficeMailTemplateCreateInput(name, title, BackofficeMailContentType.from(contentType), html, text);
     }
 }

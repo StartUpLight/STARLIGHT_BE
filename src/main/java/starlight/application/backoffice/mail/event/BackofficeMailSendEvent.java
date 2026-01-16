@@ -1,10 +1,10 @@
-package starlight.application.backoffice.mail.provided.dto.input;
+package starlight.application.backoffice.mail.event;
 
 import starlight.domain.backoffice.mail.BackofficeMailContentType;
 
 import java.util.List;
 
-public record BackofficeMailSendLogCreateInput(
+public record BackofficeMailSendEvent(
         List<String> to,
         String subject,
         BackofficeMailContentType contentType,

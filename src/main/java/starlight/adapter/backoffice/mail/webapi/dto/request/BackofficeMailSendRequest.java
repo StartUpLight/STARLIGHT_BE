@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import starlight.application.backoffice.mail.provided.dto.input.BackofficeMailSendInput;
-import starlight.domain.backoffice.mail.BackofficeMailContentType;
 
 import java.util.List;
 
@@ -19,16 +18,6 @@ public record BackofficeMailSendRequest(
         String text
 ) {
     public BackofficeMailSendInput toInput() {
-        return new BackofficeMailSendInput(
-                to,
-                subject,
-                contentType,
-                html,
-                text
-        );
-    }
-
-    public BackofficeMailContentType toContentType() {
-        return BackofficeMailContentType.from(contentType);
+        return new BackofficeMailSendInput(to, subject, contentType, html, text);
     }
 }

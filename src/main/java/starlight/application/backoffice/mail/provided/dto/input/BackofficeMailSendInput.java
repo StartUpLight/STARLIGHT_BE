@@ -8,5 +8,4 @@ public record BackofficeMailSendInput(
         String contentType,
         String html,
         String text
-) {
-}
+) { }
