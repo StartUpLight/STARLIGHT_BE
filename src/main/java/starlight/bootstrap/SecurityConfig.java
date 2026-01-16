@@ -49,6 +49,7 @@ public class SecurityConfig {
 
     @Value("${cors.origin.server}") String ServerBaseUrl;
     @Value("${cors.origin.client}") String clientBaseUrl;
+    @Value("${cors.origin.office}") String officeBaseUrl;
     @Value("${cors.origin.develop}") String devBaseUrl;
     @Value("${backoffice.auth.username}") String backofficeUsername;
     @Value("${backoffice.auth.password}") String backofficePassword;
@@ -138,7 +139,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 clientBaseUrl,
                 ServerBaseUrl,
-                devBaseUrl
+                devBaseUrl,
+                officeBaseUrl
         ));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
