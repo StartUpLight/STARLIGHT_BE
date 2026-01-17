@@ -66,7 +66,11 @@ public class SecurityConfig {
     public SecurityFilterChain backofficeFilterChain(HttpSecurity http) throws Exception {
         CsrfTokenRequestAttributeHandler csrfTokenRequestHandler = new CsrfTokenRequestAttributeHandler();
         CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        csrfTokenRepository.setCookieCustomizer(cookie -> cookie.sameSite("None").secure(true));
+        csrfTokenRepository.setCookieCustomizer(cookie -> cookie
+                .domain(".starlight-official.co.kr")
+                .sameSite("None")
+                .secure(true)
+        );
 
         http.securityMatcher("/v1/backoffice/mail/**", "/login", "/logout")
                 .cors(Customizer.withDefaults())
