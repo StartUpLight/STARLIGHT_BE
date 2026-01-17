@@ -77,6 +77,9 @@ public class SecurityConfig {
             );
         }
 
+        String officeRedirectUrl = officeBaseUrl.endsWith("/")
+                ? officeBaseUrl
+                : officeBaseUrl + "/";
         http.securityMatcher("/v1/backoffice/mail/**", "/login", "/logout")
                 .cors(Customizer.withDefaults())
                 .csrf((csrf) -> csrf
@@ -90,22 +93,9 @@ public class SecurityConfig {
                                 .requestMatchers("/login", "/logout").permitAll()
                                 .anyRequest().hasRole("BACKOFFICE")
                 )
-                .formLogin((form) -> form.successHandler((request, response, authentication) -> {
-                    String proto = request.getHeader("X-Forwarded-Proto");
-                    if (proto == null || proto.isBlank()) {
-                        proto = request.getScheme();
-                    }
-                    String host = request.getHeader("X-Forwarded-Host");
-                    if (host == null || host.isBlank()) {
-                        host = request.getServerName();
-                    }
-                    String port = request.getHeader("X-Forwarded-Port");
-                    String portPart = "";
-                    if (port != null && !port.isBlank() && !"443".equals(port) && !"80".equals(port)) {
-                        portPart = ":" + port;
-                    }
-                    response.sendRedirect(proto + "://" + host + portPart + "/");
-                }))
+                .formLogin((form) -> form.successHandler(
+                        (request, response, authentication) -> response.sendRedirect(officeRedirectUrl)
+                ))
                 .logout(Customizer.withDefaults());
 
         return http.build();
