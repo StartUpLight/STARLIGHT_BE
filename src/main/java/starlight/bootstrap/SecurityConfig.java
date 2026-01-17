@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -54,6 +55,7 @@ public class SecurityConfig {
     @Value("${backoffice.auth.username}") String backofficeUsername;
     @Value("${backoffice.auth.password}") String backofficePassword;
 
+    private final Environment environment;
     private final JwtFilter jwtFilter;
     private final ExceptionFilter exceptionFilter;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
@@ -66,17 +68,21 @@ public class SecurityConfig {
     public SecurityFilterChain backofficeFilterChain(HttpSecurity http) throws Exception {
         CsrfTokenRequestAttributeHandler csrfTokenRequestHandler = new CsrfTokenRequestAttributeHandler();
         CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        csrfTokenRepository.setCookieCustomizer(cookie -> cookie
-                .domain("starlight-official.co.kr")
-                .sameSite("None")
-                .secure(true)
-        );
+        boolean isDevProfile = List.of(environment.getActiveProfiles()).contains("dev");
+        if (!isDevProfile) {
+            csrfTokenRepository.setCookieCustomizer(cookie -> cookie
+                    .domain("starlight-official.co.kr")
+                    .sameSite("None")
+                    .secure(true)
+            );
+        }
 
         http.securityMatcher("/v1/backoffice/mail/**", "/login", "/logout")
                 .cors(Customizer.withDefaults())
                 .csrf((csrf) -> csrf
                         .csrfTokenRepository(csrfTokenRepository)
                         .csrfTokenRequestHandler(csrfTokenRequestHandler)
+                        .ignoringRequestMatchers("/login", "/logout")
                 )
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests((authorize) ->
