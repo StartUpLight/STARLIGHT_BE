@@ -67,7 +67,7 @@ public class SecurityConfig {
         CsrfTokenRequestAttributeHandler csrfTokenRequestHandler = new CsrfTokenRequestAttributeHandler();
         CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         csrfTokenRepository.setCookieCustomizer(cookie -> cookie
-                .domain(".starlight-official.co.kr")
+                .domain("starlight-official.co.kr")
                 .sameSite("None")
                 .secure(true)
         );
