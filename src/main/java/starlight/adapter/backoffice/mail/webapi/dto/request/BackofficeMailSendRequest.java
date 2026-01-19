@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.util.StringUtils;
 import starlight.application.backoffice.mail.provided.dto.input.BackofficeMailSendInput;
 
@@ -15,6 +16,7 @@ public record BackofficeMailSendRequest(
         @NotBlank(message = "subject is required")
         String subject,
         @NotBlank(message = "contentType is required")
+        @Pattern(regexp = "(?i)^(html|text)$", message = "contentType must be html or text")
         String contentType,
         String html,
         String text

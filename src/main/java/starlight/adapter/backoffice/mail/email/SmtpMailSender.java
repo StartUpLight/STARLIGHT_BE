@@ -42,7 +42,7 @@ public class SmtpMailSender implements MailSenderPort {
             log.info("[MAIL] sent to={} subject={}", input.to(), input.subject());
         } catch (MessagingException e) {
             log.error("[MAIL] send failed to={}", input.to(), e);
-            throw new BackofficeException(BackofficeErrorType.MAIL_SEND_FAILED);
+            throw new BackofficeException(BackofficeErrorType.MAIL_SEND_FAILED, e);
         }
     }
 }
