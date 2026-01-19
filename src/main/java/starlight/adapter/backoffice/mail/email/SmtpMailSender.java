@@ -10,6 +10,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import starlight.application.backoffice.mail.provided.dto.input.BackofficeMailSendInput;
 import starlight.application.backoffice.mail.required.MailSenderPort;
+import starlight.domain.backoffice.exception.BackofficeErrorType;
+import starlight.domain.backoffice.exception.BackofficeException;
 import starlight.domain.backoffice.mail.BackofficeMailContentType;
 
 @Slf4j
@@ -40,7 +42,7 @@ public class SmtpMailSender implements MailSenderPort {
             log.info("[MAIL] sent to={} subject={}", input.to(), input.subject());
         } catch (MessagingException e) {
             log.error("[MAIL] send failed to={}", input.to(), e);
-            throw new IllegalArgumentException("메일 전송 실패");
+            throw new BackofficeException(BackofficeErrorType.MAIL_SEND_FAILED);
         }
     }
 }

@@ -25,7 +25,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
@@ -53,7 +52,7 @@ public class SecurityConfig {
     @Value("${cors.origin.office}") String officeBaseUrl;
     @Value("${cors.origin.develop}") String devBaseUrl;
     @Value("${backoffice.auth.username}") String backofficeUsername;
-    @Value("${backoffice.auth.password}") String backofficePassword;
+    @Value("${backoffice.auth.password-hash}") String backofficePasswordHash;
 
     private final Environment environment;
     private final JwtFilter jwtFilter;
@@ -77,15 +76,11 @@ public class SecurityConfig {
             );
         }
 
-        String officeRedirectUrl = officeBaseUrl.endsWith("/")
-                ? officeBaseUrl
-                : officeBaseUrl + "/";
         http.securityMatcher("/v1/backoffice/mail/**", "/login", "/logout")
                 .cors(Customizer.withDefaults())
                 .csrf((csrf) -> csrf
                         .csrfTokenRepository(csrfTokenRepository)
                         .csrfTokenRequestHandler(csrfTokenRequestHandler)
-                        .ignoringRequestMatchers("/login", "/logout")
                 )
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests((authorize) ->
@@ -93,9 +88,7 @@ public class SecurityConfig {
                                 .requestMatchers("/login", "/logout").permitAll()
                                 .anyRequest().hasRole("BACKOFFICE")
                 )
-                .formLogin((form) -> form.successHandler(
-                        (request, response, authentication) -> response.sendRedirect(officeRedirectUrl)
-                ))
+                .formLogin(Customizer.withDefaults())
                 .logout(Customizer.withDefaults());
 
         return http.build();
@@ -178,10 +171,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+    public UserDetailsService userDetailsService() {
+        if (backofficePasswordHash == null || backofficePasswordHash.isBlank()) {
+            throw new IllegalStateException("backoffice.auth.password-hash must be configured");
+        }
         UserDetails user = User.builder()
                 .username(backofficeUsername)
-                .password(passwordEncoder.encode(backofficePassword))
+                .password(backofficePasswordHash)
                 .roles("BACKOFFICE")
                 .build();
         return new InMemoryUserDetailsManager(user);
@@ -202,4 +198,5 @@ public class SecurityConfig {
     public LogoutSuccessHandler logoutSuccessHandler() {
         return new HttpStatusReturningLogoutSuccessHandler();
     }
+
 }
