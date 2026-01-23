@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import starlight.domain.expert.enumerate.ExpertActiveStatus;
 import starlight.domain.expert.enumerate.TagCategory;
 import starlight.shared.AbstractEntity;
 
@@ -35,6 +36,10 @@ public class Expert extends AbstractEntity {
 
     @Column
     private String detailedIntroduction;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private ExpertActiveStatus activeStatus = ExpertActiveStatus.ACTIVE;
 
     @Min(0)
     @Column
