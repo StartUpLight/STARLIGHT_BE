@@ -76,7 +76,7 @@ public class SecurityConfig {
             );
         }
 
-        http.securityMatcher("/v1/backoffice/mail/**", "/login", "/logout")
+        http.securityMatcher("/v1/backoffice/**", "/login", "/logout")
                 .cors(Customizer.withDefaults())
                 .csrf((csrf) -> csrf
                         .csrfTokenRepository(csrfTokenRepository)

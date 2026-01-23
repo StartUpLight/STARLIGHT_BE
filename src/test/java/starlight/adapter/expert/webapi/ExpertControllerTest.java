@@ -64,7 +64,7 @@ class ExpertControllerTest {
     void listAll() throws Exception {
         ExpertDetailResult e1 = expertResult(1L, "홍길동",
                 Set.of(TagCategory.GROWTH_STRATEGY, TagCategory.TEAM_CAPABILITY));
-        when(expertDetailQuery.searchAll()).thenReturn(List.of(e1));
+        when(expertDetailQuery.searchAllActive()).thenReturn(List.of(e1));
 
         mockMvc.perform(get("/v1/experts"))
                 .andExpect(status().isOk())

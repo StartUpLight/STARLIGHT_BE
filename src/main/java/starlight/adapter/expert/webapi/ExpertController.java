@@ -27,7 +27,7 @@ public class ExpertController implements ExpertApiDoc {
 
     @GetMapping
     public ApiResponse<List<ExpertListResponse>> search() {
-        return ApiResponse.success(ExpertListResponse.fromAll(expertDetailQuery.searchAll()));
+        return ApiResponse.success(ExpertListResponse.fromAll(expertDetailQuery.searchAllActive()));
     }
 
     @GetMapping("/{expertId}")
