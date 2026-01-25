@@ -27,7 +27,7 @@ public class BusinessPlanJpa implements BusinessPlanCommandPort, BusinessPlanQue
     }
 
     @Override
-    public BusinessPlan findWithAllSubSectionsOrThrow(Long id) {
+    public BusinessPlan findByIdWithAllSubSectionsOrThrow(Long id) {
         return businessPlanRepository.findByIdWithAllSubSections(id).orElseThrow(
                 () -> new BusinessPlanException(BusinessPlanErrorType.BUSINESS_PLAN_NOT_FOUND)
         );

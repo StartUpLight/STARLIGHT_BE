@@ -341,7 +341,7 @@ class BusinessPlanServiceUnitTest {
                 List.of(false, false, false, false, false));
         plan.getProblemRecognition().putSubSection(problem);
 
-        when(businessPlanQuery.findWithAllSubSectionsOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdWithAllSubSectionsOrThrow(1L)).thenReturn(plan);
 
         BusinessPlanResult.Detail detail = sut.getBusinessPlanDetail(1L, 10L);
 
@@ -359,7 +359,7 @@ class BusinessPlanServiceUnitTest {
     void getBusinessPlanDetail_unauthorized_throws() {
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.isOwnedBy(10L)).thenReturn(false);
-        when(businessPlanQuery.findWithAllSubSectionsOrThrow(1L)).thenReturn(plan);
+        when(businessPlanQuery.findByIdWithAllSubSectionsOrThrow(1L)).thenReturn(plan);
 
         org.junit.jupiter.api.Assertions.assertThrows(BusinessPlanException.class,
                 () -> sut.getBusinessPlanDetail(1L, 10L));

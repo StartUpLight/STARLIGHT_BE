@@ -139,7 +139,7 @@ class AiReportServiceIntegrationTest {
                 }
 
                 @Override
-                public BusinessPlan findWithAllSubSectionsOrThrow(Long id) {
+                public BusinessPlan findByIdWithAllSubSectionsOrThrow(Long id) {
                     return businessPlanRepository.findByIdWithAllSubSections(id)
                             .orElseThrow(() -> new RuntimeException("BusinessPlan not found: " + id));
                 }

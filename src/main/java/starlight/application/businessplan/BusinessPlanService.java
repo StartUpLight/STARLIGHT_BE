@@ -74,7 +74,7 @@ public class BusinessPlanService implements BusinessPlanUseCase {
     @Override
     @Transactional(readOnly = true)
     public BusinessPlanResult.Detail getBusinessPlanDetail(Long planId, Long memberId) {
-        BusinessPlan plan = businessPlanQueryPort.findWithAllSubSectionsOrThrow(planId);
+        BusinessPlan plan = businessPlanQueryPort.findByIdWithAllSubSectionsOrThrow(planId);
         if (!plan.isOwnedBy(memberId)) {
             throw new BusinessPlanException(BusinessPlanErrorType.UNAUTHORIZED_ACCESS);
         }

@@ -8,7 +8,7 @@ public interface BusinessPlanQueryPort {
 
     BusinessPlan findByIdOrThrow(Long id);
 
-    BusinessPlan findWithAllSubSectionsOrThrow(Long id);
+    BusinessPlan findByIdWithAllSubSectionsOrThrow(Long id);
 
     Page<BusinessPlan> findPreviewPage(Long memberId, Pageable pageable);
 }
