@@ -10,9 +10,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import starlight.adapter.businessplan.webapi.dto.BusinessPlanCreateWithPdfRequest;
+import starlight.adapter.aireport.webapi.dto.AiReportCreateWithPdfRequest;
+import starlight.adapter.aireport.webapi.dto.AiReportResponse;
 import starlight.adapter.member.auth.security.auth.AuthDetails;
-import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 @Tag(name = "AI 리포트", description = "AI 리포트 채점 및 조회 API")
@@ -29,7 +29,7 @@ public interface AiReportApiDoc {
                     description = "성공",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = AiReportResult.class)
+                            schema = @Schema(implementation = AiReportResponse.class)
                     )
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -126,7 +126,7 @@ public interface AiReportApiDoc {
             )
     })
     @PostMapping("/evaluation/{planId}")
-    ApiResponse<AiReportResult> gradeBusinessPlan(
+    ApiResponse<AiReportResponse> gradeBusinessPlan(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId
     );
@@ -141,7 +141,7 @@ public interface AiReportApiDoc {
                     description = "성공",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = AiReportResult.class)
+                            schema = @Schema(implementation = AiReportResponse.class)
                     )
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -216,9 +216,9 @@ public interface AiReportApiDoc {
             )
     })
     @PostMapping("/evaluation/pdf")
-    ApiResponse<AiReportResult> createAndGradeBusinessPlan(
+    ApiResponse<AiReportResponse> createAndGradeBusinessPlan(
             @AuthenticationPrincipal AuthDetails authDetails,
-            @Valid @RequestBody BusinessPlanCreateWithPdfRequest request
+            @Valid @RequestBody AiReportCreateWithPdfRequest request
     );
 
     @Operation(
@@ -231,7 +231,7 @@ public interface AiReportApiDoc {
                     description = "성공",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = AiReportResult.class)
+                            schema = @Schema(implementation = AiReportResponse.class)
                     )
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -290,7 +290,7 @@ public interface AiReportApiDoc {
             )
     })
     @GetMapping("/{planId}")
-    ApiResponse<AiReportResult> getAiReport(
+    ApiResponse<AiReportResponse> getAiReport(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long planId
     );

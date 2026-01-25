@@ -8,4 +8,8 @@ public class AiReportException extends GlobalException {
     public AiReportException(ErrorType errorType) {
         super(errorType);
     }
+
+    public AiReportException(String message, Throwable cause) {
+        super(message, cause, AiReportErrorType.AI_RESPONSE_PARSING_FAILED);
+    }
 }

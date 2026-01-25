@@ -13,7 +13,6 @@ import starlight.adapter.aireport.report.dto.SectionGradingResult;
 import starlight.adapter.aireport.report.provider.SpringAiAdvisorProvider;
 import starlight.adapter.aireport.report.provider.ReportPromptProvider;
 import starlight.application.aireport.util.AiReportResponseParser;
-import starlight.application.aireport.util.SectionScoreExtractor;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.shared.enumerate.SectionType;
 
@@ -100,9 +99,6 @@ public class SpringAiSectionGradeAgent implements SectionGradeAgent {
             // 섹션별 응답 파싱 메소드 사용
             AiReportResult sectionResponse = responseParser.parseSectionResponse(llmResponse);
 
-            // SectionScoreExtractor를 사용하여 점수 추출
-            Integer score = SectionScoreExtractor.extractScore(getSectionType(), sectionResponse);
-
             // sectionScores에서 해당 섹션 찾기
             String sectionTypeString = getSectionType().name();
             AiReportResult.SectionScoreDetailResponse sectionScore = sectionResponse.sectionScores().stream()
@@ -110,11 +106,34 @@ public class SpringAiSectionGradeAgent implements SectionGradeAgent {
                     .findFirst()
                     .orElse(null);
 
+            if (sectionScore == null) {
+                return SectionGradingResult.failure(
+                        getSectionType(),
+                        "섹션 점수 누락: sectionScore 없음 (섹션: " + getSectionType() + ")");
+            }
+
+            Integer score = getRawScoreForSection(sectionResponse);
+            if (score == null) {
+                return SectionGradingResult.failure(
+                        getSectionType(),
+                        "섹션 점수 누락: score 없음 (섹션: " + getSectionType() + ")");
+            }
+
             return SectionGradingResult.success(getSectionType(), score, sectionScore);
 
         } catch (Exception e) {
             log.error("[{}] 응답 파싱 실패", getSectionType(), e);
             return SectionGradingResult.failure(getSectionType(), "파싱 실패: " + e.getMessage());
         }
+    }
+
+    private Integer getRawScoreForSection(AiReportResult result) {
+        return switch (getSectionType()) {
+            case PROBLEM_RECOGNITION -> result.problemRecognitionScore();
+            case FEASIBILITY -> result.feasibilityScore();
+            case GROWTH_STRATEGY -> result.growthStrategyScore();
+            case TEAM_COMPETENCE -> result.teamCompetenceScore();
+            default -> null;
+        };
     }
 }

@@ -126,7 +126,7 @@ public class AiReportService implements AiReportUseCase {
         try {
             rawJsonString = objectMapper.writeValueAsString(gradingJsonNode);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to convert JsonNode to string", e);
+            throw new AiReportException("Failed to convert JsonNode to string", e);
         }
         return rawJsonString;
     }
