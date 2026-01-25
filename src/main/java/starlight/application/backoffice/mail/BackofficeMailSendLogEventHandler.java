@@ -25,7 +25,7 @@ public class BackofficeMailSendLogEventHandler {
     public void handle(BackofficeMailSendEvent event) {
         String recipients = EmailMaskingUtils.maskRecipients(event.to());
 
-        BackofficeMailSendLog log = BackofficeMailSendLog.create(
+        BackofficeMailSendLog mailSendLog = BackofficeMailSendLog.create(
                 recipients,
                 event.subject(),
                 event.contentType(),
@@ -34,7 +34,7 @@ public class BackofficeMailSendLogEventHandler {
         );
 
         try {
-            logCommandPort.save(log);
+            logCommandPort.save(mailSendLog);
         } catch (DataAccessException exception) {
             log.warn("[MAIL] send log save failed. subject={}", event.subject(), exception);
         }
