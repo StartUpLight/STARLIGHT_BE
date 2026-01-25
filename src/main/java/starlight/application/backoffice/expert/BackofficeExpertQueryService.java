@@ -31,7 +31,22 @@ public class BackofficeExpertQueryService implements BackofficeExpertQueryUseCas
         Map<Long, Long> countMap = expertApplicationLookupPort.countByExpertIds(expertIds);
 
         return experts.stream()
-                .map(expert -> BackofficeExpertDetailResult.from(expert, countMap.getOrDefault(expert.getId(), 0L)))
+                .map(expert -> BackofficeExpertDetailResult.from(
+                        expert,
+                        countMap.getOrDefault(expert.getId(), 0L)
+                ))
                 .toList();
+    }
+
+    @Override
+    public BackofficeExpertDetailResult findById(Long expertId) {
+        Expert expert = expertQueryPort.findByIdOrThrow(expertId);
+
+        Map<Long, Long> countMap = expertApplicationLookupPort.countByExpertIds(
+                List.of(expertId)
+        );
+        long count = countMap.getOrDefault(expertId, 0L);
+
+        return BackofficeExpertDetailResult.from(expert, count);
     }
 }

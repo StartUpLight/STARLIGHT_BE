@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ExpertJpa implements ExpertQueryPort,
         starlight.application.backoffice.expert.required.BackofficeExpertQueryPort,
+        starlight.application.backoffice.expert.required.BackofficeExpertCommandPort,
         starlight.application.expertReport.required.ExpertLookupPort,
         starlight.application.expertApplication.required.ExpertLookupPort {
 
@@ -29,6 +30,32 @@ public class ExpertJpa implements ExpertQueryPort,
         return repository.findById(id).orElseThrow(
                 () -> new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND)
         );
+    }
+
+    @Override
+    public Expert findByIdWithCareersTagsCategories(Long id) {
+        try {
+            List<Expert> experts = fetchWithCollections(List.of(id));
+            if (experts.isEmpty()) {
+                throw new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND);
+            }
+            return experts.get(0);
+        } catch (ExpertException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("전문가 상세 조회 중 오류가 발생했습니다.", e);
+            throw new ExpertException(ExpertErrorType.EXPERT_QUERY_ERROR);
+        }
+    }
+
+    @Override
+    public Expert save(Expert expert) {
+        return repository.save(expert);
+    }
+
+    @Override
+    public void delete(Expert expert) {
+        repository.delete(expert);
     }
 
     @Override

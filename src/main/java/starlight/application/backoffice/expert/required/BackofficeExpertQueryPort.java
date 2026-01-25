@@ -6,5 +6,9 @@ import java.util.List;
 
 public interface BackofficeExpertQueryPort {
 
+    Expert findByIdOrThrow(Long id);
+
+    Expert findByIdWithCareersTagsCategories(Long id);
+
     List<Expert> findAllWithCareersTagsCategories();
 }

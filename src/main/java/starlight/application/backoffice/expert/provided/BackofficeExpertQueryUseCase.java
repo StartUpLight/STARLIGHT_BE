@@ -7,4 +7,6 @@ import java.util.List;
 public interface BackofficeExpertQueryUseCase {
 
     List<BackofficeExpertDetailResult> searchAll();
+
+    BackofficeExpertDetailResult findById(Long expertId);
 }

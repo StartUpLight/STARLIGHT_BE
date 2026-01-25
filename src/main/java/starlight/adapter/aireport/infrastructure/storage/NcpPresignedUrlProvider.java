@@ -79,12 +79,14 @@ public class NcpPresignedUrlProvider implements PresignedUrlProviderPort {
                     .key(key)
                     .acl(ObjectCannedACL.PUBLIC_READ)
                     .build();
+
             ncpS3Client.putObjectAcl(aclRequest);
             log.info("객체 공개 처리 완료(PUBLIC_READ): key={}", objectUrl);
         } catch (S3Exception e) {
             log.error("객체 공개 처리 실패 - Message: {}", e.getMessage());
             throw new RuntimeException("객체 공개 처리 실패: " + e.getMessage(), e);
         }
+
         return objectUrl;
     }
 
