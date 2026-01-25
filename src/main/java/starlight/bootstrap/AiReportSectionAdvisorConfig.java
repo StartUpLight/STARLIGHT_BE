@@ -1,4 +1,4 @@
-package starlight.adapter.aireport.report.config;
+package starlight.bootstrap;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Configuration
 @RequiredArgsConstructor
-public class SectionAdvisorConfig {
+public class AiReportSectionAdvisorConfig {
     
     private final ChatClient.Builder chatClientBuilder;
     private final ReportPromptProvider reportPromptProvider;
