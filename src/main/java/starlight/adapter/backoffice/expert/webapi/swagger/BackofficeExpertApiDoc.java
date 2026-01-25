@@ -39,6 +39,38 @@ public interface BackofficeExpertApiDoc {
                     content = @Content(
                             array = @ArraySchema(schema = @Schema(implementation = BackofficeExpertListResponse.class))
                     )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "조회 오류",
+                    content = @Content(examples = {
+                            @ExampleObject(
+                                    name = "전문가 조회 오류",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "EXPERT_QUERY_ERROR",
+                                        "message": "전문가 정보를 조회하는 중에 오류가 발생했습니다."
+                                      }
+                                    }
+                                    """
+                            ),
+                            @ExampleObject(
+                                    name = "신청 건수 조회 오류",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "EXPERT_APPLICATION_QUERY_ERROR",
+                                        "message": "전문가 신청 정보를 조회하는 중에 오류가 발생했습니다."
+                                      }
+                                    }
+                                    """
+                            )
+                    })
             )
     })
     @GetMapping
@@ -89,22 +121,26 @@ public interface BackofficeExpertApiDoc {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
                     description = "전문가 조회 실패",
+                    content = @Content(examples = @ExampleObject(
+                            name = "전문가 없음",
+                            value = """
+                            {
+                              "result": "ERROR",
+                              "data": null,
+                              "error": {
+                                "code": "EXPERT_NOT_FOUND",
+                                "message": "해당 전문가를 찾을 수 없습니다."
+                              }
+                            }
+                            """
+                    ))
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "조회 오류",
                     content = @Content(examples = {
                             @ExampleObject(
-                                    name = "전문가 없음",
-                                    value = """
-                                    {
-                                      "result": "ERROR",
-                                      "data": null,
-                                      "error": {
-                                        "code": "EXPERT_NOT_FOUND",
-                                        "message": "해당 전문가를 찾을 수 없습니다."
-                                      }
-                                    }
-                                    """
-                            ),
-                            @ExampleObject(
-                                    name = "조회 오류",
+                                    name = "전문가 조회 오류",
                                     value = """
                                     {
                                       "result": "ERROR",
@@ -112,6 +148,19 @@ public interface BackofficeExpertApiDoc {
                                       "error": {
                                         "code": "EXPERT_QUERY_ERROR",
                                         "message": "전문가 정보를 조회하는 중에 오류가 발생했습니다."
+                                      }
+                                    }
+                                    """
+                            ),
+                            @ExampleObject(
+                                    name = "신청 건수 조회 오류",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "EXPERT_APPLICATION_QUERY_ERROR",
+                                        "message": "전문가 신청 정보를 조회하는 중에 오류가 발생했습니다."
                                       }
                                     }
                                     """
@@ -126,6 +175,88 @@ public interface BackofficeExpertApiDoc {
 
     @Operation(
             summary = "전문가 상세 수정(백오피스)",
+            security = @SecurityRequirement(name = "backofficeSession")
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "성공"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "요청 값 오류",
+                    content = @Content(examples = {
+                            @ExampleObject(
+                                    name = "요청 값 오류",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "INVALID_REQUEST_ARGUMENT",
+                                        "message": "잘못된 요청 인자입니다."
+                                      }
+                                    }
+                                    """
+                            ),
+                            @ExampleObject(
+                                    name = "경력 정보 오류",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "EXPERT_CAREER_INVALID",
+                                        "message": "경력 정보가 올바르지 않습니다."
+                                      }
+                                    }
+                                    """
+                            )
+                    })
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "전문가 조회 실패",
+                    content = @Content(examples = @ExampleObject(
+                            name = "전문가 없음",
+                            value = """
+                            {
+                              "result": "ERROR",
+                              "data": null,
+                              "error": {
+                                "code": "EXPERT_NOT_FOUND",
+                                "message": "해당 전문가를 찾을 수 없습니다."
+                              }
+                            }
+                            """
+                    ))
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "조회 오류",
+                    content = @Content(examples = @ExampleObject(
+                            name = "전문가 조회 오류",
+                            value = """
+                            {
+                              "result": "ERROR",
+                              "data": null,
+                              "error": {
+                                "code": "EXPERT_QUERY_ERROR",
+                                "message": "전문가 정보를 조회하는 중에 오류가 발생했습니다."
+                              }
+                            }
+                            """
+                    ))
+            )
+    })
+    @PatchMapping("/{expertId}")
+    ApiResponse<?> update(
+            @PathVariable Long expertId,
+            @RequestBody BackofficeExpertUpdateRequest request
+    );
+
+    @Operation(
+            summary = "전문가 활성 상태 변경(백오피스)",
             security = @SecurityRequirement(name = "backofficeSession")
     )
     @ApiResponses({
@@ -152,50 +283,18 @@ public interface BackofficeExpertApiDoc {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
                     description = "전문가 조회 실패",
-                    content = @Content(examples = {
-                            @ExampleObject(
-                                    name = "전문가 없음",
-                                    value = """
-                                    {
-                                      "result": "ERROR",
-                                      "data": null,
-                                      "error": {
-                                        "code": "EXPERT_NOT_FOUND",
-                                        "message": "해당 전문가를 찾을 수 없습니다."
-                                      }
-                                    }
-                                    """
-                            ),
-                            @ExampleObject(
-                                    name = "조회 오류",
-                                    value = """
-                                    {
-                                      "result": "ERROR",
-                                      "data": null,
-                                      "error": {
-                                        "code": "EXPERT_QUERY_ERROR",
-                                        "message": "전문가 정보를 조회하는 중에 오류가 발생했습니다."
-                                      }
-                                    }
-                                    """
-                            )
-                    })
-            )
-    })
-    @PatchMapping("/{expertId}")
-    ApiResponse<?> update(
-            @PathVariable Long expertId,
-            @RequestBody BackofficeExpertUpdateRequest request
-    );
-
-    @Operation(
-            summary = "전문가 활성 상태 변경(백오피스)",
-            security = @SecurityRequirement(name = "backofficeSession")
-    )
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "200",
-                    description = "성공"
+                    content = @Content(examples = @ExampleObject(
+                            value = """
+                            {
+                              "result": "ERROR",
+                              "data": null,
+                              "error": {
+                                "code": "EXPERT_NOT_FOUND",
+                                "message": "해당 전문가를 찾을 수 없습니다."
+                              }
+                            }
+                            """
+                    ))
             )
     })
     @PatchMapping("/{expertId}/active-status")
@@ -224,6 +323,22 @@ public interface BackofficeExpertApiDoc {
                               "error": {
                                 "code": "INVALID_REQUEST_ARGUMENT",
                                 "message": "잘못된 요청 인자입니다."
+                              }
+                            }
+                            """
+                    ))
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "전문가 조회 실패",
+                    content = @Content(examples = @ExampleObject(
+                            value = """
+                            {
+                              "result": "ERROR",
+                              "data": null,
+                              "error": {
+                                "code": "EXPERT_NOT_FOUND",
+                                "message": "해당 전문가를 찾을 수 없습니다."
                               }
                             }
                             """

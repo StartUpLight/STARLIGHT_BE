@@ -1,7 +1,6 @@
 package starlight.adapter.backoffice.image.webapi;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import starlight.adapter.aireport.infrastructure.storage.NcpPresignedUrlProvider;
 import starlight.adapter.backoffice.image.webapi.dto.request.BackofficeImagePublicRequest;
 import starlight.adapter.backoffice.image.webapi.swagger.BackofficeImageApiDoc;
-import starlight.adapter.backoffice.image.webapi.validation.ValidImageFileName;
 import starlight.shared.apiPayload.response.ApiResponse;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 
@@ -31,14 +29,14 @@ public class BackofficeImageController implements BackofficeImageApiDoc {
 
     @GetMapping(value = "/upload-url", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<PreSignedUrlResponse> getPresignedUrl(
-            @RequestParam @ValidImageFileName String fileName
+            @RequestParam String fileName
     ) {
         return ApiResponse.success(presignedUrlProvider.getPreSignedUrl(BACKOFFICE_USER_ID, fileName));
     }
 
     @PostMapping(value = "/upload-url/public", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<String> finalizePublic(
-            @Valid @RequestBody BackofficeImagePublicRequest request
+            @RequestBody BackofficeImagePublicRequest request
     ) {
         return ApiResponse.success(presignedUrlProvider.makePublic(request.objectUrl()));
     }

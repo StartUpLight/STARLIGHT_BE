@@ -1,5 +1,6 @@
 package starlight.adapter.backoffice.image.webapi.swagger;
 
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import starlight.adapter.backoffice.image.webapi.dto.request.BackofficeImagePublicRequest;
+import starlight.adapter.backoffice.image.webapi.validation.ValidImageFileName;
 import starlight.shared.apiPayload.response.ApiResponse;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 
@@ -33,15 +35,47 @@ public interface BackofficeImageApiDoc {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
-                    description = "fileName 검증 실패",
+                    description = "요청 값 오류",
+                    content = @Content(examples = {
+                            @ExampleObject(
+                                    name = "fileName 검증 실패",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "INVALID_REQUEST_ARGUMENT",
+                                        "message": "fileName이 올바르지 않습니다."
+                                      }
+                                    }
+                                    """
+                            ),
+                            @ExampleObject(
+                                    name = "요청 값 오류",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "INVALID_REQUEST_ARGUMENT",
+                                        "message": "잘못된 요청 인자입니다."
+                                      }
+                                    }
+                                    """
+                            )
+                    })
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "Presigned URL 생성 실패",
                     content = @Content(examples = @ExampleObject(
                             value = """
                             {
                               "result": "ERROR",
                               "data": null,
                               "error": {
-                                "code": "INVALID_REQUEST_ARGUMENT",
-                                "message": "fileName이 올바르지 않습니다."
+                                "code": "INTERNAL_ERROR",
+                                "message": "알 수 없는 내부 오류입니다."
                               }
                             }
                             """
@@ -50,7 +84,7 @@ public interface BackofficeImageApiDoc {
     })
     @GetMapping(value = "/v1/backoffice/images/upload-url", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<PreSignedUrlResponse> getPresignedUrl(
-            @RequestParam String fileName
+            @RequestParam @ValidImageFileName String fileName
     );
 
     @Operation(
@@ -65,14 +99,46 @@ public interface BackofficeImageApiDoc {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
                     description = "요청 값 오류",
+                    content = @Content(examples = {
+                            @ExampleObject(
+                                    name = "요청 값 오류",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "INVALID_REQUEST_ARGUMENT",
+                                        "message": "잘못된 요청 인자입니다."
+                                      }
+                                    }
+                                    """
+                            ),
+                            @ExampleObject(
+                                    name = "JSON 형식 오류",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "INVALID_REQUEST_ARGUMENT",
+                                        "message": "잘못된 JSON 형식입니다."
+                                      }
+                                    }
+                                    """
+                            )
+                    })
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "이미지 공개 처리 실패",
                     content = @Content(examples = @ExampleObject(
                             value = """
                             {
                               "result": "ERROR",
                               "data": null,
                               "error": {
-                                "code": "INVALID_REQUEST_ARGUMENT",
-                                "message": "잘못된 요청 인자입니다."
+                                "code": "INTERNAL_ERROR",
+                                "message": "알 수 없는 내부 오류입니다."
                               }
                             }
                             """
@@ -81,6 +147,6 @@ public interface BackofficeImageApiDoc {
     })
     @PostMapping(value = "/v1/backoffice/images/upload-url/public", consumes = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<String> finalizePublic(
-            @RequestBody BackofficeImagePublicRequest request
+            @Valid @RequestBody BackofficeImagePublicRequest request
     );
 }

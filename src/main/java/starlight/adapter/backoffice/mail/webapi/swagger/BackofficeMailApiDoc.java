@@ -44,14 +44,59 @@ public interface BackofficeMailApiDoc {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
                     description = "요청 값 오류",
+                    content = @Content(examples = {
+                            @ExampleObject(
+                                    name = "요청 값 오류",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "INVALID_REQUEST_ARGUMENT",
+                                        "message": "잘못된 요청 인자입니다."
+                                      }
+                                    }
+                                    """
+                            ),
+                            @ExampleObject(
+                                    name = "contentType 오류",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "INVALID_MAIL_CONTENT_TYPE",
+                                        "message": "유효하지 않은 contentType입니다."
+                                      }
+                                    }
+                                    """
+                            ),
+                            @ExampleObject(
+                                    name = "메일 요청 오류",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "INVALID_MAIL_REQUEST",
+                                        "message": "메일 발송 요청이 유효하지 않습니다."
+                                      }
+                                    }
+                                    """
+                            )
+                    })
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "메일 전송 실패",
                     content = @Content(examples = @ExampleObject(
                             value = """
                             {
                               "result": "ERROR",
                               "data": null,
                               "error": {
-                                "code": "INVALID_REQUEST_ARGUMENT",
-                                "message": "잘못된 요청 인자입니다."
+                                "code": "MAIL_SEND_FAILED",
+                                "message": "메일 전송에 실패했습니다."
                               }
                             }
                             """
@@ -76,14 +121,46 @@ public interface BackofficeMailApiDoc {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
                     description = "요청 값 오류",
+                    content = @Content(examples = {
+                            @ExampleObject(
+                                    name = "요청 값 오류",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "INVALID_REQUEST_ARGUMENT",
+                                        "message": "잘못된 요청 인자입니다."
+                                      }
+                                    }
+                                    """
+                            ),
+                            @ExampleObject(
+                                    name = "contentType 오류",
+                                    value = """
+                                    {
+                                      "result": "ERROR",
+                                      "data": null,
+                                      "error": {
+                                        "code": "INVALID_MAIL_CONTENT_TYPE",
+                                        "message": "유효하지 않은 contentType입니다."
+                                      }
+                                    }
+                                    """
+                            )
+                    })
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "템플릿 저장 실패",
                     content = @Content(examples = @ExampleObject(
                             value = """
                             {
                               "result": "ERROR",
                               "data": null,
                               "error": {
-                                "code": "INVALID_REQUEST_ARGUMENT",
-                                "message": "잘못된 요청 인자입니다."
+                                "code": "MAIL_TEMPLATE_SAVE_FAILED",
+                                "message": "메일 템플릿 저장에 실패했습니다."
                               }
                             }
                             """
@@ -104,6 +181,22 @@ public interface BackofficeMailApiDoc {
                     responseCode = "200",
                     description = "성공",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = BackofficeMailTemplateResponse.class)))
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "템플릿 조회 실패",
+                    content = @Content(examples = @ExampleObject(
+                            value = """
+                            {
+                              "result": "ERROR",
+                              "data": null,
+                              "error": {
+                                "code": "MAIL_TEMPLATE_QUERY_FAILED",
+                                "message": "메일 템플릿 조회에 실패했습니다."
+                              }
+                            }
+                            """
+                    ))
             )
     })
     @GetMapping("/v1/backoffice/mail/templates")
@@ -123,6 +216,22 @@ public interface BackofficeMailApiDoc {
                               "result": "SUCCESS",
                               "data": "템플릿이 삭제되었습니다.",
                               "error": null
+                            }
+                            """
+                    ))
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "템플릿 삭제 실패",
+                    content = @Content(examples = @ExampleObject(
+                            value = """
+                            {
+                              "result": "ERROR",
+                              "data": null,
+                              "error": {
+                                "code": "MAIL_TEMPLATE_DELETE_FAILED",
+                                "message": "메일 템플릿 삭제에 실패했습니다."
+                              }
                             }
                             """
                     ))
