@@ -4,7 +4,7 @@ import starlight.domain.businessplan.entity.BusinessPlan;
 
 import java.util.List;
 
-public interface BusinessPlanLookupPort {
+public interface BusinessPlanQueryLookupPort {
 
     List<BusinessPlan> findAllByMemberId(Long memberId);
 }

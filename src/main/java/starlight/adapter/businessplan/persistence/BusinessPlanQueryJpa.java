@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import starlight.application.businessplan.required.BusinessPlanCommandPort;
 import starlight.application.businessplan.required.BusinessPlanQueryPort;
-import starlight.application.expert.required.BusinessPlanLookupPort;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
@@ -15,7 +14,10 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class BusinessPlanJpa implements BusinessPlanCommandPort, BusinessPlanQueryPort, BusinessPlanLookupPort {
+public class BusinessPlanQueryJpa implements BusinessPlanCommandPort, BusinessPlanQueryPort,
+        starlight.application.expert.required.BusinessPlanQueryLookupPort,
+        starlight.application.aireport.required.BusinessPlanCommandLookUpPort,
+        starlight.application.aireport.required.BusinessPlanQueryLookUpPort {
 
     private final BusinessPlanRepository businessPlanRepository;
 
@@ -51,5 +53,12 @@ public class BusinessPlanJpa implements BusinessPlanCommandPort, BusinessPlanQue
     @Override
     public List<BusinessPlan> findAllByMemberId(Long memberId) {
         return businessPlanRepository.findAllByMemberIdOrderByLastSavedAt(memberId);
+    }
+
+    @Override
+    public Long createBusinessPlanWithPdf(String title, String pdfUrl, Long memberId) {
+        BusinessPlan plan = BusinessPlan.createWithPdf(title, memberId, pdfUrl);
+        BusinessPlan saved = businessPlanRepository.save(plan);
+        return saved.getId();
     }
 }

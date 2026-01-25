@@ -9,10 +9,10 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import starlight.adapter.businessplan.persistence.BusinessPlanJpa;
+import starlight.adapter.businessplan.persistence.BusinessPlanQueryJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
 import starlight.application.businessplan.required.ChecklistGraderPort;
-import starlight.application.member.required.MemberQueryPort;
+import starlight.application.businessplan.required.MemberLookUpPort;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.SubSection;
 import starlight.domain.businessplan.enumerate.SubSectionType;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Import({ BusinessPlanService.class, BusinessPlanJpa.class,
+@Import({ BusinessPlanService.class, BusinessPlanQueryJpa.class,
         BusinessPlanServiceIntegrationTest.TestBeans.class })
 class BusinessPlanServiceIntegrationTest {
 
@@ -50,27 +50,10 @@ class BusinessPlanServiceIntegrationTest {
         }
 
         @Bean
-        MemberQueryPort memberQuery() {
-            return new MemberQueryPort() {
+        MemberLookUpPort memberLookUpPort() {
+            return new MemberLookUpPort() {
                 @Override
                 public Member findByIdOrThrow(Long memberId) {
-                    Member m = mock(Member.class);
-                    when(m.getName()).thenReturn("tester");
-                    return m;
-                }
-
-                @Override
-                public java.util.Optional<Member> findByEmail(String email) {
-                    return java.util.Optional.empty();
-                }
-
-                @Override
-                public java.util.Optional<Member> findByProviderAndProviderId(String provider, String providerId) {
-                    return java.util.Optional.empty();
-                }
-
-                @Override
-                public Member findByProviderAndProviderIdOrThrow(String provider, String providerId) {
                     Member m = mock(Member.class);
                     when(m.getName()).thenReturn("tester");
                     return m;

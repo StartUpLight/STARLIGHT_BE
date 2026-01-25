@@ -13,16 +13,17 @@ import org.springframework.context.annotation.Import;
 import starlight.application.aireport.util.AiReportResponseParser;
 import starlight.adapter.aireport.persistence.AiReportJpa;
 import starlight.adapter.aireport.persistence.AiReportRepository;
-import starlight.adapter.businessplan.persistence.BusinessPlanJpa;
+import starlight.adapter.businessplan.persistence.BusinessPlanQueryJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.AiReportCommandPort;
 import starlight.application.aireport.required.AiReportQueryPort;
-import starlight.application.aireport.required.BusinessPlanCreationPort;
 import starlight.application.aireport.required.OcrProviderPort;
 import starlight.application.aireport.required.ReportGraderPort;
 import starlight.application.businessplan.required.BusinessPlanCommandPort;
 import starlight.application.businessplan.required.BusinessPlanQueryPort;
+import starlight.application.aireport.required.BusinessPlanCommandLookUpPort;
+import starlight.application.aireport.required.BusinessPlanQueryLookUpPort;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.businessplan.entity.BusinessPlan;
@@ -37,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Import({AiReportService.class, AiReportJpa.class, BusinessPlanJpa.class, AiReportServiceIntegrationTest.TestBeans.class})
+@Import({AiReportService.class, AiReportJpa.class, BusinessPlanQueryJpa.class, AiReportServiceIntegrationTest.TestBeans.class})
 @DisplayName("AiReportService 통합 테스트")
 class AiReportServiceIntegrationTest {
 
@@ -152,18 +153,6 @@ class AiReportServiceIntegrationTest {
         }
 
         @Bean
-        BusinessPlanCreationPort businessPlanCreationPort(BusinessPlanRepository businessPlanRepository) {
-            return new BusinessPlanCreationPort() {
-                @Override
-                public Long createBusinessPlanWithPdf(String title, String pdfUrl, Long memberId) {
-                    BusinessPlan plan = BusinessPlan.createWithPdf(title, memberId, pdfUrl);
-                    BusinessPlan saved = businessPlanRepository.save(plan);
-                    return saved.getId();
-                }
-            };
-        }
-
-        @Bean
         AiReportCommandPort aiReportCommandPort(AiReportRepository aiReportRepository) {
             return new AiReportCommandPort() {
                 @Override
@@ -201,6 +190,34 @@ class AiReportServiceIntegrationTest {
         @Bean
         BusinessPlanContentExtractor businessPlanContentExtractor() {
             return new BusinessPlanContentExtractor();
+        }
+
+        @Bean
+        BusinessPlanCommandLookUpPort businessPlanCommandLookUpPort(BusinessPlanRepository businessPlanRepository) {
+            return new BusinessPlanCommandLookUpPort() {
+                @Override
+                public BusinessPlan save(BusinessPlan plan) {
+                    return businessPlanRepository.save(plan);
+                }
+
+                @Override
+                public Long createBusinessPlanWithPdf(String title, String pdfUrl, Long memberId) {
+                    BusinessPlan plan = BusinessPlan.createWithPdf(title, memberId, pdfUrl);
+                    BusinessPlan saved = businessPlanRepository.save(plan);
+                    return saved.getId();
+                }
+            };
+        }
+
+        @Bean
+        BusinessPlanQueryLookUpPort businessPlanQueryLookUpPort(BusinessPlanRepository businessPlanRepository) {
+            return new BusinessPlanQueryLookUpPort() {
+                @Override
+                public BusinessPlan findByIdOrThrow(Long id) {
+                    return businessPlanRepository.findById(id)
+                            .orElseThrow(() -> new RuntimeException("BusinessPlan not found: " + id));
+                }
+            };
         }
 
     }
