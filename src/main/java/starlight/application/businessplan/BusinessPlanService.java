@@ -15,9 +15,9 @@ import starlight.application.businessplan.provided.BusinessPlanUseCase;
 import starlight.application.businessplan.required.BusinessPlanCommandPort;
 import starlight.application.businessplan.required.BusinessPlanQueryPort;
 import starlight.application.businessplan.required.ChecklistGraderPort;
+import starlight.application.businessplan.required.MemberLookUpPort;
 import starlight.application.businessplan.util.PlainTextExtractUtils;
 import starlight.application.businessplan.util.SubSectionSupportUtils;
-import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.businessplan.entity.*;
 import starlight.domain.businessplan.enumerate.PlanStatus;
 import starlight.domain.member.entity.Member;
@@ -37,13 +37,13 @@ public class BusinessPlanService implements BusinessPlanUseCase {
 
     private final BusinessPlanCommandPort businessPlanCommandPort;
     private final BusinessPlanQueryPort businessPlanQueryPort;
-    private final MemberQueryPort memberQueryPort;
+    private final MemberLookUpPort memberLookUpPort;
     private final ChecklistGraderPort checklistGrader;
     private final ObjectMapper objectMapper;
 
     @Override
     public BusinessPlanResult.Result createBusinessPlan(Long memberId) {
-        Member member = memberQueryPort.findByIdOrThrow(memberId);
+        Member member = memberLookUpPort.findByIdOrThrow(memberId);
 
         String planTitle = member.getName() == null ? "제목 없는 사업계획서" : member.getName() + "의 사업계획서";
 
