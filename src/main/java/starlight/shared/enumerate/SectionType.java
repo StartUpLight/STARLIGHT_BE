@@ -7,11 +7,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum SectionType {
 
-    OVERVIEW("개요"),
-    PROBLEM_RECOGNITION("문제 인식"),
-    FEASIBILITY("실현 가능성"),
-    GROWTH_STRATEGY("성장 전략"),
-    TEAM_COMPETENCE("팀 역량");
+    OVERVIEW("개요", null),
+    PROBLEM_RECOGNITION("문제 인식", "problem_recognition"),
+    FEASIBILITY("실현 가능성", "feasibility"),
+    GROWTH_STRATEGY("성장 전략", "growth_strategy"),
+    TEAM_COMPETENCE("팀 역량", "team_competence");
 
     private final String description;
+    private final String tag;
 }

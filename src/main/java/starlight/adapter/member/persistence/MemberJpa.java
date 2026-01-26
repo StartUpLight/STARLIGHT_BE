@@ -2,6 +2,7 @@ package starlight.adapter.member.persistence;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import starlight.application.businessplan.required.MemberLookUpPort;
 import starlight.application.member.required.MemberCommandPort;
 import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.member.entity.Member;
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class MemberJpa implements MemberQueryPort, MemberCommandPort {
+public class MemberJpa implements MemberQueryPort, MemberCommandPort, MemberLookUpPort {
 
     private final MemberRepository memberRepository;
 
@@ -31,13 +32,6 @@ public class MemberJpa implements MemberQueryPort, MemberCommandPort {
     @Override
     public Optional<Member> findByProviderAndProviderId(String provider, String providerId) {
         return memberRepository.findByProviderAndProviderId(provider, providerId);
-    }
-
-    @Override
-    public Member findByProviderAndProviderIdOrThrow(String provider, String providerId) {
-        return memberRepository.findByProviderAndProviderId(provider, providerId).orElseThrow(
-                () -> new MemberException(MemberErrorType.MEMBER_NOT_FOUND)
-        );
     }
 
     @Override

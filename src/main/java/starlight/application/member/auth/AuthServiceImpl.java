@@ -11,8 +11,8 @@ import starlight.application.member.auth.provided.dto.SignInInput;
 import starlight.application.member.auth.provided.dto.SignUpInput;
 import starlight.application.member.auth.required.KeyValueMap;
 import starlight.application.member.auth.required.TokenProvider;
-import starlight.application.member.provided.CredentialService;
-import starlight.application.member.provided.MemberQueryUseCase;
+import starlight.application.member.provided.CredentialUseCase;
+import starlight.application.member.provided.MemberUseCase;
 import starlight.domain.member.auth.exception.AuthErrorType;
 import starlight.domain.member.auth.exception.AuthException;
 import starlight.domain.member.entity.Credential;
@@ -25,8 +25,8 @@ import starlight.domain.member.exception.MemberException;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthUseCase {
 
-    private final MemberQueryUseCase memberQueryUseCase;
-    private final CredentialService credentialService;
+    private final MemberUseCase memberQueryUseCase;
+    private final CredentialUseCase credentialService;
     private final TokenProvider tokenProvider;
     private final KeyValueMap redisClient;
 

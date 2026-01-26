@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import starlight.adapter.businessplan.webapi.dto.SpellCheckResponse;
 import starlight.adapter.businessplan.spellcheck.dto.Finding;
 import starlight.adapter.businessplan.webapi.swagger.SpellCheckApiDoc;
-import starlight.application.businessplan.required.SpellChecker;
+import starlight.application.businessplan.required.SpellCheckerPort;
 import starlight.adapter.businessplan.webapi.dto.SubSectionCreateRequest;
 import starlight.application.businessplan.util.PlainTextExtractUtils;
 import starlight.shared.apiPayload.response.ApiResponse;
@@ -22,7 +22,7 @@ import java.util.List;
 public class SpellController implements SpellCheckApiDoc {
 
     private final ObjectMapper objectMapper;
-    private final SpellChecker spellChecker;
+    private final SpellCheckerPort spellChecker;
 
     @Override
     public ApiResponse<SpellCheckResponse> check(

@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import starlight.application.expert.provided.ExpertAiReportQueryUseCase;
 import starlight.application.expert.provided.dto.ExpertAiReportBusinessPlanResult;
 import starlight.application.expert.required.AiReportSummaryLookupPort;
-import starlight.application.expert.required.BusinessPlanLookupPort;
+import starlight.application.expert.required.BusinessPlanQueryLookupPort;
 import starlight.application.expert.required.ExpertApplicationCountLookupPort;
 import starlight.domain.businessplan.entity.BusinessPlan;
 
@@ -19,14 +19,14 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ExpertAiReportQueryService implements ExpertAiReportQueryUseCase {
 
-    private final BusinessPlanLookupPort businessPlanLookupPort;
+    private final BusinessPlanQueryLookupPort businessPlanQueryLookupPort;
     private final AiReportSummaryLookupPort aiReportSummaryLookupPort;
     private final ExpertApplicationCountLookupPort expertApplicationCountLookupPort;
 
     @Override
     public List<ExpertAiReportBusinessPlanResult> findAiReportBusinessPlans(Long expertId, Long memberId) {
 
-        List<BusinessPlan> plans = businessPlanLookupPort.findAllByMemberId(memberId);
+        List<BusinessPlan> plans = businessPlanQueryLookupPort.findAllByMemberId(memberId);
         if (plans.isEmpty()) {
             return List.of();
         }
