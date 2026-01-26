@@ -9,6 +9,7 @@ import starlight.application.backoffice.mail.provided.dto.input.BackofficeMailTe
 import starlight.application.backoffice.mail.provided.dto.result.BackofficeMailTemplateResult;
 import starlight.application.backoffice.mail.required.BackofficeMailTemplateCommandPort;
 import starlight.application.backoffice.mail.required.BackofficeMailTemplateQueryPort;
+import starlight.application.backoffice.mail.util.BackofficeMailContentTypeParser;
 import starlight.domain.backoffice.exception.BackofficeErrorType;
 import starlight.domain.backoffice.exception.BackofficeException;
 import starlight.domain.backoffice.mail.BackofficeMailContentType;
@@ -26,7 +27,7 @@ public class BackofficeMailTemplateService implements BackofficeMailTemplateUseC
     @Override
     @Transactional
     public BackofficeMailTemplateResult createTemplate(BackofficeMailTemplateCreateInput input) {
-        BackofficeMailContentType contentType = parseContentType(input.contentType());
+        BackofficeMailContentType contentType = BackofficeMailContentTypeParser.parse(input.contentType());
         BackofficeMailTemplate template = BackofficeMailTemplate.create(
                 input.name(),
                 input.title(),
@@ -37,17 +38,10 @@ public class BackofficeMailTemplateService implements BackofficeMailTemplateUseC
 
         try {
             BackofficeMailTemplate saved = templateCommandPort.save(template);
+
             return toResult(saved);
         } catch (DataAccessException exception) {
             throw new BackofficeException(BackofficeErrorType.MAIL_TEMPLATE_SAVE_FAILED);
-        }
-    }
-
-    private BackofficeMailContentType parseContentType(String contentType) {
-        try {
-            return BackofficeMailContentType.from(contentType);
-        } catch (IllegalArgumentException exception) {
-            throw new BackofficeException(BackofficeErrorType.INVALID_MAIL_CONTENT_TYPE);
         }
     }
 

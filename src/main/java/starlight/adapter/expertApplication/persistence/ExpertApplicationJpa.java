@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class ExpertApplicationJpa implements ExpertApplicationQueryPort,
+        starlight.application.backoffice.expert.required.BackofficeExpertApplicationCountLookupPort,
         starlight.application.expert.required.ExpertApplicationCountLookupPort,
         starlight.application.expertReport.required.ExpertApplicationCountLookupPort {
 
