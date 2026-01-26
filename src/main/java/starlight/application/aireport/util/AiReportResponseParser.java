@@ -213,10 +213,10 @@ public class AiReportResponseParser {
 
             // strengths와 weaknesses는 섹션별 응답에는 없음
             return AiReportResult.fromGradingResult(
-                    problemRecognitionScore != null ? problemRecognitionScore : 0,
-                    feasibilityScore != null ? feasibilityScore : 0,
-                    growthStrategyScore != null ? growthStrategyScore : 0,
-                    teamCompetenceScore != null ? teamCompetenceScore : 0,
+                    problemRecognitionScore,
+                    feasibilityScore,
+                    growthStrategyScore,
+                    teamCompetenceScore,
                     sectionScores,
                     List.of(), // strengths는 빈 리스트
                     List.of() // weaknesses는 빈 리스트
@@ -367,10 +367,23 @@ public class AiReportResponseParser {
      * JsonNode를 파싱하여 AiReportResponse로 변환
      */
     private AiReportResult parseFromJsonNode(JsonNode jsonNode) {
-        Integer problemRecognitionScore = jsonNode.path("problemRecognitionScore").asInt(0);
-        Integer feasibilityScore = jsonNode.path("feasibilityScore").asInt(0);
-        Integer growthStrategyScore = jsonNode.path("growthStrategyScore").asInt(0);
-        Integer teamCompetenceScore = jsonNode.path("teamCompetenceScore").asInt(0);
+        Integer problemRecognitionScore = null;
+        Integer feasibilityScore = null;
+        Integer growthStrategyScore = null;
+        Integer teamCompetenceScore = null;
+
+        if (jsonNode.has("problemRecognitionScore") && !jsonNode.path("problemRecognitionScore").isNull()) {
+            problemRecognitionScore = jsonNode.path("problemRecognitionScore").asInt();
+        }
+        if (jsonNode.has("feasibilityScore") && !jsonNode.path("feasibilityScore").isNull()) {
+            feasibilityScore = jsonNode.path("feasibilityScore").asInt();
+        }
+        if (jsonNode.has("growthStrategyScore") && !jsonNode.path("growthStrategyScore").isNull()) {
+            growthStrategyScore = jsonNode.path("growthStrategyScore").asInt();
+        }
+        if (jsonNode.has("teamCompetenceScore") && !jsonNode.path("teamCompetenceScore").isNull()) {
+            teamCompetenceScore = jsonNode.path("teamCompetenceScore").asInt();
+        }
 
         // 강점 파싱
         List<AiReportResult.StrengthWeakness> strengths = parseStrengthWeaknessList(jsonNode.path("strengths"));
