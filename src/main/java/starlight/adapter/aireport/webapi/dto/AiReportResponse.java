@@ -2,6 +2,7 @@ package starlight.adapter.aireport.webapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import java.util.List;
+import java.util.Objects;
 import starlight.application.aireport.provided.dto.AiReportResult;
 
 /**
@@ -31,13 +32,21 @@ public record AiReportResponse(
     ) {}
 
     public static AiReportResponse from(AiReportResult result) {
-        List<SectionScoreDetailResponse> sectionScores = result.sectionScores().stream()
+        List<AiReportResult.SectionScoreDetailResponse> sourceSectionScores = 
+                Objects.requireNonNullElse(result.sectionScores(), List.<AiReportResult.SectionScoreDetailResponse>of());
+        List<SectionScoreDetailResponse> sectionScores = sourceSectionScores.stream()
                 .map(s -> new SectionScoreDetailResponse(s.sectionType(), s.gradingListScores()))
                 .toList();
-        List<StrengthWeakness> strengths = result.strengths().stream()
+        
+        List<AiReportResult.StrengthWeakness> sourceStrengths = 
+                Objects.requireNonNullElse(result.strengths(), List.<AiReportResult.StrengthWeakness>of());
+        List<StrengthWeakness> strengths = sourceStrengths.stream()
                 .map(s -> new StrengthWeakness(s.title(), s.content()))
                 .toList();
-        List<StrengthWeakness> weaknesses = result.weaknesses().stream()
+        
+        List<AiReportResult.StrengthWeakness> sourceWeaknesses = 
+                Objects.requireNonNullElse(result.weaknesses(), List.<AiReportResult.StrengthWeakness>of());
+        List<StrengthWeakness> weaknesses = sourceWeaknesses.stream()
                 .map(w -> new StrengthWeakness(w.title(), w.content()))
                 .toList();
 
