@@ -8,4 +8,8 @@ public class AiReportException extends GlobalException {
     public AiReportException(ErrorType errorType) {
         super(errorType);
     }
+
+    public AiReportException(ErrorType errorType, Throwable cause) {
+        super(errorType, cause);
+    }
 }

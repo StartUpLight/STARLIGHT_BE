@@ -126,7 +126,7 @@ public class AiReportService implements AiReportUseCase {
         try {
             rawJsonString = objectMapper.writeValueAsString(gradingJsonNode);
         } catch (JsonProcessingException e) {
-            throw new AiReportException(AiReportErrorType.AI_RESPONSE_PARSING_FAILED);
+            throw new AiReportException(AiReportErrorType.AI_RESPONSE_PARSING_FAILED, e);
         }
         return rawJsonString;
     }
