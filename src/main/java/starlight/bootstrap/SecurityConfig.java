@@ -8,6 +8,8 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,6 +17,14 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
@@ -39,7 +49,12 @@ public class SecurityConfig {
 
     @Value("${cors.origin.server}") String ServerBaseUrl;
     @Value("${cors.origin.client}") String clientBaseUrl;
+    @Value("${cors.origin.office}") String officeBaseUrl;
+    @Value("${cors.origin.develop}") String devBaseUrl;
+    @Value("${backoffice.auth.username}") String backofficeUsername;
+    @Value("${backoffice.auth.password-hash}") String backofficePasswordHash;
 
+    private final Environment environment;
     private final JwtFilter jwtFilter;
     private final ExceptionFilter exceptionFilter;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
@@ -48,6 +63,39 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
+    @Order(1)
+    public SecurityFilterChain backofficeFilterChain(HttpSecurity http) throws Exception {
+        CsrfTokenRequestAttributeHandler csrfTokenRequestHandler = new CsrfTokenRequestAttributeHandler();
+        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        boolean isDevProfile = List.of(environment.getActiveProfiles()).contains("dev");
+        if (!isDevProfile) {
+            csrfTokenRepository.setCookieCustomizer(cookie -> cookie
+                    .domain("starlight-official.co.kr")
+                    .sameSite("None")
+                    .secure(true)
+            );
+        }
+
+        http.securityMatcher("/v1/backoffice/mail/**", "/login", "/logout")
+                .cors(Customizer.withDefaults())
+                .csrf((csrf) -> csrf
+                        .csrfTokenRepository(csrfTokenRepository)
+                        .csrfTokenRequestHandler(csrfTokenRequestHandler)
+                )
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .authorizeHttpRequests((authorize) ->
+                        authorize
+                                .requestMatchers("/login", "/logout").permitAll()
+                                .anyRequest().hasRole("BACKOFFICE")
+                )
+                .formLogin(Customizer.withDefaults())
+                .logout(Customizer.withDefaults());
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable);
@@ -100,7 +148,9 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(List.of(
                 clientBaseUrl,
-                ServerBaseUrl
+                ServerBaseUrl,
+                devBaseUrl,
+                officeBaseUrl
         ));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
@@ -121,7 +171,32 @@ public class SecurityConfig {
     }
 
     @Bean
+    public UserDetailsService userDetailsService() {
+        if (backofficePasswordHash == null || backofficePasswordHash.isBlank()) {
+            throw new IllegalStateException("backoffice.auth.password-hash must be configured");
+        }
+        UserDetails user = User.builder()
+                .username(backofficeUsername)
+                .password(backofficePasswordHash)
+                .roles("BACKOFFICE")
+                .build();
+        return new InMemoryUserDetailsManager(user);
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder
+    ) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
+    }
+
+    @Bean
     public LogoutSuccessHandler logoutSuccessHandler() {
         return new HttpStatusReturningLogoutSuccessHandler();
     }
+
 }
