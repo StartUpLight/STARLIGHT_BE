@@ -446,10 +446,18 @@ public class AiReportResponseParser {
             for (JsonNode sectionScoreNode : node) {
                 try {
                     String sectionType = sectionScoreNode.path("sectionType").asText("");
-                    String gradingListScores = sectionScoreNode.path("gradingListScores").asText("[]");
+                    JsonNode gradingListNode = sectionScoreNode.path("gradingListScores");
+                    String gradingListScores;
+
+                    // gradingListScores가 JSON 배열(ArrayNode)인 경우와 문자열(TextNode)인 경우 모두 처리
+                    if (gradingListNode.isArray()) {
+                        gradingListScores = objectMapper.writeValueAsString(gradingListNode);
+                    } else {
+                        gradingListScores = gradingListNode.asText("[]");
+                    }
 
                     // gradingListScores가 유효한 JSON 문자열인지 검증
-                    if (!gradingListScores.equals("[]")) {
+                    if (!gradingListScores.equals("[]") && !gradingListScores.isEmpty()) {
                         try {
                             // JSON 배열 형식인지 확인
                             if (!gradingListScores.trim().startsWith("[")) {

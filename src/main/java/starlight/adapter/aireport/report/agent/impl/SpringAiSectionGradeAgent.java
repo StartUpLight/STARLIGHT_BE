@@ -20,6 +20,8 @@ import starlight.shared.enumerate.SectionType;
 @RequiredArgsConstructor
 public class SpringAiSectionGradeAgent implements SectionGradeAgent {
 
+    private static final int MAX_RETRIES = 3;
+
     private final SectionType sectionType;
     private final ChatClient.Builder chatClientBuilder;
     private final ReportPromptProvider reportPromptProvider;
@@ -40,47 +42,54 @@ public class SpringAiSectionGradeAgent implements SectionGradeAgent {
             return SectionGradingResult.failure(getSectionType(), "Circuit breaker is OPEN");
         }
 
-        try {
-            Prompt prompt = reportPromptProvider.createSectionGradingPrompt(
-                    getSectionType(),
-                    sectionContent);
+        Prompt prompt = reportPromptProvider.createSectionGradingPrompt(
+                getSectionType(),
+                sectionContent);
 
-            ChatClient chatClient = chatClientBuilder.build();
+        ChatClient chatClient = chatClientBuilder.build();
+        String filter = buildFilterExpression();
+        QuestionAnswerAdvisor qaAdvisor = advisorProvider
+                .getQuestionAnswerAdvisor(0.6, 3, filter);
+        SimpleLoggerAdvisor slAdvisor = advisorProvider.getSimpleLoggerAdvisor();
 
-            // SectionType의 tag만 사용
-            String filter = buildFilterExpression();
-            QuestionAnswerAdvisor qaAdvisor = advisorProvider
-                    .getQuestionAnswerAdvisor(0.6, 3, filter);
-            SimpleLoggerAdvisor slAdvisor = advisorProvider.getSimpleLoggerAdvisor();
+        Exception lastException = null;
+        SectionGradingResult lastFailureResult = null;
 
-            String llmResponse = chatClient
-                    .prompt(prompt)
-                    .options(ChatOptions.builder()
-                            .temperature(0.0)
-                            .topP(0.1)
-                            .build())
-                    .advisors(qaAdvisor, slAdvisor)
-                    .call()
-                    .content();
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                String llmResponse = chatClient
+                        .prompt(prompt)
+                        .options(ChatOptions.builder()
+                                .temperature(0.0)
+                                .topP(0.1)
+                                .build())
+                        .advisors(qaAdvisor, slAdvisor)
+                        .call()
+                        .content();
 
-            // 섹션별 응답 파싱
-            SectionGradingResult result = parseSectionResult(llmResponse);
+                SectionGradingResult result = parseSectionResult(llmResponse);
 
-            if (result.success()) {
-                circuitBreaker.recordSuccess(getSectionType());
-            } else {
-                circuitBreaker.recordFailure(getSectionType());
+                if (result.success()) {
+                    circuitBreaker.recordSuccess(getSectionType());
+                    log.info("[{}] 채점 완료: score={}, filter={}", getSectionType(), result.score(), filter);
+                    return result;
+                }
+
+                lastFailureResult = result;
+                log.warn("[{}] 채점 실패 (시도 {}/{}): 파싱 결과 유효하지 않음", getSectionType(), attempt, MAX_RETRIES);
+
+            } catch (Exception e) {
+                lastException = e;
+                log.warn("[{}] 채점 실패 (시도 {}/{}): {}", getSectionType(), attempt, MAX_RETRIES, e.getMessage());
             }
-
-            log.info("[{}] 채점 완료: score={}, filter={}",
-                    getSectionType(), result.score(), filter);
-            return result;
-
-        } catch (Exception e) {
-            circuitBreaker.recordFailure(getSectionType());
-            log.error("[{}] 채점 실패", getSectionType(), e);
-            return SectionGradingResult.failure(getSectionType(), e.getMessage());
         }
+
+        circuitBreaker.recordFailure(getSectionType());
+        String errorMessage = lastException != null
+                ? "파싱 실패: " + lastException.getMessage()
+                : (lastFailureResult != null ? lastFailureResult.errorMessage() : "모든 재시도 실패");
+        log.error("[{}] 채점 최종 실패 ({}회 시도)", getSectionType(), MAX_RETRIES);
+        return SectionGradingResult.failure(getSectionType(), errorMessage);
     }
 
     private String buildFilterExpression() {
