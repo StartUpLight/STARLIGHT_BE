@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +18,9 @@ import org.springframework.stereotype.Service;
 public class SpringAiAdvisorProvider {
 
     private final VectorStore vectorStore;
+
+    @Value("${prompt.report.qa-advisor.template}")
+    private String qaAdvisorTemplate;
 
     public QuestionAnswerAdvisor getQuestionAnswerAdvisor(double similarityThreshold, int topK, String filter){
         SearchRequest.Builder builder = SearchRequest.builder()
@@ -26,10 +32,15 @@ public class SpringAiAdvisorProvider {
         }
 
         SearchRequest searchRequest = builder.build();
+        PromptTemplate promptTemplate = PromptTemplate.builder()
+                .renderer(StTemplateRenderer.builder().startDelimiterToken('{').endDelimiterToken('}').build())
+                .template(qaAdvisorTemplate)
+                .build();
 
         return QuestionAnswerAdvisor
                 .builder(vectorStore)
                 .searchRequest(searchRequest)
+                .promptTemplate(promptTemplate)
                 .build();
     }
 
