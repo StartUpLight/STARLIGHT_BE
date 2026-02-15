@@ -1,4 +1,4 @@
-package starlight.adapter.aireport.infrastructure.storage;
+package starlight.adapter.shared.infrastructure.storage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

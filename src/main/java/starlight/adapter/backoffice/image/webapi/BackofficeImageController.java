@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import starlight.adapter.aireport.infrastructure.storage.NcpPresignedUrlProvider;
+import starlight.adapter.shared.infrastructure.storage.NcpPresignedUrlProvider;
 import starlight.adapter.backoffice.image.webapi.dto.request.BackofficeImagePublicRequest;
 import starlight.adapter.backoffice.image.webapi.swagger.BackofficeImageApiDoc;
 import starlight.shared.apiPayload.response.ApiResponse;

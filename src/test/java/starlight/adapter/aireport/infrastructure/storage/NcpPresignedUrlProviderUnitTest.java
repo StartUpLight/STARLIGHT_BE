@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
-import starlight.adapter.aireport.infrastructure.storage.NcpPresignedUrlProvider;
+import starlight.adapter.shared.infrastructure.storage.NcpPresignedUrlProvider;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 
 import java.net.URL;
