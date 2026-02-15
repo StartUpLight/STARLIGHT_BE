@@ -21,7 +21,7 @@ import starlight.domain.businessplan.entity.BaseSection;
 import starlight.domain.businessplan.enumerate.SubSectionType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
 import starlight.shared.enumerate.SectionType;
-import starlight.application.businessplan.required.MemberLookUpPort;
+import starlight.application.businessplan.required.MemberLookupPort;
 import starlight.domain.member.entity.Member;
 
 import java.util.List;
@@ -50,7 +50,7 @@ class BusinessPlanServiceUnitTest {
     private ObjectMapper objectMapper;
 
     @Mock
-    private MemberLookUpPort memberLookUpPort;
+    private MemberLookupPort memberLookupPort;
 
     @InjectMocks
     private BusinessPlanService sut;
@@ -67,10 +67,10 @@ class BusinessPlanServiceUnitTest {
             when(objectMapper.writeValueAsString(any())).thenReturn("{}");
         } catch (Exception ignored) {
         }
-        // memberLookUpPort 기본 스텁
+        // memberLookupPort 기본 스텁
         Member stubMember = mock(Member.class);
         when(stubMember.getName()).thenReturn("tester");
-        when(memberLookUpPort.findByIdOrThrow(anyLong())).thenReturn(stubMember);
+        when(memberLookupPort.findByIdOrThrow(anyLong())).thenReturn(stubMember);
     }
 
     @Test
