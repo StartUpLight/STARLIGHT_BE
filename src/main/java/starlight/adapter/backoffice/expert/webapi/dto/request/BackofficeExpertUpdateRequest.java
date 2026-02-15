@@ -22,7 +22,7 @@ public record BackofficeExpertUpdateRequest(
 ) {
     public BackofficeExpertUpdateInput toInput(Long expertId) {
         List<BackofficeExpertCareerUpdateInput> careerInputs = careers == null
-                ? List.of()
+                ? null
                 : careers.stream()
                         .map(career -> new BackofficeExpertCareerUpdateInput(
                                 career.id(),

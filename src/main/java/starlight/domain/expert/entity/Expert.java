@@ -173,7 +173,7 @@ public class Expert extends AbstractEntity {
 
             ExpertCareer career = careerById.get(update.id());
             if (career == null) {
-                throw new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND);
+                throw new ExpertException(ExpertErrorType.EXPERT_CAREER_INVALID);
             }
 
             career.update(

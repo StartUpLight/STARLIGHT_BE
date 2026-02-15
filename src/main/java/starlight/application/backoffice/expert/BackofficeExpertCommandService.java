@@ -56,7 +56,9 @@ public class BackofficeExpertCommandService implements BackofficeExpertCommandUs
         expert.replaceTags(input.tags());
         expert.replaceCategories(input.categories());
 
-        expert.syncCareers(toCareerUpdates(input.careers()));
+        if (input.careers() != null) {
+            expert.syncCareers(toCareerUpdates(input.careers()));
+        }
     }
 
     @Override

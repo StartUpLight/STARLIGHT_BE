@@ -2,7 +2,6 @@ package starlight.application.backoffice.mail;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
 import org.springframework.dao.DataAccessException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -21,7 +20,7 @@ public class BackofficeMailSendLogEventHandler {
     private final BackofficeMailSendLogCommandPort logCommandPort;
 
     @Async("emailTaskExecutor")
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
     public void handle(BackofficeMailSendEvent event) {
         String recipients = EmailMaskingUtils.maskRecipients(event.to());
 

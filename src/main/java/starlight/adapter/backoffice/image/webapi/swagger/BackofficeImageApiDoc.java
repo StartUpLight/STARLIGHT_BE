@@ -30,7 +30,8 @@ public interface BackofficeImageApiDoc {
                     responseCode = "200",
                     description = "성공",
                     content = @Content(
-                            schema = @Schema(implementation = PreSignedUrlResponse.class)
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiResponse.class)
                     )
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -94,7 +95,20 @@ public interface BackofficeImageApiDoc {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "성공"
+                    description = "성공",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiResponse.class),
+                            examples = @ExampleObject(
+                                    value = """
+                                    {
+                                      "result": "SUCCESS",
+                                      "data": "https://bucket.example.com/path/to/object.jpg",
+                                      "error": null
+                                    }
+                                    """
+                            )
+                    )
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",

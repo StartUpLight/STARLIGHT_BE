@@ -13,6 +13,8 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 import starlight.application.aireport.required.PresignedUrlProviderPort;
+import starlight.domain.aireport.exception.AiReportErrorType;
+import starlight.domain.aireport.exception.AiReportException;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 
 import java.net.URLEncoder;
@@ -84,7 +86,7 @@ public class NcpPresignedUrlProvider implements PresignedUrlProviderPort {
             log.info("객체 공개 처리 완료(PUBLIC_READ): key={}", objectUrl);
         } catch (S3Exception e) {
             log.error("객체 공개 처리 실패 - Message: {}", e.getMessage());
-            throw new RuntimeException("객체 공개 처리 실패: " + e.getMessage(), e);
+            throw new AiReportException(AiReportErrorType.OBJECT_ACL_UPDATE_FAILED, e);
         }
 
         return objectUrl;

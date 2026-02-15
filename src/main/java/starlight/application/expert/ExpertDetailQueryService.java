@@ -46,7 +46,7 @@ public class ExpertDetailQueryService implements ExpertDetailQueryUseCase {
     public ExpertDetailResult findById(Long expertId) {
         Expert expert = expertQueryPort.findByIdWithCareersAndTags(expertId);
         if (expert.getActiveStatus() != ExpertActiveStatus.ACTIVE) {
-            throw new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND);
+            throw new ExpertException(ExpertErrorType.EXPERT_NOT_ACTIVE);
         }
         Map<Long, Long> countMap = expertApplicationLookupPort.countByExpertIds(List.of(expertId));
         long count = countMap.getOrDefault(expertId, 0L);
