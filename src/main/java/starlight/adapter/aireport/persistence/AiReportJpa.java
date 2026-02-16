@@ -2,8 +2,9 @@ package starlight.adapter.aireport.persistence;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import starlight.adapter.ai.util.AiReportResponseParser;
-import starlight.application.aireport.required.AiReportQuery;
+import starlight.application.aireport.util.AiReportResponseParser;
+import starlight.application.aireport.required.AiReportCommandPort;
+import starlight.application.aireport.required.AiReportQueryPort;
 import starlight.application.expert.required.AiReportSummaryLookupPort;
 import starlight.domain.aireport.entity.AiReport;
 
@@ -15,7 +16,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class AiReportJpa implements AiReportQuery, AiReportSummaryLookupPort {
+public class AiReportJpa implements AiReportCommandPort, AiReportQueryPort, AiReportSummaryLookupPort {
 
     private final AiReportRepository aiReportRepository;
     private final AiReportResponseParser responseParser;

@@ -44,7 +44,8 @@ public class ExpertCareer extends AbstractEntity {
         return expertCareer;
     }
 
-    public void update(String title, String explanation, LocalDateTime startedAt, LocalDateTime endedAt) {
+    public void update(int orderIndex, String title, String explanation, LocalDateTime startedAt, LocalDateTime endedAt) {
+        this.orderIndex = orderIndex;
         this.careerTitle = title;
         this.careerExplanation = explanation;
         this.careerStartedAt = startedAt;

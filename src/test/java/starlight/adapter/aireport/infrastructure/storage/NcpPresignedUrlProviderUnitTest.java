@@ -14,7 +14,8 @@ import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
-import starlight.adapter.aireport.infrastructure.storage.NcpPresignedUrlProvider;
+import starlight.adapter.shared.infrastructure.storage.NcpPresignedUrlProvider;
+import starlight.domain.aireport.exception.AiReportException;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 
 import java.net.URL;
@@ -149,8 +150,8 @@ class NcpPresignedUrlProviderUnitTest {
 
         // when & then
         assertThatThrownBy(() -> presignedUrlProvider.makePublic(objectUrl))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("객체 공개 처리 실패");
+                .isInstanceOf(AiReportException.class)
+                .hasMessageContaining("객체 공개 처리에 실패했습니다.");
 
         verify(ncpS3Client).putObjectAcl(any(PutObjectAclRequest.class));
     }

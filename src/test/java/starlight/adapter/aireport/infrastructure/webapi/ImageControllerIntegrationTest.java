@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import starlight.adapter.aireport.webapi.ImageController;
 import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.adapter.member.auth.security.filter.JwtFilter;
-import starlight.application.aireport.required.PresignedUrlProvider;
+import starlight.application.aireport.required.PresignedUrlProviderPort;
 import starlight.bootstrap.SecurityConfig;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
@@ -43,7 +43,7 @@ class ImageControllerIntegrationTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private PresignedUrlProvider presignedUrlProvider;
+    private PresignedUrlProviderPort presignedUrlProvider;
 
     @MockitoBean
     JpaMetamodelMappingContext jpaMetamodelMappingContext;

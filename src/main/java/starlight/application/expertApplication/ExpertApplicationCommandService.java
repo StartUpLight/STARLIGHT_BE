@@ -7,12 +7,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import starlight.application.businessplan.required.BusinessPlanQuery;
+import starlight.application.businessplan.required.BusinessPlanQueryPort;
 import starlight.application.expertApplication.event.FeedbackRequestInput;
 import starlight.application.expertApplication.provided.ExpertApplicationCommandUseCase;
 import starlight.application.expertApplication.required.ExpertLookupPort;
 import starlight.application.expertApplication.required.ExpertApplicationQueryPort;
-import starlight.application.expertReport.provided.ExpertReportServiceUseCase;
+import starlight.application.expertReport.provided.ExpertReportUseCase;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.PlanStatus;
 import starlight.domain.businessplan.exception.BusinessPlanException;
@@ -32,10 +32,10 @@ import java.time.format.DateTimeFormatter;
 public class ExpertApplicationCommandService implements ExpertApplicationCommandUseCase {
 
     private final ExpertLookupPort expertLookupPort;
-    private final BusinessPlanQuery planQuery;
+    private final BusinessPlanQueryPort planQuery;
     private final ExpertApplicationQueryPort applicationQueryPort;
     private final ApplicationEventPublisher eventPublisher;
-    private final ExpertReportServiceUseCase expertReportUseCase;
+    private final ExpertReportUseCase expertReportUseCase;
 
     private static final long MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
     private static final String ALLOWED_CONTENT_TYPE = "application/pdf";

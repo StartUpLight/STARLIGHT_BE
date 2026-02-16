@@ -1,0 +1,54 @@
+package starlight.application.member;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import starlight.domain.member.auth.exception.AuthException;
+import starlight.domain.member.entity.Credential;
+import starlight.domain.member.entity.Member;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class CredentialServiceUnitTest {
+
+    @Mock PasswordEncoder passwordEncoder;
+    @InjectMocks
+    CredentialService sut;
+
+    @Test
+    void createCredential_정상_해싱후_저장() {
+        when(passwordEncoder.encode("raw-pw")).thenReturn("HASHED");
+        Credential created = sut.createCredential("raw-pw");
+
+        verify(passwordEncoder).encode("raw-pw");
+        assertNotNull(created);
+    }
+
+    @Test
+    void checkPassword_일치하면_예외없음() {
+        Member member = mock(Member.class);
+        Credential cred = mock(Credential.class);
+        when(member.getCredential()).thenReturn(cred);
+        when(cred.getPassword()).thenReturn("HASHED");
+        when(passwordEncoder.matches("pw", "HASHED")).thenReturn(true);
+
+        assertDoesNotThrow(() -> sut.checkPassword(member, "pw"));
+        verify(passwordEncoder).matches("pw", "HASHED");
+    }
+
+    @Test
+    void checkPassword_불일치면_AuthException() {
+        Member member = mock(Member.class);
+        Credential cred = mock(Credential.class);
+        when(member.getCredential()).thenReturn(cred);
+        when(cred.getPassword()).thenReturn("HASHED");
+        when(passwordEncoder.matches("bad", "HASHED")).thenReturn(false);
+
+        assertThrows(AuthException.class, () -> sut.checkPassword(member, "bad"));
+    }
+}
