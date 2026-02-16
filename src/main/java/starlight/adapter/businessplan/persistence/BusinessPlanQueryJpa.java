@@ -16,8 +16,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BusinessPlanQueryJpa implements BusinessPlanCommandPort, BusinessPlanQueryPort,
         starlight.application.expert.required.BusinessPlanQueryLookupPort,
-        starlight.application.aireport.required.BusinessPlanCommandLookUpPort,
-        starlight.application.aireport.required.BusinessPlanQueryLookUpPort {
+        starlight.application.aireport.required.BusinessPlanCommandLookupPort,
+        starlight.application.aireport.required.BusinessPlanQueryLookupPort {
 
     private final BusinessPlanRepository businessPlanRepository;
 

@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Import;
 import starlight.adapter.businessplan.persistence.BusinessPlanQueryJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
 import starlight.application.businessplan.required.ChecklistGraderPort;
-import starlight.application.businessplan.required.MemberLookUpPort;
+import starlight.application.businessplan.required.MemberLookupPort;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.SubSection;
 import starlight.domain.businessplan.enumerate.SubSectionType;
@@ -50,8 +50,8 @@ class BusinessPlanServiceIntegrationTest {
         }
 
         @Bean
-        MemberLookUpPort memberLookUpPort() {
-            return new MemberLookUpPort() {
+        MemberLookupPort memberLookupPort() {
+            return new MemberLookupPort() {
                 @Override
                 public Member findByIdOrThrow(Long memberId) {
                     Member m = mock(Member.class);

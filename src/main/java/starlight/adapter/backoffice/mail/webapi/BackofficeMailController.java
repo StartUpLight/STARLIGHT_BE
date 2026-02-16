@@ -1,11 +1,13 @@
 package starlight.adapter.backoffice.mail.webapi;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import starlight.adapter.backoffice.mail.webapi.dto.request.BackofficeMailSendRequest;
 import starlight.adapter.backoffice.mail.webapi.dto.request.BackofficeMailTemplateCreateRequest;
 import starlight.adapter.backoffice.mail.webapi.dto.response.BackofficeMailTemplateResponse;
+import starlight.adapter.backoffice.mail.webapi.swagger.BackofficeMailApiDoc;
 import starlight.application.backoffice.mail.provided.BackofficeMailSendUseCase;
 import starlight.application.backoffice.mail.provided.BackofficeMailTemplateUseCase;
 import starlight.shared.apiPayload.response.ApiResponse;
@@ -14,7 +16,8 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class BackofficeMailController {
+@SecurityRequirement(name = "backofficeSession")
+public class BackofficeMailController implements BackofficeMailApiDoc {
 
     private final BackofficeMailSendUseCase backofficeMailSendUseCase;
     private final BackofficeMailTemplateUseCase templateUseCase;

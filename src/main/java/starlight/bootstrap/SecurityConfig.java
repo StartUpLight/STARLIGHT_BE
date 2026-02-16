@@ -47,12 +47,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${cors.origin.server}") String ServerBaseUrl;
+    @Value("${cors.origin.server}") String serverBaseUrl;
     @Value("${cors.origin.client}") String clientBaseUrl;
     @Value("${cors.origin.office}") String officeBaseUrl;
     @Value("${cors.origin.develop}") String devBaseUrl;
     @Value("${backoffice.auth.username}") String backofficeUsername;
     @Value("${backoffice.auth.password-hash}") String backofficePasswordHash;
+    @Value("${backoffice.csrf.cookie-domain}") String backofficeCsrfCookieDomain;
 
     private final Environment environment;
     private final JwtFilter jwtFilter;
@@ -70,13 +71,13 @@ public class SecurityConfig {
         boolean isDevProfile = List.of(environment.getActiveProfiles()).contains("dev");
         if (!isDevProfile) {
             csrfTokenRepository.setCookieCustomizer(cookie -> cookie
-                    .domain("starlight-official.co.kr")
+                    .domain(backofficeCsrfCookieDomain)
                     .sameSite("None")
                     .secure(true)
             );
         }
 
-        http.securityMatcher("/v1/backoffice/mail/**", "/login", "/logout")
+        http.securityMatcher("/v1/backoffice/**", "/login", "/logout")
                 .cors(Customizer.withDefaults())
                 .csrf((csrf) -> csrf
                         .csrfTokenRepository(csrfTokenRepository)
@@ -148,7 +149,7 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(List.of(
                 clientBaseUrl,
-                ServerBaseUrl,
+                serverBaseUrl,
                 devBaseUrl,
                 officeBaseUrl
         ));

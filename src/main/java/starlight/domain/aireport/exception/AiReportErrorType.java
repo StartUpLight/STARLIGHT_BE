@@ -14,6 +14,7 @@ public enum AiReportErrorType implements ErrorType {
     UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "권한이 없습니다."),
     AI_RESPONSE_PARSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI 응답 파싱에 실패했습니다."),
     AI_GRADING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI 채점에 실패했습니다."),
+    OBJECT_ACL_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "객체 공개 처리에 실패했습니다."),
     AI_AGENT_DUPLICATED(HttpStatus.INTERNAL_SERVER_ERROR, "AI 리포트 에이전트가 중복입니다.");
     ;
 

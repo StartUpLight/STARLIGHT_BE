@@ -39,9 +39,9 @@ public class SmtpMailSender implements MailSenderPort {
             helper.setText(body, isHtml);
 
             javaMailSender.send(message);
-            log.info("[MAIL] sent to={} subject={}", input.to(), input.subject());
+            log.info("[MAIL] sent recipients={} subject={}", input.to().size(), input.subject());
         } catch (MessagingException e) {
-            log.error("[MAIL] send failed to={}", input.to(), e);
+            log.error("[MAIL] send failed recipients={}", input.to().size(), e);
             throw new BackofficeException(BackofficeErrorType.MAIL_SEND_FAILED, e);
         }
     }
