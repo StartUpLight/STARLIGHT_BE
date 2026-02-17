@@ -1,4 +1,4 @@
-package starlight.adapter.aireport.webapi;
+package starlight.adapter.businessplan.webapi;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -6,14 +6,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 import starlight.application.aireport.required.PresignedUrlProviderPort;
-import starlight.adapter.aireport.webapi.swagger.ImageApiDoc;
+import starlight.adapter.businessplan.webapi.swagger.BusinessPlanImageApiDoc;
 import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 @RestController
-@RequestMapping("/v1/images")
+@RequestMapping("/v1/business-plans/images")
 @RequiredArgsConstructor
-public class ImageController implements ImageApiDoc {
+public class BusinessPlanBusinessPlanImageController implements BusinessPlanImageApiDoc {
 
     private final PresignedUrlProviderPort presignedUrlReader;
 

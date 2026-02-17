@@ -12,7 +12,6 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
-import starlight.application.aireport.required.PresignedUrlProviderPort;
 import starlight.domain.aireport.exception.AiReportErrorType;
 import starlight.domain.aireport.exception.AiReportException;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
@@ -24,7 +23,8 @@ import java.time.Duration;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NcpPresignedUrlProvider implements PresignedUrlProviderPort {
+public class NcpPresignedUrlProvider implements starlight.application.aireport.required.PresignedUrlProviderPort,
+        starlight.application.backoffice.image.required.PresignedUrlProviderPort {
 
     private final S3Client ncpS3Client;
     private final S3Presigner ncpS3Presigner;

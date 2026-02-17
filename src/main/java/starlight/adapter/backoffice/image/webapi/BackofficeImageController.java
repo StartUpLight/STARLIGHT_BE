@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import starlight.adapter.backoffice.image.webapi.dto.request.BackofficeImagePublicRequest;
 import starlight.adapter.backoffice.image.webapi.swagger.BackofficeImageApiDoc;
 import starlight.adapter.backoffice.image.webapi.validation.ValidImageFileName;
-import starlight.application.aireport.required.PresignedUrlProviderPort;
+import starlight.application.backoffice.image.required.PresignedUrlProviderPort;
 import starlight.shared.apiPayload.response.ApiResponse;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 

@@ -1,4 +1,4 @@
-package starlight.adapter.aireport.infrastructure.ocr.infra;
+package starlight.adapter.shared.infrastructure.pdf;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -11,7 +11,6 @@ import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 import starlight.adapter.aireport.infrastructure.ocr.exception.OcrErrorType;
 import starlight.adapter.aireport.infrastructure.ocr.exception.OcrException;
-import starlight.adapter.aireport.infrastructure.ocr.infra.PdfDownloadClient;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -50,7 +49,7 @@ class PdfDownloadClientIntegrationTest {
 
     @Test
     @DisplayName("실제 HTTP 요청으로 PDF 다운로드 성공")
-    void downloadPdfFromUrl_RealHttpRequest_Success() throws InterruptedException {
+    void downloadFromUrl_RealHttpRequest_Success() throws InterruptedException {
         // given
         byte[] expectedBytes = "PDF content".getBytes();
         mockWebServer.enqueue(new MockResponse()
@@ -61,7 +60,7 @@ class PdfDownloadClientIntegrationTest {
         String url = baseUrl + "test.pdf";
 
         // when
-        byte[] result = pdfDownloadClient.downloadPdfFromUrl(url);
+        byte[] result = pdfDownloadClient.downloadFromUrl(url);
 
         // then
         assertThat(result).isEqualTo(expectedBytes);
@@ -74,7 +73,7 @@ class PdfDownloadClientIntegrationTest {
 
     @Test
     @DisplayName("404 응답 시 PDF_DOWNLOAD_ERROR 예외 발생")
-    void downloadPdfFromUrl_Returns404_ThrowsException() {
+    void downloadFromUrl_Returns404_ThrowsException() {
         // given
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(404)
@@ -83,14 +82,14 @@ class PdfDownloadClientIntegrationTest {
         String url = baseUrl + "notfound.pdf";
 
         // when & then
-        assertThatThrownBy(() -> pdfDownloadClient.downloadPdfFromUrl(url))
+        assertThatThrownBy(() -> pdfDownloadClient.downloadFromUrl(url))
                 .isInstanceOf(OcrException.class)
                 .hasFieldOrPropertyWithValue("errorType", OcrErrorType.PDF_DOWNLOAD_ERROR);
     }
 
     @Test
     @DisplayName("500 응답 시 PDF_DOWNLOAD_ERROR 예외 발생")
-    void downloadPdfFromUrl_Returns500_ThrowsException() {
+    void downloadFromUrl_Returns500_ThrowsException() {
         // given
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(500)
@@ -99,14 +98,14 @@ class PdfDownloadClientIntegrationTest {
         String url = baseUrl + "error.pdf";
 
         // when & then
-        assertThatThrownBy(() -> pdfDownloadClient.downloadPdfFromUrl(url))
+        assertThatThrownBy(() -> pdfDownloadClient.downloadFromUrl(url))
                 .isInstanceOf(OcrException.class)
                 .hasFieldOrPropertyWithValue("errorType", OcrErrorType.PDF_DOWNLOAD_ERROR);
     }
 
     @Test
     @DisplayName("빈 응답 본문인 경우 PDF_EMPTY_RESPONSE 예외 발생")
-    void downloadPdfFromUrl_EmptyBody_ThrowsException() {
+    void downloadFromUrl_EmptyBody_ThrowsException() {
         // given
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -115,14 +114,14 @@ class PdfDownloadClientIntegrationTest {
         String url = baseUrl + "empty.pdf";
 
         // when & then
-        assertThatThrownBy(() -> pdfDownloadClient.downloadPdfFromUrl(url))
+        assertThatThrownBy(() -> pdfDownloadClient.downloadFromUrl(url))
                 .isInstanceOf(OcrException.class)
                 .hasFieldOrPropertyWithValue("errorType", OcrErrorType.PDF_EMPTY_RESPONSE);
     }
 
     @Test
     @DisplayName("쿼리 파라미터가 포함된 URL 처리")
-    void downloadPdfFromUrl_WithQueryParams_Success() throws InterruptedException {
+    void downloadFromUrl_WithQueryParams_Success() throws InterruptedException {
         // given
         byte[] expectedBytes = "PDF with params".getBytes();
         mockWebServer.enqueue(new MockResponse()
@@ -132,7 +131,7 @@ class PdfDownloadClientIntegrationTest {
         String url = baseUrl + "test.pdf?token=abc123&expires=2025-12-31";
 
         // when
-        byte[] result = pdfDownloadClient.downloadPdfFromUrl(url);
+        byte[] result = pdfDownloadClient.downloadFromUrl(url);
 
         // then
         assertThat(result).isEqualTo(expectedBytes);
@@ -144,7 +143,7 @@ class PdfDownloadClientIntegrationTest {
 
     @Test
     @DisplayName("큰 PDF 파일 다운로드 성공 (10MB)")
-    void downloadPdfFromUrl_LargeFile_Success() {
+    void downloadFromUrl_LargeFile_Success() {
         // given
         byte[] largeBytes = new byte[10 * 1024 * 1024]; // 10MB
         mockWebServer.enqueue(new MockResponse()
@@ -154,7 +153,7 @@ class PdfDownloadClientIntegrationTest {
         String url = baseUrl + "large.pdf";
 
         // when
-        byte[] result = pdfDownloadClient.downloadPdfFromUrl(url);
+        byte[] result = pdfDownloadClient.downloadFromUrl(url);
 
         // then
         assertThat(result).hasSize(10 * 1024 * 1024);
