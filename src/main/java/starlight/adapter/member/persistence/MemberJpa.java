@@ -2,7 +2,7 @@ package starlight.adapter.member.persistence;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import starlight.application.businessplan.required.MemberLookUpPort;
+import starlight.application.businessplan.required.MemberLookupPort;
 import starlight.application.member.required.MemberCommandPort;
 import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.member.entity.Member;
@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class MemberJpa implements MemberQueryPort, MemberCommandPort, MemberLookUpPort {
+public class MemberJpa implements MemberQueryPort, MemberCommandPort, MemberLookupPort {
 
     private final MemberRepository memberRepository;
 

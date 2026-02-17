@@ -22,8 +22,8 @@ import starlight.application.aireport.required.OcrProviderPort;
 import starlight.application.aireport.required.ReportGraderPort;
 import starlight.application.businessplan.required.BusinessPlanCommandPort;
 import starlight.application.businessplan.required.BusinessPlanQueryPort;
-import starlight.application.aireport.required.BusinessPlanCommandLookUpPort;
-import starlight.application.aireport.required.BusinessPlanQueryLookUpPort;
+import starlight.application.aireport.required.BusinessPlanCommandLookupPort;
+import starlight.application.aireport.required.BusinessPlanQueryLookupPort;
 import starlight.application.businessplan.util.BusinessPlanContentExtractor;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.businessplan.entity.BusinessPlan;
@@ -193,8 +193,8 @@ class AiReportServiceIntegrationTest {
         }
 
         @Bean
-        BusinessPlanCommandLookUpPort businessPlanCommandLookUpPort(BusinessPlanRepository businessPlanRepository) {
-            return new BusinessPlanCommandLookUpPort() {
+        BusinessPlanCommandLookupPort businessPlanCommandLookupPort(BusinessPlanRepository businessPlanRepository) {
+            return new BusinessPlanCommandLookupPort() {
                 @Override
                 public BusinessPlan save(BusinessPlan plan) {
                     return businessPlanRepository.save(plan);
@@ -210,8 +210,8 @@ class AiReportServiceIntegrationTest {
         }
 
         @Bean
-        BusinessPlanQueryLookUpPort businessPlanQueryLookUpPort(BusinessPlanRepository businessPlanRepository) {
-            return new BusinessPlanQueryLookUpPort() {
+        BusinessPlanQueryLookupPort businessPlanQueryLookupPort(BusinessPlanRepository businessPlanRepository) {
+            return new BusinessPlanQueryLookupPort() {
                 @Override
                 public BusinessPlan findByIdOrThrow(Long id) {
                     return businessPlanRepository.findById(id)

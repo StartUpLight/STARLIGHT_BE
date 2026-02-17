@@ -28,8 +28,8 @@ import java.util.Optional;
 @Transactional
 public class AiReportService implements AiReportUseCase {
 
-    private final BusinessPlanCommandLookUpPort businessPlanCommandLookUpPort;
-    private final BusinessPlanQueryLookUpPort businessPlanQueryLookUpPort;
+    private final BusinessPlanCommandLookupPort businessPlanCommandLookupPort;
+    private final BusinessPlanQueryLookupPort businessPlanQueryLookupPort;
     private final AiReportQueryPort aiReportQueryPort;
     private final AiReportCommandPort aiReportCommandPort;
     private final ReportGraderPort reportGrader;
@@ -42,7 +42,7 @@ public class AiReportService implements AiReportUseCase {
     public AiReportResult gradeBusinessPlan(Long planId, Long memberId) {
         log.info("사업계획서 AI 채점 시작. planId: {}, memberId: {}", planId, memberId);
 
-        BusinessPlan plan = businessPlanQueryLookUpPort.findByIdOrThrow(planId);
+        BusinessPlan plan = businessPlanQueryLookupPort.findByIdOrThrow(planId);
         checkBusinessPlanOwned(plan, memberId);
         checkBusinessPlanWritingCompleted(plan);
 
@@ -78,8 +78,8 @@ public class AiReportService implements AiReportUseCase {
     public AiReportResult createAndGradePdfBusinessPlan(String title, String pdfUrl, Long memberId) {
         log.info("PDF 사업계획서 생성 및 AI 채점 시작. title: {}, pdfUrl: {}, memberId: {}", title, pdfUrl, memberId);
 
-        Long businessPlanId = businessPlanCommandLookUpPort.createBusinessPlanWithPdf(title, pdfUrl, memberId);
-        BusinessPlan plan = businessPlanQueryLookUpPort.findByIdOrThrow(businessPlanId);
+        Long businessPlanId = businessPlanCommandLookupPort.createBusinessPlanWithPdf(title, pdfUrl, memberId);
+        BusinessPlan plan = businessPlanQueryLookupPort.findByIdOrThrow(businessPlanId);
 
         log.debug("OCR 시작. pdfUrl: {}", pdfUrl);
         String pdfText = ocrProvider.ocrPdfTextByUrl(pdfUrl);
@@ -111,7 +111,7 @@ public class AiReportService implements AiReportUseCase {
     @Override
     @Transactional(readOnly = true)
     public AiReportResult getAiReport(Long planId, Long memberId) {
-        BusinessPlan plan = businessPlanQueryLookUpPort.findByIdOrThrow(planId);
+        BusinessPlan plan = businessPlanQueryLookupPort.findByIdOrThrow(planId);
         checkBusinessPlanOwned(plan, memberId);
 
         AiReport aiReport = aiReportQueryPort.findByBusinessPlanId(planId)
@@ -143,7 +143,7 @@ public class AiReportService implements AiReportUseCase {
         }
 
         plan.updateStatus(PlanStatus.AI_REVIEWED);
-        businessPlanCommandLookUpPort.save(plan);
+        businessPlanCommandLookupPort.save(plan);
 
         return aiReportCommandPort.save(aiReport);
     }

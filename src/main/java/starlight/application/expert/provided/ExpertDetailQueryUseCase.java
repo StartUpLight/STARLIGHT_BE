@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ExpertDetailQueryUseCase {
 
-    List<ExpertDetailResult> searchAll();
+    List<ExpertDetailResult> searchAllActive();
 
     ExpertDetailResult findById(Long expertId);
 }
