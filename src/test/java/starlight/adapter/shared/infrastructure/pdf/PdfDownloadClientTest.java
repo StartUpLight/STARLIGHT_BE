@@ -5,8 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
-import starlight.adapter.aireport.infrastructure.ocr.exception.OcrErrorType;
-import starlight.adapter.aireport.infrastructure.ocr.exception.OcrException;
+import starlight.adapter.shared.infrastructure.pdf.exception.PdfDownloadErrorType;
+import starlight.adapter.shared.infrastructure.pdf.exception.PdfDownloadException;
 
 import java.net.URI;
 
@@ -71,8 +71,8 @@ class PdfDownloadClientTest {
 
         // when & then
         assertThatThrownBy(() -> pdfDownloadClientInstance.downloadFromUrl(TEST_URL))
-                .isInstanceOf(OcrException.class)
-                .hasFieldOrPropertyWithValue("errorType", OcrErrorType.PDF_EMPTY_RESPONSE);
+                .isInstanceOf(PdfDownloadException.class)
+                .hasFieldOrPropertyWithValue("errorType", PdfDownloadErrorType.PDF_EMPTY_RESPONSE);
     }
 
     @Test
@@ -88,8 +88,8 @@ class PdfDownloadClientTest {
 
         // when & then
         assertThatThrownBy(() -> pdfDownloadClientInstance.downloadFromUrl(TEST_URL))
-                .isInstanceOf(OcrException.class)
-                .hasFieldOrPropertyWithValue("errorType", OcrErrorType.PDF_EMPTY_RESPONSE);
+                .isInstanceOf(PdfDownloadException.class)
+                .hasFieldOrPropertyWithValue("errorType", PdfDownloadErrorType.PDF_EMPTY_RESPONSE);
     }
 
     @Test
@@ -106,8 +106,8 @@ class PdfDownloadClientTest {
 
         // when & then
         assertThatThrownBy(() -> pdfDownloadClientInstance.downloadFromUrl(TEST_URL))
-                .isInstanceOf(OcrException.class)
-                .hasFieldOrPropertyWithValue("errorType", OcrErrorType.PDF_TOO_LARGE);
+                .isInstanceOf(PdfDownloadException.class)
+                .hasFieldOrPropertyWithValue("errorType", PdfDownloadErrorType.PDF_TOO_LARGE);
     }
 
     @Test
@@ -139,8 +139,8 @@ class PdfDownloadClientTest {
 
         // when & then
         assertThatThrownBy(() -> pdfDownloadClientInstance.downloadFromUrl(TEST_URL))
-                .isInstanceOf(OcrException.class)
-                .hasFieldOrPropertyWithValue("errorType", OcrErrorType.PDF_DOWNLOAD_ERROR);
+                .isInstanceOf(PdfDownloadException.class)
+                .hasFieldOrPropertyWithValue("errorType", PdfDownloadErrorType.PDF_DOWNLOAD_ERROR);
     }
 
     @Test

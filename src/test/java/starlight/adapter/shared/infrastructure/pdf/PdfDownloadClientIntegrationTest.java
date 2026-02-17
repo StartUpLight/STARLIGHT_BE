@@ -9,8 +9,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
-import starlight.adapter.aireport.infrastructure.ocr.exception.OcrErrorType;
-import starlight.adapter.aireport.infrastructure.ocr.exception.OcrException;
+import starlight.adapter.shared.infrastructure.pdf.exception.PdfDownloadErrorType;
+import starlight.adapter.shared.infrastructure.pdf.exception.PdfDownloadException;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -83,8 +83,8 @@ class PdfDownloadClientIntegrationTest {
 
         // when & then
         assertThatThrownBy(() -> pdfDownloadClient.downloadFromUrl(url))
-                .isInstanceOf(OcrException.class)
-                .hasFieldOrPropertyWithValue("errorType", OcrErrorType.PDF_DOWNLOAD_ERROR);
+                .isInstanceOf(PdfDownloadException.class)
+                .hasFieldOrPropertyWithValue("errorType", PdfDownloadErrorType.PDF_DOWNLOAD_ERROR);
     }
 
     @Test
@@ -99,8 +99,8 @@ class PdfDownloadClientIntegrationTest {
 
         // when & then
         assertThatThrownBy(() -> pdfDownloadClient.downloadFromUrl(url))
-                .isInstanceOf(OcrException.class)
-                .hasFieldOrPropertyWithValue("errorType", OcrErrorType.PDF_DOWNLOAD_ERROR);
+                .isInstanceOf(PdfDownloadException.class)
+                .hasFieldOrPropertyWithValue("errorType", PdfDownloadErrorType.PDF_DOWNLOAD_ERROR);
     }
 
     @Test
@@ -115,8 +115,8 @@ class PdfDownloadClientIntegrationTest {
 
         // when & then
         assertThatThrownBy(() -> pdfDownloadClient.downloadFromUrl(url))
-                .isInstanceOf(OcrException.class)
-                .hasFieldOrPropertyWithValue("errorType", OcrErrorType.PDF_EMPTY_RESPONSE);
+                .isInstanceOf(PdfDownloadException.class)
+                .hasFieldOrPropertyWithValue("errorType", PdfDownloadErrorType.PDF_EMPTY_RESPONSE);
     }
 
     @Test
