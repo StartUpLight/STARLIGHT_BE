@@ -11,11 +11,13 @@ public class ValidPdfUrlValidator implements ConstraintValidator<ValidPdfUrl, St
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (!StringUtils.hasText(value)) {
-            return false;
+            return true;
         }
         try {
-            URI.create(value);
-            return true;
+            URI uri = URI.create(value);
+            return "https".equalsIgnoreCase(uri.getScheme())
+                    && uri.getHost() != null
+                    && !uri.getHost().isBlank();
         } catch (IllegalArgumentException e) {
             return false;
         }

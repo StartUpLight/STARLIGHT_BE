@@ -57,8 +57,8 @@ public class PdfDownloadClient implements starlight.application.aireport.require
         } catch (PdfDownloadException e) {
             throw e;
         } catch (Exception e) {
-            log.error("PDF 다운로드 실패: {}", e.getMessage());
-            throw new PdfDownloadException(PdfDownloadErrorType.PDF_DOWNLOAD_ERROR);
+            log.error("PDF 다운로드 실패", e);
+            throw new PdfDownloadException(PdfDownloadErrorType.PDF_DOWNLOAD_ERROR, e);
         }
     }
 }
