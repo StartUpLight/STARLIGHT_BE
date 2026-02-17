@@ -13,7 +13,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import starlight.adapter.member.auth.security.auth.AuthDetails;
 import starlight.adapter.member.auth.security.filter.JwtFilter;
-import starlight.application.aireport.required.PresignedUrlProviderPort;
+import starlight.application.businessplan.required.PresignedUrlProviderPort;
 import starlight.bootstrap.SecurityConfig;
 import starlight.domain.member.entity.Member;
 import starlight.domain.member.enumerate.MemberType;
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(
-        controllers = BusinessPlanBusinessPlanImageController.class,
+        controllers = BusinessPlanImageController.class,
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
                         JwtFilter.class,

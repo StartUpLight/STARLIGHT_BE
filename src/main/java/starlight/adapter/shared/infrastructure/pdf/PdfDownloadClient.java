@@ -5,8 +5,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import starlight.adapter.aireport.infrastructure.ocr.exception.OcrErrorType;
-import starlight.adapter.aireport.infrastructure.ocr.exception.OcrException;
+import starlight.adapter.shared.infrastructure.pdf.exception.PdfDownloadErrorType;
+import starlight.adapter.shared.infrastructure.pdf.exception.PdfDownloadException;
+
 import java.net.URI;
 
 
@@ -32,7 +33,7 @@ public class PdfDownloadClient implements starlight.application.aireport.require
      *
      * @param url 다운로드할 PDF의 절대 URL(프리사인드/퍼센트 인코딩 포함 가능)
      * @return 다운로드한 PDF 바이트 배열
-     * @throws OcrException 다음의 에러타입으로 발생
+     * @throws PdfDownloadException 다음의 에러타입으로 발생
      *         - PDF_EMPTY_RESPONSE : 본문이 비어있음
      *         - PDF_TOO_LARGE      : 허용 최대 크기 초과
      *         - PDF_DOWNLOAD_ERROR : 네트워크/HTTP/기타 예외 전반
@@ -47,17 +48,17 @@ public class PdfDownloadClient implements starlight.application.aireport.require
 
             byte[] data = entity.getBody();
             if (data == null || data.length == 0) {
-                throw new OcrException(OcrErrorType.PDF_EMPTY_RESPONSE);
+                throw new PdfDownloadException(PdfDownloadErrorType.PDF_EMPTY_RESPONSE);
             }
             if (data.length > MAX_PDF_BYTES) {
-                throw new OcrException(OcrErrorType.PDF_TOO_LARGE);
+                throw new PdfDownloadException(PdfDownloadErrorType.PDF_TOO_LARGE);
             }
             return data;
-        } catch (OcrException e)  {
-            throw e; // 이미 처리된 OcrException은 재던짐
+        } catch (PdfDownloadException e) {
+            throw e;
         } catch (Exception e) {
             log.error("PDF 다운로드 실패: {}", e.getMessage());
-            throw new OcrException(OcrErrorType.PDF_DOWNLOAD_ERROR);
+            throw new PdfDownloadException(PdfDownloadErrorType.PDF_DOWNLOAD_ERROR);
         }
     }
 }

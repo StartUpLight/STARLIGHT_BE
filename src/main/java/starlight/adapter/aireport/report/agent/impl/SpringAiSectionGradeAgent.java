@@ -52,10 +52,19 @@ public class SpringAiSectionGradeAgent implements SectionGradeAgent {
                 .getQuestionAnswerAdvisor(0.6, 3, filter);
         SimpleLoggerAdvisor slAdvisor = advisorProvider.getSimpleLoggerAdvisor();
 
-        Exception lastException = null;
-        SectionGradingResult lastFailureResult = null;
+        String lastFailureMessage = null;
 
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            if (attempt > 1) {
+                try {
+                    long delay = (long) Math.pow(2, attempt - 1) * 1000L; // 2s, 4s
+                    log.info("[{}] 재시도 대기: {}ms (시도 {}/{})", getSectionType(), delay, attempt, MAX_RETRIES);
+                    Thread.sleep(delay);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
             try {
                 String llmResponse = chatClient
                         .prompt(prompt)
@@ -75,19 +84,17 @@ public class SpringAiSectionGradeAgent implements SectionGradeAgent {
                     return result;
                 }
 
-                lastFailureResult = result;
+                lastFailureMessage = result.errorMessage();
                 log.warn("[{}] 채점 실패 (시도 {}/{}): 파싱 결과 유효하지 않음", getSectionType(), attempt, MAX_RETRIES);
 
             } catch (Exception e) {
-                lastException = e;
+                lastFailureMessage = "파싱 실패: " + e.getMessage();
                 log.warn("[{}] 채점 실패 (시도 {}/{}): {}", getSectionType(), attempt, MAX_RETRIES, e.getMessage());
             }
         }
 
         circuitBreaker.recordFailure(getSectionType());
-        String errorMessage = lastException != null
-                ? "파싱 실패: " + lastException.getMessage()
-                : (lastFailureResult != null ? lastFailureResult.errorMessage() : "모든 재시도 실패");
+        String errorMessage = lastFailureMessage != null ? lastFailureMessage : "모든 재시도 실패";
         log.error("[{}] 채점 최종 실패 ({}회 시도)", getSectionType(), MAX_RETRIES);
         return SectionGradingResult.failure(getSectionType(), errorMessage);
     }
