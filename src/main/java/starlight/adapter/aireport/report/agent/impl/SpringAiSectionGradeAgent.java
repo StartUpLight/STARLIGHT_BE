@@ -12,7 +12,7 @@ import starlight.adapter.aireport.report.circuitbreaker.SectionGradingCircuitBre
 import starlight.adapter.aireport.report.dto.SectionGradingResult;
 import starlight.adapter.aireport.report.provider.SpringAiAdvisorProvider;
 import starlight.adapter.aireport.report.provider.ReportPromptProvider;
-import starlight.application.aireport.util.AiReportResponseParser;
+import starlight.adapter.aireport.report.parser.AiReportResponseParser;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.shared.enumerate.SectionType;
 

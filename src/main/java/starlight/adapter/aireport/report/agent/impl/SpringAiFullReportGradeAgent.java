@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import starlight.adapter.aireport.report.agent.FullReportGradeAgent;
 import starlight.adapter.aireport.report.provider.SpringAiAdvisorProvider;
 import starlight.adapter.aireport.report.provider.ReportPromptProvider;
-import starlight.application.aireport.util.AiReportResponseParser;
+import starlight.adapter.aireport.report.parser.AiReportResponseParser;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.domain.aireport.exception.AiReportErrorType;
 import starlight.domain.aireport.exception.AiReportException;

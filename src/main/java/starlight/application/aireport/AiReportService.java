@@ -10,8 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import starlight.application.aireport.provided.AiReportUseCase;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.*;
-import starlight.application.aireport.util.AiReportResponseParser;
-import starlight.application.businessplan.util.BusinessPlanContentExtractor;
+import starlight.application.aireport.util.BusinessPlanContentExtractor;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.aireport.exception.AiReportErrorType;
 import starlight.domain.aireport.exception.AiReportException;
@@ -32,10 +31,8 @@ public class AiReportService implements AiReportUseCase {
     private final BusinessPlanQueryLookupPort businessPlanQueryLookupPort;
     private final AiReportQueryPort aiReportQueryPort;
     private final AiReportCommandPort aiReportCommandPort;
-    private final ReportGraderPort reportGrader;
+    private final ReportGraderPort reportGraderPort;
     private final ObjectMapper objectMapper;
-    private final OcrProviderPort ocrProvider;
-    private final AiReportResponseParser responseParser;
     private final BusinessPlanContentExtractor contentExtractor;
 
     @Override
@@ -57,7 +54,7 @@ public class AiReportService implements AiReportUseCase {
             throw new AiReportException(AiReportErrorType.AI_GRADING_FAILED);
         }
 
-        AiReportResult gradingResult = reportGrader.gradeWithSectionAgents(sectionContents, fullContent);
+        AiReportResult gradingResult = reportGraderPort.gradeWithSectionAgents(sectionContents, fullContent);
 
         // 채점 결과 검증
         if (isInvalidGradingResult(gradingResult)) {
@@ -71,7 +68,7 @@ public class AiReportService implements AiReportUseCase {
 
         AiReport aiReport = upsertAiReportWithRawJsonStr(rawJsonString, plan);
 
-        return responseParser.toResponse(aiReport);
+        return AiReportResult.from(aiReport);
     }
 
     @Override
@@ -117,11 +114,11 @@ public class AiReportService implements AiReportUseCase {
         AiReport aiReport = aiReportQueryPort.findByBusinessPlanId(planId)
                 .orElseThrow(() -> new AiReportException(AiReportErrorType.AI_REPORT_NOT_FOUND));
 
-        return responseParser.toResponse(aiReport);
+        return AiReportResult.from(aiReport);
     }
 
-    private String getRawJsonAiReportResponseFromGradingResult(AiReportResult gradingResult) {
-        JsonNode gradingJsonNode = responseParser.convertToJsonNode(gradingResult);
+    private String getRawJsonStrFromAiReportResult(AiReportResult gradingResult) {
+        JsonNode gradingJsonNode = gradingResult.toJsonNode();
         String rawJsonString;
         try {
             rawJsonString = objectMapper.writeValueAsString(gradingJsonNode);
