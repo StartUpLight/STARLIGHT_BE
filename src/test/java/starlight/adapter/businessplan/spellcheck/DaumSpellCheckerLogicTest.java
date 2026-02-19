@@ -1,4 +1,4 @@
-package starlight.application.member.required;
+package starlight.adapter.businessplan.spellcheck;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestClient;
-import starlight.adapter.businessplan.spellcheck.DaumSpellChecker;
 import starlight.adapter.businessplan.spellcheck.dto.Finding;
 import starlight.adapter.businessplan.spellcheck.util.SpellCheckUtil;
 

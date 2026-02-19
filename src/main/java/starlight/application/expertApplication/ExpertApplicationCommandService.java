@@ -12,6 +12,7 @@ import starlight.application.expertApplication.event.FeedbackRequestInput;
 import starlight.application.expertApplication.provided.ExpertApplicationCommandUseCase;
 import starlight.application.expertApplication.required.ExpertLookupPort;
 import starlight.application.expertApplication.required.ExpertApplicationQueryPort;
+import starlight.application.expertApplication.required.PdfDownloadPort;
 import starlight.application.expertReport.provided.ExpertReportUseCase;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.PlanStatus;
@@ -36,6 +37,7 @@ public class ExpertApplicationCommandService implements ExpertApplicationCommand
     private final ExpertApplicationQueryPort applicationQueryPort;
     private final ApplicationEventPublisher eventPublisher;
     private final ExpertReportUseCase expertReportUseCase;
+    private final PdfDownloadPort pdfDownloadPort;
 
     private static final long MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
     private static final String ALLOWED_CONTENT_TYPE = "application/pdf";
@@ -46,17 +48,33 @@ public class ExpertApplicationCommandService implements ExpertApplicationCommand
     @Override
     @Transactional
     public void requestFeedback(Long expertId, Long planId, MultipartFile file, String menteeName) {
-        try {
-            validateFile(file);
+        BusinessPlan plan = planQuery.findByIdOrThrow(planId);
 
-            BusinessPlan plan = planQuery.findByIdOrThrow(planId);
+        final byte[] fileBytes;
+        final String filename;
+
+        if (plan.isPdfBased()) {
+            fileBytes = pdfDownloadPort.downloadFromUrl(plan.getPdfUrl());
+            filename = generateFilenameForPdfPlan(plan, menteeName);
+        } else {
+            validateFile(file);
+            try {
+                fileBytes = file.getBytes();
+            } catch (IOException e) {
+                log.error("Failed to read file. planId={}, expertId={}", planId, expertId, e);
+                throw new ExpertApplicationException(ExpertApplicationErrorType.FILE_READ_ERROR);
+            }
+            filename = generateFilename(file, plan, menteeName);
+        }
+
+        try {
             Expert expert = expertLookupPort.findByIdOrThrow(expertId);
 
             plan.updateStatus(PlanStatus.EXPERT_MATCHED);
 
             registerApplicationRecord(expertId, planId);
 
-            publishEmailEvent(expert, plan, file, menteeName);
+            publishEmailEvent(expert, plan, fileBytes, filename, menteeName);
         } catch (ExpertApplicationException | BusinessPlanException | ExpertException e) {
             throw e;
         } catch (Exception e) {
@@ -96,33 +114,30 @@ public class ExpertApplicationCommandService implements ExpertApplicationCommand
             return originalFilename;
         }
 
+        return generateFilenameForPdfPlan(plan, menteeName);
+    }
+
+    private String generateFilenameForPdfPlan(BusinessPlan plan, String menteeName) {
         return String.format("[사업계획서]%s_%s.pdf", plan.getTitle(), menteeName);
     }
 
-    protected void publishEmailEvent(Expert expert, BusinessPlan plan, MultipartFile file, String menteeName) {
-        try {
-            byte[] fileBytes = file.getBytes();
-            String filename = generateFilename(file, plan, menteeName);
-            String feedbackUrl = buildFeedbackRequestUrl(expert.getId(), plan.getId());
+    protected void publishEmailEvent(Expert expert, BusinessPlan plan, byte[] fileBytes, String filename, String menteeName) {
+        String feedbackUrl = buildFeedbackRequestUrl(expert.getId(), plan.getId());
 
-            FeedbackRequestInput event = FeedbackRequestInput.of(
-                    expert.getEmail(),
-                    expert.getName(),
-                    menteeName,
-                    plan.getTitle(),
-                    LocalDate.now().plusDays(FEEDBACK_DEADLINE_DAYS).format(DateTimeFormatter.ISO_DATE),
-                    feedbackUrl,
-                    fileBytes,
-                    filename
-            );
+        FeedbackRequestInput event = FeedbackRequestInput.of(
+                expert.getEmail(),
+                expert.getName(),
+                menteeName,
+                plan.getTitle(),
+                LocalDate.now().plusDays(FEEDBACK_DEADLINE_DAYS).format(DateTimeFormatter.ISO_DATE),
+                feedbackUrl,
+                fileBytes,
+                filename
+        );
 
-            log.info("[EMAIL] publishing FeedbackRequestEvent expertId={}, planId={}", expert.getId(), plan.getId());
+        log.info("[EMAIL] publishing FeedbackRequestEvent expertId={}, planId={}", expert.getId(), plan.getId());
 
-            eventPublisher.publishEvent(event);
-        } catch (IOException e) {
-            log.error("Failed to read file. planId={}, expertId={}", plan.getId(), expert.getId(), e);
-            throw new ExpertApplicationException(ExpertApplicationErrorType.FILE_READ_ERROR);
-        }
+        eventPublisher.publishEvent(event);
     }
 
     private String buildFeedbackRequestUrl(Long expertId, Long planId) {

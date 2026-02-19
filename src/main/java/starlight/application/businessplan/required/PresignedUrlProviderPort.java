@@ -1,4 +1,4 @@
-package starlight.application.aireport.required;
+package starlight.application.businessplan.required;
 
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 

@@ -1,4 +1,4 @@
-package starlight.adapter.backoffice.image.webapi.validation;
+package starlight.adapter.shared.webapi.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

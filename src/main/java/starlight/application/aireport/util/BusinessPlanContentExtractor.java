@@ -1,4 +1,4 @@
-package starlight.application.businessplan.util;
+package starlight.application.aireport.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

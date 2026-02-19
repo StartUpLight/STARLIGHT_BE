@@ -1,4 +1,4 @@
-package starlight.adapter.aireport.webapi.swagger;
+package starlight.adapter.businessplan.webapi.swagger;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,7 +17,7 @@ import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 @Tag(name = "UTIL", description = "유틸리티 API")
-public interface ImageApiDoc {
+public interface BusinessPlanImageApiDoc {
 
     @Operation(
             summary = "Presigned URL 발급",
@@ -46,7 +46,7 @@ public interface ImageApiDoc {
                     )
             )
     })
-    @GetMapping(value = "/v1/image/upload-url", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/v1/business-plans/images/upload-url", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<PreSignedUrlResponse> getPresignedUrl(
             @AuthenticationPrincipal AuthenticatedMember authenticatedMember,
             @io.swagger.v3.oas.annotations.Parameter(description = "파일명", required = true) @RequestParam String fileName
@@ -75,7 +75,7 @@ public interface ImageApiDoc {
                     )
             )
     })
-    @PostMapping("/v1/images/upload-url/public")
+    @PostMapping("/v1/business-plans/images/upload-url/public")
     ApiResponse<?> finalizePublic(
             @io.swagger.v3.oas.annotations.Parameter(description = "S3 Object URL", required = true) @RequestParam String objectUrl
     );

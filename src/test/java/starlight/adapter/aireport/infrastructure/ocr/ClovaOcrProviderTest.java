@@ -8,14 +8,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import starlight.adapter.aireport.infrastructure.ocr.ClovaOcrProvider;
 import starlight.adapter.aireport.infrastructure.ocr.exception.OcrErrorType;
 import starlight.adapter.aireport.infrastructure.ocr.exception.OcrException;
 import starlight.adapter.aireport.infrastructure.ocr.infra.ClovaOcrClient;
-import starlight.adapter.aireport.infrastructure.ocr.infra.PdfDownloadClient;
 import starlight.adapter.aireport.infrastructure.ocr.util.OcrResponseMerger;
 import starlight.adapter.aireport.infrastructure.ocr.util.OcrTextExtractor;
 import starlight.adapter.aireport.infrastructure.ocr.util.PdfUtils;
+import starlight.application.aireport.required.PdfDownloadPort;
 import starlight.shared.dto.infrastructure.OcrResponse;
 
 import java.util.List;
@@ -33,7 +32,7 @@ class ClovaOcrProviderTest {
     private ClovaOcrClient clovaOcrClient;
 
     @Mock
-    private PdfDownloadClient pdfDownloadClient;
+    private PdfDownloadPort pdfDownloadPort;
 
     @InjectMocks
     private ClovaOcrProvider clovaOcrProvider;
@@ -57,7 +56,7 @@ class ClovaOcrProviderTest {
         byte[] chunk = "chunk1".getBytes();
         OcrResponse expectedResponse = OcrResponse.createEmpty();
 
-        when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
+        when(pdfDownloadPort.downloadFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
 
         try (MockedStatic<PdfUtils> pdfUtilsMock = mockStatic(PdfUtils.class);
              MockedStatic<OcrResponseMerger> mergerMock = mockStatic(OcrResponseMerger.class)) {
@@ -73,7 +72,7 @@ class ClovaOcrProviderTest {
 
             // then
             assertThat(result).isEqualTo(expectedResponse);
-            verify(pdfDownloadClient).downloadPdfFromUrl(TEST_PDF_URL);
+            verify(pdfDownloadPort).downloadFromUrl(TEST_PDF_URL);
             verify(clovaOcrClient).recognizePdfBytes(chunk);
         }
     }
@@ -86,7 +85,7 @@ class ClovaOcrProviderTest {
         byte[] chunk2 = "chunk2".getBytes();
         OcrResponse mergedResponse = OcrResponse.createEmpty();
 
-        when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
+        when(pdfDownloadPort.downloadFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
 
         try (MockedStatic<PdfUtils> pdfUtilsMock = mockStatic(PdfUtils.class);
              MockedStatic<OcrResponseMerger> mergerMock = mockStatic(OcrResponseMerger.class)) {
@@ -103,7 +102,7 @@ class ClovaOcrProviderTest {
 
             // then
             assertThat(result).isEqualTo(mergedResponse);
-            verify(pdfDownloadClient).downloadPdfFromUrl(TEST_PDF_URL);
+            verify(pdfDownloadPort).downloadFromUrl(TEST_PDF_URL);
             verify(clovaOcrClient).recognizePdfBytes(chunk1);
             verify(clovaOcrClient).recognizePdfBytes(chunk2);
         }
@@ -113,7 +112,7 @@ class ClovaOcrProviderTest {
     @DisplayName("PDF 다운로드 실패 시 예외 전파")
     void ocrPdfByUrl_ThrowsException_WhenDownloadFails() {
         // given
-        when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL))
+        when(pdfDownloadPort.downloadFromUrl(TEST_PDF_URL))
                 .thenThrow(new OcrException(OcrErrorType.PDF_DOWNLOAD_ERROR));
 
         // when & then
@@ -121,7 +120,7 @@ class ClovaOcrProviderTest {
                 .isInstanceOf(OcrException.class)
                 .hasFieldOrPropertyWithValue("errorType", OcrErrorType.PDF_DOWNLOAD_ERROR);
 
-        verify(pdfDownloadClient).downloadPdfFromUrl(TEST_PDF_URL);
+        verify(pdfDownloadPort).downloadFromUrl(TEST_PDF_URL);
         verifyNoInteractions(clovaOcrClient);
     }
 
@@ -129,7 +128,7 @@ class ClovaOcrProviderTest {
     @DisplayName("PDF 분할 실패 시 예외 전파")
     void ocrPdfByUrl_ThrowsException_WhenSplitFails() {
         // given
-        when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
+        when(pdfDownloadPort.downloadFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
 
         try (MockedStatic<PdfUtils> pdfUtilsMock = mockStatic(PdfUtils.class)) {
             pdfUtilsMock.when(() -> PdfUtils.splitByPageLimit(testPdfBytes, 10))
@@ -140,7 +139,7 @@ class ClovaOcrProviderTest {
                     .isInstanceOf(OcrException.class)
                     .hasFieldOrPropertyWithValue("errorType", OcrErrorType.PDF_SPLIT_ERROR);
 
-            verify(pdfDownloadClient).downloadPdfFromUrl(TEST_PDF_URL);
+            verify(pdfDownloadPort).downloadFromUrl(TEST_PDF_URL);
             verifyNoInteractions(clovaOcrClient);
         }
     }
@@ -151,7 +150,7 @@ class ClovaOcrProviderTest {
         // given
         byte[] chunk = "chunk1".getBytes();
 
-        when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
+        when(pdfDownloadPort.downloadFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
 
         try (MockedStatic<PdfUtils> pdfUtilsMock = mockStatic(PdfUtils.class)) {
             pdfUtilsMock.when(() -> PdfUtils.splitByPageLimit(testPdfBytes, 10))
@@ -176,7 +175,7 @@ class ClovaOcrProviderTest {
         OcrResponse ocrResponse = OcrResponse.createEmpty();
         String expectedText = "Extracted text content";
 
-        when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
+        when(pdfDownloadPort.downloadFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
 
         try (MockedStatic<PdfUtils> pdfUtilsMock = mockStatic(PdfUtils.class);
              MockedStatic<OcrResponseMerger> mergerMock = mockStatic(OcrResponseMerger.class);
@@ -195,7 +194,7 @@ class ClovaOcrProviderTest {
 
             // then
             assertThat(result).isEqualTo(expectedText);
-            verify(pdfDownloadClient).downloadPdfFromUrl(TEST_PDF_URL);
+            verify(pdfDownloadPort).downloadFromUrl(TEST_PDF_URL);
             verify(clovaOcrClient).recognizePdfBytes(chunk);
         }
     }
@@ -204,7 +203,7 @@ class ClovaOcrProviderTest {
     @DisplayName("텍스트 추출 중 OCR 실패 시 예외 전파")
     void ocrPdfTextByUrl_ThrowsException_WhenOcrFails() {
         // given
-        when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL))
+        when(pdfDownloadPort.downloadFromUrl(TEST_PDF_URL))
                 .thenThrow(new OcrException(OcrErrorType.PDF_DOWNLOAD_ERROR));
 
         // when & then
@@ -219,7 +218,7 @@ class ClovaOcrProviderTest {
         // given
         OcrResponse emptyResponse = OcrResponse.createEmpty();
 
-        when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
+        when(pdfDownloadPort.downloadFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
 
         try (MockedStatic<PdfUtils> pdfUtilsMock = mockStatic(PdfUtils.class);
              MockedStatic<OcrResponseMerger> mergerMock = mockStatic(OcrResponseMerger.class)) {
@@ -234,7 +233,7 @@ class ClovaOcrProviderTest {
 
             // then
             assertThat(result).isEqualTo(emptyResponse);
-            verify(pdfDownloadClient).downloadPdfFromUrl(TEST_PDF_URL);
+            verify(pdfDownloadPort).downloadFromUrl(TEST_PDF_URL);
             verifyNoInteractions(clovaOcrClient);
         }
     }
@@ -247,7 +246,7 @@ class ClovaOcrProviderTest {
         byte[] chunk2 = "chunk2".getBytes();
         OcrResponse mergedResponse = OcrResponse.createEmpty();
 
-        when(pdfDownloadClient.downloadPdfFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
+        when(pdfDownloadPort.downloadFromUrl(TEST_PDF_URL)).thenReturn(testPdfBytes);
 
         try (MockedStatic<PdfUtils> pdfUtilsMock = mockStatic(PdfUtils.class);
              MockedStatic<OcrResponseMerger> mergerMock = mockStatic(OcrResponseMerger.class)) {

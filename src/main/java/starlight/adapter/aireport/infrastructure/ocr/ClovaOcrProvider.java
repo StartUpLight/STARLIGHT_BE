@@ -5,11 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import starlight.adapter.aireport.infrastructure.ocr.exception.OcrException;
 import starlight.adapter.aireport.infrastructure.ocr.infra.ClovaOcrClient;
-import starlight.adapter.aireport.infrastructure.ocr.infra.PdfDownloadClient;
 import starlight.adapter.aireport.infrastructure.ocr.util.OcrResponseMerger;
 import starlight.adapter.aireport.infrastructure.ocr.util.OcrTextExtractor;
 import starlight.adapter.aireport.infrastructure.ocr.util.PdfUtils;
 import starlight.application.aireport.required.OcrProviderPort;
+import starlight.application.aireport.required.PdfDownloadPort;
 import starlight.shared.dto.infrastructure.OcrResponse;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public class ClovaOcrProvider implements OcrProviderPort {
     private static final int MAX_PAGES_PER_REQUEST = 10;
 
     private final ClovaOcrClient clovaOcrClient;
-    private final PdfDownloadClient pdfDownloadClient;
+    private final PdfDownloadPort pdfDownloadPort;
 
     /**
      * 지정한 PDF URL을 전체 페이지 OCR 처리한 뒤, 단일 응답으로 병합해 반환한다.
@@ -40,7 +40,7 @@ public class ClovaOcrProvider implements OcrProviderPort {
      */
     @Override
     public OcrResponse ocrPdfByUrl(String pdfUrl) {
-        byte[] pdfBytes = pdfDownloadClient.downloadPdfFromUrl(pdfUrl);
+        byte[] pdfBytes = pdfDownloadPort.downloadFromUrl(pdfUrl);
 
         List<byte[]> chunks = PdfUtils.splitByPageLimit(pdfBytes, MAX_PAGES_PER_REQUEST);
 

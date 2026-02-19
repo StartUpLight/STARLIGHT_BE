@@ -9,7 +9,6 @@ import starlight.adapter.aireport.report.dto.SectionGradingResult;
 import starlight.adapter.aireport.report.supervisor.SpringAiReportSupervisor;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.ReportGraderPort;
-import starlight.application.businessplan.util.BusinessPlanContentExtractor;
 import starlight.domain.aireport.exception.AiReportErrorType;
 import starlight.domain.aireport.exception.AiReportException;
 import starlight.shared.enumerate.SectionType;
@@ -31,14 +30,12 @@ public class SpringAiReportGrader implements ReportGraderPort {
     private final Map<SectionType, SectionGradeAgent> sectionGradeAgentMap;
     private final FullReportGradeAgent fullReportGradeAgent;
     private final SpringAiReportSupervisor supervisor;
-    private final BusinessPlanContentExtractor contentExtractor;
     private final Executor sectionGradingExecutor;
 
     public SpringAiReportGrader(
             List<SectionGradeAgent> sectionGradeAgentList,
             FullReportGradeAgent fullReportGradeAgent,
             SpringAiReportSupervisor supervisor,
-            BusinessPlanContentExtractor contentExtractor,
             @Qualifier("sectionGradingExecutor") Executor sectionGradingExecutor) {
         try {
             this.sectionGradeAgentMap = sectionGradeAgentList.stream()
@@ -51,7 +48,6 @@ public class SpringAiReportGrader implements ReportGraderPort {
         }
         this.fullReportGradeAgent = fullReportGradeAgent;
         this.supervisor = supervisor;
-        this.contentExtractor = contentExtractor;
         this.sectionGradingExecutor = sectionGradingExecutor;
     }
 

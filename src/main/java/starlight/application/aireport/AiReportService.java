@@ -10,8 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import starlight.application.aireport.provided.AiReportUseCase;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.*;
-import starlight.application.aireport.util.AiReportResponseParser;
-import starlight.application.businessplan.util.BusinessPlanContentExtractor;
+import starlight.application.aireport.util.BusinessPlanContentExtractor;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.aireport.exception.AiReportErrorType;
 import starlight.domain.aireport.exception.AiReportException;
@@ -32,10 +31,9 @@ public class AiReportService implements AiReportUseCase {
     private final BusinessPlanQueryLookupPort businessPlanQueryLookupPort;
     private final AiReportQueryPort aiReportQueryPort;
     private final AiReportCommandPort aiReportCommandPort;
-    private final ReportGraderPort reportGrader;
+    private final ReportGraderPort reportGraderPort;
+    private final OcrProviderPort ocrProviderPort;
     private final ObjectMapper objectMapper;
-    private final OcrProviderPort ocrProvider;
-    private final AiReportResponseParser responseParser;
     private final BusinessPlanContentExtractor contentExtractor;
 
     @Override
@@ -57,7 +55,7 @@ public class AiReportService implements AiReportUseCase {
             throw new AiReportException(AiReportErrorType.AI_GRADING_FAILED);
         }
 
-        AiReportResult gradingResult = reportGrader.gradeWithSectionAgents(sectionContents, fullContent);
+        AiReportResult gradingResult = reportGraderPort.gradeWithSectionAgents(sectionContents, fullContent);
 
         // 채점 결과 검증
         if (isInvalidGradingResult(gradingResult)) {
@@ -67,11 +65,11 @@ public class AiReportService implements AiReportUseCase {
 
         log.info("채점 완료. 총점: {}, planId: {}", gradingResult.totalScore(), planId);
 
-        String rawJsonString = getRawJsonAiReportResponseFromGradingResult(gradingResult);
+        String rawJsonString = getRawJsonStrFromAiReportResult(gradingResult);
 
         AiReport aiReport = upsertAiReportWithRawJsonStr(rawJsonString, plan);
 
-        return responseParser.toResponse(aiReport);
+        return AiReportResult.from(aiReport);
     }
 
     @Override
@@ -82,7 +80,7 @@ public class AiReportService implements AiReportUseCase {
         BusinessPlan plan = businessPlanQueryLookupPort.findByIdOrThrow(businessPlanId);
 
         log.debug("OCR 시작. pdfUrl: {}", pdfUrl);
-        String pdfText = ocrProvider.ocrPdfTextByUrl(pdfUrl);
+        String pdfText = ocrProviderPort.ocrPdfTextByUrl(pdfUrl);
         log.debug("OCR 완료. 텍스트 길이: {}", pdfText != null ? pdfText.length() : 0);
 
         if (pdfText == null || pdfText.trim().isEmpty()) {
@@ -91,7 +89,7 @@ public class AiReportService implements AiReportUseCase {
         }
 
         // PDF의 경우 기존 한 번에 LLM에 돌리는 방식을 사용
-        AiReportResult gradingResult = reportGrader.gradeWithFullPrompt(pdfText);
+        AiReportResult gradingResult = reportGraderPort.gradeWithFullPrompt(pdfText);
 
         // 채점 결과 검증
         if (isInvalidGradingResult(gradingResult)) {
@@ -101,11 +99,11 @@ public class AiReportService implements AiReportUseCase {
 
         log.info("PDF 채점 완료. 총점: {}, businessPlanId: {}", gradingResult.totalScore(), businessPlanId);
 
-        String rawJsonString = getRawJsonAiReportResponseFromGradingResult(gradingResult);
+        String rawJsonString = getRawJsonStrFromAiReportResult(gradingResult);
 
         AiReport aiReport = upsertAiReportWithRawJsonStr(rawJsonString, plan);
 
-        return responseParser.toResponse(aiReport);
+        return AiReportResult.from(aiReport);
     }
 
     @Override
@@ -117,11 +115,11 @@ public class AiReportService implements AiReportUseCase {
         AiReport aiReport = aiReportQueryPort.findByBusinessPlanId(planId)
                 .orElseThrow(() -> new AiReportException(AiReportErrorType.AI_REPORT_NOT_FOUND));
 
-        return responseParser.toResponse(aiReport);
+        return AiReportResult.from(aiReport);
     }
 
-    private String getRawJsonAiReportResponseFromGradingResult(AiReportResult gradingResult) {
-        JsonNode gradingJsonNode = responseParser.convertToJsonNode(gradingResult);
+    private String getRawJsonStrFromAiReportResult(AiReportResult gradingResult) {
+        JsonNode gradingJsonNode = gradingResult.toJsonNode();
         String rawJsonString;
         try {
             rawJsonString = objectMapper.writeValueAsString(gradingJsonNode);
