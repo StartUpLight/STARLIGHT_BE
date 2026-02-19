@@ -32,6 +32,7 @@ public class AiReportService implements AiReportUseCase {
     private final AiReportQueryPort aiReportQueryPort;
     private final AiReportCommandPort aiReportCommandPort;
     private final ReportGraderPort reportGraderPort;
+    private final OcrProviderPort ocrProviderPort;
     private final ObjectMapper objectMapper;
     private final BusinessPlanContentExtractor contentExtractor;
 
@@ -64,7 +65,7 @@ public class AiReportService implements AiReportUseCase {
 
         log.info("채점 완료. 총점: {}, planId: {}", gradingResult.totalScore(), planId);
 
-        String rawJsonString = getRawJsonAiReportResponseFromGradingResult(gradingResult);
+        String rawJsonString = getRawJsonStrFromAiReportResult(gradingResult);
 
         AiReport aiReport = upsertAiReportWithRawJsonStr(rawJsonString, plan);
 
@@ -79,7 +80,7 @@ public class AiReportService implements AiReportUseCase {
         BusinessPlan plan = businessPlanQueryLookupPort.findByIdOrThrow(businessPlanId);
 
         log.debug("OCR 시작. pdfUrl: {}", pdfUrl);
-        String pdfText = ocrProvider.ocrPdfTextByUrl(pdfUrl);
+        String pdfText = ocrProviderPort.ocrPdfTextByUrl(pdfUrl);
         log.debug("OCR 완료. 텍스트 길이: {}", pdfText != null ? pdfText.length() : 0);
 
         if (pdfText == null || pdfText.trim().isEmpty()) {
@@ -88,7 +89,7 @@ public class AiReportService implements AiReportUseCase {
         }
 
         // PDF의 경우 기존 한 번에 LLM에 돌리는 방식을 사용
-        AiReportResult gradingResult = reportGrader.gradeWithFullPrompt(pdfText);
+        AiReportResult gradingResult = reportGraderPort.gradeWithFullPrompt(pdfText);
 
         // 채점 결과 검증
         if (isInvalidGradingResult(gradingResult)) {
@@ -98,11 +99,11 @@ public class AiReportService implements AiReportUseCase {
 
         log.info("PDF 채점 완료. 총점: {}, businessPlanId: {}", gradingResult.totalScore(), businessPlanId);
 
-        String rawJsonString = getRawJsonAiReportResponseFromGradingResult(gradingResult);
+        String rawJsonString = getRawJsonStrFromAiReportResult(gradingResult);
 
         AiReport aiReport = upsertAiReportWithRawJsonStr(rawJsonString, plan);
 
-        return responseParser.toResponse(aiReport);
+        return AiReportResult.from(aiReport);
     }
 
     @Override
