@@ -1,4 +1,4 @@
-package starlight.adapter.aireport.infrastructure.storage;
+package starlight.adapter.shared.infrastructure.storage;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

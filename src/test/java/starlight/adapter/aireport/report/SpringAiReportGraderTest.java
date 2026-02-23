@@ -7,7 +7,6 @@ import starlight.adapter.aireport.report.agent.SectionGradeAgent;
 import starlight.adapter.aireport.report.dto.SectionGradingResult;
 import starlight.adapter.aireport.report.supervisor.SpringAiReportSupervisor;
 import starlight.application.aireport.provided.dto.AiReportResult;
-import starlight.application.businessplan.util.BusinessPlanContentExtractor;
 import starlight.shared.enumerate.SectionType;
 
 import java.util.HashMap;
@@ -44,7 +43,6 @@ class SpringAiReportGraderTest {
                 List.of(),
                 fullReportGradeAgent,
                 mock(SpringAiReportSupervisor.class),
-                mock(BusinessPlanContentExtractor.class),
                 mock(Executor.class)
         );
 
@@ -126,7 +124,7 @@ class SpringAiReportGraderTest {
 
         FullReportGradeAgent fullReportGradeAgent = mock(FullReportGradeAgent.class);
         SpringAiReportSupervisor supervisor = mock(SpringAiReportSupervisor.class);
-        BusinessPlanContentExtractor contentExtractor = mock(BusinessPlanContentExtractor.class);
+
         // 실제 Executor 사용 (비동기 실행을 위해)
         Executor executor = Executors.newFixedThreadPool(4);
 
@@ -134,7 +132,6 @@ class SpringAiReportGraderTest {
                 sectionAgents,
                 fullReportGradeAgent,
                 supervisor,
-                contentExtractor,
                 executor
         );
 

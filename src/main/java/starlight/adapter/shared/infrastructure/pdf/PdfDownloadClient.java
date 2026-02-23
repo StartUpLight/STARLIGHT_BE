@@ -1,24 +1,26 @@
-package starlight.adapter.aireport.infrastructure.ocr.infra;
+package starlight.adapter.shared.infrastructure.pdf;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import starlight.adapter.aireport.infrastructure.ocr.exception.OcrErrorType;
-import starlight.adapter.aireport.infrastructure.ocr.exception.OcrException;
+import starlight.adapter.shared.infrastructure.pdf.exception.PdfDownloadErrorType;
+import starlight.adapter.shared.infrastructure.pdf.exception.PdfDownloadException;
 
 import java.net.URI;
 
+
 @Slf4j
 @Component
-public class PdfDownloadClient {
+public class PdfDownloadClient implements starlight.application.aireport.required.PdfDownloadPort,
+        starlight.application.expertApplication.required.PdfDownloadPort {
 
     private static final int MAX_PDF_BYTES = 30 * 1024 * 1024; // 30MB까지 허용
 
     private final RestClient pdfDownloadClient;
 
-    public PdfDownloadClient(@Qualifier("pdfDownloadRestClient") RestClient downloadClient) {
+    PdfDownloadClient(@Qualifier("pdfDownloadRestClient") RestClient downloadClient) {
         this.pdfDownloadClient = downloadClient;
     }
 
@@ -31,12 +33,13 @@ public class PdfDownloadClient {
      *
      * @param url 다운로드할 PDF의 절대 URL(프리사인드/퍼센트 인코딩 포함 가능)
      * @return 다운로드한 PDF 바이트 배열
-     * @throws OcrException 다음의 에러타입으로 발생
+     * @throws PdfDownloadException 다음의 에러타입으로 발생
      *         - PDF_EMPTY_RESPONSE : 본문이 비어있음
      *         - PDF_TOO_LARGE      : 허용 최대 크기 초과
      *         - PDF_DOWNLOAD_ERROR : 네트워크/HTTP/기타 예외 전반
      */
-    public byte[] downloadPdfFromUrl(String url) {
+    @Override
+    public byte[] downloadFromUrl(String url) {
         try {
             ResponseEntity<byte[]> entity = pdfDownloadClient.get()
                     .uri(URI.create(url))
@@ -45,17 +48,17 @@ public class PdfDownloadClient {
 
             byte[] data = entity.getBody();
             if (data == null || data.length == 0) {
-                throw new OcrException(OcrErrorType.PDF_EMPTY_RESPONSE);
+                throw new PdfDownloadException(PdfDownloadErrorType.PDF_EMPTY_RESPONSE);
             }
             if (data.length > MAX_PDF_BYTES) {
-                throw new OcrException(OcrErrorType.PDF_TOO_LARGE);
+                throw new PdfDownloadException(PdfDownloadErrorType.PDF_TOO_LARGE);
             }
             return data;
-        } catch (OcrException e)  {
-            throw e; // 이미 처리된 OcrException은 재던짐
+        } catch (PdfDownloadException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("PDF 다운로드 실패: {}", e.getMessage());
-            throw new OcrException(OcrErrorType.PDF_DOWNLOAD_ERROR);
+            log.error("PDF 다운로드 실패", e);
+            throw new PdfDownloadException(PdfDownloadErrorType.PDF_DOWNLOAD_ERROR, e);
         }
     }
 }

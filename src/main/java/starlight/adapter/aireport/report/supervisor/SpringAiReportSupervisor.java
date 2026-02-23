@@ -11,7 +11,7 @@ import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import starlight.adapter.aireport.report.dto.SectionGradingResult;
-import starlight.application.aireport.util.AiReportResponseParser;
+import starlight.adapter.aireport.report.parser.AiReportResponseParser;
 import starlight.application.aireport.provided.dto.AiReportResult;
 
 import java.util.HashMap;
