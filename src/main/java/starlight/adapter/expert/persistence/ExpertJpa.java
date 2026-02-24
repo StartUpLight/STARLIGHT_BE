@@ -3,11 +3,14 @@ package starlight.adapter.expert.persistence;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import starlight.application.backoffice.expertapplication.required.ExpertLookupPort;
 import starlight.application.expert.required.ExpertQueryPort;
 import starlight.domain.expert.entity.Expert;
 import starlight.domain.expert.exception.ExpertErrorType;
 import starlight.domain.expert.exception.ExpertException;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class ExpertJpa implements ExpertQueryPort,
+        ExpertLookupPort,
         starlight.application.backoffice.expert.required.BackofficeExpertQueryPort,
         starlight.application.backoffice.expert.required.BackofficeExpertCommandPort,
         starlight.application.expertReport.required.ExpertLookupPort,
@@ -61,12 +65,10 @@ public class ExpertJpa implements ExpertQueryPort,
     @Override
     public Expert findByIdWithCareersAndTags(Long id) {
         try {
-            List<Expert> experts = repository.fetchExpertsWithCareersByIds(List.of(id));
+            List<Expert> experts = fetchWithCollections(List.of(id));
             if (experts.isEmpty()) {
                 throw new ExpertException(ExpertErrorType.EXPERT_NOT_FOUND);
             }
-
-            repository.fetchExpertsWithTagsByIds(List.of(id));
 
             return experts.get(0);
         } catch (ExpertException e) {
@@ -90,10 +92,25 @@ public class ExpertJpa implements ExpertQueryPort,
 
     @Override
     public Map<Long, Expert> findByIds(Set<Long> expertIds) {
-        List<Expert> experts = repository.findAllByIds(expertIds);
+        if (expertIds == null || expertIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<Expert> experts = fetchWithCollections(expertIds.stream().toList());
 
         return experts.stream()
                 .collect(Collectors.toMap(Expert::getId, Function.identity()));
+    }
+
+    @Override
+    public Map<Long, String> findExpertNamesByIds(Collection<Long> expertIds) {
+        if (expertIds == null || expertIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<Expert> experts = repository.findAllByIds(Set.copyOf(expertIds));
+        return experts.stream()
+                .collect(Collectors.toMap(Expert::getId, Expert::getName));
     }
 
     private List<Expert> fetchWithCollections(List<Long> ids) {

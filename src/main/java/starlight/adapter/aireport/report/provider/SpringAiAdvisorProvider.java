@@ -11,6 +11,7 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 @Slf4j
@@ -19,7 +20,7 @@ public class SpringAiAdvisorProvider {
 
     private final VectorStore vectorStore;
 
-    @Value("${prompt.report.qa-advisor.template}")
+    @Value("${prompt.report.qa-advisor.template:}")
     private String qaAdvisorTemplate;
 
     public QuestionAnswerAdvisor getQuestionAnswerAdvisor(double similarityThreshold, int topK, String filter){
@@ -32,16 +33,19 @@ public class SpringAiAdvisorProvider {
         }
 
         SearchRequest searchRequest = builder.build();
-        PromptTemplate promptTemplate = PromptTemplate.builder()
-                .renderer(StTemplateRenderer.builder().startDelimiterToken('{').endDelimiterToken('}').build())
-                .template(qaAdvisorTemplate)
-                .build();
-
-        return QuestionAnswerAdvisor
+        QuestionAnswerAdvisor.Builder advisorBuilder = QuestionAnswerAdvisor
                 .builder(vectorStore)
-                .searchRequest(searchRequest)
-                .promptTemplate(promptTemplate)
-                .build();
+                .searchRequest(searchRequest);
+
+        if (StringUtils.hasText(qaAdvisorTemplate)) {
+            PromptTemplate promptTemplate = PromptTemplate.builder()
+                    .renderer(StTemplateRenderer.builder().startDelimiterToken('{').endDelimiterToken('}').build())
+                    .template(qaAdvisorTemplate)
+                    .build();
+            advisorBuilder.promptTemplate(promptTemplate);
+        }
+
+        return advisorBuilder.build();
     }
 
     public SimpleLoggerAdvisor getSimpleLoggerAdvisor(){
