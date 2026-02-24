@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import starlight.adapter.backoffice.image.webapi.dto.request.BackofficeImagePublicRequest;
-import starlight.adapter.backoffice.image.webapi.validation.ValidImageFileName;
+import starlight.adapter.shared.webapi.validation.ValidImageFileName;
 import starlight.shared.apiPayload.response.ApiResponse;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 

@@ -2,7 +2,7 @@ package starlight.adapter.aireport.persistence;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import starlight.application.aireport.util.AiReportResponseParser;
+import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.AiReportCommandPort;
 import starlight.application.aireport.required.AiReportQueryPort;
 import starlight.application.backoffice.businessplan.required.BackofficeBusinessPlanScoreLookupPort;
@@ -22,7 +22,6 @@ public class AiReportJpa implements AiReportCommandPort, AiReportQueryPort,
         AiReportSummaryLookupPort, BackofficeBusinessPlanScoreLookupPort {
 
     private final AiReportRepository aiReportRepository;
-    private final AiReportResponseParser responseParser;
 
     @Override
     public AiReport save(AiReport aiReport) {
@@ -44,7 +43,7 @@ public class AiReportJpa implements AiReportCommandPort, AiReportQueryPort,
         Map<Long, Integer> totalScoreMap = new HashMap<>();
 
         for (AiReport report : reports) {
-            Integer totalScore = responseParser.toResponse(report).totalScore();
+            Integer totalScore = AiReportResult.from(report).totalScore();
             totalScoreMap.put(report.getBusinessPlanId(), totalScore != null ? totalScore : 0);
         }
 
