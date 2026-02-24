@@ -14,7 +14,8 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ExpertReportJpa implements ExpertReportQueryPort, ExpertReportCommandPort {
+public class ExpertReportJpa implements ExpertReportQueryPort, ExpertReportCommandPort,
+        starlight.application.backoffice.expertapplication.required.ExpertReportLookupPort {
 
     private final ExpertReportRepository repository;
 

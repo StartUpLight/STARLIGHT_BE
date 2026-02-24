@@ -4,12 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import starlight.application.backoffice.expertapplication.required.BusinessPlanLookupPort;
+import starlight.application.backoffice.businessplan.required.BackofficeBusinessPlanQueryPort;
 import starlight.application.businessplan.required.BusinessPlanCommandPort;
 import starlight.application.businessplan.required.BusinessPlanQueryPort;
 import starlight.domain.businessplan.entity.BusinessPlan;
+import starlight.domain.businessplan.enumerate.PlanStatus;
 import starlight.domain.businessplan.exception.BusinessPlanErrorType;
 import starlight.domain.businessplan.exception.BusinessPlanException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -17,7 +21,9 @@ import java.util.List;
 public class BusinessPlanQueryJpa implements BusinessPlanCommandPort, BusinessPlanQueryPort,
         starlight.application.expert.required.BusinessPlanQueryLookupPort,
         starlight.application.aireport.required.BusinessPlanCommandLookupPort,
-        starlight.application.aireport.required.BusinessPlanQueryLookupPort {
+        starlight.application.aireport.required.BusinessPlanQueryLookupPort,
+        BusinessPlanLookupPort,
+        BackofficeBusinessPlanQueryPort {
 
     private final BusinessPlanRepository businessPlanRepository;
 
@@ -60,5 +66,26 @@ public class BusinessPlanQueryJpa implements BusinessPlanCommandPort, BusinessPl
         BusinessPlan plan = BusinessPlan.createWithPdf(title, memberId, pdfUrl);
         BusinessPlan saved = businessPlanRepository.save(plan);
         return saved.getId();
+    }
+
+    @Override
+    public Page<BusinessPlan> findBusinessPlanPage(
+            PlanStatus status,
+            String keyword,
+            List<Long> memberIds,
+            Pageable pageable
+    ) {
+        return businessPlanRepository.findBackofficePage(status, keyword, memberIds, pageable);
+    }
+
+    @Override
+    public List<BusinessPlan> findBusinessPlansForDashboard(
+            PlanStatus status,
+            String keyword,
+            List<Long> memberIds,
+            LocalDateTime from,
+            LocalDateTime to
+    ) {
+        return businessPlanRepository.findBackofficeAllForDashboard(status, keyword, memberIds, from, to);
     }
 }
