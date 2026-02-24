@@ -6,6 +6,7 @@ import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.AiReportCommandPort;
 import starlight.application.aireport.required.AiReportQueryPort;
 import starlight.application.backoffice.businessplan.required.BackofficeBusinessPlanScoreLookupPort;
+import starlight.application.backoffice.member.required.BackofficeUserBusinessPlanScoreLookupPort;
 import starlight.application.expert.required.AiReportSummaryLookupPort;
 import starlight.domain.aireport.entity.AiReport;
 
@@ -19,7 +20,8 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class AiReportJpa implements AiReportCommandPort, AiReportQueryPort,
-        AiReportSummaryLookupPort, BackofficeBusinessPlanScoreLookupPort {
+        AiReportSummaryLookupPort, BackofficeBusinessPlanScoreLookupPort,
+        BackofficeUserBusinessPlanScoreLookupPort {
 
     private final AiReportRepository aiReportRepository;
 
@@ -43,8 +45,7 @@ public class AiReportJpa implements AiReportCommandPort, AiReportQueryPort,
         Map<Long, Integer> totalScoreMap = new HashMap<>();
 
         for (AiReport report : reports) {
-            Integer totalScore = AiReportResult.from(report).totalScore();
-            totalScoreMap.put(report.getBusinessPlanId(), totalScore != null ? totalScore : 0);
+            totalScoreMap.put(report.getBusinessPlanId(), AiReportResult.from(report).totalScore());
         }
 
         return totalScoreMap;
@@ -60,7 +61,7 @@ public class AiReportJpa implements AiReportCommandPort, AiReportQueryPort,
         Map<Long, Integer> scoreMap = new HashMap<>();
 
         for (AiReport report : reports) {
-            scoreMap.put(report.getBusinessPlanId(), responseParser.toResponse(report).totalScore());
+            scoreMap.put(report.getBusinessPlanId(), AiReportResult.from(report).totalScore());
         }
 
         return scoreMap;
