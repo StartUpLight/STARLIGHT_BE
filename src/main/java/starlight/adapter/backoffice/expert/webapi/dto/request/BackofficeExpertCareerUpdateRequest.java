@@ -13,7 +13,7 @@ public record BackofficeExpertCareerUpdateRequest(
         @NotBlank String careerTitle,
         String careerExplanation,
         @NotNull LocalDateTime careerStartedAt,
-        @NotNull LocalDateTime careerEndedAt
+        LocalDateTime careerEndedAt
 ) {
     @AssertTrue(message = "경력 시작일은 종료일보다 늦을 수 없습니다.")
     public boolean isValidPeriod() {

@@ -1,13 +1,16 @@
 package starlight.adapter.backoffice.expert.webapi.dto.request;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import starlight.application.backoffice.expert.provided.dto.input.BackofficeExpertCareerUpdateInput;
 import starlight.application.backoffice.expert.provided.dto.input.BackofficeExpertUpdateInput;
 import starlight.domain.expert.enumerate.TagCategory;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public record BackofficeExpertUpdateRequest(
         @NotBlank String name,
@@ -46,5 +49,36 @@ public record BackofficeExpertUpdateRequest(
                 categories,
                 careerInputs
         );
+    }
+
+    @AssertTrue(message = "종료일이 없는 경력은 최신 경력 1건만 허용됩니다.")
+    public boolean isValidCurrentCareer() {
+        if (careers == null || careers.isEmpty()) {
+            return true;
+        }
+
+        List<BackofficeExpertCareerUpdateRequest> careersWithoutEndDate = careers.stream()
+                .filter(career -> career.careerEndedAt() == null)
+                .toList();
+
+        if (careersWithoutEndDate.isEmpty()) {
+            return true;
+        }
+
+        if (careersWithoutEndDate.size() > 1) {
+            return false;
+        }
+
+        Integer maxOrderIndex = careers.stream()
+                .map(BackofficeExpertCareerUpdateRequest::orderIndex)
+                .filter(Objects::nonNull)
+                .max(Comparator.naturalOrder())
+                .orElse(null);
+
+        if (maxOrderIndex == null) {
+            return true;
+        }
+
+        return Objects.equals(careersWithoutEndDate.get(0).orderIndex(), maxOrderIndex);
     }
 }
