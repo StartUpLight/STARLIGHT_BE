@@ -10,6 +10,8 @@ import starlight.domain.businessplan.entity.BusinessPlan;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
+import starlight.domain.businessplan.enumerate.PlanStatus;
 
 public interface BusinessPlanRepository extends JpaRepository<BusinessPlan, Long> {
 
@@ -54,4 +56,41 @@ public interface BusinessPlanRepository extends JpaRepository<BusinessPlan, Long
             WHERE bp.id = :id
             """)
     Optional<BusinessPlan> findByIdWithAllSubSections(@Param("id") Long id);
+
+    @Query("""
+            select bp
+            from BusinessPlan bp
+            where (:status is null or bp.planStatus = :status)
+              and (
+                  :keyword is null
+                  or lower(bp.title) like lower(concat('%', :keyword, '%'))
+                  or bp.memberId in :memberIds
+              )
+            """)
+    Page<BusinessPlan> findBackofficePage(
+            @Param("status") PlanStatus status,
+            @Param("keyword") String keyword,
+            @Param("memberIds") List<Long> memberIds,
+            Pageable pageable
+    );
+
+    @Query("""
+            select bp
+            from BusinessPlan bp
+            where (:status is null or bp.planStatus = :status)
+              and (
+                  :keyword is null
+                  or lower(bp.title) like lower(concat('%', :keyword, '%'))
+                  or bp.memberId in :memberIds
+              )
+              and (:from is null or coalesce(bp.modifiedAt, bp.createdAt) >= :from)
+              and (:to is null or coalesce(bp.modifiedAt, bp.createdAt) < :to)
+            """)
+    List<BusinessPlan> findBackofficeAllForDashboard(
+            @Param("status") PlanStatus status,
+            @Param("keyword") String keyword,
+            @Param("memberIds") List<Long> memberIds,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
 }
