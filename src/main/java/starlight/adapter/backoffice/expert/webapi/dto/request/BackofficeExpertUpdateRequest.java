@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import starlight.application.backoffice.expert.provided.dto.input.BackofficeExpertCareerUpdateInput;
 import starlight.application.backoffice.expert.provided.dto.input.BackofficeExpertUpdateInput;
 import starlight.domain.expert.enumerate.TagCategory;
@@ -21,12 +22,13 @@ public record BackofficeExpertUpdateRequest(
         Integer mentoringPriceWon,
         List<String> tags,
         List<TagCategory> categories,
-        @Valid List<BackofficeExpertCareerUpdateRequest> careers
+        List<@NotNull @Valid BackofficeExpertCareerUpdateRequest> careers
 ) {
     public BackofficeExpertUpdateInput toInput(Long expertId) {
         List<BackofficeExpertCareerUpdateInput> careerInputs = careers == null
                 ? null
                 : careers.stream()
+                        .filter(Objects::nonNull)
                         .map(career -> new BackofficeExpertCareerUpdateInput(
                                 career.id(),
                                 career.orderIndex(),
@@ -58,6 +60,7 @@ public record BackofficeExpertUpdateRequest(
         }
 
         List<BackofficeExpertCareerUpdateRequest> careersWithoutEndDate = careers.stream()
+                .filter(Objects::nonNull)
                 .filter(career -> career.careerEndedAt() == null)
                 .toList();
 
@@ -70,6 +73,7 @@ public record BackofficeExpertUpdateRequest(
         }
 
         Integer maxOrderIndex = careers.stream()
+                .filter(Objects::nonNull)
                 .map(BackofficeExpertCareerUpdateRequest::orderIndex)
                 .filter(Objects::nonNull)
                 .max(Comparator.naturalOrder())
