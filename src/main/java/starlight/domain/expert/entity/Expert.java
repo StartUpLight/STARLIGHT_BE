@@ -203,19 +203,6 @@ public class Expert extends AbstractEntity {
 
         boolean hasDuplicateOrderIndex = orderIndexes.size() != careerUpdates.size();
         boolean hasDuplicateIds = requestedIds.size() != requestedIdCount;
-        long currentCareerCount = careerUpdates.stream()
-                .filter(update -> update.careerEndedAt() == null)
-                .count();
-        Integer maxOrderIndex = careerUpdates.stream()
-                .map(ExpertCareerUpdate::orderIndex)
-                .filter(Objects::nonNull)
-                .max(Integer::compareTo)
-                .orElse(null);
-        boolean hasInvalidCurrentCareer = currentCareerCount > 1
-                || careerUpdates.stream().anyMatch(update ->
-                update.careerEndedAt() == null
-                        && !Objects.equals(update.orderIndex(), maxOrderIndex)
-        );
         boolean hasInvalidPeriod = careerUpdates.stream().anyMatch(update ->
                 update.orderIndex() == null
                         || update.orderIndex() < 0
@@ -224,7 +211,7 @@ public class Expert extends AbstractEntity {
                         && update.careerStartedAt().isAfter(update.careerEndedAt()))
         );
 
-        if (hasDuplicateOrderIndex || hasDuplicateIds || hasInvalidPeriod || hasInvalidCurrentCareer) {
+        if (hasDuplicateOrderIndex || hasDuplicateIds || hasInvalidPeriod) {
             throw new ExpertException(ExpertErrorType.EXPERT_CAREER_INVALID);
         }
     }
