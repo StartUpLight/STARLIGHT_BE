@@ -30,7 +30,7 @@ public class ExpertCareer extends AbstractEntity {
     @Column(name = "career_started_at", nullable = false)
     private LocalDateTime careerStartedAt;
 
-    @Column(name = "career_ended_at", nullable = false)
+    @Column(name = "career_ended_at")
     private LocalDateTime careerEndedAt;
 
     public static ExpertCareer of(Expert expert, int orderIndex, String title, String explanation, LocalDateTime startedAt, LocalDateTime endedAt) {
