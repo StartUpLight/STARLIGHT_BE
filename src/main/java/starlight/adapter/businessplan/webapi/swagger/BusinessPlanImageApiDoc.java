@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import starlight.adapter.shared.webapi.validation.ValidImageFileName;
 import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 import starlight.shared.apiPayload.response.ApiResponse;
@@ -49,7 +50,7 @@ public interface BusinessPlanImageApiDoc {
     @GetMapping(value = "/v1/business-plans/images/upload-url", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<PreSignedUrlResponse> getPresignedUrl(
             @AuthenticationPrincipal AuthenticatedMember authenticatedMember,
-            @io.swagger.v3.oas.annotations.Parameter(description = "파일명", required = true) @RequestParam String fileName
+            @io.swagger.v3.oas.annotations.Parameter(description = "파일명", required = true) @RequestParam @ValidImageFileName String fileName
     );
 
     @Operation(
@@ -75,7 +76,7 @@ public interface BusinessPlanImageApiDoc {
                     )
             )
     })
-    @PostMapping("/v1/business-plans/images/upload-url/public")
+    @PostMapping("/v1/business-plans/storage/upload-url/public")
     ApiResponse<?> finalizePublic(
             @io.swagger.v3.oas.annotations.Parameter(description = "S3 Object URL", required = true) @RequestParam String objectUrl
     );
