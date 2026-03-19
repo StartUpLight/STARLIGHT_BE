@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import starlight.adapter.backoffice.image.webapi.dto.request.BackofficeImagePublicRequest;
-import starlight.adapter.shared.webapi.validation.ValidImageFileName;
+import starlight.adapter.shared.webapi.validation.ValidFileName;
 import starlight.shared.apiPayload.response.ApiResponse;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 
@@ -85,7 +85,7 @@ public interface BackofficeImageApiDoc {
     })
     @GetMapping(value = "/v1/backoffice/images/upload-url", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<PreSignedUrlResponse> getPresignedUrl(
-            @RequestParam @ValidImageFileName String fileName
+            @RequestParam @ValidFileName(imageOnly = true) String fileName
     );
 
     @Operation(
