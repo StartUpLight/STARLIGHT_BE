@@ -10,10 +10,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Documented
-@Constraint(validatedBy = ValidImageFileNameValidator.class)
+@Constraint(validatedBy = ValidFileNameValidator.class)
 @Target({ElementType.PARAMETER, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidImageFileName {
+public @interface ValidFileName {
+
+    boolean imageOnly() default false;
 
     String message() default "fileName이 올바르지 않습니다.";
 
