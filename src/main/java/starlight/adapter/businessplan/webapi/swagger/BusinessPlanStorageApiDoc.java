@@ -12,13 +12,13 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import starlight.adapter.shared.webapi.validation.ValidImageFileName;
+import starlight.adapter.shared.webapi.validation.ValidFileName;
 import starlight.shared.auth.AuthenticatedMember;
 import starlight.shared.dto.infrastructure.PreSignedUrlResponse;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 @Tag(name = "UTIL", description = "유틸리티 API")
-public interface BusinessPlanImageApiDoc {
+public interface BusinessPlanStorageApiDoc {
 
     @Operation(
             summary = "Presigned URL 발급",
@@ -47,15 +47,15 @@ public interface BusinessPlanImageApiDoc {
                     )
             )
     })
-    @GetMapping(value = "/v1/business-plans/images/upload-url", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/v1/business-plans/storage/upload-url", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<PreSignedUrlResponse> getPresignedUrl(
             @AuthenticationPrincipal AuthenticatedMember authenticatedMember,
-            @io.swagger.v3.oas.annotations.Parameter(description = "파일명", required = true) @RequestParam @ValidImageFileName String fileName
+            @io.swagger.v3.oas.annotations.Parameter(description = "파일명", required = true) @RequestParam @ValidFileName String fileName
     );
 
     @Operation(
-            summary = "이미지 공개 전환",
-            description = "업로드된 이미지를 공개 상태로 전환합니다.",
+            summary = "업로드 파일 공개 전환",
+            description = "업로드된 파일(이미지·PDF 등)을 공개 상태로 전환합니다.",
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
