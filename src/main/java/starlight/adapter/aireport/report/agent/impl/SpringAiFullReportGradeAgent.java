@@ -36,8 +36,6 @@ public class SpringAiFullReportGradeAgent implements FullReportGradeAgent {
                         Prompt prompt = reportPromptProvider.createReportGradingPrompt(content);
 
                         ChatClient chatClient = chatClientBuilder.build();
-                        QuestionAnswerAdvisor qaAdvisor = advisorProvider
-                                        .getQuestionAnswerAdvisor(0.6, 3, null);
                         SimpleLoggerAdvisor slAdvisor = advisorProvider.getSimpleLoggerAdvisor();
 
                         String llmResponse = chatClient
@@ -46,7 +44,7 @@ public class SpringAiFullReportGradeAgent implements FullReportGradeAgent {
                                                         .temperature(0.0)
                                                         .topP(0.1)
                                                         .build())
-                                        .advisors(qaAdvisor, slAdvisor)
+                                        .advisors(slAdvisor)
                                         .call()
                                         .content();
 
