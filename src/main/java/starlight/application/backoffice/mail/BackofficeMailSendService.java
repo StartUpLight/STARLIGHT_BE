@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import starlight.application.backoffice.mail.provided.BackofficeMailSendUseCase;
 import starlight.application.backoffice.mail.provided.dto.input.BackofficeMailSendInput;
-import starlight.application.backoffice.mail.required.MailSenderPort;
+import starlight.application.backoffice.mail.required.BackofficeMailPort;
 import starlight.application.backoffice.mail.util.BackofficeMailContentTypeParser;
 import starlight.application.backoffice.mail.event.BackofficeMailSendEvent;
 import starlight.domain.backoffice.exception.BackofficeErrorType;
@@ -17,7 +17,7 @@ import starlight.domain.backoffice.mail.BackofficeMailContentType;
 @RequiredArgsConstructor
 public class BackofficeMailSendService implements BackofficeMailSendUseCase {
 
-    private final MailSenderPort mailSenderPort;
+    private final BackofficeMailPort backofficeMailPort;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -28,7 +28,7 @@ public class BackofficeMailSendService implements BackofficeMailSendUseCase {
         try {
             validate(input, contentType);
 
-            mailSenderPort.send(input, contentType);
+            backofficeMailPort.send(input, contentType);
 
             BackofficeMailSendEvent log = BackofficeMailSendEvent.of(
                     input.to(),

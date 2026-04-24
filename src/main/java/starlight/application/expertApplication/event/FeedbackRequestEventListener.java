@@ -9,14 +9,14 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-import starlight.application.expertApplication.required.EmailSender;
+import starlight.application.expertApplication.required.FeedbackRequestMailPort;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class FeedbackRequestEventListener {
 
-    private final EmailSender emailSender;
+    private final FeedbackRequestMailPort feedbackRequestMailPort;
 
     @Async("emailTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -28,7 +28,7 @@ public class FeedbackRequestEventListener {
     public void handleFeedbackRequestEvent(FeedbackRequestInput event) {
         log.info("[EMAIL] listener triggered menteeName={}, businessPlanTitle={}", event.menteeName(), event.businessPlanTitle());
         try {
-            emailSender.sendFeedbackRequestMail(event);
+            feedbackRequestMailPort.sendFeedbackRequestMail(event);
 
             log.info("[EMAIL] sending via JavaMailSender to={} subject={}", event.mentorEmail(), event.menteeName());
 
