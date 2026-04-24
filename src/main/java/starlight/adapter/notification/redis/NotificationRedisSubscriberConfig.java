@@ -1,6 +1,7 @@
 package starlight.adapter.notification.redis;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -18,6 +19,11 @@ public class NotificationRedisSubscriberConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(
+            prefix = "notification.redis",
+            name = "listener-enabled",
+            havingValue = "true"
+    )
     public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory connectionFactory,
             RedisNotificationSubscriber redisNotificationSubscriber,
