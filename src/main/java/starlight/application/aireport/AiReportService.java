@@ -5,8 +5,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import starlight.application.aireport.event.PdfReportRequestedEvent;
 import starlight.application.aireport.provided.AiReportUseCase;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.*;
@@ -35,6 +38,20 @@ public class AiReportService implements AiReportUseCase {
     private final OcrProviderPort ocrProviderPort;
     private final ObjectMapper objectMapper;
     private final BusinessPlanContentExtractor contentExtractor;
+    private final ApplicationEventPublisher eventPublisher;
+
+    @Value("${ai-report.base-url}")
+    private String aiReportBaseUrl;
+
+    /**
+     * 메일·알림 등에 넣을 AI 리포트 웹 화면 URL (환경별 base-url + planId).
+     */
+    public String buildAiReportWebUrl(Long businessPlanId) {
+        String base = aiReportBaseUrl.endsWith("/")
+                ? aiReportBaseUrl.substring(0, aiReportBaseUrl.length() - 1)
+                : aiReportBaseUrl;
+        return base + "?planId=" + businessPlanId;
+    }
 
     @Override
     public AiReportResult gradeBusinessPlan(Long planId, Long memberId) {
@@ -73,11 +90,18 @@ public class AiReportService implements AiReportUseCase {
     }
 
     @Override
-    public AiReportResult createAndGradePdfBusinessPlan(String title, String pdfUrl, Long memberId) {
-        log.info("PDF 사업계획서 생성 및 AI 채점 시작. title: {}, pdfUrl: {}, memberId: {}", title, pdfUrl, memberId);
+    public void requestCreateAndGradePdfBusinessPlan(String title, String pdfUrl, Long memberId) {
+        log.info("PDF 사업계획서 생성 요청(비동기 채점). title: {}, pdfUrl: {}, memberId: {}", title, pdfUrl, memberId);
 
         Long businessPlanId = businessPlanCommandLookupPort.createBusinessPlanWithPdf(title, pdfUrl, memberId);
+        eventPublisher.publishEvent(new PdfReportRequestedEvent(businessPlanId, pdfUrl, memberId));
+    }
+
+    public void completePdfGrading(Long businessPlanId, String pdfUrl, Long memberId) {
+        log.info("PDF 사업계획서 AI 채점 시작(비동기). businessPlanId: {}, memberId: {}", businessPlanId, memberId);
+
         BusinessPlan plan = businessPlanQueryLookupPort.findByIdOrThrow(businessPlanId);
+        checkBusinessPlanOwned(plan, memberId);
 
         log.debug("OCR 시작. pdfUrl: {}", pdfUrl);
         String pdfText = ocrProviderPort.ocrPdfTextByUrl(pdfUrl);
@@ -88,10 +112,8 @@ public class AiReportService implements AiReportUseCase {
             throw new AiReportException(AiReportErrorType.AI_GRADING_FAILED);
         }
 
-        // PDF의 경우 기존 한 번에 LLM에 돌리는 방식을 사용
         AiReportResult gradingResult = reportGraderPort.gradeWithFullPrompt(pdfText);
 
-        // 채점 결과 검증
         if (isInvalidGradingResult(gradingResult)) {
             log.error("채점 결과가 유효하지 않습니다. 모든 점수가 0이고 빈 배열입니다. businessPlanId: {}", businessPlanId);
             throw new AiReportException(AiReportErrorType.AI_GRADING_FAILED);
@@ -100,10 +122,7 @@ public class AiReportService implements AiReportUseCase {
         log.info("PDF 채점 완료. 총점: {}, businessPlanId: {}", gradingResult.totalScore(), businessPlanId);
 
         String rawJsonString = getRawJsonStrFromAiReportResult(gradingResult);
-
-        AiReport aiReport = upsertAiReportWithRawJsonStr(rawJsonString, plan);
-
-        return AiReportResult.from(aiReport);
+        upsertAiReportWithRawJsonStr(rawJsonString, plan);
     }
 
     @Override
