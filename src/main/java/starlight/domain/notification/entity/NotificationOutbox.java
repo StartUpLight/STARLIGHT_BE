@@ -21,6 +21,10 @@ import java.time.LocalDateTime;
 @Table(
         indexes = {
                 @Index(name = "idx_notification_outbox_publishable", columnList = "status, next_retry_at, id"),
+                @Index(
+                        name = "idx_notification_outbox_processing_timeout",
+                        columnList = "status, processing_started_at, id"
+                ),
                 @Index(name = "idx_notification_outbox_notification_id", columnList = "notification_id")
         }
 )
