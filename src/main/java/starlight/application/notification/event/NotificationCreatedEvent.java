@@ -1,9 +1,9 @@
 package starlight.application.notification.event;
 
 public record NotificationCreatedEvent(
-        Long notificationId
+        Long outboxId
 ) {
-    public static NotificationCreatedEvent of(Long notificationId) {
-        return new NotificationCreatedEvent(notificationId);
+    public static NotificationCreatedEvent of(Long outboxId) {
+        return new NotificationCreatedEvent(outboxId);
     }
 }
