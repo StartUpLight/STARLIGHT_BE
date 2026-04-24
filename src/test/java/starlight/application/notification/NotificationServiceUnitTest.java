@@ -6,14 +6,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import starlight.application.notification.event.NotificationCreatedEvent;
 import starlight.application.notification.provided.dto.input.NotificationSendInput;
 import starlight.application.notification.provided.dto.result.NotificationResult;
 import starlight.application.notification.required.NotificationCommandPort;
+import starlight.application.notification.required.NotificationOutboxCommandPort;
 import starlight.application.notification.required.NotificationQueryPort;
 import starlight.application.notification.required.NotificationRealtimePort;
 import starlight.domain.notification.entity.Notification;
+import starlight.domain.notification.entity.NotificationOutbox;
 import starlight.domain.notification.exception.NotificationException;
 
 import java.util.List;
@@ -27,6 +30,9 @@ class NotificationServiceUnitTest {
 
     @Mock
     private NotificationCommandPort notificationCommandPort;
+
+    @Mock
+    private NotificationOutboxCommandPort notificationOutboxCommandPort;
 
     @Mock
     private NotificationQueryPort notificationQueryPort;
@@ -46,12 +52,19 @@ class NotificationServiceUnitTest {
                 1L, "SYSTEM", "title", "message", 99L
         );
         Notification savedNotification = Notification.create(1L, "SYSTEM", "title", "message", 99L);
+        ReflectionTestUtils.setField(savedNotification, "id", 10L);
 
         when(notificationCommandPort.save(any(Notification.class))).thenReturn(savedNotification);
+        when(notificationOutboxCommandPort.save(any(NotificationOutbox.class))).thenAnswer(invocation -> {
+            NotificationOutbox outbox = invocation.getArgument(0);
+            ReflectionTestUtils.setField(outbox, "id", 20L);
+            return outbox;
+        });
 
         notificationService.notifyMember(input);
 
         verify(notificationCommandPort).save(any(Notification.class));
+        verify(notificationOutboxCommandPort).save(any(NotificationOutbox.class));
         verify(eventPublisher).publishEvent(any(NotificationCreatedEvent.class));
     }
 
