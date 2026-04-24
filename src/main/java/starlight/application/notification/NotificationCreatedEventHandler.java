@@ -2,6 +2,8 @@ package starlight.application.notification;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.TransientDataAccessException;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -14,6 +16,7 @@ import starlight.application.notification.required.NotificationPublishPort;
 import starlight.application.notification.required.NotificationQueryPort;
 import starlight.application.notification.required.dto.NotificationPublishMessage;
 import starlight.domain.notification.entity.Notification;
+import starlight.domain.notification.exception.NotificationException;
 
 @Slf4j
 @Component
@@ -28,7 +31,11 @@ public class NotificationCreatedEventHandler {
     @Retryable(
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000, multiplier = 2),
-            retryFor = {Exception.class}
+            retryFor = {
+                    RedisConnectionFailureException.class,
+                    TransientDataAccessException.class
+            },
+            noRetryFor = {NotificationException.class}
     )
     public void handle(NotificationCreatedEvent event) {
         Notification notification = notificationQueryPort.findByIdOrThrow(event.notificationId());
