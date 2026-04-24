@@ -27,7 +27,7 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
     @Override
     public SseEmitter subscribe(Long memberId) {
         SseEmitter emitter = new SseEmitter(sseTimeoutMs);
-        emitters.computeIfAbsent(memberId, ignored -> new CopyOnWriteArrayList<>()).add(emitter);
+        addEmitter(memberId, emitter);
 
         emitter.onCompletion(() -> removeEmitter(memberId, emitter));
         emitter.onTimeout(() -> removeEmitter(memberId, emitter));
@@ -79,7 +79,7 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
             List<SseEmitter> memberEmitters = entry.getValue();
 
             if (memberEmitters == null || memberEmitters.isEmpty()) {
-                emitters.remove(memberId);
+                removeEmptyEmitterList(memberId);
                 continue;
             }
 
@@ -99,16 +99,33 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
         }
     }
 
-    private void removeEmitter(Long memberId, SseEmitter emitter) {
-        List<SseEmitter> memberEmitters = emitters.get(memberId);
-        if (memberEmitters == null) {
-            return;
-        }
+    private void addEmitter(Long memberId, SseEmitter emitter) {
+        emitters.compute(memberId, (ignored, memberEmitters) -> {
+            List<SseEmitter> updatedEmitters = memberEmitters;
+            if (updatedEmitters == null) {
+                updatedEmitters = new CopyOnWriteArrayList<>();
+            }
 
-        memberEmitters.remove(emitter);
-        if (memberEmitters.isEmpty()) {
-            emitters.remove(memberId);
-        }
+            updatedEmitters.add(emitter);
+            return updatedEmitters;
+        });
+    }
+
+    private void removeEmitter(Long memberId, SseEmitter emitter) {
+        emitters.computeIfPresent(memberId, (ignored, memberEmitters) -> {
+            memberEmitters.remove(emitter);
+            if (memberEmitters.isEmpty()) {
+                return null;
+            }
+
+            return memberEmitters;
+        });
+    }
+
+    private void removeEmptyEmitterList(Long memberId) {
+        emitters.computeIfPresent(memberId, (ignored, memberEmitters) ->
+                memberEmitters.isEmpty() ? null : memberEmitters
+        );
     }
 
     private void safeSend(SseEmitter emitter, SseEmitter.SseEventBuilder event) throws IOException {
