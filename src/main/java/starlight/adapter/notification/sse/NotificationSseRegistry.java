@@ -40,7 +40,7 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
                             .name("connected")
                             .data("ok", MediaType.TEXT_PLAIN)
             );
-        } catch (IOException exception) {
+        } catch (IOException | IllegalStateException exception) {
             removeEmitter(memberId, emitter);
             emitter.completeWithError(exception);
         }
@@ -64,7 +64,7 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
                                 .name("notification")
                                 .data(message, MediaType.APPLICATION_JSON)
                 );
-            } catch (IOException exception) {
+            } catch (IOException | IllegalStateException exception) {
                 log.warn("[NOTIFICATION] SSE send failed notificationId={}, memberId={}",
                         message.notificationId(), message.memberId(), exception);
                 removeEmitter(message.memberId(), emitter);
@@ -91,7 +91,7 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
                                     .name("ping")
                                     .data("ok", MediaType.TEXT_PLAIN)
                     );
-                } catch (IOException exception) {
+                } catch (IOException | IllegalStateException exception) {
                     log.debug("[NOTIFICATION] heartbeat failed memberId={}", memberId, exception);
                     removeEmitter(memberId, emitter);
                 }
