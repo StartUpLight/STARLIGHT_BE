@@ -19,6 +19,7 @@ dependencies {
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
     systemProperty "spring.profiles.active", "test"
+    systemProperty "ai-report.base-url", "http://localhost:3000/ai-reports"
     jvmArgs += ['-Duser.timezone=Asia/Seoul', '-Dfile.encoding=UTF-8']
 
     finalizedBy jacocoTestReport
