@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>PDF 사업계획서 AI 리포트 발행 완료 알림 이메일</title>
+
+    <style>
+      body,
+      table,
+      td,
+      p,
+      ul,
+      li {
+        margin: 0;
+        padding: 0;
+        font-family: 'Pretendard';
+      }
+
+      @font-face {
+        font-family: 'Pretendard';
+        font-style: normal;
+        font-weight: 400;
+        src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/woff2/Pretendard-Regular.woff2')
+          format('woff2');
+      }
+      @font-face {
+        font-family: 'Pretendard';
+        font-style: normal;
+        font-weight: 500;
+        src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/woff2/Pretendard-Regular.woff2')
+          format('woff2');
+      }
+
+      @font-face {
+        font-family: 'Pretendard';
+        font-style: normal;
+        font-weight: 700;
+        src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/woff2/Pretendard-Bold.woff2')
+          format('woff2');
+      }
+      @font-face {
+        font-family: 'Pretendard';
+        font-style: normal;
+        font-weight: 800;
+        src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/woff2/Pretendard-ExtraBold.woff2')
+          format('woff2');
+      }
+
+      @media screen and (max-width: 640px) {
+        .container {
+          width: 100% !important;
+        }
+        .px {
+          padding-left: 16px !important;
+          padding-right: 16px !important;
+        }
+        .hero-h {
+          height: 240px !important;
+        }
+        .hero-title {
+          font-size: 22px !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body style="margin: 0; padding: 0">
+    <table
+      role="presentation"
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="background: #ffffff"
+    >
+      <tr>
+        <td align="center" style="padding: 0; text-align: center">
+          <table
+            class="container"
+            role="presentation"
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            style="width: 600px; max-width: 600px; margin: 0 auto; text-align: left"
+          >
+            <!-- 본문 -->
+            <tr>
+              <td
+                class="px"
+                style="
+                  padding: 48px 28px;
+                  font-family: Pretendard;
+                  color: #000000;
+                  font-style: normal;
+                  line-height: 1.5;
+                  letter-spacing: -0.16px;
+                "
+              >
+                <p style="margin: 0;
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: #6f55ff; 
+                    letter-spacing: -0.4px;">
+                  <span th:text="${name}">회원</span>님, 안녕하세요!
+                </p>
+
+                <p
+                  style="margin: 32px 0 0 0; font-size: 16px; font-weight: 500"
+                >
+                <span style="color: #6f55ff; font-weight: 700" th:text="${name}"
+                >이름</span
+              >님의  
+              <span style="color: #6f55ff; font-weight: 700"
+              >AI리포트</span>가 도착했습니다.
+                </p>
+
+                <p
+                  style="margin: 32px 0 0 0; font-size: 16px; font-weight: 500"
+                >
+                  제출해주신 사업계획서를 바탕으로 분석한 AI 결과 리포트 발행이 완료되었습니다. 
+                  <br/> 첨부된 PDF 파일을 확인해 주세요.
+                </p>
+
+
+                <p
+                  style="margin: 32px 0 0 0; font-size: 16px; font-weight: 500"
+                >
+                  AI 분석을 통해 전반적인 방향을 확인하셨다면,
+                  <br />
+                  전문가의 심층 피드백을 통해 계획서를 한 단계 더 발전시켜보시는 것도 추천드립니다.
+                </p>
+
+                <p
+                  style="margin: 32px 0 0 0; font-size: 16px; font-weight: 500"
+                >
+                  저희 스타라이트는 앞으로도 <span th:text="${name}">회원</span>님의 도전과 열정을 응원합니다!
+                </p>
+
+
+                <p
+                  style="margin: 32px 0 0 0; font-size: 16px; font-weight: 500"
+                >
+                  감사합니다. 
+                  <br /> 
+                  스타라이트 드림
+                </p>
+
+                <table
+                  role="presentation"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                  style="margin-top: 32px"
+                >
+                  <tr>
+                    <td
+                      bgcolor="#6F55FF"
+                      style="border-radius: 8px; width: 169px"
+                    >
+                      <a
+                        th:href="${reportUrl}"
+                        href="https://www.starlight-official.co.kr/report?planId=0"
+                        target="_blank"
+                        style="
+                          display: inline-block;
+                          padding: 10px 32px;
+                          font-size: 16px;
+                          font-weight: 500;
+                          letter-spacing: -0.16px;
+                          line-height: 150%;
+                          color: #ffffff;
+                          text-decoration: none;
+                        "
+                      >
+                        AI 리포트로 이동
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+           
+            <!-- 슬로건 섹션 -->
+            <tr>
+              <td
+                class="px"
+                style="
+                  padding: 48px 28px 0 28px;
+                  font-family: Pretendard;
+                  color: #000000;
+                  font-style: normal;
+                  line-height: 1.5;
+                  letter-spacing: -0.16px;
+                "
+              >
+                <p
+                  style="
+                    margin: 0;
+                    font-size: 20px;
+                    font-weight: 700;
+                    letter-spacing: -0.4px;
+                  "
+                >
+                🧑🏻‍💻 70점이 넘는다면,
+                  <span style="color: #6f55ff">전문가 심층 피드백</span>을 받아보세요!
+                </p>
+              </td>
+            </tr>
+
+            <!-- 이미지 섹션 -->
+            <tr>
+              <td
+                style="
+                  padding: 24px 28px 48px 28px;
+                  font-family: Pretendard;
+                  color: #000000;
+                  font-style: normal;
+                  line-height: 1.5;
+                  letter-spacing: -0.16px;
+                "
+              >
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                >
+                  <tr>
+                    <td style="padding: 0">
+                      <img
+                        src="https://kr.object.ncloudstorage.com/starlight-s3/email/experts_list.png"
+                        alt=""
+                        width="544"
+                        height="320"
+                        style="
+                          display: block;
+                          width: 100%;
+                          max-width: 544px;
+                          height: auto;
+                          border: 0;
+                        "
+                      />
+                    </td>
+                  </tr>
+                </table>
+
+                <p
+                  style="
+                    margin: 24px 0 0 0;
+                    font-size: 16px;
+                    font-weight: 700;
+                    font-family: Pretendard;
+                    color: #000000;
+                  "
+                >
+                ❓ AI 리포트만으로 충분할까요?
+                </p>
+                <p
+                  style="
+                    margin: 32px 0 0 0;
+                    font-size: 16px;
+                    font-weight: 500;
+                    font-family: Pretendard;
+                    color: #000000;
+                  "
+                >
+                실제 심사 과정에서는 구체적으로 다듬어줄 멘토를 찾기 어렵고,
+                <br/>
+                설령 피드백을 받아도 형식적인 코멘트에 그치는 경우가 많습니다.
+                </p>
+
+
+                <p
+                  style="margin: 32px 0 0 0; font-size: 16px; font-weight: 500"
+                > 스타라이트는
+                <span style="color: #6f55ff; font-weight: 700"
+                >창업 및 실제 심사 경험을 보유한 전문가로만 구성된 멘토 풀</span
+              >을 통해,
+              <br/>
+              <span style="color: #6f55ff; font-weight: 700"
+              >AI 리포트를 기반으로 사업계획서의 구조·논리·보완 방향을 점검</span>합니다.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td class="px" style="padding: 48px 28px; text-align: center">
+                <table
+                  role="presentation"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="margin: 0 auto"
+                >
+                  <tr>
+                    <!-- 링크 아이콘 -->
+                    <td style="padding: 0 24px 0 0">
+                      <a
+                        href="https://www.starlight-official.co.kr/"
+                        target="_blank"
+                        style="display: block; text-decoration: none"
+                      >
+                        <table
+                          role="presentation"
+                          cellpadding="0"
+                          cellspacing="0"
+                          width="32"
+                          height="32"
+                          style="
+                            width: 32px;
+                            height: 32px;
+                            background-color: #191f28;
+                            border-radius: 50%;
+                          "
+                        >
+                          <tr>
+                            <td
+                              style="
+                                width: 32px;
+                                height: 32px;
+                                text-align: center;
+                                vertical-align: middle;
+                                padding: 0;
+                              "
+                            >
+                              <img
+                                src="https://kr.object.ncloudstorage.com/starlight-s3/email/link.png"
+                                alt="link"
+                                width="20"
+                                height="20"
+                                style="
+                                  display: block;
+                                  margin: 0 auto;
+                                  border: 0;
+                                "
+                              />
+                            </td>
+                          </tr>
+                        </table>
+                      </a>
+                    </td>
+                    <!-- Instagram 아이콘 -->
+                    <td style="padding: 0">
+                      <a
+                        href="https://www.instagram.com/starlight.co.kr/"
+                        target="_blank"
+                        style="display: block; text-decoration: none"
+                      >
+                        <table
+                          role="presentation"
+                          cellpadding="0"
+                          cellspacing="0"
+                          width="32"
+                          height="32"
+                          style="
+                            width: 32px;
+                            height: 32px;
+                            background-color: #191f28;
+                            border-radius: 50%;
+                          "
+                        >
+                          <tr>
+                            <td
+                              style="
+                                width: 32px;
+                                height: 32px;
+                                text-align: center;
+                                vertical-align: middle;
+                                padding: 0;
+                              "
+                            >
+                              <img
+                                src="https://kr.object.ncloudstorage.com/starlight-s3/email/insta.png"
+                                alt="instagram"
+                                width="20"
+                                height="20"
+                                style="
+                                  display: block;
+                                  margin: 0 auto;
+                                  border: 0;
+                                "
+                              />
+                            </td>
+                          </tr>
+                        </table>
+                      </a>
+                    </td>
+                    <!-- 이메일 아이콘 -->
+                    <td style="padding: 0 0 0 24px">
+                      <a
+                        href="mailto:support@starlight-official.co.kr"
+                        style="display: block; text-decoration: none"
+                      >
+                        <table
+                          role="presentation"
+                          cellpadding="0"
+                          cellspacing="0"
+                          width="32"
+                          height="32"
+                          style="
+                            width: 32px;
+                            height: 32px;
+                            background-color: #191f28;
+                            border-radius: 50%;
+                          "
+                        >
+                          <tr>
+                            <td
+                              style="
+                                width: 32px;
+                                height: 32px;
+                                text-align: center;
+                                vertical-align: middle;
+                                padding: 0;
+                              "
+                            >
+                              <img
+                                src="https://kr.object.ncloudstorage.com/starlight-s3/email/mail.png"
+                                alt="email"
+                                width="20"
+                                height="20"
+                                style="
+                                  display: block;
+                                  margin: 0 auto;
+                                  border: 0;
+                                "
+                              />
+                            </td>
+                          </tr>
+                        </table>
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <p
+                  style="
+                    margin: 36px 0 0 0;
+                    font-size: 12px;
+                    font-weight: 400;
+                    color: #6c727e;
+                  "
+                >
+                  © Copyright 2026. starlight All Rights Reserved
+                </p>
+                <!-- 로고 -->
+                <table
+                  role="presentation"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="margin: 12px auto 0; width: auto"
+                >
+                  <tr>
+                    <td>
+                      <img
+                        src="https://kr.object.ncloudstorage.com/starlight-s3/email/starlight.png"
+                        alt="starlight"
+                        width="79"
+                        height="18"
+                        style="display: block; border: 0"
+                      />
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
