@@ -5,7 +5,6 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,7 @@ public class SMTPEmailSender implements EmailSender {
     public void sendFeedbackRequestMail(FeedbackRequestInput dto) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
 
             helper.setFrom(senderEmail);
             helper.setTo(dto.mentorEmail());
@@ -43,13 +42,10 @@ public class SMTPEmailSender implements EmailSender {
             ctx.setVariable("planTitle", dto.businessPlanTitle());
             ctx.setVariable("feedbackDeadline", dto.feedbackDeadline());
             ctx.setVariable("feedbackUrl", dto.feedbackUrl());
+            ctx.setVariable("planFileUrl", dto.planFileUrl());
 
             String htmlContent = templateEngine.process("feedback-request", ctx);
             helper.setText(htmlContent, true);
-
-            if (dto.attachedFile() != null && dto.filename() != null) {
-                helper.addAttachment(dto.filename(), new ByteArrayResource(dto.attachedFile()));
-            }
 
             javaMailSender.send(message);
             log.info("피드백 요청 메일 발송 성공 - To: {}", dto.mentorEmail());

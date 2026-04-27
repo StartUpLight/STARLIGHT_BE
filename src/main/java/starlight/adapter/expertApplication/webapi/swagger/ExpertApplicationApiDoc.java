@@ -219,11 +219,18 @@ public interface ExpertApplicationApiDoc {
             @RequestParam Long businessPlanId,
 
             @Parameter(
-                    description = "사업계획서 PDF 파일 (최대 50MB)",
+                    description = "사업계획서 PDF URL",
                     required = true,
+                    example = "https://kr.object.ncloudstorage.com/starlight-s3/business-plan.pdf"
+            )
+            @RequestParam String pdfUrl,
+
+            @Parameter(
+                    description = "사업계획서 PDF 파일 (전환 기간 호환용, 서버에서 메일 첨부로 사용하지 않음)",
+                    required = false,
                     content = @Content(mediaType = "application/pdf")
             )
-            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "file", required = false) MultipartFile file,
 
             @Parameter(hidden = true)
             @AuthenticationPrincipal AuthenticatedMember authenticatedMember
@@ -243,11 +250,17 @@ public interface ExpertApplicationApiDoc {
         public Long businessPlanId;
 
         @Schema(
-                description = "사업계획서 PDF 파일",
+                description = "사업계획서 PDF URL",
+                example = "https://kr.object.ncloudstorage.com/starlight-s3/business-plan.pdf",
+                required = true
+        )
+        public String pdfUrl;
+
+        @Schema(
+                description = "사업계획서 PDF 파일 (전환 기간 호환용, 서버에서 메일 첨부로 사용하지 않음)",
                 type = "string",
                 format = "binary",
-                required = true,
-                maxLength = 52428800  // 50MB
+                required = false
         )
         public MultipartFile file;
     }

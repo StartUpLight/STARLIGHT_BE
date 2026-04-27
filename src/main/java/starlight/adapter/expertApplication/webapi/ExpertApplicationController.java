@@ -23,10 +23,11 @@ public class ExpertApplicationController implements ExpertApplicationApiDoc {
     public ApiResponse<String> requestFeedback(
             @PathVariable Long expertId,
             @RequestParam Long businessPlanId,
-            @RequestParam("file") MultipartFile file,
+            @RequestParam(required = false) String pdfUrl,
+            @RequestParam(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     ) throws Exception {
-        applicationServiceUseCase.requestFeedback(expertId, businessPlanId, file, authenticatedMember.getMemberName());
+        applicationServiceUseCase.requestFeedback(expertId, businessPlanId, pdfUrl, authenticatedMember.getMemberName());
         return ApiResponse.success("피드백 요청이 전달되었습니다.");
     }
 }
