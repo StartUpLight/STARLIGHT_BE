@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 import starlight.application.order.provided.dto.TossClientResult;
 import starlight.application.order.required.OrderCommandPort;
-import starlight.application.order.required.OrderNotificationPort;
 import starlight.application.order.required.OrderQueryPort;
 import starlight.application.order.required.PaymentGatewayPort;
 import starlight.application.order.required.UsageCreditChargePort;
@@ -28,18 +27,16 @@ class OrderPaymentServiceUnitTest {
     private final OrderQueryPort orderQueryPort = mock(OrderQueryPort.class);
     private final OrderCommandPort orderCommandPort = mock(OrderCommandPort.class);
     private final UsageCreditChargePort usageCreditChargePort = mock(UsageCreditChargePort.class);
-    private final OrderNotificationPort orderNotificationPort = mock(OrderNotificationPort.class);
 
     private final OrderPaymentService sut = new OrderPaymentService(
             paymentGatewayPort,
             orderQueryPort,
             orderCommandPort,
-            usageCreditChargePort,
-            orderNotificationPort
+            usageCreditChargePort
     );
 
     @Test
-    void 결제승인에_성공하면_구매자에게_알림을_보낸다() {
+    void 결제승인에_성공하면_이용권을_충전한다() {
         UsageProductType product = UsageProductType.AI_REPORT_1;
         Orders order = Orders.newUsageOrder(
                 OrderCode.of("order-1"),
@@ -69,16 +66,10 @@ class OrderPaymentServiceUnitTest {
 
         assertThat(savedOrder).isSameAs(order);
         verify(usageCreditChargePort).chargeForOrder(1L, 20L, product.getUsageCount());
-        verify(orderNotificationPort).sendPaymentCompleted(
-                1L,
-                20L,
-                product.getDescription(),
-                product.getUsageCount()
-        );
     }
 
     @Test
-    void 결제준비는_알림을_보내지_않는다() {
+    void 결제준비는_새_주문을_생성한다() {
         UsageProductType product = UsageProductType.AI_REPORT_1;
         Orders order = Orders.newUsageOrder(
                 OrderCode.of("order-1"),
@@ -90,13 +81,8 @@ class OrderPaymentServiceUnitTest {
         when(orderQueryPort.findByOrderCode("order-1")).thenReturn(Optional.empty());
         when(orderCommandPort.save(org.mockito.ArgumentMatchers.any(Orders.class))).thenReturn(order);
 
-        sut.prepare("order-1", 1L, product.getCode());
+        Orders preparedOrder = sut.prepare("order-1", 1L, product.getCode());
 
-        verify(orderNotificationPort, org.mockito.Mockito.never()).sendPaymentCompleted(
-                org.mockito.ArgumentMatchers.any(),
-                org.mockito.ArgumentMatchers.any(),
-                org.mockito.ArgumentMatchers.any(),
-                org.mockito.ArgumentMatchers.anyInt()
-        );
+        assertThat(preparedOrder).isSameAs(order);
     }
 }
