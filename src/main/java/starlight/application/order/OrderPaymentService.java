@@ -8,6 +8,7 @@ import starlight.application.order.provided.dto.PaymentHistoryItemResult;
 import starlight.application.order.provided.OrderPaymentServiceUseCase;
 import starlight.application.order.provided.dto.TossClientResult;
 import starlight.application.order.required.OrderCommandPort;
+import starlight.application.order.required.OrderNotificationPort;
 import starlight.application.order.required.OrderQueryPort;
 import starlight.application.order.required.PaymentGatewayPort;
 import starlight.application.order.required.UsageCreditChargePort;
@@ -34,6 +35,7 @@ public class OrderPaymentService implements OrderPaymentServiceUseCase {
     private final OrderQueryPort orderQueryPort;
     private final OrderCommandPort orderCommandPort;
     private final UsageCreditChargePort usageCreditChargePort;
+    private final OrderNotificationPort orderNotificationPort;
 
     /**
      * 결제 전 주문 준비
@@ -106,7 +108,15 @@ public class OrderPaymentService implements OrderPaymentServiceUseCase {
                 product.getUsageCount()
         );
 
-        return orderCommandPort.save(order);
+        Orders savedOrder = orderCommandPort.save(order);
+        orderNotificationPort.sendPaymentCompleted(
+                savedOrder.getBuyerId(),
+                savedOrder.getId(),
+                product.getDescription(),
+                product.getUsageCount()
+        );
+
+        return savedOrder;
     }
 
     /**

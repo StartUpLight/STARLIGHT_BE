@@ -10,6 +10,7 @@ import starlight.application.expertReport.provided.dto.ExpertReportWithExpertRes
 import starlight.application.expertReport.required.ExpertApplicationCountLookupPort;
 import starlight.application.expertReport.required.ExpertLookupPort;
 import starlight.application.expertReport.required.ExpertReportCommandPort;
+import starlight.application.expertReport.required.ExpertReportNotificationPort;
 import starlight.application.expertReport.required.ExpertReportQueryPort;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.enumerate.PlanStatus;
@@ -45,6 +46,7 @@ public class ExpertReportService implements ExpertReportUseCase {
     private final ExpertLookupPort expertLookupPort;
     private final ExpertApplicationCountLookupPort expertApplicationLookupPort;
     private final BusinessPlanQueryPort businessPlanQuery;
+    private final ExpertReportNotificationPort expertReportNotificationPort;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Override
@@ -72,6 +74,7 @@ public class ExpertReportService implements ExpertReportUseCase {
         report.updateOverallComment(overallComment);
         report.updateComments(comments);
 
+        BusinessPlan finalizedPlan = null;
         switch (saveType) {
             case TEMPORARY -> {
                 report.temporarySave();
@@ -80,11 +83,21 @@ public class ExpertReportService implements ExpertReportUseCase {
                 report.submit();
                 BusinessPlan plan = businessPlanQuery.findByIdOrThrow(report.getBusinessPlanId());
                 plan.updateStatus(PlanStatus.FINALIZED);
+                finalizedPlan = plan;
             }
 
         }
 
-        return expertReportCommand.save(report);
+        ExpertReport savedReport = expertReportCommand.save(report);
+        if (finalizedPlan != null) {
+            expertReportNotificationPort.sendExpertReportSubmitted(
+                    finalizedPlan.getMemberId(),
+                    finalizedPlan.getId(),
+                    finalizedPlan.getTitle()
+            );
+        }
+
+        return savedReport;
     }
 
     @Override
