@@ -16,6 +16,8 @@ import starlight.adapter.notification.webapi.dto.response.NotificationResponse;
 import starlight.adapter.notification.webapi.swagger.NotificationApiDoc;
 import starlight.application.notification.provided.NotificationUseCase;
 import starlight.shared.auth.AuthenticatedMember;
+import starlight.shared.apiPayload.exception.GlobalErrorType;
+import starlight.shared.apiPayload.exception.GlobalException;
 import starlight.shared.apiPayload.response.ApiResponse;
 
 import java.util.List;
@@ -32,6 +34,10 @@ public class NotificationController implements NotificationApiDoc {
     public SseEmitter subscribe(
             @AuthenticationPrincipal AuthenticatedMember authenticatedMember
     ) {
+        if (authenticatedMember == null) {
+            throw new GlobalException(GlobalErrorType.UNAUTHORIZED);
+        }
+
         return notificationUseCase.subscribe(authenticatedMember.getMemberId());
     }
 

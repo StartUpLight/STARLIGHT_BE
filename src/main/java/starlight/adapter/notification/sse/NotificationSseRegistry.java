@@ -19,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Component
 public class NotificationSseRegistry implements NotificationRealtimePort {
 
-    @Value("${notification.sse.timeout-ms:0}")
+    @Value("${notification.sse.timeout-ms:60000}")
     private Long sseTimeoutMs;
 
     private final Map<Long, List<SseEmitter>> emitters = new ConcurrentHashMap<>();

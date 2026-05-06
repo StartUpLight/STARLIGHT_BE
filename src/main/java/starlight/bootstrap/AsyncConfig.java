@@ -60,6 +60,20 @@ public class AsyncConfig implements AsyncConfigurer {
         return executor;
     }
 
+    @Bean(name = "aiReportPdfExecutor")
+    public Executor aiReportPdfExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(8);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("ai-report-pdf-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(120);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        return executor;
+    }
+
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return (ex, method, params) -> {

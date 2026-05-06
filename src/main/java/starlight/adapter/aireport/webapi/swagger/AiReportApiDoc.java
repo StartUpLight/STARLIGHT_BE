@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import starlight.adapter.aireport.webapi.dto.AiReportCreateWithPdfRequest;
@@ -132,16 +133,16 @@ public interface AiReportApiDoc {
     );
 
     @Operation(
-            summary = "PDF URL을 기반으로 사업계획서를 생성하고, AI로 채점 및 생성합니다.",
-            description = "PDF URL을 제공하여 사업계획서를 생성하고, OCR로 텍스트를 추출한 후 AI로 채점하여 리포트를 생성합니다."
+            summary = "PDF URL을 기반으로 사업계획서를 생성하고, AI 채점을 비동기로 요청합니다.",
+            description = "PDF URL로 사업계획서를 생성한 뒤 수락(202)합니다. OCR·채점·저장은 백그라운드에서 처리되며, 완료 시 등록된 이메일로 안내 메일이 발송됩니다."
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "200",
-                    description = "성공",
+                    responseCode = "202",
+                    description = "비동기 처리 수락",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = AiReportResponse.class)
+                            schema = @Schema(implementation = ApiResponse.class)
                     )
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -149,74 +150,24 @@ public interface AiReportApiDoc {
                     description = "요청 오류",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "요청 데이터 오류",
-                                            value = """
-                                    {
-                                      "result": "ERROR",
-                                      "data": null,
-                                      "error": {
-                                        "code": "VALIDATION_ERROR",
-                                        "message": "요청 데이터가 유효하지 않습니다."
-                                      }
-                                    }
-                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "OCR 실패",
-                                            value = """
-                                    {
-                                      "result": "ERROR",
-                                      "data": null,
-                                      "error": {
-                                        "code": "OCR_FAILED",
-                                        "message": "PDF에서 텍스트를 추출하는데 실패했습니다."
-                                      }
-                                    }
-                                    """
-                                    )
+                            examples = @ExampleObject(
+                                    name = "요청 데이터 오류",
+                                    value = """
+                            {
+                              "result": "ERROR",
+                              "data": null,
+                              "error": {
+                                "code": "VALIDATION_ERROR",
+                                "message": "요청 데이터가 유효하지 않습니다."
+                              }
                             }
-                    )
-            ),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "500",
-                    description = "AI 채점 실패",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "AI 채점 실패",
-                                            value = """
-                                    {
-                                      "result": "ERROR",
-                                      "data": null,
-                                      "error": {
-                                        "code": "AI_GRADING_FAILED",
-                                        "message": "AI 채점에 실패했습니다."
-                                      }
-                                    }
-                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "AI 응답 파싱 실패",
-                                            value = """
-                                    {
-                                      "result": "ERROR",
-                                      "data": null,
-                                      "error": {
-                                        "code": "AI_RESPONSE_PARSING_FAILED",
-                                        "message": "AI 응답 파싱에 실패했습니다."
-                                      }
-                                    }
-                                    """
-                                    )
-                            }
+                            """
+                            )
                     )
             )
     })
     @PostMapping("/evaluation/pdf")
-    ApiResponse<AiReportResponse> createAndGradeBusinessPlan(
+    ResponseEntity<ApiResponse<?>> createAndGradeBusinessPlan(
             @AuthenticationPrincipal AuthDetails authDetails,
             @Valid @RequestBody AiReportCreateWithPdfRequest request
     );
