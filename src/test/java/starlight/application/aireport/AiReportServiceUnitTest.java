@@ -3,6 +3,7 @@ package starlight.application.aireport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 import starlight.adapter.aireport.report.parser.AiReportResponseParser;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.ReportGraderPort;
@@ -44,6 +45,7 @@ class AiReportServiceUnitTest {
     private final OcrProviderPort ocrProvider = mock(OcrProviderPort.class);
     private final AiReportResponseParser responseParser = new AiReportResponseParser(objectMapper);
     private final BusinessPlanContentExtractor contentExtractor = mock(BusinessPlanContentExtractor.class);
+    private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
 
     private AiReportService sut;
 
@@ -287,7 +289,8 @@ class AiReportServiceUnitTest {
                 ocrProvider,
                 aiReportNotificationPort,
                 objectMapper,
-                contentExtractor
+                contentExtractor,
+                eventPublisher
         );
     }
 }

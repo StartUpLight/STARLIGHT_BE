@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -15,18 +16,24 @@ import starlight.adapter.aireport.persistence.AiReportJpa;
 import starlight.adapter.aireport.persistence.AiReportRepository;
 import starlight.adapter.businessplan.persistence.BusinessPlanQueryJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
+import starlight.application.aireport.event.AiReportPdfEvaluationEventListener;
+import starlight.application.aireport.event.PdfReportRequestedEvent;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.AiReportCommandPort;
+import starlight.application.aireport.required.AiReportMailPort;
 import starlight.application.aireport.required.AiReportNotificationPort;
 import starlight.application.aireport.required.AiReportQueryPort;
 import starlight.application.aireport.required.OcrProviderPort;
+import starlight.application.aireport.required.PdfDownloadPort;
 import starlight.application.aireport.required.ReportGraderPort;
+import starlight.application.member.required.MemberQueryPort;
 import starlight.application.businessplan.required.BusinessPlanCommandPort;
 import starlight.application.businessplan.required.BusinessPlanQueryPort;
 import starlight.application.aireport.required.BusinessPlanCommandLookupPort;
 import starlight.application.aireport.required.BusinessPlanQueryLookupPort;
 import starlight.application.aireport.util.BusinessPlanContentExtractor;
 import starlight.domain.aireport.entity.AiReport;
+import starlight.domain.member.entity.Member;
 import starlight.domain.businessplan.entity.BusinessPlan;
 import starlight.domain.businessplan.entity.SubSection;
 import starlight.domain.businessplan.enumerate.PlanStatus;
@@ -36,10 +43,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Import({AiReportService.class, AiReportJpa.class, BusinessPlanQueryJpa.class, AiReportServiceIntegrationTest.TestBeans.class})
+@Import({AiReportService.class, AiReportJpa.class, BusinessPlanQueryJpa.class, AiReportPdfEvaluationEventListener.class, AiReportServiceIntegrationTest.TestBeans.class})
 @DisplayName("AiReportService 통합 테스트")
 class AiReportServiceIntegrationTest {
 
@@ -51,6 +61,10 @@ class AiReportServiceIntegrationTest {
     AiReportRepository aiReportRepository;
     @Autowired
     EntityManager em;
+    @Autowired
+    AiReportPdfEvaluationEventListener aiReportPdfEvaluationEventListener;
+    @Autowired
+    AiReportMailPort aiReportMailPort;
 
     @TestConfiguration
     static class TestBeans {
@@ -227,6 +241,26 @@ class AiReportServiceIntegrationTest {
             };
         }
 
+        @Bean
+        PdfDownloadPort pdfDownloadPort() {
+            return url -> new byte[]{0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E, 0x0A};
+        }
+
+        @Bean
+        AiReportMailPort aiReportMailPort() {
+            return Mockito.mock(AiReportMailPort.class);
+        }
+
+        @Bean
+        MemberQueryPort memberQueryPort() {
+            MemberQueryPort port = Mockito.mock(MemberQueryPort.class);
+            Member member = Mockito.mock(Member.class);
+            Mockito.when(member.getEmail()).thenReturn("tester@example.com");
+            Mockito.when(member.getName()).thenReturn("테스트회원");
+            Mockito.when(port.findByIdOrThrow(Mockito.anyLong())).thenReturn(member);
+            return port;
+        }
+
     }
 
     /**
@@ -264,6 +298,17 @@ class AiReportServiceIntegrationTest {
         SubSection teamMembers = SubSection.create(SubSectionType.TEAM_MEMBERS, "content", "{}", List.of(false, false, false, false, false));
         plan.getTeamCompetence().putSubSection(teamFounder);
         plan.getTeamCompetence().putSubSection(teamMembers);
+    }
+
+    /**
+     * 프로덕션에서는 커밋 후 이벤트로 비동기 처리되지만, 슬라이스 테스트에서는 리스너를 직접 호출한다.
+     * {@code @Transactional} 테스트 롤백 시 {@code publishEvent}의 AFTER_COMMIT 리스너는 실행되지 않는다.
+     */
+    private void runPdfEvaluationPipeline(String title, String pdfUrl, Long memberId) {
+        sut.requestCreateAndGradePdfBusinessPlan(title, pdfUrl, memberId);
+        em.flush();
+        Long planId = businessPlanRepository.findAllByMemberIdOrderByLastSavedAt(memberId).get(0).getId();
+        aiReportPdfEvaluationEventListener.onPdfReportRequested(new PdfReportRequestedEvent(planId, pdfUrl, memberId));
     }
 
     @Test
@@ -408,12 +453,17 @@ class AiReportServiceIntegrationTest {
         String pdfUrl = "https://example.com/test.pdf";
 
         // when
-        AiReportResult result = sut.createAndGradePdfBusinessPlan(title, pdfUrl, memberId);
+        runPdfEvaluationPipeline(title, pdfUrl, memberId);
+        em.flush();
+        em.clear();
+
+        Long planId = businessPlanRepository.findAllByMemberIdOrderByLastSavedAt(memberId).get(0).getId();
+        AiReportResult result = sut.getAiReport(planId, memberId);
 
         // then
         assertThat(result).isNotNull();
         assertThat(result.id()).isNotNull();
-        assertThat(result.businessPlanId()).isNotNull();
+        assertThat(result.businessPlanId()).isEqualTo(planId);
         assertThat(result.totalScore()).isEqualTo(95);
         assertThat(result.problemRecognitionScore()).isEqualTo(20);
         assertThat(result.feasibilityScore()).isEqualTo(25);
@@ -423,17 +473,17 @@ class AiReportServiceIntegrationTest {
         assertThat(result.weaknesses()).hasSize(3);
         assertThat(result.sectionScores()).hasSize(4);
 
-        // BusinessPlan이 생성되었는지 확인
-        BusinessPlan createdPlan = businessPlanRepository.findById(result.businessPlanId()).orElseThrow();
+        BusinessPlan createdPlan = businessPlanRepository.findById(planId).orElseThrow();
         assertThat(createdPlan.getTitle()).isEqualTo(title);
         assertThat(createdPlan.getPdfUrl()).isEqualTo(pdfUrl);
         assertThat(createdPlan.getMemberId()).isEqualTo(memberId);
         assertThat(createdPlan.getPlanStatus()).isEqualTo(PlanStatus.AI_REVIEWED);
 
-        // AiReport가 생성되었는지 확인
-        Optional<AiReport> savedReport = aiReportRepository.findByBusinessPlanId(result.businessPlanId());
+        Optional<AiReport> savedReport = aiReportRepository.findByBusinessPlanId(planId);
         assertThat(savedReport).isPresent();
-        assertThat(savedReport.get().getBusinessPlanId()).isEqualTo(result.businessPlanId());
+        assertThat(savedReport.get().getBusinessPlanId()).isEqualTo(planId);
+
+        verify(aiReportMailPort).sendPdfAiReportReadyMail(any(AiReportReadyMailInput.class));
     }
 
     @Test
@@ -444,16 +494,17 @@ class AiReportServiceIntegrationTest {
         String title = "테스트 사업계획서";
         String pdfUrl = "https://example.com/test.pdf";
 
-        // when - PDF로 사업계획서 생성 및 채점
-        AiReportResult createdResult = sut.createAndGradePdfBusinessPlan(title, pdfUrl, memberId);
-        Long planId = createdResult.businessPlanId();
+        runPdfEvaluationPipeline(title, pdfUrl, memberId);
         em.flush();
         em.clear();
 
-        // when - 리포트 조회
+        Long planId = businessPlanRepository.findAllByMemberIdOrderByLastSavedAt(memberId).get(0).getId();
+        AiReportResult createdResult = sut.getAiReport(planId, memberId);
+        em.flush();
+        em.clear();
+
         AiReportResult retrievedResult = sut.getAiReport(planId, memberId);
 
-        // then
         assertThat(retrievedResult).isNotNull();
         assertThat(retrievedResult.id()).isEqualTo(createdResult.id());
         assertThat(retrievedResult.businessPlanId()).isEqualTo(planId);
