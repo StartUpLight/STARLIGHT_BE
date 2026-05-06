@@ -125,22 +125,13 @@
                                 th:if="${planFileUrl != null and !#strings.isEmpty(planFileUrl)}"
                                 style="margin-top: 8px; margin-bottom: 8px; line-height: 1.5;"
                         >
-                            아래에서 사업계획서를 확인하시고,
-                            <span th:text="${feedbackDeadline}" class="highlight" style="color: #6F5FFF; font-weight: 700;"></span>
-                            까지 피드백을 완료해 주세요.
-                        </p>
-
-                        <p
-                                th:unless="${planFileUrl != null and !#strings.isEmpty(planFileUrl)}"
-                                style="margin-top: 8px; margin-bottom: 8px; line-height: 1.5;"
-                        >
-                            첨부된 파일을 확인하시고,
-                            <span th:text="${feedbackDeadline}" class="highlight" style="color: #6F5FFF; font-weight: 700;"></span>
-                            까지 피드백을 완료해 주세요.
+                            아래에서 사업계획서를 확인하실 수 있습니다.
                         </p>
 
                         <p style="margin-top: 8px; margin-bottom: 24px; line-height: 1.5;">
-                            피드백 페이지에서 검토 의견과 평가 내용을 작성하실 수 있습니다.
+                            피드백 페이지에서 사업계획서를 검토하고,
+                            <span th:text="${feedbackDeadline}" class="highlight" style="color: #6F5FFF; font-weight: 700;"></span>
+                            까지 검토 의견과 평가 내용을 작성해 주세요.
                         </p>
 
                         <table role="presentation" cellspacing="0" cellpadding="0" border="0">

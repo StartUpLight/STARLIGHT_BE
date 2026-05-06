@@ -22,6 +22,7 @@ import starlight.domain.expertApplication.entity.ExpertApplication;
 import starlight.domain.expertApplication.exception.ExpertApplicationErrorType;
 import starlight.domain.expertApplication.exception.ExpertApplicationException;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -72,14 +73,28 @@ public class ExpertApplicationCommandService implements ExpertApplicationCommand
 
     private String resolvePlanFileUrl(BusinessPlan plan, String pdfUrl) {
         if (StringUtils.hasText(pdfUrl)) {
-            return pdfUrl;
+            return validatePdfUrl(pdfUrl);
         }
 
         if (plan.isPdfBased() && StringUtils.hasText(plan.getPdfUrl())) {
-            return plan.getPdfUrl();
+            return validatePdfUrl(plan.getPdfUrl());
         }
 
         throw new ExpertApplicationException(ExpertApplicationErrorType.INVALID_PDF_URL);
+    }
+
+    private String validatePdfUrl(String pdfUrl) {
+        String trimmedUrl = pdfUrl.trim();
+
+        try {
+            URI uri = URI.create(trimmedUrl);
+            if (!"https".equalsIgnoreCase(uri.getScheme()) || !StringUtils.hasText(uri.getHost())) {
+                throw new ExpertApplicationException(ExpertApplicationErrorType.INVALID_PDF_URL);
+            }
+            return trimmedUrl;
+        } catch (IllegalArgumentException exception) {
+            throw new ExpertApplicationException(ExpertApplicationErrorType.INVALID_PDF_URL);
+        }
     }
 
     protected void publishEmailEvent(Expert expert, BusinessPlan plan, String planFileUrl, String menteeName) {
