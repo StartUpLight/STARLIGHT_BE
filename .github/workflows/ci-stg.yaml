@@ -64,16 +64,9 @@ jobs:
       - name: Checkout manifest repository
         uses: actions/checkout@v6
         with:
-          repository: 'StartUpLight/STARLIGHT_MANIFEST'
-          token: ${{ secrets.PAT }}
-          path: 'manifest'
-
-      - name: Checkout manifest repository (oracle)
-        uses: actions/checkout@v6
-        with:
           repository: 'StartUpLight/STARLIGHT_MANIFEST_ORACLE'
           token: ${{ secrets.PAT }}
-          path: 'manifest-oracle'
+          path: 'manifest'
 
       - name: Update deployment.yml and push manifests
         env:
@@ -117,4 +110,3 @@ jobs:
           }
 
           update_manifest manifest
-          update_manifest manifest-oracle
