@@ -64,7 +64,7 @@ jobs:
       - name: Checkout manifest repository
         uses: actions/checkout@v6
         with:
-          repository: 'StartUpLight/STARLIGHT_MANIFEST'
+          repository: 'StartUpLight/STARLIGHT_MANIFEST_ORACLE'
           token: ${{ secrets.PAT }}
           path: 'manifest'
 
