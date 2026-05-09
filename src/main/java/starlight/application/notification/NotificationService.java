@@ -10,10 +10,13 @@ import starlight.application.notification.provided.NotificationUseCase;
 import starlight.application.notification.provided.dto.input.NotificationSendInput;
 import starlight.application.notification.provided.dto.result.NotificationResult;
 import starlight.application.notification.required.NotificationCommandPort;
+import starlight.application.notification.required.NotificationOutboxCommandPort;
 import starlight.application.notification.required.NotificationQueryPort;
 import starlight.application.notification.required.NotificationRealtimePort;
 import starlight.domain.notification.entity.Notification;
+import starlight.domain.notification.entity.NotificationOutbox;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -21,6 +24,7 @@ import java.util.List;
 public class NotificationService implements NotificationUseCase {
 
     private final NotificationCommandPort notificationCommandPort;
+    private final NotificationOutboxCommandPort notificationOutboxCommandPort;
     private final NotificationQueryPort notificationQueryPort;
     private final NotificationRealtimePort notificationRealtimePort;
     private final ApplicationEventPublisher eventPublisher;
@@ -37,7 +41,11 @@ public class NotificationService implements NotificationUseCase {
         );
 
         Notification savedNotification = notificationCommandPort.save(notification);
-        eventPublisher.publishEvent(NotificationCreatedEvent.of(savedNotification.getId()));
+        NotificationOutbox savedOutbox = notificationOutboxCommandPort.save(
+                NotificationOutbox.create(savedNotification.getId(), LocalDateTime.now())
+        );
+
+        eventPublisher.publishEvent(NotificationCreatedEvent.of(savedOutbox.getId()));
     }
 
     @Override

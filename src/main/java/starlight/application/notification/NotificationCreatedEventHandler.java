@@ -12,10 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import starlight.application.notification.event.NotificationCreatedEvent;
-import starlight.application.notification.required.NotificationPublishPort;
-import starlight.application.notification.required.NotificationQueryPort;
-import starlight.application.notification.required.dto.NotificationPublishMessage;
-import starlight.domain.notification.entity.Notification;
 import starlight.domain.notification.exception.NotificationException;
 
 @Slf4j
@@ -23,8 +19,7 @@ import starlight.domain.notification.exception.NotificationException;
 @RequiredArgsConstructor
 public class NotificationCreatedEventHandler {
 
-    private final NotificationQueryPort notificationQueryPort;
-    private final NotificationPublishPort notificationPublishPort;
+    private final NotificationOutboxPublishService notificationOutboxPublishService;
 
     @Async("notificationTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -38,18 +33,12 @@ public class NotificationCreatedEventHandler {
             noRetryFor = {NotificationException.class}
     )
     public void handle(NotificationCreatedEvent event) {
-        Notification notification = notificationQueryPort.findByIdOrThrow(event.notificationId());
-        NotificationPublishMessage message = NotificationPublishMessage.from(notification);
-
-        notificationPublishPort.publish(message);
-
-        log.info("[NOTIFICATION] published notificationId={}, memberId={}",
-                message.notificationId(), message.memberId());
+        notificationOutboxPublishService.publish(event.outboxId());
     }
 
     @Recover
     public void recover(Exception exception, NotificationCreatedEvent event) {
-        log.error("[NOTIFICATION] publish failed after retries notificationId={}",
-                event.notificationId(), exception);
+        log.error("[NOTIFICATION] publish failed after retries outboxId={}",
+                event.outboxId(), exception);
     }
 }
