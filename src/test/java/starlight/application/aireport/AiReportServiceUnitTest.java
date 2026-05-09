@@ -9,6 +9,7 @@ import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.ReportGraderPort;
 import starlight.application.aireport.required.AiReportQueryPort;
 import starlight.application.aireport.required.AiReportCommandPort;
+import starlight.application.aireport.required.AiReportNotificationPort;
 import starlight.application.aireport.required.OcrProviderPort;
 import starlight.application.aireport.required.BusinessPlanCommandLookupPort;
 import starlight.application.aireport.required.BusinessPlanQueryLookupPort;
@@ -39,6 +40,7 @@ class AiReportServiceUnitTest {
     private final AiReportQueryPort aiReportQuery = mock(AiReportQueryPort.class);
     private final AiReportCommandPort aiReportCommand = mock(AiReportCommandPort.class);
     private final ReportGraderPort aiReportGrader = mock(ReportGraderPort.class);
+    private final AiReportNotificationPort aiReportNotificationPort = mock(AiReportNotificationPort.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final OcrProviderPort ocrProvider = mock(OcrProviderPort.class);
     private final AiReportResponseParser responseParser = new AiReportResponseParser(objectMapper);
@@ -55,6 +57,8 @@ class AiReportServiceUnitTest {
         Long memberId = 1L;
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.getId()).thenReturn(planId);
+        when(plan.getMemberId()).thenReturn(memberId);
+        when(plan.getTitle()).thenReturn("사업계획서");
         when(plan.isOwnedBy(memberId)).thenReturn(true);
         when(plan.areWritingCompleted()).thenReturn(true);
         when(businessPlanQueryLookupPort.findByIdOrThrow(planId)).thenReturn(plan);
@@ -96,7 +100,7 @@ class AiReportServiceUnitTest {
         when(aiReportCommand.save(any(AiReport.class))).thenReturn(savedReport);
         when(businessPlanCommandLookupPort.save(any(BusinessPlan.class))).thenReturn(plan);
 
-        sut = new AiReportService(businessPlanCommandLookupPort, businessPlanQueryLookupPort, aiReportQuery, aiReportCommand, aiReportGrader, ocrProvider, objectMapper, contentExtractor, eventPublisher);
+        sut = createSut();
 
         // when
         AiReportResult result = sut.gradeBusinessPlan(planId, memberId);
@@ -106,6 +110,7 @@ class AiReportServiceUnitTest {
         verify(plan).updateStatus(PlanStatus.AI_REVIEWED);
         verify(aiReportCommand).save(any(AiReport.class));
         verify(businessPlanCommandLookupPort).save(plan);
+        verify(aiReportNotificationPort).sendAiReportCompleted(plan.getMemberId(), plan.getId(), plan.getTitle());
     }
 
     @Test
@@ -116,6 +121,8 @@ class AiReportServiceUnitTest {
         Long memberId = 1L;
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.getId()).thenReturn(planId);
+        when(plan.getMemberId()).thenReturn(memberId);
+        when(plan.getTitle()).thenReturn("사업계획서");
         when(plan.isOwnedBy(memberId)).thenReturn(true);
         when(plan.areWritingCompleted()).thenReturn(true);
         when(businessPlanQueryLookupPort.findByIdOrThrow(planId)).thenReturn(plan);
@@ -158,7 +165,7 @@ class AiReportServiceUnitTest {
         when(aiReportCommand.save(existingReport)).thenReturn(existingReport);
         when(businessPlanCommandLookupPort.save(any(BusinessPlan.class))).thenReturn(plan);
 
-        sut = new AiReportService(businessPlanCommandLookupPort, businessPlanQueryLookupPort, aiReportQuery, aiReportCommand, aiReportGrader, ocrProvider, objectMapper, contentExtractor, eventPublisher);
+        sut = createSut();
 
         // when
         AiReportResult result = sut.gradeBusinessPlan(planId, memberId);
@@ -168,6 +175,7 @@ class AiReportServiceUnitTest {
         verify(existingReport).update(anyString());
         // 기존 리포트가 있어도 상태는 AI_REVIEWED로 갱신됨
         verify(plan).updateStatus(PlanStatus.AI_REVIEWED);
+        verify(aiReportNotificationPort).sendAiReportCompleted(plan.getMemberId(), plan.getId(), plan.getTitle());
     }
 
     @Test
@@ -180,7 +188,7 @@ class AiReportServiceUnitTest {
         when(plan.isOwnedBy(memberId)).thenReturn(false);
         when(businessPlanQueryLookupPort.findByIdOrThrow(planId)).thenReturn(plan);
 
-        sut = new AiReportService(businessPlanCommandLookupPort, businessPlanQueryLookupPort, aiReportQuery, aiReportCommand, aiReportGrader, ocrProvider, objectMapper, contentExtractor, eventPublisher);
+        sut = createSut();
 
         // when & then
         assertThatThrownBy(() -> sut.gradeBusinessPlan(planId, memberId))
@@ -200,7 +208,7 @@ class AiReportServiceUnitTest {
         when(plan.areWritingCompleted()).thenReturn(false);
         when(businessPlanQueryLookupPort.findByIdOrThrow(planId)).thenReturn(plan);
 
-        sut = new AiReportService(businessPlanCommandLookupPort, businessPlanQueryLookupPort, aiReportQuery, aiReportCommand, aiReportGrader, ocrProvider, objectMapper, contentExtractor, eventPublisher);
+        sut = createSut();
 
         // when & then
         assertThatThrownBy(() -> sut.gradeBusinessPlan(planId, memberId))
@@ -238,7 +246,7 @@ class AiReportServiceUnitTest {
         when(aiReport.getRawJson()).thenReturn(RawJson.create(rawJson));
         when(aiReportQuery.findByBusinessPlanId(planId)).thenReturn(Optional.of(aiReport));
 
-        sut = new AiReportService(businessPlanCommandLookupPort, businessPlanQueryLookupPort, aiReportQuery, aiReportCommand, aiReportGrader, ocrProvider, objectMapper, contentExtractor, eventPublisher);
+        sut = createSut();
 
         // when
         AiReportResult result = sut.getAiReport(planId, memberId);
@@ -262,7 +270,7 @@ class AiReportServiceUnitTest {
         when(businessPlanQueryLookupPort.findByIdOrThrow(planId)).thenReturn(plan);
         when(aiReportQuery.findByBusinessPlanId(planId)).thenReturn(Optional.empty());
 
-        sut = new AiReportService(businessPlanCommandLookupPort, businessPlanQueryLookupPort, aiReportQuery, aiReportCommand, aiReportGrader, ocrProvider, objectMapper, contentExtractor, eventPublisher);
+        sut = createSut();
 
         // when & then
         assertThatThrownBy(() -> sut.getAiReport(planId, memberId))
@@ -270,5 +278,19 @@ class AiReportServiceUnitTest {
                 .extracting("errorType")
                 .isEqualTo(AiReportErrorType.AI_REPORT_NOT_FOUND);
     }
-}
 
+    private AiReportService createSut() {
+        return new AiReportService(
+                businessPlanCommandLookupPort,
+                businessPlanQueryLookupPort,
+                aiReportQuery,
+                aiReportCommand,
+                aiReportGrader,
+                ocrProvider,
+                aiReportNotificationPort,
+                objectMapper,
+                contentExtractor,
+                eventPublisher
+        );
+    }
+}
