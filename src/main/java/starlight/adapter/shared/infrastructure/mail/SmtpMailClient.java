@@ -65,7 +65,7 @@ public class SmtpMailClient implements BackofficeMailPort,
     public void sendFeedbackRequestMail(FeedbackRequestInput input) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
 
             helper.setFrom(senderEmail);
             helper.setTo(input.mentorEmail());
@@ -77,13 +77,10 @@ public class SmtpMailClient implements BackofficeMailPort,
             ctx.setVariable("planTitle", input.businessPlanTitle());
             ctx.setVariable("feedbackDeadline", input.feedbackDeadline());
             ctx.setVariable("feedbackUrl", input.feedbackUrl());
+            ctx.setVariable("planFileUrl", input.planFileUrl());
 
             String htmlContent = templateEngine.process("feedback-request", ctx);
             helper.setText(htmlContent, true);
-
-            if (input.attachedFile() != null && input.filename() != null) {
-                helper.addAttachment(input.filename(), new ByteArrayResource(input.attachedFile()));
-            }
 
             javaMailSender.send(message);
             log.info("피드백 요청 메일 발송 성공 - To: {}", input.mentorEmail());

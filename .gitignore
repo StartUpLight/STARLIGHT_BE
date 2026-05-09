@@ -47,3 +47,4 @@ dist/
 *.log
 /docs/
 /AGENTS.md
+/data/
