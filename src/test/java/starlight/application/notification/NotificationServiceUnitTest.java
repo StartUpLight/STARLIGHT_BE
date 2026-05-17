@@ -1,5 +1,6 @@
 package starlight.application.notification;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,6 +16,7 @@ import starlight.application.notification.required.NotificationCommandPort;
 import starlight.application.notification.required.NotificationOutboxCommandPort;
 import starlight.application.notification.required.NotificationQueryPort;
 import starlight.application.notification.required.NotificationRealtimePort;
+import starlight.application.notification.required.dto.NotificationPublishMessage;
 import starlight.domain.notification.entity.Notification;
 import starlight.domain.notification.entity.NotificationOutbox;
 import starlight.domain.notification.exception.NotificationException;
@@ -45,6 +47,11 @@ class NotificationServiceUnitTest {
 
     @InjectMocks
     private NotificationService notificationService;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(notificationService, "sseRecoveryLimit", 100);
+    }
 
     @Test
     void notifyMember_저장후_이벤트를_발행한다() {
@@ -119,14 +126,14 @@ class NotificationServiceUnitTest {
         Notification notification = Notification.create(1L, "SYSTEM", "title", "message", null);
         ReflectionTestUtils.setField(notification, "id", 11L);
 
-        when(notificationQueryPort.findAllByMemberIdAndIdGreaterThanOrderByIdAsc(1L, 10L))
+        when(notificationQueryPort.findAllByMemberIdAndIdGreaterThanOrderByIdAsc(1L, 10L, 100))
                 .thenReturn(List.of(notification));
         when(notificationRealtimePort.subscribe(eq(1L), anyList())).thenReturn(emitter);
 
         SseEmitter result = notificationService.subscribe(1L, 10L);
 
         assertSame(emitter, result);
-        verify(notificationQueryPort).findAllByMemberIdAndIdGreaterThanOrderByIdAsc(1L, 10L);
+        verify(notificationQueryPort).findAllByMemberIdAndIdGreaterThanOrderByIdAsc(1L, 10L, 100);
         verify(notificationRealtimePort).subscribe(eq(1L), argThat(messages ->
                 messages.size() == 1 && messages.getFirst().notificationId().equals(11L)
         ));
@@ -141,6 +148,38 @@ class NotificationServiceUnitTest {
         SseEmitter result = notificationService.subscribe(1L, 0L);
 
         assertSame(emitter, result);
-        verify(notificationQueryPort, never()).findAllByMemberIdAndIdGreaterThanOrderByIdAsc(anyLong(), anyLong());
+        verify(notificationQueryPort, never())
+                .findAllByMemberIdAndIdGreaterThanOrderByIdAsc(anyLong(), anyLong(), anyInt());
+    }
+
+    @Test
+    void sendRealtime_구독자가_없으면_DB를_조회하지_않는다() {
+        NotificationPublishMessage message = new NotificationPublishMessage(1L, 10L, "SYSTEM");
+
+        when(notificationRealtimePort.hasSubscriber(1L)).thenReturn(false);
+
+        notificationService.sendRealtime(message);
+
+        verify(notificationQueryPort, never()).findByIdOrThrow(anyLong());
+        verify(notificationRealtimePort, never()).send(any());
+    }
+
+    @Test
+    void sendRealtime_구독자가_있으면_DB조회후_실시간전송한다() {
+        NotificationPublishMessage message = new NotificationPublishMessage(1L, 10L, "SYSTEM");
+        Notification notification = Notification.create(1L, "SYSTEM", "title", "message", null);
+        ReflectionTestUtils.setField(notification, "id", 10L);
+
+        when(notificationRealtimePort.hasSubscriber(1L)).thenReturn(true);
+        when(notificationQueryPort.findByIdOrThrow(10L)).thenReturn(notification);
+
+        notificationService.sendRealtime(message);
+
+        verify(notificationQueryPort).findByIdOrThrow(10L);
+        verify(notificationRealtimePort).send(argThat(realtimeMessage ->
+                realtimeMessage.notificationId().equals(10L)
+                        && realtimeMessage.title().equals("title")
+                        && realtimeMessage.message().equals("message")
+        ));
     }
 }

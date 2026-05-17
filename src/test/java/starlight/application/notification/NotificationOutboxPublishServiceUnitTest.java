@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -87,7 +88,11 @@ class NotificationOutboxPublishServiceUnitTest {
 
         assertTrue(result);
         assertEquals(NotificationOutboxStatus.SENT, outbox.getStatus());
-        verify(notificationPublishPort).publish(any(NotificationPublishMessage.class));
+        var messageCaptor = forClass(NotificationPublishMessage.class);
+        verify(notificationPublishPort).publish(messageCaptor.capture());
+        assertEquals(1L, messageCaptor.getValue().memberId());
+        assertEquals(10L, messageCaptor.getValue().notificationId());
+        assertEquals("SYSTEM", messageCaptor.getValue().type());
     }
 
     @Test
