@@ -1,6 +1,7 @@
 package starlight.adapter.notification.persistence;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import starlight.application.notification.required.NotificationCommandPort;
 import starlight.application.notification.required.NotificationQueryPort;
@@ -33,7 +34,15 @@ public class NotificationJpa implements NotificationCommandPort, NotificationQue
     }
 
     @Override
-    public List<Notification> findAllByMemberIdAndIdGreaterThanOrderByIdAsc(Long memberId, Long notificationId) {
-        return notificationRepository.findAllByMemberIdAndIdGreaterThanOrderByIdAsc(memberId, notificationId);
+    public List<Notification> findAllByMemberIdAndIdGreaterThanOrderByIdAsc(
+            Long memberId,
+            Long notificationId,
+            int limit
+    ) {
+        return notificationRepository.findAllByMemberIdAndIdGreaterThanOrderByIdAsc(
+                memberId,
+                notificationId,
+                PageRequest.of(0, limit)
+        );
     }
 }

@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
-import starlight.application.notification.required.NotificationRealtimePort;
+import starlight.application.notification.provided.NotificationUseCase;
 import starlight.application.notification.required.dto.NotificationPublishMessage;
 
 import java.nio.charset.StandardCharsets;
@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 public class RedisNotificationSubscriber implements MessageListener {
 
     private final ObjectMapper objectMapper;
-    private final NotificationRealtimePort notificationRealtimePort;
+    private final NotificationUseCase notificationUseCase;
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
@@ -28,7 +28,7 @@ public class RedisNotificationSubscriber implements MessageListener {
     void handlePayload(String payload) {
         try {
             NotificationPublishMessage publishMessage = objectMapper.readValue(payload, NotificationPublishMessage.class);
-            notificationRealtimePort.send(publishMessage);
+            notificationUseCase.sendRealtime(publishMessage);
         } catch (Exception exception) {
             log.warn("[NOTIFICATION] failed to consume redis payload={}", payload, exception);
         }

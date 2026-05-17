@@ -1,6 +1,7 @@
 package starlight.application.notification;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import starlight.application.notification.required.NotificationOutboxCommandPort
 import starlight.application.notification.required.NotificationQueryPort;
 import starlight.application.notification.required.NotificationRealtimePort;
 import starlight.application.notification.required.dto.NotificationPublishMessage;
+import starlight.application.notification.required.dto.NotificationRealtimeMessage;
 import starlight.domain.notification.entity.Notification;
 import starlight.domain.notification.entity.NotificationOutbox;
 
@@ -29,6 +31,9 @@ public class NotificationService implements NotificationUseCase {
     private final NotificationQueryPort notificationQueryPort;
     private final NotificationRealtimePort notificationRealtimePort;
     private final ApplicationEventPublisher eventPublisher;
+
+    @Value("${notification.sse.recovery-limit:100}")
+    private int sseRecoveryLimit;
 
     @Override
     @Transactional
@@ -69,17 +74,32 @@ public class NotificationService implements NotificationUseCase {
     @Override
     @Transactional(readOnly = true)
     public SseEmitter subscribe(Long memberId, Long lastEventId) {
-        List<NotificationPublishMessage> missedMessages = findMissedMessages(memberId, lastEventId);
+        List<NotificationRealtimeMessage> missedMessages = findMissedMessages(memberId, lastEventId);
         return notificationRealtimePort.subscribe(memberId, missedMessages);
     }
 
-    private List<NotificationPublishMessage> findMissedMessages(Long memberId, Long lastEventId) {
+    @Override
+    @Transactional(readOnly = true)
+    public void sendRealtime(NotificationPublishMessage message) {
+        if (!notificationRealtimePort.hasSubscriber(message.memberId())) {
+            return;
+        }
+
+        Notification notification = notificationQueryPort.findByIdOrThrow(message.notificationId());
+        notificationRealtimePort.send(NotificationRealtimeMessage.from(notification));
+    }
+
+    private List<NotificationRealtimeMessage> findMissedMessages(Long memberId, Long lastEventId) {
         if (lastEventId == null || lastEventId <= 0) {
             return List.of();
         }
 
-        return notificationQueryPort.findAllByMemberIdAndIdGreaterThanOrderByIdAsc(memberId, lastEventId).stream()
-                .map(NotificationPublishMessage::from)
+        return notificationQueryPort.findAllByMemberIdAndIdGreaterThanOrderByIdAsc(
+                        memberId,
+                        lastEventId,
+                        sseRecoveryLimit
+                ).stream()
+                .map(NotificationRealtimeMessage::from)
                 .toList();
     }
 }

@@ -10,5 +10,9 @@ public interface NotificationQueryPort {
 
     List<Notification> findAllByMemberIdOrderByIdDesc(Long memberId);
 
-    List<Notification> findAllByMemberIdAndIdGreaterThanOrderByIdAsc(Long memberId, Long notificationId);
+    List<Notification> findAllByMemberIdAndIdGreaterThanOrderByIdAsc(
+            Long memberId,
+            Long notificationId,
+            int limit
+    );
 }
