@@ -106,10 +106,29 @@ class NotificationServiceUnitTest {
     void subscribe_실시간포트에_위임한다() {
         SseEmitter emitter = new SseEmitter();
 
-        when(notificationRealtimePort.subscribe(1L)).thenReturn(emitter);
+        when(notificationRealtimePort.subscribe(1L, List.of())).thenReturn(emitter);
 
-        SseEmitter result = notificationService.subscribe(1L);
+        SseEmitter result = notificationService.subscribe(1L, null);
 
         assertSame(emitter, result);
+    }
+
+    @Test
+    void subscribe_lastEventId가_있으면_누락알림을_조회해_전달한다() {
+        SseEmitter emitter = new SseEmitter();
+        Notification notification = Notification.create(1L, "SYSTEM", "title", "message", null);
+        ReflectionTestUtils.setField(notification, "id", 11L);
+
+        when(notificationQueryPort.findAllByMemberIdAndIdGreaterThanOrderByIdAsc(1L, 10L))
+                .thenReturn(List.of(notification));
+        when(notificationRealtimePort.subscribe(eq(1L), anyList())).thenReturn(emitter);
+
+        SseEmitter result = notificationService.subscribe(1L, 10L);
+
+        assertSame(emitter, result);
+        verify(notificationQueryPort).findAllByMemberIdAndIdGreaterThanOrderByIdAsc(1L, 10L);
+        verify(notificationRealtimePort).subscribe(eq(1L), argThat(messages ->
+                messages.size() == 1 && messages.getFirst().notificationId().equals(11L)
+        ));
     }
 }
