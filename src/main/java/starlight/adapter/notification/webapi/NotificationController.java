@@ -42,7 +42,7 @@ public class NotificationController implements NotificationApiDoc {
             throw new GlobalException(GlobalErrorType.UNAUTHORIZED);
         }
 
-        Long resolvedLastEventId = lastEventId != null ? lastEventId : lastEventIdHeader;
+        Long resolvedLastEventId = lastEventIdHeader != null ? lastEventIdHeader : lastEventId;
         return notificationUseCase.subscribe(authenticatedMember.getMemberId(), resolvedLastEventId);
     }
 

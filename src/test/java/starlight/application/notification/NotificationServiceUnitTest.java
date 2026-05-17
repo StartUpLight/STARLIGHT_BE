@@ -131,4 +131,16 @@ class NotificationServiceUnitTest {
                 messages.size() == 1 && messages.getFirst().notificationId().equals(11L)
         ));
     }
+
+    @Test
+    void subscribe_lastEventId가_0이하면_누락알림을_조회하지_않는다() {
+        SseEmitter emitter = new SseEmitter();
+
+        when(notificationRealtimePort.subscribe(1L, List.of())).thenReturn(emitter);
+
+        SseEmitter result = notificationService.subscribe(1L, 0L);
+
+        assertSame(emitter, result);
+        verify(notificationQueryPort, never()).findAllByMemberIdAndIdGreaterThanOrderByIdAsc(anyLong(), anyLong());
+    }
 }

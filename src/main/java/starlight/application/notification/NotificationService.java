@@ -74,7 +74,7 @@ public class NotificationService implements NotificationUseCase {
     }
 
     private List<NotificationPublishMessage> findMissedMessages(Long memberId, Long lastEventId) {
-        if (lastEventId == null) {
+        if (lastEventId == null || lastEventId <= 0) {
             return List.of();
         }
 
