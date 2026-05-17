@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import starlight.adapter.notification.webapi.dto.request.NotificationTestRequest;
@@ -32,13 +34,16 @@ public class NotificationController implements NotificationApiDoc {
     @Override
     @GetMapping("/subscribe")
     public SseEmitter subscribe(
-            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember,
+            @RequestHeader(value = "Last-Event-ID", required = false) Long lastEventIdHeader,
+            @RequestParam(value = "lastEventId", required = false) Long lastEventId
     ) {
         if (authenticatedMember == null) {
             throw new GlobalException(GlobalErrorType.UNAUTHORIZED);
         }
 
-        return notificationUseCase.subscribe(authenticatedMember.getMemberId());
+        Long resolvedLastEventId = lastEventId != null ? lastEventId : lastEventIdHeader;
+        return notificationUseCase.subscribe(authenticatedMember.getMemberId(), resolvedLastEventId);
     }
 
     @Override

@@ -14,5 +14,5 @@ public interface NotificationUseCase {
 
     void markAsRead(Long notificationId, Long memberId);
 
-    SseEmitter subscribe(Long memberId);
+    SseEmitter subscribe(Long memberId, Long lastEventId);
 }
