@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>사업계획서 AI 리포트</title>
+    <style>
+      :root {
+        --primary-500: #6f55ff;
+        --primary-200: #bdb1ff;
+        --gray-80: #f8f9fc;
+        --gray-100: #f3f5f9;
+        --gray-300: #dadfe7;
+        --gray-600: #6c727e;
+        --gray-700: #585f69;
+        --gray-800: #3a404a;
+        --gray-900: #191f28;
+        --warning-400: #ff334b;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          'Pretendard Variable',
+          Pretendard,
+          -apple-system,
+          BlinkMacSystemFont,
+          system-ui,
+          sans-serif;
+        background: #fff;
+        color: var(--gray-900);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 28px 28px 48px;
+      }
+      .doc-title {
+        font-size: 30px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      .hint {
+        font-size: 13px;
+        color: var(--gray-600);
+        margin: 10px 0 0;
+        line-height: 1.5;
+      }
+      .hint code {
+        font-size: 12px;
+        background: var(--gray-100);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      /* 상단 대시보드: 왼열(총점+4카드) | 오른열(레이더) */
+      .dashboard {
+        margin-top: 24px;
+      }
+      .panel {
+        border: 1px solid var(--gray-300);
+        border-radius: 12px;
+        background: #fff;
+        padding: 24px;
+      }
+      .dashboard-top {
+        display: grid;
+        grid-template-columns: minmax(260px, 380px) minmax(280px, 1fr);
+        gap: 28px 32px;
+        align-items: center;
+      }
+      .dashboard-top__scores {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-width: 0;
+      }
+      .total-box {
+        background: #f3f6fb;
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid var(--gray-300);
+      }
+      .total-label {
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .total-value {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--primary-500);
+        text-align: right;
+        margin-top: 6px;
+        letter-spacing: -0.03em;
+      }
+      .cat-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .cat-card {
+        border: 1px solid var(--gray-300);
+        border-radius: 8px;
+        padding: 16px;
+        text-align: left;
+        background: #fff;
+      }
+      .cat-card__name {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--gray-900);
+      }
+      .cat-card__score {
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 8px;
+        color: var(--gray-900);
+      }
+      .cat-card__score span {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--gray-700);
+      }
+      .dashboard-top__chart {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        min-width: 0;
+      }
+      .dashboard-top__chart svg {
+        display: block;
+        width: 100%;
+        max-width: 500px;
+        height: auto;
+      }
+
+      /* 영역별 상세 — PDF용 세로 스택 */
+      .stack-title {
+        font-size: 22px;
+        font-weight: 600;
+        margin: 36px 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--gray-900);
+      }
+      .section-detail {
+        margin-bottom: 28px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .section-detail__panel {
+        border: 1px solid var(--gray-300);
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+      }
+      .section-detail__head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 18px 22px;
+        background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
+        border-bottom: 1px solid var(--gray-300);
+      }
+      .section-detail__title {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      .section-detail__meta {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--gray-700);
+        flex-shrink: 0;
+      }
+      .detail-list {
+        padding: 0 22px;
+      }
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--gray-100);
+        font-size: 15px;
+        line-height: 1.45;
+      }
+      .detail-row:last-child {
+        border-bottom: none;
+      }
+      .detail-row__label {
+        font-weight: 500;
+        color: var(--gray-900);
+        flex: 1;
+        min-width: 0;
+      }
+      .detail-row__score {
+        font-weight: 600;
+        color: var(--gray-700);
+        flex-shrink: 0;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+      }
+      .detail-row__idx {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        margin-right: 10px;
+        border-radius: 6px;
+        background: var(--gray-100);
+        color: var(--gray-700);
+        font-size: 12px;
+        font-weight: 700;
+        vertical-align: middle;
+        flex-shrink: 0;
+      }
+
+      /* 총평: 탭 없이 강점·약점 동시 표시 */
+      .eval-section {
+        margin-top: 40px;
+        break-inside: avoid;
+      }
+      .eval-section .sec-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 18px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--gray-900);
+      }
+      .eval-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+      }
+      .eval-block__label {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--gray-700);
+        margin-bottom: 12px;
+        letter-spacing: -0.02em;
+      }
+      .eval-block--str .eval-block__label {
+        color: var(--primary-500);
+      }
+      .eval-block--weak .eval-block__label {
+        color: var(--warning-400);
+      }
+      .eval-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .eval-card {
+        background: var(--gray-80);
+        border-radius: 12px;
+        padding: 20px 22px;
+        border: 1px solid rgba(218, 223, 231, 0.8);
+        display: flex;
+        flex-direction: column;
+      }
+      .eval-card h3 {
+        margin: 0 0 10px;
+        font-size: 17px;
+        font-weight: 600;
+      }
+      .eval-card.strength h3 {
+        color: var(--primary-500);
+      }
+      .eval-card.weakness h3 {
+        color: var(--warning-400);
+      }
+      .eval-card p {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 1.55;
+        color: var(--gray-800);
+      }
+
+      @media (max-width: 720px) {
+        .dashboard-top {
+          grid-template-columns: 1fr;
+          align-items: stretch;
+        }
+        .dashboard-top__chart {
+          order: 2;
+          min-height: 280px;
+        }
+        .dashboard-top__scores {
+          order: 1;
+        }
+        .eval-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media print {
+        body {
+          background: #fff;
+        }
+        .wrap {
+          max-width: none;
+          padding: 12mm 14mm;
+        }
+        .hint {
+          display: none !important;
+        }
+        .dashboard {
+          margin-top: 16px;
+        }
+        .dashboard-top {
+          grid-template-columns: minmax(220px, 340px) 1fr;
+          align-items: start;
+        }
+        .dashboard-top__chart svg {
+          max-width: 420px;
+        }
+        .section-detail {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        .eval-card {
+          break-inside: avoid;
+        }
+      }
+
+      @page {
+        margin: 14mm;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="doc-title">사업계획서 AI 리포트</div>
+      </header>
+
+      <div class="dashboard">
+        <div class="panel dashboard-top">
+          <div class="dashboard-top__scores">
+            <div class="total-box">
+              <div class="total-label">총점</div>
+              <div class="total-value" th:text="|${totalScore}점|">0점</div>
+            </div>
+            <div class="cat-grid">
+              <div class="cat-card" th:each="section : ${sections}">
+                <div class="cat-card__name" th:text="${section.title}">문제 정의</div>
+                <div class="cat-card__score">
+                  <span th:text="${section.score}">0</span>점 <span th:text="|/ ${section.total}점|">/ 0점</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="dashboard-top__chart">
+            <div class="hint">메일 첨부용 PDF는 정적 렌더링으로 생성됩니다.</div>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="stack-title">영역별 상세 평가</h2>
+      <div>
+        <article class="section-detail" th:each="section : ${sections}">
+          <div class="section-detail__panel">
+            <div class="section-detail__head">
+              <span class="section-detail__title" th:text="${section.title}">문제 정의</span>
+              <span class="section-detail__meta" th:text="|${section.score}/${section.total}점|">0/0점</span>
+            </div>
+            <div class="detail-list">
+              <div class="detail-row" th:if="${#lists.isEmpty(section.checklist)}">
+                <span class="detail-row__label" style="color: #6c727e">세부 항목이 없습니다.</span>
+              </div>
+              <div class="detail-row" th:each="row, rowStat : ${section.checklist}">
+                <div class="detail-row__label">
+                  <span class="detail-row__idx" th:text="${rowStat.count}">1</span>
+                  <span th:text="${row.item}">세부 항목</span>
+                </div>
+                <div class="detail-row__score">
+                  <span th:text="${row.score}">0</span>점 / <span th:text="${row.maxScore}">0</span>점
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <section class="panel eval-section">
+        <div class="sec-title">총평</div>
+        <div class="eval-grid">
+          <div class="eval-block eval-block--str">
+            <div class="eval-block__label">강점</div>
+            <div class="eval-cards">
+              <div class="eval-card strength" th:if="${#lists.isEmpty(strengths)}">
+                <h3>강점 없음</h3>
+                <p>분석된 강점 데이터가 없습니다.</p>
+              </div>
+              <div class="eval-card strength" th:each="it : ${strengths}">
+                <h3 th:text="${it.title}">강점 제목</h3>
+                <p th:text="${it.content}">강점 내용</p>
+              </div>
+            </div>
+          </div>
+          <div class="eval-block eval-block--weak">
+            <div class="eval-block__label">약점</div>
+            <div class="eval-cards">
+              <div class="eval-card weakness" th:if="${#lists.isEmpty(weaknesses)}">
+                <h3>약점 없음</h3>
+                <p>분석된 약점 데이터가 없습니다.</p>
+              </div>
+              <div class="eval-card weakness" th:each="it : ${weaknesses}">
+                <h3 th:text="${it.title}">약점 제목</h3>
+                <p th:text="${it.content}">약점 내용</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
