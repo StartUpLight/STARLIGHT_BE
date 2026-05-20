@@ -5,15 +5,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import starlight.application.aireport.event.PdfReportRequestedEvent;
+import org.springframework.transaction.support.TransactionTemplate;
+import starlight.application.aireport.event.AiReportReadyMailInput;
+import starlight.application.aireport.event.PdfReportRequestedInput;
 import starlight.application.aireport.provided.AiReportUseCase;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.*;
 import starlight.application.aireport.util.BusinessPlanContentExtractor;
+import starlight.domain.member.entity.Member;
 import starlight.domain.aireport.entity.AiReport;
 import starlight.domain.aireport.exception.AiReportErrorType;
 import starlight.domain.aireport.exception.AiReportException;
@@ -39,6 +45,10 @@ public class AiReportService implements AiReportUseCase {
     private final ObjectMapper objectMapper;
     private final BusinessPlanContentExtractor contentExtractor;
     private final ApplicationEventPublisher eventPublisher;
+    private final AiReportPdfRenderPort aiReportPdfRenderPort;
+    private final MemberLookupPort memberLookupPort;
+    private final PlatformTransactionManager transactionManager;
+    private final ObjectProvider<AiReportService> selfProvider;
 
     @Value("${ai-report.base-url}")
     private String aiReportBaseUrl;
@@ -94,7 +104,7 @@ public class AiReportService implements AiReportUseCase {
         log.info("PDF 사업계획서 생성 요청(비동기 채점). title: {}, pdfUrl: {}, memberId: {}", title, pdfUrl, memberId);
 
         Long businessPlanId = businessPlanCommandLookupPort.createBusinessPlanWithPdf(title, pdfUrl, memberId);
-        eventPublisher.publishEvent(new PdfReportRequestedEvent(businessPlanId, pdfUrl, memberId));
+        eventPublisher.publishEvent(new PdfReportRequestedInput(businessPlanId, pdfUrl, memberId));
     }
 
     public void completePdfGrading(Long businessPlanId, String pdfUrl, Long memberId) {
@@ -125,6 +135,25 @@ public class AiReportService implements AiReportUseCase {
         upsertAiReportWithRawJsonStr(rawJsonString, plan);
     }
 
+    /**
+     * PDF 채점 요청 이벤트 처리: 채점 완료 후 완료 메일 이벤트를 발행한다.
+     */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void handlePdfReportRequested(Long businessPlanId, String pdfUrl, Long memberId) {
+        try {
+            selfProvider.getObject().completePdfGrading(businessPlanId, pdfUrl, memberId);
+        } catch (Exception e) {
+            log.error("[AI_REPORT_PDF] grading failed. businessPlanId={}, memberId={}", businessPlanId, memberId, e);
+            return;
+        }
+
+        try {
+            selfProvider.getObject().publishAiReportReadyMailEvent(businessPlanId, memberId);
+        } catch (Exception e) {
+            log.error("[AI_REPORT_PDF] failed to publish completion mail event. businessPlanId={}", businessPlanId, e);
+        }
+    }
+
     @Override
     @Transactional(readOnly = true)
     public AiReportResult getAiReport(Long planId, Long memberId) {
@@ -135,6 +164,57 @@ public class AiReportService implements AiReportUseCase {
                 .orElseThrow(() -> new AiReportException(AiReportErrorType.AI_REPORT_NOT_FOUND));
 
         return AiReportResult.from(aiReport);
+    }
+
+    /**
+     * PDF 채점 완료 후 AI 리포트 완료 안내 메일 발송 이벤트를 발행한다.
+     * PDF 렌더링은 트랜잭션 밖에서 수행한다.
+     */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void publishAiReportReadyMailEvent(Long planId, Long memberId) {
+        MailPrepareData mailPrepareData = loadMailPrepareDataInReadOnlyTransaction(planId, memberId);
+        byte[] pdfBytes = aiReportPdfRenderPort.render(mailPrepareData.aiReportResult());
+
+        AiReportReadyMailInput mailInput = AiReportReadyMailInput.of(
+                mailPrepareData.recipientEmail(),
+                mailPrepareData.recipientName(),
+                mailPrepareData.reportUrl(),
+                buildSafePdfFilename(mailPrepareData.planTitle()),
+                pdfBytes
+        );
+        log.info("[AI_REPORT_PDF] publishing completion mail event. businessPlanId={}, to={}", planId, mailInput.toEmail());
+        eventPublisher.publishEvent(mailInput);
+    }
+
+    private MailPrepareData loadMailPrepareDataInReadOnlyTransaction(Long planId, Long memberId) {
+        TransactionTemplate readOnlyTemplate = new TransactionTemplate(transactionManager);
+        readOnlyTemplate.setReadOnly(true);
+        return readOnlyTemplate.execute(status -> {
+            AiReportResult aiReportResult = getAiReport(planId, memberId);
+            Member member = memberLookupPort.findByIdOrThrow(memberId);
+            BusinessPlan plan = businessPlanQueryLookupPort.findByIdOrThrow(planId);
+            return new MailPrepareData(
+                    aiReportResult,
+                    member.getEmail(),
+                    member.getName(),
+                    plan.getTitle(),
+                    buildAiReportWebUrl(planId)
+            );
+        });
+    }
+
+    private record MailPrepareData(
+            AiReportResult aiReportResult,
+            String recipientEmail,
+            String recipientName,
+            String planTitle,
+            String reportUrl
+    ) {
+    }
+
+    private String buildSafePdfFilename(String title) {
+        String safeTitle = title == null ? "business-plan" : title.replaceAll("[\\\\/:*?\"<>|]", "_");
+        return safeTitle + ".pdf";
     }
 
     private String getRawJsonStrFromAiReportResult(AiReportResult gradingResult) {
