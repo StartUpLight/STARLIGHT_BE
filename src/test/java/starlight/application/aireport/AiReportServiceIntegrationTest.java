@@ -9,24 +9,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 import starlight.adapter.aireport.report.parser.AiReportResponseParser;
 import starlight.adapter.aireport.persistence.AiReportJpa;
 import starlight.adapter.aireport.persistence.AiReportRepository;
 import starlight.adapter.businessplan.persistence.BusinessPlanQueryJpa;
 import starlight.adapter.businessplan.persistence.BusinessPlanRepository;
-import starlight.application.aireport.event.AiReportPdfEvaluationEventListener;
-import starlight.application.aireport.event.PdfReportRequestedEvent;
+import starlight.application.aireport.event.AiReportReadyMailEventListener;
+import starlight.application.aireport.event.AiReportReadyMailInput;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.AiReportCommandPort;
-import starlight.application.aireport.AiReportReadyMailInput;
 import starlight.application.aireport.required.AiReportMailPort;
+import starlight.application.aireport.required.AiReportPdfRenderPort;
 import starlight.application.aireport.required.AiReportQueryPort;
 import starlight.application.aireport.required.OcrProviderPort;
 import starlight.application.aireport.required.PdfDownloadPort;
 import starlight.application.aireport.required.ReportGraderPort;
-import starlight.application.member.required.MemberQueryPort;
+import starlight.application.aireport.required.MemberLookupPort;
 import starlight.application.businessplan.required.BusinessPlanCommandPort;
 import starlight.application.businessplan.required.BusinessPlanQueryPort;
 import starlight.application.aireport.required.BusinessPlanCommandLookupPort;
@@ -41,15 +48,16 @@ import starlight.domain.businessplan.enumerate.SubSectionType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 
 @DataJpaTest
+@RecordApplicationEvents
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Import({AiReportService.class, AiReportJpa.class, BusinessPlanQueryJpa.class, AiReportPdfEvaluationEventListener.class, AiReportServiceIntegrationTest.TestBeans.class})
+@Import({AiReportService.class, AiReportJpa.class, BusinessPlanQueryJpa.class, AiReportReadyMailEventListener.class, AiReportServiceIntegrationTest.TestBeans.class})
 @DisplayName("AiReportService 통합 테스트")
 class AiReportServiceIntegrationTest {
 
@@ -62,10 +70,15 @@ class AiReportServiceIntegrationTest {
     @Autowired
     EntityManager em;
     @Autowired
-    AiReportPdfEvaluationEventListener aiReportPdfEvaluationEventListener;
+    AiReportReadyMailEventListener aiReportReadyMailEventListener;
     @Autowired
     AiReportMailPort aiReportMailPort;
+    @Autowired
+    ApplicationEvents applicationEvents;
+    @Autowired
+    PlatformTransactionManager transactionManager;
 
+    @EnableAsync
     @TestConfiguration
     static class TestBeans {
         
@@ -240,14 +253,29 @@ class AiReportServiceIntegrationTest {
             return url -> new byte[]{0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E, 0x0A};
         }
 
+        @Bean(name = "emailTaskExecutor")
+        Executor emailTaskExecutor() {
+            return new SyncTaskExecutor();
+        }
+
+        @Bean(name = "aiReportPdfExecutor")
+        Executor aiReportPdfExecutor() {
+            return new SyncTaskExecutor();
+        }
+
         @Bean
         AiReportMailPort aiReportMailPort() {
             return Mockito.mock(AiReportMailPort.class);
         }
 
         @Bean
-        MemberQueryPort memberQueryPort() {
-            MemberQueryPort port = Mockito.mock(MemberQueryPort.class);
+        AiReportPdfRenderPort aiReportPdfRenderPort() {
+            return report -> new byte[]{0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E, 0x0A};
+        }
+
+        @Bean
+        MemberLookupPort memberLookupPort() {
+            MemberLookupPort port = Mockito.mock(MemberLookupPort.class);
             Member member = Mockito.mock(Member.class);
             Mockito.when(member.getEmail()).thenReturn("tester@example.com");
             Mockito.when(member.getName()).thenReturn("테스트회원");
@@ -295,14 +323,29 @@ class AiReportServiceIntegrationTest {
     }
 
     /**
-     * 프로덕션에서는 커밋 후 이벤트로 비동기 처리되지만, 슬라이스 테스트에서는 리스너를 직접 호출한다.
-     * {@code @Transactional} 테스트 롤백 시 {@code publishEvent}의 AFTER_COMMIT 리스너는 실행되지 않는다.
+     * 프로덕션에서는 커밋 후 {@link TransactionalEventListener}(AFTER_COMMIT)로 비동기 처리된다.
+     * 슬라이스 테스트에서는 사업계획서 생성만 REQUIRES_NEW로 커밋한 뒤,
+     * {@link AiReportService#handlePdfReportRequested}를 직접 호출하고 메일 이벤트만 수동 디스패치한다.
      */
     private void runPdfEvaluationPipeline(String title, String pdfUrl, Long memberId) {
-        sut.requestCreateAndGradePdfBusinessPlan(title, pdfUrl, memberId);
-        em.flush();
-        Long planId = businessPlanRepository.findAllByMemberIdOrderByLastSavedAt(memberId).get(0).getId();
-        aiReportPdfEvaluationEventListener.onPdfReportRequested(new PdfReportRequestedEvent(planId, pdfUrl, memberId));
+        TransactionTemplate commitTemplate = new TransactionTemplate(transactionManager);
+        commitTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        Long planId = commitTemplate.execute(status -> {
+            sut.requestCreateAndGradePdfBusinessPlan(title, pdfUrl, memberId);
+            em.flush();
+            return businessPlanRepository.findAllByMemberIdOrderByLastSavedAt(memberId).get(0).getId();
+        });
+        sut.handlePdfReportRequested(planId, pdfUrl, memberId);
+        dispatchRecordedAiReportReadyMailEvents();
+    }
+
+    /**
+     * 메일 이벤트는 NOT_SUPPORTED 컨텍스트에서 발행되어 AFTER_COMMIT 리스너가 슬라이스 테스트에서
+     * 자동 실행되지 않을 수 있으므로, 기록된 이벤트를 직접 디스패치한다.
+     */
+    private void dispatchRecordedAiReportReadyMailEvents() {
+        applicationEvents.stream(AiReportReadyMailInput.class)
+                .forEach(aiReportReadyMailEventListener::handleAiReportReadyMailEvent);
     }
 
     @Test
@@ -371,7 +414,9 @@ class AiReportServiceIntegrationTest {
         assertThat(secondResult.businessPlanId()).isEqualTo(planId);
 
         // DB에 하나만 존재하는지 확인
-        List<AiReport> reports = aiReportRepository.findAll();
+        List<AiReport> reports = aiReportRepository.findAll().stream()
+                .filter(report -> report.getBusinessPlanId().equals(planId))
+                .toList();
         assertThat(reports).hasSize(1);
     }
 

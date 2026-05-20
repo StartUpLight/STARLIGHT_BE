@@ -3,13 +3,17 @@ package starlight.application.aireport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.PlatformTransactionManager;
 import starlight.adapter.aireport.report.parser.AiReportResponseParser;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.ReportGraderPort;
 import starlight.application.aireport.required.AiReportQueryPort;
 import starlight.application.aireport.required.AiReportCommandPort;
+import starlight.application.aireport.required.MemberLookupPort;
 import starlight.application.aireport.required.OcrProviderPort;
+import starlight.application.aireport.required.AiReportPdfRenderPort;
 import starlight.application.aireport.required.BusinessPlanCommandLookupPort;
 import starlight.application.aireport.required.BusinessPlanQueryLookupPort;
 import starlight.application.aireport.util.BusinessPlanContentExtractor;
@@ -44,8 +48,31 @@ class AiReportServiceUnitTest {
     private final AiReportResponseParser responseParser = new AiReportResponseParser(objectMapper);
     private final BusinessPlanContentExtractor contentExtractor = mock(BusinessPlanContentExtractor.class);
     private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+    private final AiReportPdfRenderPort aiReportPdfRenderPort = mock(AiReportPdfRenderPort.class);
+    private final MemberLookupPort memberLookupPort = mock(MemberLookupPort.class);
+    private final PlatformTransactionManager transactionManager = mock(PlatformTransactionManager.class);
 
     private AiReportService sut;
+
+    @SuppressWarnings("unchecked")
+    private AiReportService createSut() {
+        AiReportService service = new AiReportService(
+                businessPlanCommandLookupPort,
+                businessPlanQueryLookupPort,
+                aiReportQuery,
+                aiReportCommand,
+                aiReportGrader,
+                ocrProvider,
+                objectMapper,
+                contentExtractor,
+                eventPublisher,
+                aiReportPdfRenderPort,
+                memberLookupPort,
+                transactionManager,
+                mock(ObjectProvider.class)
+        );
+        return service;
+    }
 
     @Test
     @DisplayName("채점 성공 시 새로운 AiReport를 생성하고 저장한다")
@@ -96,7 +123,7 @@ class AiReportServiceUnitTest {
         when(aiReportCommand.save(any(AiReport.class))).thenReturn(savedReport);
         when(businessPlanCommandLookupPort.save(any(BusinessPlan.class))).thenReturn(plan);
 
-        sut = new AiReportService(businessPlanCommandLookupPort, businessPlanQueryLookupPort, aiReportQuery, aiReportCommand, aiReportGrader, ocrProvider, objectMapper, contentExtractor, eventPublisher);
+        sut = createSut();
 
         // when
         AiReportResult result = sut.gradeBusinessPlan(planId, memberId);
@@ -158,7 +185,7 @@ class AiReportServiceUnitTest {
         when(aiReportCommand.save(existingReport)).thenReturn(existingReport);
         when(businessPlanCommandLookupPort.save(any(BusinessPlan.class))).thenReturn(plan);
 
-        sut = new AiReportService(businessPlanCommandLookupPort, businessPlanQueryLookupPort, aiReportQuery, aiReportCommand, aiReportGrader, ocrProvider, objectMapper, contentExtractor, eventPublisher);
+        sut = createSut();
 
         // when
         AiReportResult result = sut.gradeBusinessPlan(planId, memberId);
@@ -180,7 +207,7 @@ class AiReportServiceUnitTest {
         when(plan.isOwnedBy(memberId)).thenReturn(false);
         when(businessPlanQueryLookupPort.findByIdOrThrow(planId)).thenReturn(plan);
 
-        sut = new AiReportService(businessPlanCommandLookupPort, businessPlanQueryLookupPort, aiReportQuery, aiReportCommand, aiReportGrader, ocrProvider, objectMapper, contentExtractor, eventPublisher);
+        sut = createSut();
 
         // when & then
         assertThatThrownBy(() -> sut.gradeBusinessPlan(planId, memberId))
@@ -200,7 +227,7 @@ class AiReportServiceUnitTest {
         when(plan.areWritingCompleted()).thenReturn(false);
         when(businessPlanQueryLookupPort.findByIdOrThrow(planId)).thenReturn(plan);
 
-        sut = new AiReportService(businessPlanCommandLookupPort, businessPlanQueryLookupPort, aiReportQuery, aiReportCommand, aiReportGrader, ocrProvider, objectMapper, contentExtractor, eventPublisher);
+        sut = createSut();
 
         // when & then
         assertThatThrownBy(() -> sut.gradeBusinessPlan(planId, memberId))
@@ -238,7 +265,7 @@ class AiReportServiceUnitTest {
         when(aiReport.getRawJson()).thenReturn(RawJson.create(rawJson));
         when(aiReportQuery.findByBusinessPlanId(planId)).thenReturn(Optional.of(aiReport));
 
-        sut = new AiReportService(businessPlanCommandLookupPort, businessPlanQueryLookupPort, aiReportQuery, aiReportCommand, aiReportGrader, ocrProvider, objectMapper, contentExtractor, eventPublisher);
+        sut = createSut();
 
         // when
         AiReportResult result = sut.getAiReport(planId, memberId);
@@ -262,7 +289,7 @@ class AiReportServiceUnitTest {
         when(businessPlanQueryLookupPort.findByIdOrThrow(planId)).thenReturn(plan);
         when(aiReportQuery.findByBusinessPlanId(planId)).thenReturn(Optional.empty());
 
-        sut = new AiReportService(businessPlanCommandLookupPort, businessPlanQueryLookupPort, aiReportQuery, aiReportCommand, aiReportGrader, ocrProvider, objectMapper, contentExtractor, eventPublisher);
+        sut = createSut();
 
         // when & then
         assertThatThrownBy(() -> sut.getAiReport(planId, memberId))
