@@ -1,8 +1,8 @@
 package starlight.application.aireport.required;
 
-import starlight.application.aireport.provided.dto.pdf.AiReportPdfView;
+import starlight.application.aireport.provided.dto.AiReportResult;
 
 public interface AiReportPdfRenderPort {
 
-    byte[] render(AiReportPdfView view);
+    byte[] render(AiReportResult report);
 }

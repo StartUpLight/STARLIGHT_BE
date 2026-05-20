@@ -12,7 +12,9 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-import starlight.application.aireport.mapper.AiReportPdfView;
+import starlight.adapter.shared.infrastructure.pdf.mapper.AiReportPdfViewMapper;
+import starlight.adapter.shared.infrastructure.pdf.view.AiReportPdfView;
+import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.AiReportPdfRenderPort;
 
 import java.io.ByteArrayOutputStream;
@@ -39,10 +41,12 @@ public class PdfRenderer implements AiReportPdfRenderPort {
     );
 
     private final SpringTemplateEngine templateEngine;
+    private final AiReportPdfViewMapper aiReportPdfViewMapper;
 
     @Override
-    public byte[] render(AiReportPdfView view) {
+    public byte[] render(AiReportResult report) {
         try {
+            AiReportPdfView view = aiReportPdfViewMapper.toView(report);
             Context context = new Context();
             context.setVariable("totalScore", view.totalScore());
             context.setVariable("sections", view.sections());
