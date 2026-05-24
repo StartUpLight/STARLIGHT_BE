@@ -68,6 +68,8 @@ public class BackofficeBusinessPlanQueryService implements BackofficeBusinessPla
                 plan.getId(),
                 plan.getTitle(),
                 plan.getPlanStatus(),
+                plan.isPdfBased(),
+                plan.getPdfUrl(),
                 normalizedScore,
                 plan.getCreatedAt(),
                 resolveUpdatedAt(plan),

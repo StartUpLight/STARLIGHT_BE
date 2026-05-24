@@ -14,6 +14,8 @@ public record BackofficeBusinessPlanDetailResponse(
         Long businessPlanId,
         String title,
         PlanStatus planStatus,
+        boolean pdfBased,
+        String pdfUrl,
         Double score,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime submittedAt,
@@ -31,6 +33,8 @@ public record BackofficeBusinessPlanDetailResponse(
                 result.businessPlanId(),
                 result.title(),
                 result.planStatus(),
+                result.pdfBased(),
+                result.pdfUrl(),
                 result.score(),
                 result.submittedAt(),
                 result.updatedAt(),
