@@ -159,6 +159,7 @@ public class BackofficeUserQueryService implements BackofficeUserQueryUseCase {
                         plan.planId(),
                         plan.title(),
                         plan.planStatus(),
+                        plan.pdfBased(),
                         scoreMap.get(plan.planId()),
                         plan.updatedAt()
                 ))
