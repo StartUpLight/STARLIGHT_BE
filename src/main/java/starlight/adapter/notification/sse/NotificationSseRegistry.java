@@ -25,7 +25,7 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
     private final Map<Long, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
     @Override
-    public SseEmitter subscribe(Long memberId) {
+    public SseEmitter subscribe(Long memberId, List<NotificationPublishMessage> missedMessages) {
         SseEmitter emitter = new SseEmitter(sseTimeoutMs);
         addEmitter(memberId, emitter);
 
@@ -40,6 +40,7 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
                             .name("connected")
                             .data("ok", MediaType.TEXT_PLAIN)
             );
+            sendMissedMessages(emitter, memberId, missedMessages);
         } catch (IOException | IllegalStateException exception) {
             removeEmitter(memberId, emitter);
             emitter.completeWithError(exception);
@@ -59,10 +60,7 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
             try {
                 safeSend(
                         emitter,
-                        SseEmitter.event()
-                                .id(String.valueOf(message.notificationId()))
-                                .name("notification")
-                                .data(message, MediaType.APPLICATION_JSON)
+                        createNotificationEvent(message)
                 );
             } catch (IOException | IllegalStateException exception) {
                 log.warn("[NOTIFICATION] SSE send failed notificationId={}, memberId={}",
@@ -97,6 +95,27 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
                 }
             }
         }
+    }
+
+    private void sendMissedMessages(
+            SseEmitter emitter,
+            Long memberId,
+            List<NotificationPublishMessage> missedMessages
+    ) throws IOException {
+        for (NotificationPublishMessage missedMessage : missedMessages) {
+            if (!memberId.equals(missedMessage.memberId())) {
+                continue;
+            }
+
+            safeSend(emitter, createNotificationEvent(missedMessage));
+        }
+    }
+
+    private SseEmitter.SseEventBuilder createNotificationEvent(NotificationPublishMessage message) {
+        return SseEmitter.event()
+                .id(String.valueOf(message.notificationId()))
+                .name("notification")
+                .data(message, MediaType.APPLICATION_JSON);
     }
 
     private void addEmitter(Long memberId, SseEmitter emitter) {

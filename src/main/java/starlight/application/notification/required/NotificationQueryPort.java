@@ -9,4 +9,6 @@ public interface NotificationQueryPort {
     Notification findByIdOrThrow(Long notificationId);
 
     List<Notification> findAllByMemberIdOrderByIdDesc(Long memberId);
+
+    List<Notification> findAllByMemberIdAndIdGreaterThanOrderByIdAsc(Long memberId, Long notificationId);
 }

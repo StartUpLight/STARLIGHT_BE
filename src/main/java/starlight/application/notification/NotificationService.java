@@ -13,6 +13,7 @@ import starlight.application.notification.required.NotificationCommandPort;
 import starlight.application.notification.required.NotificationOutboxCommandPort;
 import starlight.application.notification.required.NotificationQueryPort;
 import starlight.application.notification.required.NotificationRealtimePort;
+import starlight.application.notification.required.dto.NotificationPublishMessage;
 import starlight.domain.notification.entity.Notification;
 import starlight.domain.notification.entity.NotificationOutbox;
 
@@ -66,7 +67,19 @@ public class NotificationService implements NotificationUseCase {
     }
 
     @Override
-    public SseEmitter subscribe(Long memberId) {
-        return notificationRealtimePort.subscribe(memberId);
+    @Transactional(readOnly = true)
+    public SseEmitter subscribe(Long memberId, Long lastEventId) {
+        List<NotificationPublishMessage> missedMessages = findMissedMessages(memberId, lastEventId);
+        return notificationRealtimePort.subscribe(memberId, missedMessages);
+    }
+
+    private List<NotificationPublishMessage> findMissedMessages(Long memberId, Long lastEventId) {
+        if (lastEventId == null || lastEventId <= 0) {
+            return List.of();
+        }
+
+        return notificationQueryPort.findAllByMemberIdAndIdGreaterThanOrderByIdAsc(memberId, lastEventId).stream()
+                .map(NotificationPublishMessage::from)
+                .toList();
     }
 }

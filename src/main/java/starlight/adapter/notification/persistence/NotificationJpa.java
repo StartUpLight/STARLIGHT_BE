@@ -31,4 +31,9 @@ public class NotificationJpa implements NotificationCommandPort, NotificationQue
     public List<Notification> findAllByMemberIdOrderByIdDesc(Long memberId) {
         return notificationRepository.findAllByMemberIdOrderByIdDesc(memberId);
     }
+
+    @Override
+    public List<Notification> findAllByMemberIdAndIdGreaterThanOrderByIdAsc(Long memberId, Long notificationId) {
+        return notificationRepository.findAllByMemberIdAndIdGreaterThanOrderByIdAsc(memberId, notificationId);
+    }
 }

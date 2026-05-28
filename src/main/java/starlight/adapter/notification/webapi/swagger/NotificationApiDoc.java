@@ -1,6 +1,7 @@
 package starlight.adapter.notification.webapi.swagger;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import starlight.adapter.notification.webapi.dto.request.NotificationTestRequest;
 import starlight.adapter.notification.webapi.dto.response.NotificationResponse;
@@ -29,7 +32,11 @@ public interface NotificationApiDoc {
     @Operation(summary = "알림 SSE를 구독합니다.")
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     SseEmitter subscribe(
-            @AuthenticationPrincipal AuthenticatedMember authenticatedMember
+            @AuthenticationPrincipal AuthenticatedMember authenticatedMember,
+            @Parameter(description = "SSE 재연결 시 브라우저가 전달하는 마지막 수신 이벤트 ID")
+            @RequestHeader(value = "Last-Event-ID", required = false) Long lastEventIdHeader,
+            @Parameter(description = "Last-Event-ID 헤더를 사용하기 어려운 클라이언트용 마지막 수신 이벤트 ID")
+            @RequestParam(value = "lastEventId", required = false) Long lastEventId
     );
 
     @Operation(summary = "내 알림 목록을 조회합니다.")
