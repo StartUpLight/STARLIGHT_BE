@@ -3,6 +3,7 @@ package starlight.adapter.shared.infrastructure.pdf;
 import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.svgsupport.BatikSVGDrawer;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -44,6 +45,21 @@ public class PdfRenderer implements AiReportPdfRenderPort {
 
     private final SpringTemplateEngine templateEngine;
     private final AiReportPdfViewMapper aiReportPdfViewMapper;
+
+    @PostConstruct
+    void warmUpClasspathFontCache() {
+        log.info("[AI_REPORT_PDF] warming up classpath font cache");
+        for (String classpathFont : CLASSPATH_FONTS) {
+            try {
+                ClassPathResource resource = new ClassPathResource(classpathFont);
+                if (resource.exists()) {
+                    getCachedClasspathFont(classpathFont, resource);
+                }
+            } catch (Exception e) {
+                log.error("[AI_REPORT_PDF] font warm-up failed: {}", classpathFont, e);
+            }
+        }
+    }
 
     @Override
     public byte[] render(AiReportResult report) {
@@ -108,25 +124,41 @@ public class PdfRenderer implements AiReportPdfRenderPort {
         }
     }
 
-    private File getCachedClasspathFont(String classpathLocation, ClassPathResource resource) throws Exception {
-        File cached = CLASSPATH_FONT_CACHE.get(classpathLocation);
-        if (cached != null) {
-            return cached;
+    private File getCachedClasspathFont(String classpathLocation, ClassPathResource resource) {
+        try {
+            return CLASSPATH_FONT_CACHE.computeIfAbsent(classpathLocation, key -> loadClasspathFont(classpathLocation, resource));
+        } catch (FontCacheMissException e) {
+            return null;
         }
-        synchronized (CLASSPATH_FONT_CACHE) {
-            cached = CLASSPATH_FONT_CACHE.get(classpathLocation);
-            if (cached != null) {
-                return cached;
-            }
+    }
+
+    private File loadClasspathFont(String classpathLocation, ClassPathResource resource) {
+        try {
             File fontFile = prepareClasspathFontFile(resource);
             if (!isPdfBoxLoadableTrueType(fontFile.toPath())) {
+                log.warn("[AI_REPORT_PDF] unsupported or corrupted font format: {}", classpathLocation);
                 if (fontFile.exists()) {
                     fontFile.delete();
                 }
-                return null;
+                throw new FontCacheMissException();
             }
-            CLASSPATH_FONT_CACHE.put(classpathLocation, fontFile);
+            log.info("[AI_REPORT_PDF] successfully cached classpath font: {}", classpathLocation);
             return fontFile;
+        } catch (FontCacheMissException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("[AI_REPORT_PDF] failed to prepare classpath font file: {}", classpathLocation, e);
+            throw new FontCacheMissException(e);
+        }
+    }
+
+    private static final class FontCacheMissException extends RuntimeException {
+        private FontCacheMissException() {
+            super();
+        }
+
+        private FontCacheMissException(Throwable cause) {
+            super(cause);
         }
     }
 
