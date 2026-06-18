@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -39,6 +40,7 @@ public class PdfRenderer implements AiReportPdfRenderPort {
             Path.of("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"),
             Path.of("/usr/share/fonts/google-noto-cjk/NotoSansCJK-Regular.ttc")
     );
+    private static final ConcurrentHashMap<String, File> CLASSPATH_FONT_CACHE = new ConcurrentHashMap<>();
 
     private final SpringTemplateEngine templateEngine;
     private final AiReportPdfViewMapper aiReportPdfViewMapper;
@@ -93,8 +95,8 @@ public class PdfRenderer implements AiReportPdfRenderPort {
             if (!resource.exists()) {
                 return false;
             }
-            File fontFile = copyFontToTemp(resource);
-            if (!isPdfBoxLoadableTrueType(fontFile.toPath())) {
+            File fontFile = getCachedClasspathFont(classpathLocation, resource);
+            if (fontFile == null) {
                 log.warn("[AI_REPORT_PDF] skipping unsupported classpath font: {}", classpathLocation);
                 return false;
             }
@@ -103,6 +105,28 @@ public class PdfRenderer implements AiReportPdfRenderPort {
         } catch (Exception e) {
             log.warn("[AI_REPORT_PDF] failed to load classpath font: {}", classpathLocation, e);
             return false;
+        }
+    }
+
+    private File getCachedClasspathFont(String classpathLocation, ClassPathResource resource) throws Exception {
+        File cached = CLASSPATH_FONT_CACHE.get(classpathLocation);
+        if (cached != null) {
+            return cached;
+        }
+        synchronized (CLASSPATH_FONT_CACHE) {
+            cached = CLASSPATH_FONT_CACHE.get(classpathLocation);
+            if (cached != null) {
+                return cached;
+            }
+            File fontFile = prepareClasspathFontFile(resource);
+            if (!isPdfBoxLoadableTrueType(fontFile.toPath())) {
+                if (fontFile.exists()) {
+                    fontFile.delete();
+                }
+                return null;
+            }
+            CLASSPATH_FONT_CACHE.put(classpathLocation, fontFile);
+            return fontFile;
         }
     }
 
@@ -141,7 +165,7 @@ public class PdfRenderer implements AiReportPdfRenderPort {
         }
     }
 
-    private File copyFontToTemp(ClassPathResource resource) throws Exception {
+    private File prepareClasspathFontFile(ClassPathResource resource) throws Exception {
         String suffix = resource.getFilename() != null && resource.getFilename().endsWith(".ttf")
                 ? ".ttf"
                 : ".font";
