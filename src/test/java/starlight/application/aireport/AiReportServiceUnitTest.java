@@ -58,13 +58,14 @@ class AiReportServiceUnitTest {
 
     @SuppressWarnings("unchecked")
     private AiReportService createSut() {
-        AiReportService service = new AiReportService(
+        return new AiReportService(
                 businessPlanCommandLookupPort,
                 businessPlanQueryLookupPort,
                 aiReportQuery,
                 aiReportCommand,
                 aiReportGrader,
                 ocrProvider,
+                aiReportNotificationPort,
                 objectMapper,
                 contentExtractor,
                 eventPublisher,
@@ -73,7 +74,6 @@ class AiReportServiceUnitTest {
                 transactionManager,
                 mock(ObjectProvider.class)
         );
-        return service;
     }
 
     @Test
@@ -304,20 +304,5 @@ class AiReportServiceUnitTest {
                 .isInstanceOf(AiReportException.class)
                 .extracting("errorType")
                 .isEqualTo(AiReportErrorType.AI_REPORT_NOT_FOUND);
-    }
-
-    private AiReportService createSut() {
-        return new AiReportService(
-                businessPlanCommandLookupPort,
-                businessPlanQueryLookupPort,
-                aiReportQuery,
-                aiReportCommand,
-                aiReportGrader,
-                ocrProvider,
-                aiReportNotificationPort,
-                objectMapper,
-                contentExtractor,
-                eventPublisher
-        );
     }
 }
