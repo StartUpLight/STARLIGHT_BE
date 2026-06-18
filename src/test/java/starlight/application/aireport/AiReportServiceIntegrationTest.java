@@ -29,6 +29,7 @@ import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.AiReportCommandPort;
 import starlight.application.aireport.required.AiReportMailPort;
 import starlight.application.aireport.required.AiReportPdfRenderPort;
+import starlight.application.aireport.required.AiReportNotificationPort;
 import starlight.application.aireport.required.AiReportQueryPort;
 import starlight.application.aireport.required.OcrProviderPort;
 import starlight.application.aireport.required.PdfDownloadPort;
@@ -245,6 +246,12 @@ class AiReportServiceIntegrationTest {
                     return businessPlanRepository.findById(id)
                             .orElseThrow(() -> new RuntimeException("BusinessPlan not found: " + id));
                 }
+            };
+        }
+
+        @Bean
+        AiReportNotificationPort aiReportNotificationPort() {
+            return (memberId, businessPlanId, businessPlanTitle) -> {
             };
         }
 
@@ -554,4 +561,3 @@ class AiReportServiceIntegrationTest {
         assertThat(retrievedResult.teamCompetenceScore()).isEqualTo(createdResult.teamCompetenceScore());
     }
 }
-

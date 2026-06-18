@@ -42,6 +42,7 @@ public class AiReportService implements AiReportUseCase {
     private final AiReportCommandPort aiReportCommandPort;
     private final ReportGraderPort reportGraderPort;
     private final OcrProviderPort ocrProviderPort;
+    private final AiReportNotificationPort aiReportNotificationPort;
     private final ObjectMapper objectMapper;
     private final BusinessPlanContentExtractor contentExtractor;
     private final ApplicationEventPublisher eventPublisher;
@@ -95,6 +96,7 @@ public class AiReportService implements AiReportUseCase {
         String rawJsonString = getRawJsonStrFromAiReportResult(gradingResult);
 
         AiReport aiReport = upsertAiReportWithRawJsonStr(rawJsonString, plan);
+        aiReportNotificationPort.sendAiReportCompleted(plan.getMemberId(), plan.getId(), plan.getTitle());
 
         return AiReportResult.from(aiReport);
     }
@@ -133,6 +135,7 @@ public class AiReportService implements AiReportUseCase {
 
         String rawJsonString = getRawJsonStrFromAiReportResult(gradingResult);
         upsertAiReportWithRawJsonStr(rawJsonString, plan);
+        aiReportNotificationPort.sendAiReportCompleted(plan.getMemberId(), plan.getId(), plan.getTitle());
     }
 
     /**

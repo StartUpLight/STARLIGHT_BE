@@ -8,6 +8,7 @@ public record BackofficeUserBusinessPlanRowResult(
         Long planId,
         String title,
         PlanStatus planStatus,
+        boolean pdfBased,
         Integer score,
         LocalDateTime updatedAt
 ) {
@@ -15,9 +16,10 @@ public record BackofficeUserBusinessPlanRowResult(
             Long planId,
             String title,
             PlanStatus planStatus,
+            boolean pdfBased,
             Integer score,
             LocalDateTime updatedAt
     ) {
-        return new BackofficeUserBusinessPlanRowResult(planId, title, planStatus, score, updatedAt);
+        return new BackofficeUserBusinessPlanRowResult(planId, title, planStatus, pdfBased, score, updatedAt);
     }
 }

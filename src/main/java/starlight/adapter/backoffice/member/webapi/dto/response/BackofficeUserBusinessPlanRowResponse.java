@@ -10,6 +10,7 @@ public record BackofficeUserBusinessPlanRowResponse(
         Long planId,
         String title,
         PlanStatus planStatus,
+        boolean pdfBased,
         Integer score,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime updatedAt
@@ -19,6 +20,7 @@ public record BackofficeUserBusinessPlanRowResponse(
                 result.planId(),
                 result.title(),
                 result.planStatus(),
+                result.pdfBased(),
                 result.score(),
                 result.updatedAt()
         );

@@ -12,6 +12,7 @@ import starlight.application.aireport.required.ReportGraderPort;
 import starlight.application.aireport.required.AiReportQueryPort;
 import starlight.application.aireport.required.AiReportCommandPort;
 import starlight.application.aireport.required.MemberLookupPort;
+import starlight.application.aireport.required.AiReportNotificationPort;
 import starlight.application.aireport.required.OcrProviderPort;
 import starlight.application.aireport.required.AiReportPdfRenderPort;
 import starlight.application.aireport.required.BusinessPlanCommandLookupPort;
@@ -43,6 +44,7 @@ class AiReportServiceUnitTest {
     private final AiReportQueryPort aiReportQuery = mock(AiReportQueryPort.class);
     private final AiReportCommandPort aiReportCommand = mock(AiReportCommandPort.class);
     private final ReportGraderPort aiReportGrader = mock(ReportGraderPort.class);
+    private final AiReportNotificationPort aiReportNotificationPort = mock(AiReportNotificationPort.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final OcrProviderPort ocrProvider = mock(OcrProviderPort.class);
     private final AiReportResponseParser responseParser = new AiReportResponseParser(objectMapper);
@@ -82,6 +84,8 @@ class AiReportServiceUnitTest {
         Long memberId = 1L;
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.getId()).thenReturn(planId);
+        when(plan.getMemberId()).thenReturn(memberId);
+        when(plan.getTitle()).thenReturn("사업계획서");
         when(plan.isOwnedBy(memberId)).thenReturn(true);
         when(plan.areWritingCompleted()).thenReturn(true);
         when(businessPlanQueryLookupPort.findByIdOrThrow(planId)).thenReturn(plan);
@@ -133,6 +137,7 @@ class AiReportServiceUnitTest {
         verify(plan).updateStatus(PlanStatus.AI_REVIEWED);
         verify(aiReportCommand).save(any(AiReport.class));
         verify(businessPlanCommandLookupPort).save(plan);
+        verify(aiReportNotificationPort).sendAiReportCompleted(plan.getMemberId(), plan.getId(), plan.getTitle());
     }
 
     @Test
@@ -143,6 +148,8 @@ class AiReportServiceUnitTest {
         Long memberId = 1L;
         BusinessPlan plan = mock(BusinessPlan.class);
         when(plan.getId()).thenReturn(planId);
+        when(plan.getMemberId()).thenReturn(memberId);
+        when(plan.getTitle()).thenReturn("사업계획서");
         when(plan.isOwnedBy(memberId)).thenReturn(true);
         when(plan.areWritingCompleted()).thenReturn(true);
         when(businessPlanQueryLookupPort.findByIdOrThrow(planId)).thenReturn(plan);
@@ -195,6 +202,7 @@ class AiReportServiceUnitTest {
         verify(existingReport).update(anyString());
         // 기존 리포트가 있어도 상태는 AI_REVIEWED로 갱신됨
         verify(plan).updateStatus(PlanStatus.AI_REVIEWED);
+        verify(aiReportNotificationPort).sendAiReportCompleted(plan.getMemberId(), plan.getId(), plan.getTitle());
     }
 
     @Test
@@ -297,5 +305,19 @@ class AiReportServiceUnitTest {
                 .extracting("errorType")
                 .isEqualTo(AiReportErrorType.AI_REPORT_NOT_FOUND);
     }
-}
 
+    private AiReportService createSut() {
+        return new AiReportService(
+                businessPlanCommandLookupPort,
+                businessPlanQueryLookupPort,
+                aiReportQuery,
+                aiReportCommand,
+                aiReportGrader,
+                ocrProvider,
+                aiReportNotificationPort,
+                objectMapper,
+                contentExtractor,
+                eventPublisher
+        );
+    }
+}
