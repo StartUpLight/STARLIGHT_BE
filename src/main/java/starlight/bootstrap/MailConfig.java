@@ -18,7 +18,7 @@ public class MailConfig {
     public JavaMailSender javaMailSender(MailProperties mailProperties) {
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
         sender.setHost(mailProperties.getHost());
-        sender.setPort(mailProperties.getPort());
+        sender.setPort(resolveSmtpPort(mailProperties));
         sender.setUsername(mailProperties.getUsername());
         sender.setPassword(mailProperties.getPassword());
         sender.setJavaMailProperties(buildJavaMailProps(mailProperties));
@@ -33,7 +33,7 @@ public class MailConfig {
                 && StringUtils.hasText(mailProperties.getPassword());
         props.put("mail.smtp.auth", String.valueOf(smtpAuth));
 
-        int port = mailProperties.getPort() != null ? mailProperties.getPort() : 587;
+        int port = resolveSmtpPort(mailProperties);
         if (port == 465) {
             props.put("mail.smtp.ssl.enable", "true");
         } else if (port == 587) {
@@ -47,5 +47,9 @@ public class MailConfig {
 
         props.putAll(mailProperties.getProperties());
         return props;
+    }
+
+    private int resolveSmtpPort(MailProperties mailProperties) {
+        return mailProperties.getPort() != null ? mailProperties.getPort() : 587;
     }
 }
