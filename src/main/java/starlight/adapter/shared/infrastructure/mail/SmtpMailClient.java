@@ -114,10 +114,10 @@ public class SmtpMailClient implements BackofficeMailPort,
             log.info("[MAIL] AI 리포트 완료 메일 발송 to={} attachmentBytes={}", input.toEmail(), input.pdfBytes().length);
         } catch (MessagingException e) {
             log.error("[MAIL] AI 리포트 완료 메일 발송 실패 to={}", input.toEmail(), e);
-            throw new AiReportException(AiReportErrorType.EMAIL_SEND_ERROR);
+            throw new AiReportException(AiReportErrorType.EMAIL_SEND_ERROR, e);
         } catch (Exception e) {
             log.error("[MAIL] AI 리포트 완료 메일 처리 실패 to={}", input.toEmail(), e);
-            throw new AiReportException(AiReportErrorType.EMAIL_SEND_ERROR);
+            throw new AiReportException(AiReportErrorType.EMAIL_SEND_ERROR, e);
         }
     }
 }
