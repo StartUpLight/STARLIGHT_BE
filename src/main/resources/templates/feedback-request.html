@@ -121,18 +121,37 @@
                             <b th:text="${studentName}" class="highlight" style="color: #6F5FFF; font-weight: 700;"></b> 님의 <b th:text="${planTitle}" class="highlight" style="color: #6F5FFF; font-weight: 700;"></b> 사업계획서가 도착했습니다.
                         </p>
 
-                        <p style="margin-top: 8px; margin-bottom: 8px; line-height: 1.5;">
-                            첨부된 파일을 확인하시고, **<span th:text="${feedbackDeadline}" class="highlight" style="color: #6F5FFF; font-weight: 700;"></span>** 까지 피드백을 완료해 주세요.
+                        <p
+                                th:if="${planFileUrl != null and !#strings.isEmpty(planFileUrl)}"
+                                style="margin-top: 8px; margin-bottom: 8px; line-height: 1.5;"
+                        >
+                            아래에서 사업계획서를 확인하실 수 있습니다.
                         </p>
 
-                        <p style="margin-top: 8px; margin-bottom: 8px; line-height: 1.5;">
-                            아래 버튼을 클릭하시면 평가 페이지로 즉시 이동합니다
+                        <p style="margin-top: 8px; margin-bottom: 24px; line-height: 1.5;">
+                            피드백 페이지에서 사업계획서를 검토하고,
+                            <span th:text="${feedbackDeadline}" class="highlight" style="color: #6F5FFF; font-weight: 700;"></span>
+                            까지 검토 의견과 평가 내용을 작성해 주세요.
                         </p>
 
-                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top: 15px;">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                             <tr>
+                                <td
+                                        th:if="${planFileUrl != null and !#strings.isEmpty(planFileUrl)}"
+                                        align="center"
+                                        bgcolor="#ffffff"
+                                        style="border-radius: 8px;"
+                                >
+                                    <a th:href="${planFileUrl}" target="_blank" style="padding: 10px 0; width: 160px; border: 1px solid #5475FF; display: inline-block; background: #ffffff; color: #5475FF; font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif; font-size: 14px; font-weight: 500; text-decoration: none; border-radius: 8px; text-align: center;">
+                                        사업계획서 보기
+                                    </a>
+                                </td>
+                                <td
+                                        th:if="${planFileUrl != null and !#strings.isEmpty(planFileUrl)}"
+                                        style="width: 12px; font-size: 12px; line-height: 12px;"
+                                >&nbsp;</td>
                                 <td align="center" bgcolor="#5475FF" style="border-radius: 8px;">
-                                    <a th:href="${feedbackUrl}" target="_blank" style="padding: 10px 20px; border: 1px solid #5475FF; display: inline-block; background: #5475FF; color: #ffffff; font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif; font-size: 14px; font-weight: 500; text-decoration: none; border-radius: 8px;">
+                                    <a th:href="${feedbackUrl}" target="_blank" style="padding: 10px 0; width: 160px; border: 1px solid #5475FF; display: inline-block; background: #5475FF; color: #ffffff; font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif; font-size: 14px; font-weight: 500; text-decoration: none; border-radius: 8px; text-align: center;">
                                         피드백 페이지로 이동
                                     </a>
                                 </td>

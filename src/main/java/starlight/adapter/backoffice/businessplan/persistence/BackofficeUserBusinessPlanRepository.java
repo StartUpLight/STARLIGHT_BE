@@ -32,6 +32,7 @@ public interface BackofficeUserBusinessPlanRepository extends JpaRepository<Busi
                         bp.id,
                         bp.title,
                         bp.planStatus,
+                        bp.pdfUrl is not null,
                         coalesce(bp.modifiedAt, bp.createdAt)
                     )
                     from BusinessPlan bp
