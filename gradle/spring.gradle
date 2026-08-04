@@ -22,4 +22,8 @@ dependencies {
     // Emailclient
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // HTML to PDF
+    implementation 'com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10'
+    implementation 'com.openhtmltopdf:openhtmltopdf-svg-support:1.0.10'
 }
