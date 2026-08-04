@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>사업계획서 AI 리포트</title>
+    <style>
+      @page {
+        margin: 10mm;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'PdfReportFont', 'Malgun Gothic', sans-serif;
+        font-size: 11px;
+        line-height: 1.4;
+        color: #191f28;
+        background: #ffffff;
+      }
+
+      .wrap {
+        padding: 8px 10px 12px;
+      }
+
+      .doc-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0 0 8px;
+        page-break-after: avoid;
+      }
+
+      .panel {
+        border: 1px solid #dadfe7;
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 10px 12px;
+      }
+
+      .dashboard-panel {
+        page-break-after: avoid;
+        margin-bottom: 10px;
+      }
+
+      .dashboard-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .dashboard-table td {
+        vertical-align: middle;
+      }
+
+      .scores-col {
+        width: 44%;
+        padding-right: 8px;
+      }
+
+      .chart-col {
+        width: 56%;
+        text-align: center;
+      }
+
+      .total-box {
+        background: #f3f6fb;
+        border: 1px solid #dadfe7;
+        border-radius: 6px;
+        padding: 8px 10px;
+        margin-bottom: 6px;
+      }
+
+      .total-box-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .total-label {
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .total-value {
+        font-size: 16px;
+        font-weight: bold;
+        color: #6f55ff;
+        text-align: right;
+      }
+
+      .cat-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 4px;
+      }
+
+      .cat-card {
+        border: 1px solid #dadfe7;
+        border-radius: 6px;
+        padding: 6px 8px;
+        background: #ffffff;
+        vertical-align: top;
+        width: 50%;
+      }
+
+      .cat-card__name {
+        font-size: 10px;
+        font-weight: bold;
+      }
+
+      .cat-card__score {
+        font-size: 11px;
+        font-weight: bold;
+        margin-top: 2px;
+      }
+
+      .cat-card__score-sub {
+        font-size: 9px;
+        color: #585f69;
+      }
+
+      .stack-title {
+        font-size: 13px;
+        font-weight: bold;
+        margin: 10px 0 6px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #191f28;
+        page-break-after: avoid;
+      }
+
+      .sections-grid {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 6px;
+      }
+
+      .sections-grid > tbody > tr > td {
+        width: 50%;
+        vertical-align: top;
+        border: 1px solid #dadfe7;
+        border-radius: 6px;
+        padding: 0;
+        background: #ffffff;
+      }
+
+      .section-head-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fafbfc;
+        border-bottom: 1px solid #dadfe7;
+      }
+
+      .section-head-table td {
+        padding: 5px 8px;
+      }
+
+      .section-detail__title {
+        font-size: 11px;
+        font-weight: bold;
+        page-break-after: avoid;
+      }
+
+      .section-detail__meta {
+        font-size: 10px;
+        font-weight: bold;
+        color: #585f69;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .detail-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .detail-table td {
+        padding: 4px 8px;
+        border-bottom: 1px solid #f3f5f9;
+        vertical-align: top;
+      }
+
+      .detail-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .detail-row__label {
+        font-size: 10px;
+        font-weight: bold;
+      }
+
+      .detail-row__score {
+        font-size: 9px;
+        font-weight: bold;
+        color: #585f69;
+        text-align: right;
+        white-space: nowrap;
+        width: 72px;
+      }
+
+      .detail-row__idx {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        line-height: 14px;
+        text-align: center;
+        margin-right: 4px;
+        border-radius: 4px;
+        background: #f3f5f9;
+        color: #585f69;
+        font-size: 9px;
+        font-weight: bold;
+      }
+
+      .eval-section {
+        margin-top: 10px;
+      }
+
+      .sec-title {
+        font-size: 13px;
+        font-weight: bold;
+        margin: 0 0 6px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #191f28;
+        page-break-after: avoid;
+      }
+
+      .eval-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 8px 0;
+      }
+
+      .eval-table td {
+        width: 50%;
+        vertical-align: top;
+      }
+
+      .eval-block__label {
+        font-size: 11px;
+        font-weight: bold;
+        margin-bottom: 4px;
+        color: #585f69;
+      }
+
+      .eval-block--str .eval-block__label {
+        color: #6f55ff;
+      }
+
+      .eval-block--weak .eval-block__label {
+        color: #ff334b;
+      }
+
+      .eval-card {
+        background: #f8f9fc;
+        border: 1px solid #dadfe7;
+        border-radius: 6px;
+        padding: 6px 8px;
+        margin-bottom: 4px;
+      }
+
+      .eval-card h3 {
+        margin: 0 0 3px;
+        font-size: 10px;
+        font-weight: bold;
+      }
+
+      .eval-card.strength h3 {
+        color: #6f55ff;
+      }
+
+      .eval-card.weakness h3 {
+        color: #ff334b;
+      }
+
+      .eval-card p {
+        margin: 0;
+        font-size: 10px;
+        line-height: 1.35;
+        color: #3a404a;
+      }
+
+      .empty-text {
+        color: #6c727e;
+        font-size: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="doc-title">사업계획서 AI 리포트</div>
+
+      <div class="panel dashboard-panel">
+        <table class="dashboard-table">
+          <tr>
+            <td class="scores-col">
+              <div class="total-box">
+                <table class="total-box-table">
+                  <tr>
+                    <td class="total-label">총점</td>
+                    <td class="total-value" th:text="|${totalScore}점|">0점</td>
+                  </tr>
+                </table>
+              </div>
+
+              <table class="cat-table">
+                <tr>
+                  <td class="cat-card" th:each="section, stat : ${sections}" th:if="${stat.index % 2 == 0}">
+                    <div class="cat-card__name" th:text="${section.title}">문제 정의</div>
+                    <div class="cat-card__score">
+                      <span th:text="${section.score}">0</span>점
+                      <span class="cat-card__score-sub" th:text="|/ ${section.total}점|">/ 0점</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="cat-card" th:each="section, stat : ${sections}" th:if="${stat.index % 2 == 1}">
+                    <div class="cat-card__name" th:text="${section.title}">실현 가능성</div>
+                    <div class="cat-card__score">
+                      <span th:text="${section.score}">0</span>점
+                      <span class="cat-card__score-sub" th:text="|/ ${section.total}점|">/ 0점</span>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td class="chart-col" th:utext="${radarChartSvg}"></td>
+          </tr>
+        </table>
+      </div>
+
+      <h2 class="stack-title">영역별 상세 평가</h2>
+
+      <table class="sections-grid">
+        <tr>
+          <td th:if="${sections.size() > 0}" th:with="section=${sections[0]}">
+            <table class="section-head-table">
+              <tr>
+                <td class="section-detail__title" th:text="${section.title}">문제 정의</td>
+                <td class="section-detail__meta" th:text="|${section.score}/${section.total}점|">0/0점</td>
+              </tr>
+            </table>
+            <table class="detail-table">
+              <tr th:if="${#lists.isEmpty(section.checklist)}">
+                <td colspan="2" class="empty-text">세부 항목 없음</td>
+              </tr>
+              <tr th:each="row, rowStat : ${section.checklist}">
+                <td class="detail-row__label">
+                  <span class="detail-row__idx" th:text="${rowStat.count}">1</span>
+                  <span th:text="${row.item}">세부 항목</span>
+                </td>
+                <td class="detail-row__score">
+                  <span th:text="${row.score}">0</span>/<span th:text="${row.maxScore}">0</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td th:if="${sections.size() > 1}" th:with="section=${sections[1]}">
+            <table class="section-head-table">
+              <tr>
+                <td class="section-detail__title" th:text="${section.title}">실현 가능성</td>
+                <td class="section-detail__meta" th:text="|${section.score}/${section.total}점|">0/0점</td>
+              </tr>
+            </table>
+            <table class="detail-table">
+              <tr th:if="${#lists.isEmpty(section.checklist)}">
+                <td colspan="2" class="empty-text">세부 항목 없음</td>
+              </tr>
+              <tr th:each="row, rowStat : ${section.checklist}">
+                <td class="detail-row__label">
+                  <span class="detail-row__idx" th:text="${rowStat.count}">1</span>
+                  <span th:text="${row.item}">세부 항목</span>
+                </td>
+                <td class="detail-row__score">
+                  <span th:text="${row.score}">0</span>/<span th:text="${row.maxScore}">0</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td th:if="${sections.size() > 2}" th:with="section=${sections[2]}">
+            <table class="section-head-table">
+              <tr>
+                <td class="section-detail__title" th:text="${section.title}">성장 전략</td>
+                <td class="section-detail__meta" th:text="|${section.score}/${section.total}점|">0/0점</td>
+              </tr>
+            </table>
+            <table class="detail-table">
+              <tr th:if="${#lists.isEmpty(section.checklist)}">
+                <td colspan="2" class="empty-text">세부 항목 없음</td>
+              </tr>
+              <tr th:each="row, rowStat : ${section.checklist}">
+                <td class="detail-row__label">
+                  <span class="detail-row__idx" th:text="${rowStat.count}">1</span>
+                  <span th:text="${row.item}">세부 항목</span>
+                </td>
+                <td class="detail-row__score">
+                  <span th:text="${row.score}">0</span>/<span th:text="${row.maxScore}">0</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td th:if="${sections.size() > 3}" th:with="section=${sections[3]}">
+            <table class="section-head-table">
+              <tr>
+                <td class="section-detail__title" th:text="${section.title}">팀 역량</td>
+                <td class="section-detail__meta" th:text="|${section.score}/${section.total}점|">0/0점</td>
+              </tr>
+            </table>
+            <table class="detail-table">
+              <tr th:if="${#lists.isEmpty(section.checklist)}">
+                <td colspan="2" class="empty-text">세부 항목 없음</td>
+              </tr>
+              <tr th:each="row, rowStat : ${section.checklist}">
+                <td class="detail-row__label">
+                  <span class="detail-row__idx" th:text="${rowStat.count}">1</span>
+                  <span th:text="${row.item}">세부 항목</span>
+                </td>
+                <td class="detail-row__score">
+                  <span th:text="${row.score}">0</span>/<span th:text="${row.maxScore}">0</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <section class="panel eval-section">
+          <div class="sec-title">총평</div>
+          <table class="eval-table">
+            <tr>
+              <td class="eval-block eval-block--str">
+                <div class="eval-block__label">강점</div>
+                <div class="eval-card strength" th:if="${#lists.isEmpty(strengths)}">
+                  <h3>강점 없음</h3>
+                  <p>분석된 강점 데이터가 없습니다.</p>
+                </div>
+                <div class="eval-card strength" th:each="it : ${strengths}">
+                  <h3 th:text="${it.title}">강점 제목</h3>
+                  <p th:text="${it.content}">강점 내용</p>
+                </div>
+              </td>
+              <td class="eval-block eval-block--weak">
+                <div class="eval-block__label">약점</div>
+                <div class="eval-card weakness" th:if="${#lists.isEmpty(weaknesses)}">
+                  <h3>약점 없음</h3>
+                  <p>분석된 약점 데이터가 없습니다.</p>
+                </div>
+                <div class="eval-card weakness" th:each="it : ${weaknesses}">
+                  <h3 th:text="${it.title}">약점 제목</h3>
+                  <p th:text="${it.content}">약점 내용</p>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </section>
+    </div>
+  </body>
+</html>

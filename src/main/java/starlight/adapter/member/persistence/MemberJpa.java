@@ -13,7 +13,6 @@ import starlight.application.backoffice.member.required.dto.BackofficeUserMember
 import starlight.application.backoffice.member.required.dto.BackofficeUserSignupLookupResult;
 import starlight.application.backoffice.order.required.BackofficeOrderMemberLookupPort;
 import starlight.application.backoffice.order.required.dto.BackofficeOrderMemberLookupResult;
-import starlight.application.businessplan.required.MemberLookupPort;
 import starlight.application.member.required.MemberCommandPort;
 import starlight.application.member.required.MemberQueryPort;
 import starlight.domain.member.entity.Member;
@@ -28,7 +27,9 @@ import java.time.LocalDateTime;
 
 @Repository
 @RequiredArgsConstructor
-public class MemberJpa implements MemberQueryPort, MemberCommandPort, MemberLookupPort,
+public class MemberJpa implements MemberQueryPort, MemberCommandPort,
+        starlight.application.businessplan.required.MemberLookupPort,
+        starlight.application.aireport.required.MemberLookupPort,
         BackofficeOrderMemberLookupPort, BackofficeBusinessPlanMemberLookupPort,
         BackofficeUserMemberLookupPort {
 

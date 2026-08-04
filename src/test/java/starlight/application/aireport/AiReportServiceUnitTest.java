@@ -3,14 +3,18 @@ package starlight.application.aireport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.PlatformTransactionManager;
 import starlight.adapter.aireport.report.parser.AiReportResponseParser;
 import starlight.application.aireport.provided.dto.AiReportResult;
 import starlight.application.aireport.required.ReportGraderPort;
 import starlight.application.aireport.required.AiReportQueryPort;
 import starlight.application.aireport.required.AiReportCommandPort;
+import starlight.application.aireport.required.MemberLookupPort;
 import starlight.application.aireport.required.AiReportNotificationPort;
 import starlight.application.aireport.required.OcrProviderPort;
+import starlight.application.aireport.required.AiReportPdfRenderPort;
 import starlight.application.aireport.required.BusinessPlanCommandLookupPort;
 import starlight.application.aireport.required.BusinessPlanQueryLookupPort;
 import starlight.application.aireport.util.BusinessPlanContentExtractor;
@@ -46,8 +50,31 @@ class AiReportServiceUnitTest {
     private final AiReportResponseParser responseParser = new AiReportResponseParser(objectMapper);
     private final BusinessPlanContentExtractor contentExtractor = mock(BusinessPlanContentExtractor.class);
     private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+    private final AiReportPdfRenderPort aiReportPdfRenderPort = mock(AiReportPdfRenderPort.class);
+    private final MemberLookupPort memberLookupPort = mock(MemberLookupPort.class);
+    private final PlatformTransactionManager transactionManager = mock(PlatformTransactionManager.class);
 
     private AiReportService sut;
+
+    @SuppressWarnings("unchecked")
+    private AiReportService createSut() {
+        return new AiReportService(
+                businessPlanCommandLookupPort,
+                businessPlanQueryLookupPort,
+                aiReportQuery,
+                aiReportCommand,
+                aiReportGrader,
+                ocrProvider,
+                aiReportNotificationPort,
+                objectMapper,
+                contentExtractor,
+                eventPublisher,
+                aiReportPdfRenderPort,
+                memberLookupPort,
+                transactionManager,
+                mock(ObjectProvider.class)
+        );
+    }
 
     @Test
     @DisplayName("채점 성공 시 새로운 AiReport를 생성하고 저장한다")
@@ -277,20 +304,5 @@ class AiReportServiceUnitTest {
                 .isInstanceOf(AiReportException.class)
                 .extracting("errorType")
                 .isEqualTo(AiReportErrorType.AI_REPORT_NOT_FOUND);
-    }
-
-    private AiReportService createSut() {
-        return new AiReportService(
-                businessPlanCommandLookupPort,
-                businessPlanQueryLookupPort,
-                aiReportQuery,
-                aiReportCommand,
-                aiReportGrader,
-                ocrProvider,
-                aiReportNotificationPort,
-                objectMapper,
-                contentExtractor,
-                eventPublisher
-        );
     }
 }

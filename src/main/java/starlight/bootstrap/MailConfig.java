@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.util.StringUtils;
 
 import java.util.Properties;
 
@@ -17,21 +18,25 @@ public class MailConfig {
     public JavaMailSender javaMailSender(MailProperties mailProperties) {
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
         sender.setHost(mailProperties.getHost());
-        sender.setPort(mailProperties.getPort());
+        sender.setPort(resolveSmtpPort(mailProperties));
         sender.setUsername(mailProperties.getUsername());
         sender.setPassword(mailProperties.getPassword());
-        sender.setJavaMailProperties(buildJavaMailProps(mailProperties)); // ⬅ 추출된 메서드 사용
+        sender.setJavaMailProperties(buildJavaMailProps(mailProperties));
         return sender;
     }
 
     private Properties buildJavaMailProps(MailProperties mailProperties) {
         Properties props = new Properties();
         props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
 
-        if (mailProperties.getPort() == 465) {
+        boolean smtpAuth = StringUtils.hasText(mailProperties.getUsername())
+                && StringUtils.hasText(mailProperties.getPassword());
+        props.put("mail.smtp.auth", String.valueOf(smtpAuth));
+
+        int port = resolveSmtpPort(mailProperties);
+        if (port == 465) {
             props.put("mail.smtp.ssl.enable", "true");
-        } else {
+        } else if (port == 587) {
             props.put("mail.smtp.starttls.enable", "true");
             props.put("mail.smtp.starttls.required", "true");
         }
@@ -42,5 +47,9 @@ public class MailConfig {
 
         props.putAll(mailProperties.getProperties());
         return props;
+    }
+
+    private int resolveSmtpPort(MailProperties mailProperties) {
+        return mailProperties.getPort() != null ? mailProperties.getPort() : 587;
     }
 }

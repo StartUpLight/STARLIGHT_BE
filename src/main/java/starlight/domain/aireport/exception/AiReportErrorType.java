@@ -15,7 +15,8 @@ public enum AiReportErrorType implements ErrorType {
     AI_RESPONSE_PARSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI 응답 파싱에 실패했습니다."),
     AI_GRADING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI 채점에 실패했습니다."),
     OBJECT_ACL_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "객체 공개 처리에 실패했습니다."),
-    AI_AGENT_DUPLICATED(HttpStatus.INTERNAL_SERVER_ERROR, "AI 리포트 에이전트가 중복입니다.");
+    AI_AGENT_DUPLICATED(HttpStatus.INTERNAL_SERVER_ERROR, "AI 리포트 에이전트가 중복입니다."),
+    EMAIL_SEND_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI 리포트 이메일 전송 중에 오류가 발생했습니다.");
     ;
 
     private final HttpStatus status;

@@ -1,6 +1,6 @@
 package starlight.application.aireport.required;
 
-import starlight.application.aireport.AiReportReadyMailInput;
+import starlight.application.aireport.event.AiReportReadyMailInput;
 
 public interface AiReportMailPort {
 

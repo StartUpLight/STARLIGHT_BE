@@ -2,6 +2,7 @@ package starlight.adapter.shared.infrastructure.mail;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -10,7 +11,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-import starlight.application.aireport.AiReportReadyMailInput;
+import starlight.application.aireport.event.AiReportReadyMailInput;
 import starlight.application.aireport.required.AiReportMailPort;
 import starlight.application.backoffice.mail.provided.dto.input.BackofficeMailSendInput;
 import starlight.application.backoffice.mail.required.BackofficeMailPort;
@@ -19,11 +20,14 @@ import starlight.application.expertApplication.required.FeedbackRequestMailPort;
 import starlight.domain.backoffice.exception.BackofficeErrorType;
 import starlight.domain.backoffice.exception.BackofficeException;
 import starlight.domain.backoffice.mail.BackofficeMailContentType;
+import starlight.domain.aireport.exception.AiReportErrorType;
+import starlight.domain.aireport.exception.AiReportException;
 import starlight.domain.expertApplication.exception.ExpertApplicationErrorType;
 import starlight.domain.expertApplication.exception.ExpertApplicationException;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SmtpMailClient implements BackofficeMailPort,
         FeedbackRequestMailPort,
         AiReportMailPort {
@@ -33,11 +37,6 @@ public class SmtpMailClient implements BackofficeMailPort,
 
     @Value("${spring.mail.username}")
     private String senderEmail;
-
-    public SmtpMailClient(JavaMailSender javaMailSender, SpringTemplateEngine templateEngine) {
-        this.javaMailSender = javaMailSender;
-        this.templateEngine = templateEngine;
-    }
 
     @Override
     public void send(BackofficeMailSendInput input, BackofficeMailContentType contentType) {
@@ -109,11 +108,13 @@ public class SmtpMailClient implements BackofficeMailPort,
             helper.addAttachment(input.filename(), new ByteArrayResource(input.pdfBytes()));
 
             javaMailSender.send(message);
-            log.info("[MAIL] AI 리포트 완료 메일 발송 to={}", input.toEmail());
+            log.info("[MAIL] AI 리포트 완료 메일 발송 to={} attachmentBytes={}", input.toEmail(), input.pdfBytes().length);
         } catch (MessagingException e) {
             log.error("[MAIL] AI 리포트 완료 메일 발송 실패 to={}", input.toEmail(), e);
+            throw new AiReportException(AiReportErrorType.EMAIL_SEND_ERROR, e);
         } catch (Exception e) {
             log.error("[MAIL] AI 리포트 완료 메일 처리 실패 to={}", input.toEmail(), e);
+            throw new AiReportException(AiReportErrorType.EMAIL_SEND_ERROR, e);
         }
     }
 }

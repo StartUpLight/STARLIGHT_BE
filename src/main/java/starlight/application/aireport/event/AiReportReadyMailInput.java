@@ -1,4 +1,4 @@
-package starlight.application.aireport;
+package starlight.application.aireport.event;
 
 /**
  * AI 리포트(PDF) 완료 안내 메일 발송에 필요한 입력.
