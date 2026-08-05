@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import starlight.application.notification.required.NotificationRealtimePort;
-import starlight.application.notification.required.dto.NotificationPublishMessage;
+import starlight.application.notification.required.dto.NotificationRealtimeMessage;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,7 +25,7 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
     private final Map<Long, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
     @Override
-    public SseEmitter subscribe(Long memberId, List<NotificationPublishMessage> missedMessages) {
+    public SseEmitter subscribe(Long memberId, List<NotificationRealtimeMessage> missedMessages) {
         SseEmitter emitter = new SseEmitter(sseTimeoutMs);
         addEmitter(memberId, emitter);
 
@@ -50,7 +50,13 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
     }
 
     @Override
-    public void send(NotificationPublishMessage message) {
+    public boolean hasSubscriber(Long memberId) {
+        List<SseEmitter> memberEmitters = emitters.get(memberId);
+        return memberEmitters != null && !memberEmitters.isEmpty();
+    }
+
+    @Override
+    public void send(NotificationRealtimeMessage message) {
         List<SseEmitter> memberEmitters = emitters.get(message.memberId());
         if (memberEmitters == null || memberEmitters.isEmpty()) {
             return;
@@ -100,9 +106,9 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
     private void sendMissedMessages(
             SseEmitter emitter,
             Long memberId,
-            List<NotificationPublishMessage> missedMessages
+            List<NotificationRealtimeMessage> missedMessages
     ) throws IOException {
-        for (NotificationPublishMessage missedMessage : missedMessages) {
+        for (NotificationRealtimeMessage missedMessage : missedMessages) {
             if (!memberId.equals(missedMessage.memberId())) {
                 continue;
             }
@@ -111,7 +117,7 @@ public class NotificationSseRegistry implements NotificationRealtimePort {
         }
     }
 
-    private SseEmitter.SseEventBuilder createNotificationEvent(NotificationPublishMessage message) {
+    private SseEmitter.SseEventBuilder createNotificationEvent(NotificationRealtimeMessage message) {
         return SseEmitter.event()
                 .id(String.valueOf(message.notificationId()))
                 .name("notification")
